@@ -32,7 +32,3 @@ function Connect-RDC {
         } 
     }
 }
-$vm1 = Get-AzResource -Name $input -ResourceType Microsoft.Compute/virtualMachines
-$VMNIC = Get-AzNetworkInterface -ResourceGroupName $vm1.ResourceGroupName | ?{ $_.VirtualMachine.Id -eq $vm1.ResourceId}  
-$VMPubID = Get-AzPublicIpAddress -ResourceGroupName $vm1.ResourceGroupName | ?{ $_.IpConfiguration.Id -eq $VMNic.IpConfigurations.ID} | select IpAddress 
-mstsc /v:$VMPubID
