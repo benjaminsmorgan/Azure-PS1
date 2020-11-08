@@ -6,7 +6,7 @@
 # $SecretName - actual secret object.name
 # $SecretHash - actual current secret object
 # SecretValueText - plain text of $SecretHash onject
-function FunctionName { # Retrieves a secret and value to provided KeyVault
+function GETAZSECRET { # Retrieves a secret and value to provided KeyVault
     [CmdletBinding()]
     param 
     (
@@ -62,14 +62,14 @@ function FunctionName { # Retrieves a secret and value to provided KeyVault
             $SecretNameInput = Read-Host "Please re-enter the secret name" # Collects new operator entry for $VaultNameInput
             $SecretName = (Get-AzKeyVaultSecret -VaultName $VaultName | Where-Object {$_.Name -eq $SecretNameinput} | Select-Object name) # Pulls secret name if $SecretNameInput completely matches
             if (!$SecretName) { # Checks for a misspelled or unavailable secret from second $SecretNameInput
-                Write-Host "The Secret Name entered is either mi-spelled or is not available"
+                Write-Host "The Secret Name entered is either misspelled or is not available"
                 Break # Terminates Script
             }    
         }
         elseif ($SecretName.Count -gt 1){ # This is a check for multiple responses
             Write-Host "Multiple keys match the keyname entry"
-            $SecretName = $SecretName | Format-Table # Formats all matching secret names into list
-            Write-Host $SecretName # Writes the list of matching secret names
+            $SecretNameList = $SecretName.Name | Format-Table | out-string # Formats all matching secret names into list
+            Write-Host $SecretNameList # Writes the list of matching secret names
             $SecretNameInput = Read-Host "Please re-enter the secret name" # Collects new operator entry for $SecretNameInput 
             $SecretName = (Get-AzKeyVaultSecret -VaultName $VaultName | Where-Object {$_.Name -eq $SecretNameInput} | Select-Object name) # Pulls secret name if $SecretNameInput completely matches
             if (!$SecretName) { # Checks for a misspelled or unavailable secret from second $SecretNameInput
