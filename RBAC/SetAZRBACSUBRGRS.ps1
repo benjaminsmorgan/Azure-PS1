@@ -74,7 +74,7 @@ function FunctionName { # This function is used to create or replace roles for a
             $TargetRGInput = Read-Host "RGName" # Operator input for the resource group name
             $TargetRGObj = Get-AzResourceGroup $TargetRGInput # Resource group object containing the resource
             $TargetRSInput = Read-Host "Resource Name" # Operator input for the resource name
-            $TargetRSObj = Get-AzResource -ResourceGroupName $TargetRGObj.ResourceGroupName -Name $TargetRSInput # Resource group object, rights are assigned and removed  from this
+            $TargetRSObj = Get-AzResource -ResourceGroupName $TargetRGObj.ResourceGroupName -Name $TargetRSInput # Resource object, rights are assigned and removed  from this
             $SubID3 = $SubID+"/resourceGroups/"+$TargetRGObj.ResourceGroupName+"/providers/"+$TargetRSObj.ResourceType+"/"+$TargetRSObj.Name # Azure formatting of the scope at the resource level 
             $ReplaceRoles = Read-Host "Replace current roles at this scope level?" # Operator 1st confirmation to remove current existing roles at the current scope level
             if ($ReplaceRoles -eq "Y" -or $ReplaceRoles -eq "Yes") { # First verification on current role removal for scope
