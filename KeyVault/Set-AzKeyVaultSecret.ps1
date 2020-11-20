@@ -23,8 +23,8 @@ function SETAZKEYVAULTSECRET { # Deploys a new secret and value to provided KeyV
         # Begin secret creation
         $WarningPreference = "silentlyContinue" # Disables KeyVault warnings
         $SecretHash = ConvertTo-SecureString -String $SecretValue -AsPlainText -Force # Converts the user input to secure string
-        $VaultName = (Get-AzKeyVault -Name $VaultNameInput).VaultName # Pulls Keyvault object based off name + wildcard ex: "ABC" will pull "ABC123"
-        if (!$VaultName -or !$SecretHash) {
+        $VaultName = (Get-AzKeyVault -Name $VaultNameInput).VaultName # Pulls Keyvault object based off name
+        if (!$VaultName -or !$SecretHash) { # Check for empty values before attempting to write to azure
             Write-Host "Incorrect info provided"
             Break
         }
