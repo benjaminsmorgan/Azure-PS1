@@ -1,8 +1,35 @@
 function GetAzStorageBlob {
     Begin {
-        $StorageContainer = GetAzStorageContainer
-        Get-AzStorageBlob -Context $StorageContainer.context
+        $StorageAccount = GetAzStorageAccount
+        $StorageContainer = GetAzStorageContainer ($StorageAccount)
+        Write-Host $StorageContainer
+        Write-Host $StorageAccount
+        Write-Host $RGObject
+        Get-AzStorageBlob -Context $StorageAccount.context -Container $StorageContainer.Name
 
+    }
+}
+function GetAzStorageContainer {
+    Begin {
+        $ErrorActionPreference='silentlyContinue'
+        #$StorageAccount = GetAzStorageAccount
+        $StorageContainer = $null
+        while (!$StorageContainer) {
+            $StorageContainerInput = Read-Host "Storage container name"
+            $StorageContainer = Get-AzStorageContainer -Context $StorageAccount.Context -Name $StorageContainerInput
+            if (!$StorageContainer) {
+                Write-Host "The name provided does not match an existing storage container"
+                Write-Host "This is the list of available storage containers"
+                $SCList = Get-AzStorageContainer -Context $StorageAccount.Context  
+                Write-Host ""
+                Write-Host $SCList.Name -Separator `n
+                Write-Host ""
+            }
+            else {
+                Write-host $StorageContainer
+            }
+        }
+        Return $StorageContainer
     }
 }
 function GetAzStorageAccount {
@@ -16,7 +43,10 @@ function GetAzStorageAccount {
             if (!$StorageAccount) {
                 Write-Host "The name provided does not match an existing storage account"
                 Write-Host "This is the list of available storage accounts"
-                Get-AzStorageAccount | Select-Object Storageaccountname | Format-Table
+                $SAList = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName
+                Write-Host ""
+                Write-Host $SAList.Storageaccountname -Separator `n
+                Write-Host ""
             }
             else {
                 $StorageAccount
@@ -35,7 +65,10 @@ function GetAzResourceGroup {
             if (!$RGObject) {
                 Write-Host "The name provided does not match an existing resource group"
                 Write-Host "This is the list of available resource groups"
-                Get-AzResourceGroup | Select-Object ResourceGroupName | Format-Table
+                $RGList = Get-AzResourceGroup
+                Write-Host ""
+                Write-Host $RGList.ResourceGroupName -Separator `n
+                Write-Host ""
             }
             else {
                 $RGObject | Select-Object ResourceGroupName, Tags | Format-Table
