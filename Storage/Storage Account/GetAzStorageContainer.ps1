@@ -1,5 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-# Ref
+# Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+# Ref: https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
+# Ref: https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
 # Depedencies:
 # Function GetAzResourceGroup
 # Funtion GetAzStorageAccount
@@ -30,12 +32,12 @@ function GetAzStorageContainer { # Function to get a storage container, can pipe
                 Write-Host "" # Error reporting
             } # End if statement
             else { # Else for when $StorageContainer is assigned
-                $StorageContainer | Select-Object Name, PublicAccess | Format-Table
+                Write-Host $StorageContainer.Name # Writes the storage account name to the screen before ending function
             } # End of else statement
-        }
-        Return
-    }
-}
+        } # End of while statement
+        Return $StorageContainer # Returns $StorageContainer back to a calling function
+    } # End of begin statement
+} # End of function
 function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccount to another function
     Begin {
         $ErrorActionPreference ='silentlyContinue' # Disables errors
@@ -56,10 +58,10 @@ function GetAzStorageAccount { # Function to get a storage account, can pipe $St
             else { # Else for when $StorageAccount is assigned
                 Write-Host $StorageAccount.StorageAccountName 'Has been assigned to "$StorageAccount"' # Writes the storage account name to the screen before ending function
             } #End else statement
-        }
+        } # End of while statement
         Return $StorageAccount # Returns $StorageAccount back to a calling function
-    }
-}
+    } # End of begin statement
+} # End of function
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function.
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -78,7 +80,7 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
             else { # Else for when $RGObject is assigned
                 Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
             } # End of else statement
-        }
+        } # End of while statement
         Return $RGObject  # Returns the value of $RGObject to a function that called it
-    }
-}
+    } # End of begin statement
+} # End of function

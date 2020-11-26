@@ -1,5 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-# Ref
+# Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 # Depedencies:
 # None
 # /Dependencies
@@ -24,7 +24,7 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
             else { # Else for when $RGObject is assigned
                 Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
             } # End of else statement
-        }
+        } # End of while statement
         Return #$RGObject  # Returns the value of $RGObject to a function that called it
-    }
-}
+    } # End of begin statement
+} # End of function
