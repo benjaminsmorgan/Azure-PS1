@@ -4,7 +4,7 @@
 # Ref: https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
 # Depedencies:
 # Function GetAzResourceGroup
-# Funtion GetAzStorageAccount
+# Function GetAzStorageAccount
 # /Dependencies
 # $RGObject - Resource group object
 # $RGObjectinput - Operator input for the resource group name
