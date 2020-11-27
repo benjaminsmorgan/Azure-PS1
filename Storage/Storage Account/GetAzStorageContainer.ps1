@@ -10,7 +10,7 @@
 # $RGObjectinput - Operator input for the resource group name
 # $RGList - variable used for printing all resource groups to screen if needed
 # $StorageAccount - Storage account object
-# $StorageAccountInput - Operator input for the storage account nameme
+# $StorageAccountInput - Operator input for the storage account name
 # $SAList - variable used for printing all storage accounts to screen if needed 
 # $StorageContainer - Storage container object
 # $StorageContainerInput - Operator input for the storage container name
