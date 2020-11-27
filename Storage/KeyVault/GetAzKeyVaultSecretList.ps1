@@ -12,31 +12,14 @@
 # $KeyVault - KeyVault object
 # $KeyVaultInput - Operator input for the key vault name
 # $KVList - variable used for printing all key vaults to screen if needed 
-# $KeyVaultSecret - Key vault secret object
-# $KeyVaultSecretInput - Operator input for the key vault secret name
-# $KVSList - variable used for printing all key vault secrets to screen if needed 
-function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $KeyVault to another function.
+# $KeyVaultSecretList - Key vault secret objects
+function GetAzKeyVaultSecretList { # Function to get a all secrets in a key vault
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
         $KeyVault = GetAzKeyVault # Calls (Function) GetAzKeyVault to get $KeyVault
-        $KeyVaultSecret = $null # Clears $KeyVaultSecret from all previous use
-        while (!$KeyVaultSecret) { # Loop to continue getting a key vault secret until the operator provided name matches an existing key vault secret
-            $KeyVaultSecretInput = Read-Host "KeyVault secret name" # Operator input for the key vault secret name
-            $KeyVaultSecret = Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName -Name $KeyVaultSecretInput  # Collection of the key vault secret from the operator input
-            if (!$KeyVaultSecret) { # Error reporting if input does not match and existing key vault secret
-                Write-Host "The name provided does not match an existing key vault secret" # Error note
-                Write-Host "This is the list of available key vault secrets" # Error note
-                $KVSList = Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName # Collects all key vault secret objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $KVSList.Name -Separator `n # Write-host used so list is written to screen when function is used as $KeyVaultSecret = GetAzKeyVaultSecret
-                Write-Host "" # Error reporting
-            } # End if statement
-            else { # Else if $KeyVaultSecret is assigned
-                Write-Host $KeyVaultSecret.Name 'Has been assigned to "$KeyVaultSecret"' # Writes the key vault name secret to the screen before ending function 
-            } # End else statement
-        } # End while statement
-        Return $KeyVaultSecret
+        $KeyVaultSecretList = Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName  # Collection of the key vault secret from the operator input
+        $KeyVaultSecretList | Select-Object Name, Enabled, Created | Format-Table # Outputs the name, Enable status, and date created. Can by changed to output other info
     } # End begin statement
 } # End function
 function GetAzKeyVault { # Function to get a key vault, can pipe $KeyVault to another function.

@@ -38,7 +38,7 @@ function GetAzKeyVaultSecretValue { # Function to return the value of a key vaul
 function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $KeyVault to another function.
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $KeyVault = GetAzKeyVault # Calls (Function) GetAzKeyVault to get $KeyValue
+        $KeyVault = GetAzKeyVault # Calls (Function) GetAzKeyVault to get $KeyVault
         $KeyVaultSecret = $null # Clears $KeyVaultSecret from all previous use
         while (!$KeyVaultSecret) { # Loop to continue getting a key vault secret until the operator provided name matches an existing key vault secret
             $KeyVaultSecretInput = Read-Host "KeyVault secret name" # Operator input for the key vault secret name

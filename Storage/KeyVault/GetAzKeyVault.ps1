@@ -1,6 +1,6 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 # Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-# Ref: 
+# Ref: https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
 # Depedencies:
 # Function GetAzResourceGroup
 # /Dependencies
