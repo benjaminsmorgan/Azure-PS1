@@ -8,18 +8,18 @@
 # Function GetAzStorageAccount
 # Function GetAzStorageConainter
 # /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
-# $StorageAccount - Storage account object
-# $StorageAccountInput - Operator input for the storage account nameme
-# $SAList - variable used for printing all storage accounts to screen if needed 
-# $StorageContainer - Storage container object
-# $StorageContainerInput - Operator input for the storage container name
-# $SCList - variable used for printing all storage containers to screen if needed 
-# $SetTier - variable used to set the access tier in azure
-# $LocalFileName - operator input for the path+filename+exe 
-# $BlobFileName - operator input for the name of the file once its uploaded
+# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
+# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
+# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
+# (GetAzStorageAccount, GetAzStorageContainer, SetAzStorageBlobContent) $StorageAccount - Storage account object
+# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
+# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
+# (GetAzStorageContainer, SetAzStorageBlobContent) $StorageContainer - Storage container object
+# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
+# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
+# (SetAzStorageBlobContent) $SetTier - variable used to set the access tier in azure
+# (SetAzStorageBlobContent) $LocalFileName - operator input for the path+filename+exe 
+# (SetAzStorageBlobContent) $BlobFileName - operator input for the name of the file once its uploaded
 Function SetAzStorageBlobContent { # Function to upload a blob (File) into an existing storage container
     Begin {
         $SetTier = $null # Clears $SetTier from all previous use

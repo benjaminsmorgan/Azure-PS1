@@ -6,15 +6,15 @@
 # Function GetAzResourceGroup
 # Function GetAzStorageAccount
 # /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
-# $StorageAccount - Storage account object
-# $StorageAccountInput - Operator input for the storage account name
-# $SAList - variable used for printing all storage accounts to screen if needed 
-# $StorageContainer - Storage container object
-# $StorageContainerInput - Operator input for the storage container name
-# $SCList - variable used for printing all storage containers to screen if needed 
+# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
+# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
+# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
+# (GetAzStorageAccount, GetAzStorageContainer) $StorageAccount - Storage account object
+# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
+# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
+# (GetAzStorageContainer) $StorageContainer - Storage container object
+# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
+# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
 function GetAzStorageContainer { # Function to get a storage container, can pipe $StorageContainer to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors

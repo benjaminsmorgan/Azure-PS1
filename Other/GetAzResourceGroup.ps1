@@ -3,9 +3,9 @@
 # Depedencies:
 # None
 # /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
+# (GetAzResourceGroup) $RGObject - Resource group object
+# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
+# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function.
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors

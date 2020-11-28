@@ -8,19 +8,19 @@
 # Function GetAzStorageAccount
 # Function GetAzStorageConainter
 # /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
-# $StorageAccount - Storage account object
-# $StorageAccountInput - Operator input for the storage account nameme
-# $SAList - variable used for printing all storage accounts to screen if needed 
-# $StorageContainer - Storage container object
-# $StorageContainerInput - Operator input for the storage container name
-# $SCList - variable used for printing all storage containers to screen if needed 
-# $BlobFileName - Storage blob object
-# $BlobFileNameInput -  Operator input for storage blob object
-# $SCBloblist - List of all storage blobs in a container
-# $ConfirmDelete - Operator confirmation for delete
+# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
+# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
+# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
+# (GetAzStorageAccount, GetAzStorageContainer, RemoveAzStorageBlob) $StorageAccount - Storage account object
+# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
+# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
+# (GetAzStorageContainer, RemoveAzStorageBlob) $StorageContainer - Storage container object
+# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
+# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
+# (RemoveAzStorageBlob) $BlobFileName - Storage blob object
+# (RemoveAzStorageBlob) $BlobFileNameInput -  Operator input for storage blob object
+# (RemoveAzStorageBlob) $SCBloblist - List of all storage blobs in a container
+# (RemoveAzStorageBlob) $ConfirmDelete - Operator confirmation for delete
 Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existing storage container
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors
@@ -34,7 +34,7 @@ Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existi
                 Write-Host "This is the list of available storage blobs" # Error reporting
                 $SCBloblist = Get-AzStorageBlob -Context $StorageAccount.context -Container $StorageContainer.Name  # Collects all storage blobs within $StorageContainer and assigns them to $SCBloblist
                 Write-Host "" # Error reporting
-                Write-Host $SCBlobList.Name -Separator `n # Writes all blobs in container to screen
+                Write-Host $SCBlobList.Name -Separator `n # Write-host used so list is written to screen when function is used as a called function
                 Write-Host "" # Error reporting
             } # End if statement
         } # End while statement

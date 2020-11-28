@@ -8,16 +8,17 @@
 # Function GetAzStorageAccount
 # Function GetAzStorageContainer
 # /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
-# $StorageAccount - Storage account object
-# $StorageAccountInput - Operator input for the storage account nameme
-# $SAList - variable used for printing all storage accounts to screen if needed 
-# $StorageContainer - Storage container object
-# $StorageContainerInput - Operator input for the storage container name
-# $SCList - variable used for printing all storage containers to screen if needed 
-# $SCBlobList - Storage container blob info object
+# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
+# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
+# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
+# (GetAzStorageAccount, GetAzStorageContainer, GetAzStorageBlob) $StorageAccount - Storage account object
+# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
+# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
+# (GetAzStorageContainer, GetAzStorageBlob) $StorageContainer - Storage container object
+# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
+# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
+# (GetAzStorageBlob) $SCList - variable used for printing all storage containers to screen if needed 
+# (GetAzStorageBlob) $SCBlobList - Storage container blob info object
 function GetAzStorageBlob { # Gets blob info within a storage container
     Begin {
         $StorageContainer = GetAzStorageContainer # Calls (Function) GetAzStorageContainer, which also calls (Functions) GetAzStorageAccount $ GetAzResourceGroup
