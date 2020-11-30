@@ -6,9 +6,8 @@ Ref: {
     Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
 }
 Required Functions: {
-    GetAzResourceGroup -    Collects resource group object
-    GetAzKeyVault -         Collects key vault object
-    GetAzKeyVaultSecret -   Collects the secret object 
+    GetAzResourceGroup:     Collects resource group object
+    GetAzKeyVault:          Collects key vault object
 }
 Variables: {
     GetAzResourceGroup {
@@ -34,7 +33,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $Ke
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         if (!$KeyVault) { # Check if $KeyVault has an object assigned
-            $KeyVault = GetAzKeyVault # Calls GetAzKeyVault to assign object
+            $KeyVault = GetAzKeyVault # Calls  function GetAzKeyVault to assign $KeyVault
         } # End if statement
         $KeyVaultSecret = $null # Clears $KeyVaultSecret from all previous use
         while (!$KeyVaultSecret) { # Loop to continue getting a key vault secret until the operator provided name matches an existing key vault secret
@@ -60,7 +59,7 @@ function GetAzKeyVault { # Function to get a key vault, can pipe $KeyVault to an
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
         $ErrorActionPreference = 'silentlyContinue' # Disables Errors
         if (!$RGObject) { # Check if $RGObject has an object assigned
-            $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup to assign object
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup to assign $RGObject
         } # End if statement
         $KeyVault = $null # Clears $KeyVault from all previous use
         while (!$KeyVault) { # Loop to continue getting a key vault until the operator provided name matches an existing key vault

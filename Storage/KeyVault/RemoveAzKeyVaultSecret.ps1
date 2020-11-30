@@ -7,9 +7,9 @@ Ref: {
     Remove-AzKeyVaultSecret:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultsecret?view=azps-5.1.0
 }
 Required Functions: {
-    GetAzResourceGroup -    Collects resource group object
-    GetAzKeyVault -         Collects key vault object
-    GetAzKeyVaultSecret -   Collects the secret object 
+    GetAzResourceGroup:     Collects resource group object
+    GetAzKeyVault:          Collects key vault object
+    GetAzKeyVaultSecret:    Collects the secret object
 }
 Variables: {
     GetAzResourceGroup {
