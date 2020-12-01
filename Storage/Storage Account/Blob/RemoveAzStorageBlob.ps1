@@ -1,30 +1,51 @@
-# Benjamin Morgan benjamin.s.morgan@outlook.com 
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.1.0
-# Depedencies:
-# Function GetAzResourceGroup
-# Function GetAzStorageAccount
-# Function GetAzStorageConainter
-# /Dependencies
-# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
-# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
-# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
-# (GetAzStorageAccount, GetAzStorageContainer, RemoveAzStorageBlob) $StorageAccount - Storage account object
-# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
-# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
-# (GetAzStorageContainer, RemoveAzStorageBlob) $StorageContainer - Storage container object
-# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
-# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
-# (RemoveAzStorageBlob) $BlobFileName - Storage blob object
-# (RemoveAzStorageBlob) $BlobFileNameInput -  Operator input for storage blob object
-# (RemoveAzStorageBlob) $SCBloblist - List of all storage blobs in a container
-# (RemoveAzStorageBlob) $ConfirmDelete - Operator confirmation for delete
+<# 
+Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
+Ref: {
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
+    Get-AzureStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
+    Remove-AzStorageBlob:       https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.1.0
+}
+Required Functions: {
+    GetAzResourceGroup:         Collects resource group object
+    GetAzStorageAccount:        Collects the storage account object
+    GetAzStorageContainer:      Collects the storage container object
+}
+Variables: {
+    GetAzResourceGroup {
+        $RGObject - Resource group object
+        $RGObjectinput - Operator input for the resource group name
+        $RGList - variable used for printing all resource groups to screen if needed
+    }
+    GetAzStorageAccount {
+        $RGObject - Resource group object
+        $StorageAccount - Storage account object
+        $StorageAccointInput - Operator input for the sotrage account name
+        $SAList - variable used for printing all storage accounts to screen if needed 
+    }
+    GetAzStorageContainer {
+        $StorageAccount - Storage account object
+        $StorageContainer - Storage container object
+        $StorageContainerInput - Operator input for the storage container name
+        $SCList - variable used for printing all storage containers to screen if needed 
+    }
+    RemoveAzStorageBlob {
+        $BlobFileName - Blob object
+        $BlobFileNameInput - Operator input for blob object
+        $SCBlobList - If needed, outputs all blob objects in a container
+        $StorageAccount - Storage account object
+        $StorageContainer - Storage container object
+    }
+}
+#>
 Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existing storage container
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors
-        $StorageContainer = GetAzStorageContainer # Calls (Function) GetAzStorageContainer, which also calls (Functions) GetAzStorageAccount $ GetAzResourceGroup
+        if (!$StorageContainer) {  # Check to see if container needs to be assigned to $StorageContainer
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
+            $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
+        } # End if statement
         $BlobFileName = $null # Clears $BlobFileName from all previous use
         while (!$BlobFileName) { # Loop to continue getting a storage blob until the operator provided name matches an existing container
             $BlobFileNameInput = Read-Host "Name and ext of the blob to be deleted"  # Operator input of the storage blob name
@@ -52,7 +73,10 @@ Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existi
 function GetAzStorageContainer { # Function to get a storage container, can pipe $StorageContainer to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors
-        $StorageAccount = GetAzStorageAccount # Calls (Function) GetAzStorageAccount, which also calls (Function) GetAzResourceGroup
+        if (!$StorageAccount) { # Check to see if account needs to be assigned to $StorageAccount
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
+        } # End if statement
         $StorageContainer = $null # Clears $StorageContainer from all previous use
         while (!$StorageContainer) { # Loop to continue getting a storage container until the operator provided name matches an existing container
             $StorageContainerInput = Read-Host "Storage container name" # Operator input of the storage container name
@@ -74,10 +98,10 @@ function GetAzStorageContainer { # Function to get a storage container, can pipe
 } # End of function
 function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccount to another function
     Begin {
-        $ErrorActionPreference ='silentlyContinue' # Disables errors
-        if (!$RGObject) {
-        $RGObject = GetAzResourceGroup # Calls (Function) GetAzResourceGroup to get $RGObject
-        }
+        $ErrorActionPreference = 'silentlyContinue' # Disables errors
+        if (!$RGObject) { # Check to see if resource group needs to be assigned to $RGObject
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+        } # End if statement
         $StorageAccount = $null # Clears $StorageAccount from all previous use
         while (!$StorageAccount) { # Loop to continue getting a storage account until the operator provided name matches an existing account
             $StorageAccountInput = Read-Host "Storage account name" # Operator input of the storage account name

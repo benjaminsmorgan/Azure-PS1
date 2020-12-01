@@ -1,25 +1,43 @@
-# Benjamin Morgan benjamin.s.morgan@outlook.com 
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.1.0
-# Depedencies:
-# Function GetAzResourceGroup
-# Function GetAzStorageAccount
-# Function GetAzStorageConainter
-# /Dependencies
-# (GetAzResourceGroup, GetAzStorageAccount) $RGObject - Resource group object
-# (GetAzResourceGroup) $RGObjectinput - Operator input for the resource group name
-# (GetAzResourceGroup) $RGList - variable used for printing all resource groups to screen if needed
-# (GetAzStorageAccount, GetAzStorageContainer, SetAzStorageBlobContent) $StorageAccount - Storage account object
-# (GetAzStorageAccount) $StorageAccountInput - Operator input for the storage account name
-# (GetAzStorageAccount) $SAList - variable used for printing all storage accounts to screen if needed 
-# (GetAzStorageContainer, SetAzStorageBlobContent) $StorageContainer - Storage container object
-# (GetAzStorageContainer) $StorageContainerInput - Operator input for the storage container name
-# (GetAzStorageContainer) $SCList - variable used for printing all storage containers to screen if needed 
-# (SetAzStorageBlobContent) $SetTier - variable used to set the access tier in azure
-# (SetAzStorageBlobContent) $LocalFileName - operator input for the path+filename+exe 
-# (SetAzStorageBlobContent) $BlobFileName - operator input for the name of the file once its uploaded
+<# 
+Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
+Ref: {
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
+    Get-AzureStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
+    Set-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.1.0
+}
+Required Functions: {
+    GetAzResourceGroup:         Collects resource group object
+    GetAzStorageAccount:        Collects the storage account object
+    GetAzStorageContainer:      Collects the storage container object
+}
+Variables: {
+    GetAzResourceGroup {
+        $RGObject - Resource group object
+        $RGObjectinput - Operator input for the resource group name
+        $RGList - variable used for printing all resource groups to screen if needed
+    }
+    GetAzStorageAccount {
+        $RGObject - Resource group object
+        $StorageAccount - Storage account object
+        $StorageAccointInput - Operator input for the sotrage account name
+        $SAList - variable used for printing all storage accounts to screen if needed 
+    }
+    GetAzStorageContainer {
+        $StorageAccount - Storage account object
+        $StorageContainer - Storage container object
+        $StorageContainerInput - Operator input for the storage container name
+        $SCList - variable used for printing all storage containers to screen if needed 
+    }
+    SetAzStorageBlobContent {
+        $SetTier - Operator input for access tier for blobs
+        $LocalFileName - Operator input for current file location, name, and extension
+        $BlobFileName - Operator input for the blob name in Azure
+        $StorageContainer - Storage account object
+        StorageAccount - Storage container object
+    }
+}
+#>
 Function SetAzStorageBlobContent { # Function to upload a blob (File) into an existing storage container
     Begin {
         $SetTier = $null # Clears $SetTier from all previous use
@@ -31,14 +49,21 @@ Function SetAzStorageBlobContent { # Function to upload a blob (File) into an ex
         } # End while statement
         $LocalFileName = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
         $BlobFileName = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
-        $StorageContainer = GetAzStorageContainer # Calls (Function) GetAzStorageContainer, which also calls (Functions) GetAzStorageAccount $ GetAzResourceGroup
+        if (!$StorageContainer) { # Check to see if container needs to be assigned to $StorageContainer
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
+            $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
+        } # End if statment
         Set-AzStorageBlobContent -File $LocalFileName -Blob $BlobFileName -Container $StorageContainer.Name -Context $StorageAccount.Context -StandardBlobTier $SetTier # Uploads the file to azure
     } # End begin statement
 } # End function
 function GetAzStorageContainer { # Function to get a storage container, can pipe $StorageContainer to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors
-        $StorageAccount = GetAzStorageAccount # Calls (Function) GetAzStorageAccount, which also calls (Function) GetAzResourceGroup
+        if (!$StorageAccount) { # Check to see if account needs to be assigned to $StorageAccount
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
+        } # End if statement
         $StorageContainer = $null # Clears $StorageContainer from all previous use
         while (!$StorageContainer) { # Loop to continue getting a storage container until the operator provided name matches an existing container
             $StorageContainerInput = Read-Host "Storage container name" # Operator input of the storage container name
@@ -60,10 +85,10 @@ function GetAzStorageContainer { # Function to get a storage container, can pipe
 } # End of function
 function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccount to another function
     Begin {
-        $ErrorActionPreference ='silentlyContinue' # Disables errors
-        if (!$RGObject) {
-        $RGObject = GetAzResourceGroup # Calls (Function) GetAzResourceGroup to get $RGObject
-        }
+        $ErrorActionPreference = 'silentlyContinue' # Disables errors
+        if (!$RGObject) { # Check to see if resource group needs to be assigned to $RGObject
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+        } # End if statement
         $StorageAccount = $null # Clears $StorageAccount from all previous use
         while (!$StorageAccount) { # Loop to continue getting a storage account until the operator provided name matches an existing account
             $StorageAccountInput = Read-Host "Storage account name" # Operator input of the storage account name
