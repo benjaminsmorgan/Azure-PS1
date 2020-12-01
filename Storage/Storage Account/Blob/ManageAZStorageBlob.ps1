@@ -67,28 +67,28 @@ function ManageAzStorageBlob { # Script for managing storage blobs
         $StorageAccount = $null # Clears any previous use of $StorageAccount
         $StorageContainer = $null # Clears any previous use of $StorageContainer
         while (!$OperatorSelect) { # Loop for script to function
-            Write-Host "'1' Select new container" # Write option to screen
-            Write-Host "'2' GetAzStorageBlob" # Write option list to screen
-            Write-Host "'3' SetAzStorageBlobContent" # Write option list to screen
-            Write-Host "'4' RemoveAzStorageBlob" # Write option list to screen
+            Write-Host "'0' Select new container" # Write option to screen
+            Write-Host "'1' GetAzStorageBlob" # Write option list to screen
+            Write-Host "'2' SetAzStorageBlobContent" # Write option list to screen
+            Write-Host "'3' RemoveAzStorageBlob" # Write option list to screen
             Write-Host "'Exit' to end script" # Write option list to screen
             $OperatorSelect = Read-Host "Chose option" # Operator input for which option they need to run
-            if ($OperatorSelect -eq 1) { # If statment for setting the storage container for multiple uses
+            if ($OperatorSelect -eq '0') { # If statment for setting the storage container for multiple uses
                 $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
                 $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
                 $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
             } # End if statement 
-            elseif ($OperatorSelect -eq '2') { # Elseif statement for getting blob list in storage container
+            elseif ($OperatorSelect -eq '1') { # Elseif statement for getting blob list in storage container
                 Write-Host "***GetAzStorageBlob***" # Option selection write to screen
-                GetAzStorageBlob ($SkipStoreContain, $RGObject, $StorageAccount, $StorageContainer) # Calls function GetAZStorageBlob
+                GetAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer) # Calls function GetAZStorageBlob
             } # End elseif statement
-            elseif ($OperatorSelect -eq '3') { # Elseif statement for uploading a new blob
+            elseif ($OperatorSelect -eq '2') { # Elseif statement for uploading a new blob
                 Write-Host "***SetAzStorageBlobContent***" # Option selection write to screen
-                SetAzStorageBlobContent ($SkipStoreContain, $RGObject, $StorageAccount, $StorageContainer)# Calls function SetAzStorageBlobContent 
+                SetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer)# Calls function SetAzStorageBlobContent 
             } # End elseif statement
-            elseif ($OperatorSelect -eq '4') { # Elseif statment for removing a blob
+            elseif ($OperatorSelect -eq '3') { # Elseif statment for removing a blob
                 Write-Host "***RemoveAzStorageBlob***"  # Option selection write to screen
-                RemoveAzStorageBlob ($SkipStoreContain, $RGObject, $StorageAccount, $StorageContainer)# Calls function RemoveAzStorageBlob
+                RemoveAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer)# Calls function RemoveAzStorageBlob
             } # End elseif statement
             elseif ($OperatorSelect -eq 'exit') { # Elseif statement for ending the srcipt
                 Write-Host "***Terminating Script***" # Option selection write to screen
