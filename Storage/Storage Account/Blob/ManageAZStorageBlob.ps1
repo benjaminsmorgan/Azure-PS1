@@ -41,7 +41,7 @@ Variables: {
         $StorageContainer - Storage container object
         $SCBlobList - Storage container blob info object
     }
-    GetAzStorageBlobConent
+    GetAzStorageBlobContent
         $StorageAccount - Storage account object
         $StorageContainer - Storage container object
         $SCBlobList - Storage container blob info object
