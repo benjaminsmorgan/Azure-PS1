@@ -5,6 +5,7 @@ Ref: {
     Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
     Get-AzureStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
     Get-AzStorageBlob:          https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblob?view=azps-5.1.0
+    Get-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblobcontent?view=azps-5.1.0
     Set-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.1.0
     Remove-AzStorageBlob:       https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.1.0
 }
@@ -13,6 +14,7 @@ Required Functions: {
     GetAzStorageAccount:        Collects the storage account object
     GetAzStorageContainer:      Collects the storage container object
     GetAzStorageBlob:           Collects any blob object
+    GetAzStorageBlobContent:    Downloads blob from storage container
     SetAzStorageBlobContent:    Uploads blobs to a storage container
     RemoveAzStorageBlob:        Removes the listed blob object
 }
@@ -38,6 +40,15 @@ Variables: {
         $StorageAccount - Storage account object
         $StorageContainer - Storage container object
         $SCBlobList - Storage container blob info object
+    }
+    GetAzStorageBlobConent
+        $StorageAccount - Storage account object
+        $StorageContainer - Storage container object
+        $SCBlobList - Storage container blob info object
+        $BlobFileName - Blob object
+        $BlobFileNameInput - Operator input for blob object
+        $LocalFileDownLoadPath - Operator input for blob download location
+        $OperatorSelectAnotherBlob - Operator input for keeping same container and download location
     }
     SetAzStorageBlobContent {
         $SetTier - Operator input for access tier for blobs
@@ -69,8 +80,9 @@ function ManageAzStorageBlob { # Script for managing storage blobs
         while (!$OperatorSelect) { # Loop for script to function
             Write-Host "'0' Select new container" # Write option to screen
             Write-Host "'1' GetAzStorageBlob" # Write option list to screen
-            Write-Host "'2' SetAzStorageBlobContent" # Write option list to screen
-            Write-Host "'3' RemoveAzStorageBlob" # Write option list to screen
+            Write-Host "'2' GetAzStorageBlobContent" # Write option list to screen
+            Write-Host "'3' SetAzStorageBlobContent" # Write option list to screen
+            Write-Host "'4' RemoveAzStorageBlob" # Write option list to screen
             Write-Host "'Exit' to end script" # Write option list to screen
             $OperatorSelect = Read-Host "Chose option" # Operator input for which option they need to run
             if ($OperatorSelect -eq '0') { # If statment for setting the storage container for multiple uses
@@ -82,13 +94,17 @@ function ManageAzStorageBlob { # Script for managing storage blobs
                 Write-Host "***GetAzStorageBlob***" # Option selection write to screen
                 GetAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer) # Calls function GetAZStorageBlob
             } # End elseif statement
-            elseif ($OperatorSelect -eq '2') { # Elseif statement for uploading a new blob
-                Write-Host "***SetAzStorageBlobContent***" # Option selection write to screen
-                SetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer)# Calls function SetAzStorageBlobContent 
+            elseif ($OperatorSelect -eq '2') { # Elseif statement for downloading a blob
+                Write-Host "***GetAzStorageBlobContent***" # Option selection write to screen
+                GetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer) # Calls function GetAzStorageBlobContent 
             } # End elseif statement
-            elseif ($OperatorSelect -eq '3') { # Elseif statment for removing a blob
+            elseif ($OperatorSelect -eq '3') { # Elseif statement for uploading a new blob
+                Write-Host "***SetAzStorageBlobContent***" # Option selection write to screen
+                SetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer) # Calls function SetAzStorageBlobContent 
+            } # End elseif statement
+            elseif ($OperatorSelect -eq '4') { # Elseif statment for removing a blob
                 Write-Host "***RemoveAzStorageBlob***"  # Option selection write to screen
-                RemoveAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer)# Calls function RemoveAzStorageBlob
+                RemoveAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer) # Calls function RemoveAzStorageBlob
             } # End elseif statement
             elseif ($OperatorSelect -eq 'exit') { # Elseif statement for ending the srcipt
                 Write-Host "***Terminating Script***" # Option selection write to screen
@@ -96,8 +112,9 @@ function ManageAzStorageBlob { # Script for managing storage blobs
             } # End elseif statement
             else { # Esle statement for all other values
                 Write-Host "Invalid option" # Option selection write to screen
-                $OperatorSelect = $null # Empties $OperatorSelect to restart operator input selection 
+                #$OperatorSelect = $null # Empties $OperatorSelect to restart operator input selection 
             } # End else statement
+        $OperatorSelect = $null
         } # End while statement
     } # End begin statemnt
 } # End function
@@ -110,6 +127,32 @@ function GetAzStorageBlob () { # Gets blob info within a storage container
         } # End if statement
         $SCBloblist = Get-AzStorageBlob -Context $StorageAccount.context -Container $StorageContainer.Name # Object containing the blob info objects
         $SCBloblist # Prints blob list to screen
+    } # End begin statement
+} # End function
+function GetAzStorageBlobContent { # Downloads a selected blob to a operator specified path
+    Begin {
+        if (!$StorageContainer) { # Check to see if container needs to be assigned to $StorageContainer
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
+            $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
+        } # End if statement
+        $LocalFileDownloadPath = Read-Host "Path to download file to" # Operator input for the destination folder
+        $BlobFileName = $null # Clears $BlobFileName from all previous uses
+        while (!$BlobFileName) { # Loop to continue getting a storage blob until the operator provided name matches an existing blob
+            $BlobFileNameInput = Read-Host "Name of the file" # Operator input for the name of the blob
+            $BlobFileName = Get-AzStorageBlob -Context $StorageAccount.context -Container $StorageContainer.Name -Blob $BlobFileNameInput
+            if (!$BlobFileName) { # Error reporting if input does not match and existing blob
+                $SCBloblist = Get-AzStorageBlob -Context $StorageAccount.context -Container $StorageContainer.Name # Object containing the blob info objects
+                $SCBloblist # Prints blob list to screen
+            } # End if statement
+            else {
+                Get-AzStorageBlobContent -Context $StorageAccount.context -Container $StorageContainer.Name -Blob $BlobFileNameInput -Destination $LocalFileDownloadPath
+                $OperatorSelectAnotherBlob = Read-Host "Download another file" # Operator input to download a file to the same location from the current container
+                if ($OperatorSelectAnotherBlob -eq 'y' -or $OperatorSelectAnotherBlob -eq 'yes') { # Confirmation from $OperatorSelectAnotherBlob
+                    $BlobFileName = $null # Clears $BlobFileName from all previous uses, restarts current while loop once completed
+                } # End if statement
+            } # End else statement
+        } # End while statement
     } # End begin statement
 } # End function
 Function SetAzStorageBlobContent { # Function to upload a blob (File) into an existing storage container
@@ -140,7 +183,7 @@ Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existi
             $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
         } # End if statement
         $BlobFileName = $null # Clears $BlobFileName from all previous use
-        while (!$BlobFileName) { # Loop to continue getting a storage blob until the operator provided name matches an existing container
+        while (!$BlobFileName) { # Loop to continue getting a storage blob until the operator provided name matches an existing blob
             $BlobFileNameInput = Read-Host "Name and ext of the blob to be deleted"  # Operator input of the storage blob name
             $BlobFileName = Get-AzStorageBlob -Blob $BlobFileNameInput -Container $StorageContainer.name -Context $StorageAccount.Context # Collects the blob object using $BlobFileNameInput
             if (!$BlobFileName) { # Error reporting if input does not match and existing blob
