@@ -2,25 +2,37 @@
 Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
 Ref: {
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.1.0
 }
 Required Functions: {
     GetAzResourceGroup:         Collects resource group object
+    GetAzVM:                    Collects the VM information
 }
 Variables: {
+    RDCLocalAdmin {
+        $RGObject - Resource group object
+        $VirtualMachine - Virtual machine object
+        $VirtualMachineNIC - VM network interface object
+        $VirtualMachinePublicIP - Public IP address object attached to $VirtualMachineNIC
+        $PublicIPAddressString - $VirtualMachinePublicIP.IPAdress assigned as a string
+        $ConfirmSelection - Confirm operator input of $UserNameInput
+        $UserNameInput - Operator input for the local admin username 
+        $UserName - Combintation of $UserNameInput and $VirtualMachine
+        $KeyVaultInput - Operator input of the key vault name containing the virtual machine local admin account password
+        $KeyVault - Key vault object containing the virtual machine local admin account password
+        $KVList - List of all key vaults if $KeyVaultInput does not match an existing key vault
+        $Password - Hashed password from key vault   
+    }
+    GetAzVM {
+        $RGObject - Resource group object
+        $VirtualMachineInput - Operator input for the virtual machine object
+        $VirtualMachine - Virtual machine object
+        $VMList - Object containing all virtual machine in listed resource group
+    }
     GetAzResourceGroup {
         $RGObject - Resource group object
         $RGObjectinput - Operator input for the resource group name
         $RGList - variable used for printing all resource groups to screen if needed
-    }
-    RDCLocalAdmin {
-        $RGObject - 
-        $VirtualMachine - 
-    }
-    GetAzVM {
-        $RGObject - 
-        $VirtualMachineInput - 
-        $VirtualMachine - 
-        $VMList - 
     }
     ManageAzureFunction
         $OperatorSelect - Operator input for selecting a management function
@@ -41,25 +53,25 @@ function RDCLocalAdmin {
         while (!$ConfirmSelection) { # While loop to confirm operator input for username     
             $UserNameInput = Read-Host "Local admin username" # Operator input for the local admin username
             $ConfirmSelection = Read-Host $UserNameInput" is correct" # Operator confirmation that the username was typed correctly
-                if (!($ConfirmSelection -eq 'y' -or $ConfirmSelection -eq 'yes')) {
-                    $ConfirmSelection = $null
-                } # End if statement
+            if (!($ConfirmSelection -eq 'y' -or $ConfirmSelection -eq 'yes')) {
+                $ConfirmSelection = $null
+            } # End if statement
         } # End while statment
         $UserName = $PublicIPAddressString+"\"+$UserNameInput # Creates the full local username by merging the IP and operator input ex 192.168.1.1\username
         $KeyVault = $null # Clears $KeyVault from all previous use            
         while (!$KeyVault) { # Loop to continue getting a key vault until the operator provided name matches an existing key vault
             $KeyVaultInput = Read-Host "Keyvault name containing local admin keys"
             $KeyVault = Get-AzKeyVault -VaultName $KeyVaultInput
-                if (!$KeyVault) { # Error reporting if input does not match and existing key vault
+            if (!$KeyVault) { # Error reporting if input does not match and existing key vault
                 Write-Host "The name provided does not match an existing key vault" # Error note
                 Write-Host "This is the list of available key vaults" # Error note
                 $KVList = Get-AzKeyVault # Collects all key vault objects and assigns to a variable
                 Write-Host "" # Error reporting
                 Write-Host $KVList.VaultName -Separator `n # Write-host used so list is written to screen when function is used as $KeyVault = GetAzKeyVault
                 Write-Host "" # Error reporting
-            } # End if statement
+                } # End if statement
             else {
-                $Password = (Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName -Name $VirtualMachine.Name).SecretValueText # Want to redo this
+                $Password = (Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName -Name $VirtualMachine.Name).SecretValueText # Collects keyvault secret value (Hashed)
             } # End else statement
         } # End while statement
         # Exectuting the RDC session
@@ -90,7 +102,29 @@ function GetAzVM {
         Return $VirtualMachine
     } # End begin statment
 } # End function
-function ManageAzureFunction { # Script for managing Azure
+function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function.
+    Begin {
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $RGObject = $null # Clears $RGObject from all previous use
+        while (!$RGObject) { # Loop to continue getting a resource group until the operator provided name matches an existing group
+            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
+            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
+            if (!$RGObject) { # Error reporting if input does not match an existing group
+                Write-Host "The name provided does not match an existing resource group" # Error note
+                Write-Host "This is the list of available resource groups" # Error note
+                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
+                Write-Host "" # Error reporting
+                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
+                Write-Host "" # Error reporting
+            } # End of if statement
+            else { # Else for when $RGObject is assigned
+                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
+            } # End of else statement
+        } # End of while statement
+        Return $RGObject  # Returns the value of $RGObject to a function that called it
+    } # End of begin statement
+} # End of function
+<#function ManageAzureFunction { # Script for managing Azure
     Begin {
         $RGObject = $null # Clears any previous use of $RGObject
         while (!$OperatorSelect) { # Loop for script to function
@@ -125,26 +159,4 @@ function ManageAzureFunction { # Script for managing Azure
             } # End else statement
         } # End while statement
     } # End begin statemnt
-} # End function
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function.
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RGObject = $null # Clears $RGObject from all previous use
-        while (!$RGObject) { # Loop to continue getting a resource group until the operator provided name matches an existing group
-            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
-            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
-            if (!$RGObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource group" # Error note
-                Write-Host "This is the list of available resource groups" # Error note
-                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RGObject is assigned
-                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
-            } # End of else statement
-        } # End of while statement
-        Return $RGObject  # Returns the value of $RGObject to a function that called it
-    } # End of begin statement
-} # End of function
+} # End function #>
