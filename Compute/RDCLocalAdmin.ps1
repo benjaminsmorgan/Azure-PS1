@@ -3,6 +3,9 @@ Author - Benjamin Morgan benjamin.s.morgan@outlook.com
 Ref: {
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.1.0
+    Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.1.0
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.1.0
+    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
 }
 Required Functions: {
     GetAzResourceGroup:         Collects resource group object
@@ -10,35 +13,35 @@ Required Functions: {
 }
 Variables: {
     RDCLocalAdmin {
-        $RGObject - Resource group object
-        $VirtualMachine - Virtual machine object
-        $VirtualMachineNIC - VM network interface object
-        $VirtualMachinePublicIP - Public IP address object attached to $VirtualMachineNIC
-        $PublicIPAddressString - $VirtualMachinePublicIP.IPAdress assigned as a string
-        $ConfirmSelection - Confirm operator input of $UserNameInput
-        $UserNameInput - Operator input for the local admin username 
-        $UserName - Combintation of $UserNameInput and $VirtualMachine
-        $KeyVaultInput - Operator input of the key vault name containing the virtual machine local admin account password
-        $KeyVault - Key vault object containing the virtual machine local admin account password
-        $KVList - List of all key vaults if $KeyVaultInput does not match an existing key vault
-        $Password - Hashed password from key vault   
+        $RGObject:              Resource group object
+        $VirtualMachine:        Virtual machine object
+        $VirtualMachineNIC:     VM network interface object
+        $VirtualMachinePubIP:   Public IP address object attached to $VirtualMachineNIC
+        $PublicIPAddressString: $VirtualMachinePubIP.IPAdress assigned as a string
+        $ConfirmSelection:      Confirm operator input of $UserNameInput
+        $UserNameInput:         Operator input for the local admin username 
+        $UserName:              Combintation of $UserNameInput and $VirtualMachine
+        $KeyVaultInput:         Operator input of the key vault name containing the virtual machine local admin account password
+        $KeyVault:              Key vault object containing the virtual machine local admin account password
+        $KVList:                List of all key vaults if $KeyVaultInput does not match an existing key vault
+        $Password:              Hashed password from key vault   
     }
     GetAzVM {
-        $RGObject - Resource group object
-        $VirtualMachineInput - Operator input for the virtual machine object
-        $VirtualMachine - Virtual machine object
-        $VMList - Object containing all virtual machine in listed resource group
+        $RGObject:              Resource group object
+        $VirtualMachineInput:   Operator input for the virtual machine object
+        $VirtualMachine:        Virtual machine object
+        $VMList:                Object containing all virtual machine in listed resource group
     }
     GetAzResourceGroup {
-        $RGObject - Resource group object
-        $RGObjectinput - Operator input for the resource group name
-        $RGList - variable used for printing all resource groups to screen if needed
+        $RGObject:              Resource group object
+        $RGObjectinput:         Operator input for the resource group name
+        $RGList:                variable used for printing all resource groups to screen if needed
     }
-    ManageAzureFunction
-        $OperatorSelect - Operator input for selecting a management function
+    ManageAzureFunction (Unused)
+        $OperatorSelect:        Operator input for selecting a management function
 }
 #>
-function RDCLocalAdmin {
+function RDCLocalAdmin { # Performs a remote desktop connection to a server hosted in Azure provided a key vault secret exists matches the pc name
     Begin {
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
         $RGObject = GetAzResourceGroup # Calls funciton GetAzResourceGroup and assigns to $RGObject
@@ -46,22 +49,22 @@ function RDCLocalAdmin {
         # Collecting thr public IP address
         $PublicIPAddressString = $null # Clears $PublicIPAddressString from all previous use
         $VirtualMachineNIC = Get-AzNetworkInterface | Where-Object {$_.Id -eq $VirtualMachine.NetworkProfile.NetworkInterfaces[0].Id} # Matches the NIC used by the VM
-        $VirtualMachinePublicIP = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $VirtualMachineNIC.IpConfigurations.PublicIpAddress.id} # Matches the public IP config to the NIC
-        $PublicIPAddressString = $VirtualMachinePublicIP.IpAddress # Converts the public IP address to a string for further use
+        $VirtualMachinePubIP = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $VirtualMachineNIC.IpConfigurations.PublicIpAddress.id} # Matches the public IP config to the NIC
+        $PublicIPAddressString = $VirtualMachinePubIP.IpAddress # Converts the public IP address to a string for further use
         # Collecting the username and password
         $ConfirmSelection = $null # Clears $ConfirmSelection from all previous use
         while (!$ConfirmSelection) { # While loop to confirm operator input for username     
             $UserNameInput = Read-Host "Local admin username" # Operator input for the local admin username
             $ConfirmSelection = Read-Host $UserNameInput" is correct" # Operator confirmation that the username was typed correctly
-            if (!($ConfirmSelection -eq 'y' -or $ConfirmSelection -eq 'yes')) {
-                $ConfirmSelection = $null
+            if (!($ConfirmSelection -eq 'y' -or $ConfirmSelection -eq 'yes')) { # if $ConfirmSelection is not equal to 'y' or 'yes'
+                $ConfirmSelection = $null # Sets $ConfirmSelection back to null to reset the loop
             } # End if statement
         } # End while statment
         $UserName = $PublicIPAddressString+"\"+$UserNameInput # Creates the full local username by merging the IP and operator input ex 192.168.1.1\username
         $KeyVault = $null # Clears $KeyVault from all previous use            
         while (!$KeyVault) { # Loop to continue getting a key vault until the operator provided name matches an existing key vault
             $KeyVaultInput = Read-Host "Keyvault name containing local admin keys"
-            $KeyVault = Get-AzKeyVault -VaultName $KeyVaultInput
+            $KeyVault = Get-AzKeyVault -VaultName $KeyVaultInput # Collects the key vault object from $KeyVaultInput
             if (!$KeyVault) { # Error reporting if input does not match and existing key vault
                 Write-Host "The name provided does not match an existing key vault" # Error note
                 Write-Host "This is the list of available key vaults" # Error note
@@ -70,7 +73,7 @@ function RDCLocalAdmin {
                 Write-Host $KVList.VaultName -Separator `n # Write-host used so list is written to screen when function is used as $KeyVault = GetAzKeyVault
                 Write-Host "" # Error reporting
                 } # End if statement
-            else {
+            else { # Else statement for setting $Password
                 $Password = (Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName -Name $VirtualMachine.Name).SecretValueText # Collects keyvault secret value (Hashed)
             } # End else statement
         } # End while statement
