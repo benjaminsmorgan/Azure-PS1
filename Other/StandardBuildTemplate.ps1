@@ -1,21 +1,20 @@
-<# 
-Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
-Ref: {
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Reference links: {
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-}
-Required Functions: {
+} #>
+<# Required Functions: {
     GetAzResourceGroup:         Collects resource group object
-}
-Variables: {
-    GetAzResourceGroup {
-        $RGObject - Resource group object
-        $RGObjectinput - Operator input for the resource group name
-        $RGList - variable used for printing all resource groups to screen if needed
+} #>
+<# Variables: {
+    ManageAzureFunction {
+        $OperatorSelect:        Operator input for selecting a management function
     }
-    ManageAzureFunction
-        $OperatorSelect - Operator input for selecting a management function
-}
-#>
+    GetAzResourceGroup {
+        $RGObject:              Resource group object
+        $RGObjectinput:         Operator input for the resource group name
+        $RGList:                variable used for printing all resource groups to screen if needed
+    }
+} #>
 function ManageAzureFunction { # Script for managing Azure
     Begin {
         $RGObject = $null # Clears any previous use of $RGObject
@@ -24,31 +23,41 @@ function ManageAzureFunction { # Script for managing Azure
             Write-Host "'1' Option" # Write option list to screen
             Write-Host "'2' Option" # Write option list to screen
             Write-Host "'3' Option" # Write option list to screen
+            Write-Host "'4' Option" # Write option list to screen
+            Write-Host "'5' Option" # Write option list to screen
             Write-Host "'Exit' to end script" # Write option list to screen
             $OperatorSelect = Read-Host "Chose option" # Operator input for which option they need to run
             if ($OperatorSelect -eq '0') { # If statment for Option 0
                 $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
             } # End if statement 
             elseif ($OperatorSelect -eq '1') { # Elseif statement for option 1
-                Write-Host "***Option2***" # Option selection write to screen
+                Write-Host "***Option1***" # Option selection write to screen
                 FunctionX ($RGObject) # Calls functionX
             } # End elseif statement
             elseif ($OperatorSelect -eq '2') { # Elseif statement for option 2
-                Write-Host "***Option3***" # Option selection write to screen
+                Write-Host "***Option2***" # Option selection write to screen
                 FunctionY ($RGObject) # Calls functionY
             } # End elseif statement
             elseif ($OperatorSelect -eq '3') { # Elseif statement for option 3
+                Write-Host "***Option3***" # Option selection write to screen
+                FunctionZ ($RGObject) # Calls functionz
+            } # End elseif 
+            elseif ($OperatorSelect -eq '4') { # Elseif statement for option 4
                 Write-Host "***Option4***" # Option selection write to screen
+                FunctionZ ($RGObject) # Calls functionz
+            } # End elseif statement
+            elseif ($OperatorSelect -eq '5') { # Elseif statement for option 5
+                Write-Host "***Option5***" # Option selection write to screen
                 FunctionZ ($RGObject) # Calls functionz
             } # End elseif statement
             elseif ($OperatorSelect -eq 'exit') { # Elseif statement for ending the srcipt
                 Write-Host "***Terminating Script***" # Option selection write to screen
                 Break # Terminates script
             } # End elseif statement
-            else { # Esle statement for all other values
+            else { # Else statement for all other values
                 Write-Host "Invalid option" # Option selection write to screen
-                $OperatorSelect = $null # Empties $OperatorSelect to restart operator input selection 
             } # End else statement
+            $OperatorSelect = $null # Empties $OperatorSelect to restart operator input selection 
         } # End while statement
     } # End begin statemnt
 } # End function
