@@ -278,3 +278,5 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
         Return $RGObject  # Returns the value of $RGObject to a function that called it
     } # End of begin statement
 } # End of function
+
+

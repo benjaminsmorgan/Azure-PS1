@@ -1,18 +1,35 @@
-# Benjamin Morgan benjamin.s.morgan@outlook.com 
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-# Ref: https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
-# Depedencies:
-# Function GetAzResourceGroup
-# /Dependencies
-# $RGObject - Resource group object
-# $RGObjectinput - Operator input for the resource group name
-# $RGList - variable used for printing all resource groups to screen if needed
-# $KeyVault - KeyVault object
-# $KeyVaultInput - Operator input for the key vault name
-# $KVList - variable used for printing all key vaults to screen if needed 
-# $KeyVaultSecretName - Operator input for the new secret name
-# $KeyVaultSecretValue - Operator input for the new secret value
-# $KeyVaultSecretHash - Hashed value of $KeyVauleSecretValue
+<# 
+Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
+Ref: {
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
+    Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
+    Set-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultsecret?view=azps-5.1.0
+}
+Required Functions: {
+    GetAzResourceGroup:         Collects resource group object
+    GetAzKeyVault:              Collects key vault object
+    GetAzKeyVaultSecret:        Collects the secret object
+}
+Variables: {
+    GetAzResourceGroup {
+        $RGObject:              Resource group object
+        $RGObjectinput:         Operator input for the resource group name
+        $RGList:                variable used for printing all resource groups to screen if needed
+    }
+    GetAzKeyVault {
+        $RGObject:              Resource group object
+        $KeyVault:              KeyVault object
+        $KeyVaultInput:         Operator input for the key vault name
+        $KVList:                variable used for printing all key vaults to screen if needed 
+    }
+    SetAzKeyVaultSecret{
+        $KeyVault:              KeyVault object
+        $KeyVaultSecretName:    Operator input for the new secret name
+        $KeyVaultSecretValue:   Operator input for the new secret value
+        $KeyVaultSecretHash:    $KeyVaultSecretValue converted to secure string
+    }
+#>
 function SetAzKeyVaultSecret { # Creates a new secret and value in existing key vault
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -26,9 +43,11 @@ function SetAzKeyVaultSecret { # Creates a new secret and value in existing key 
 } # End function
 function GetAzKeyVault { # Function to get a key vault, can pipe $KeyVault to another function.
     Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        $RGObject = GetAzResourceGroup # Calls (Function) GetAzResourceGroup to get $RGObject
+        $ErrorActionPreference = 'silentlyContinue' # Disables Errors
+        if (!$RGObject) { # Check if $RGObject has an object assigned
+            $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup to assign object
+        } # End if statement
         $KeyVault = $null # Clears $KeyVault from all previous use
         while (!$KeyVault) { # Loop to continue getting a key vault until the operator provided name matches an existing key vault
             $KeyVaultInput = Read-Host "Key vault name" # Operator input for the key vault name
