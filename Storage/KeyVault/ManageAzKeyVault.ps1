@@ -1,21 +1,20 @@
-<# 
-Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
-Ref: {
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
     Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
     Set-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-5.1.0
     Remove-AzKeyVaultSecret:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultsecret?view=azps-5.1.0
-}
-Required Functions: {
+} #>
+<# Required Functions: { 
     ManageAzKeyVault:           Manages all other function calls
     GetAzResourceGroup:         Collects resource group object
     GetAzKeyVault:              Collects the key vault object
     GetAzKeyVaultSecret:        Collects a secret value
     SetAzKeyVaultSecret:        Creates a new key vault secret and value
     RemoveAzKeyVaultSecret:     Removes an existing key vault secret
-}
-Variables: {
+} #>
+<# Variables: {
     GetAzResourceGroup {
         $RGObject:              Resource group object
         $RGObjectinput:         Operator input for the resource group name
@@ -40,7 +39,12 @@ Variables: {
         $KeyVaultSecret:        Key vault secret object
         $KeyVaultSecretInput:   Operator input for the key vault secret name
         $KVSList:               Variable used for printing all key vault secrets to screen if needed
+        $KVSOperatorConfirm:    Operator confirmation to use passed secret name or to enter a different one
     } 
+    GetAzKeyVaultSecretValue {
+        $KeyVaultSecret:        Key vault secret object
+        $$KeyVaultSecretValue:  Plain text of key vault secret value
+    }
     SetAzKeyVaultSecret{
         $KeyVault:              KeyVault object
         $KeyVaultSecretName:    Operator input for the new secret name
@@ -51,8 +55,7 @@ Variables: {
         $KeyVaultSecret:        Key vault secret object
         $ConfirmDelete:         Operator confirmation for delete
     }
-}
-#>
+} #>
 function ManageAzKeyVault { # Script for managing Azure
     Begin {
         $RGObject = $null # Clears any previous use of $RGObject
@@ -171,7 +174,17 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $Ke
         } # End if statement
         $KeyVaultSecret = $null # Clears $KeyVaultSecret from all previous use
         while (!$KeyVaultSecret) { # Loop to continue getting a key vault secret until the operator provided name matches an existing key vault secret
-            $KeyVaultSecretInput = Read-Host "KeyVault secret name" # Operator input for the key vault secret name
+            if ($KeyVaultSecretInput) { # Check to see if a previous function passed along a secret name
+                $KVSOperatorConfirm = Read-Host "Use" $KeyVaultSecretInput" secret?" # Writes the current value of $KeyVaultSecretInput
+                if ($KVSOperatorConfirm -eq 'y' -or $KVSOperatorConfirm -eq 'yes') { # If statement if the operator wishes to use this secret (Statement makes no action)
+                } # End of if statement
+                else { # Else statement for operator to change $KeyVaultSecretInput
+                    $KeyVaultSecretInput = Read-Host "KeyVault secret name" # Operator input for the key vault secret name
+                } # End else statement
+            }
+            else { # Else statement if $KeyVaultSecretInput is empty because no value was passed, or this is a second loop
+                $KeyVaultSecretInput = Read-Host "KeyVault secret name" # Operator input for the key vault secret name
+            } # End else statement
             $KeyVaultSecret = Get-AzKeyVaultSecret -VaultName $KeyVault.VaultName -Name $KeyVaultSecretInput  # Collection of the key vault secret from the operator input
             if (!$KeyVaultSecret) { # Error reporting if input does not match and existing key vault secret
                 Write-Host "The name provided does not match an existing key vault secret" # Error note
@@ -180,6 +193,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $Ke
                 Write-Host "" # Error reporting
                 Write-Host $KVSList.Name -Separator `n # Write-host used so list is written to screen when function is used as $KeyVaultSecret = GetAzKeyVaultSecret
                 Write-Host "" # Error reporting
+                $KeyVaultSecretInput = $null # Reverts $KeyVaultSecretInput back to $null, used in case passed $KeyVaultSecretInput is not a valid name
             } # End if statement
             else { # Else if $KeyVaultSecret is assigned
                 Write-Host $KeyVaultSecret.Name 'Has been assigned to "$KeyVaultSecret"' # Writes the key vault name secret to the screen before ending function 
@@ -187,6 +201,24 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret can pipe $Ke
         } # End while statement
         Return $KeyVaultSecret
     } # End begin statement
+} # End function
+function GetAzKeyVaultSecretValue { # Function to return the value of a key vault secret
+    Begin {
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        $RGObject = GetAzResourceGroup
+        $KeyVault = GetAzKeyVault($RGObject)
+        $KeyVaultSecret = GetAzKeyVaultSecret ($KeyVault)  # Calls (Function) GetAzKeyVaultSecret to get $KeyVaultSecret
+        $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
+        $ssPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecret.SecretValue) # Provided by MS Azure
+        try { # Provided by MS Azure
+            $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr) # Provided by MS Azure
+        } # Provided by MS Azure
+        finally { # Provided by MS Azure
+            [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ssPtr) # Provided by MS Azure
+        } # Provided by MS Azure
+        Write-Host "The value of"$KeyVaultSecret.Name "is:" $KeyVaultSecretValue # Prints secret name and value to screen
+    } # End begin statement   
 } # End function
 function SetAzKeyVaultSecret { # Creates a new secret and value in existing key vault
     Begin {
