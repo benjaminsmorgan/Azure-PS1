@@ -10,7 +10,7 @@
     GetAzResourceGroup:         Collects resource group object
     RemoveAzResourceGroup:      Removes a resource group object
     GetAzResourceGroupLocksAll: Collects resource locks
-    RemoveAzResourceLock:       Removes resource locks
+    RemoveAzResourceLocksAll:   Removes resource locks passed in $Locks
 } #>
 <# Variables: {
         RemoveAzResourceGroup {
@@ -25,7 +25,7 @@
         $RGObjectInput:         Operator input for the resource group name
         $RGList:                Variable used for printing all resource groups to screen if needed
     }
-    GetAzResourceGroupLocksAll {
+    RemoveAzResourceLocksAll {
         $Locks:                 Lock or locks object
     }
     RemoveAzResourceLock {
@@ -40,6 +40,10 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
         $RGObject = $null # Clears all previous uses of $RGOject
         :SetRG while (!$RGObject) { # Named while loop to collect the resource group object and confirm its deletion
             $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "The RemoveAzResourceGroup function was terminated"
+                Return # Returns to calling function
+            } # End if statement
             Write-Host "|////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\|" # Warning write to screen
             Write-Host "|"$RGObject.ResourceGroupName "will be deleted, this cannot be undone" # Warning write to screen
             Write-Host "| All resource locks will be removed automatically if confirmed |" # Warning write to screen
@@ -53,20 +57,18 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
             } # End if statement
             elseif ($OperatorConfirm -eq 'exit') { # Elseif statement for operator input to end this function
                 $RGObject = $null # Clears $RGObject
-                Write-Host "Terminating Script" # Message write to screen
+                Write-Host "RemoveAzResourceLock function was terminated" # Message write to screen
                 Return # Returns to calling function
             } # End elseif statement
-            else { # Else statement for non-confirm delete or non-exit from operator, clears $RGObject
-                Write-Host "Confirmation declined" # Message write to screen
-                Write-Host "Please enter the resource group name" # Message write to screen
-                $RGObject = $null # Clears $RGObject, restarting named while loop
-            } # End else statement
+            Write-Host "Confirmation declined" # Message write to screen
+            Write-Host "Please enter the resource group name" # Message write to screen
+            $RGObject = $null # Clears $RGObject, restarting named while loop
         } # End while statement
         $Locks = $null # Clears any previous use of $Locks
         $Locks = GetAzResourceGroupLocksAll ($RGObject) # Calls function GetAzResourceLock and assigns to $Locks
         if ($Locks) { # If statement for if function GetAzResourceLock collects any locks and assigns them to $locks
             Write-Host "Removing all locks"... # Message write to screen
-            RemoveAzResourceLock ($RGObject, $Locks) # Calls function RemoveAzResourceLocks
+            RemoveAzResourceLocksAll ($Locks) # Calls function RemoveAzResourceLocksAll
             Write-Host "Locks removed" # Message write to screen
         } # End if statement
         Write-Host $RGObject.ResourceGroupName"is being removed, this may take a while" # Message write to screen
@@ -88,6 +90,10 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
         $RGObject = $null # Clears $RGObject from all previous use
         while (!$RGObject) { # Loop to continue getting a resource group until the operator provided name matches an existing group
             $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
+            if ($RGObjectInput -eq 'exit') { # Operator input for exit
+                Write-Host "GetAzResourceGroup function was terminated"
+                Return # Returns to calling function
+            } # End if statement
             $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
             if (!$RGObject) { # Error reporting if input does not match an existing group
                 Write-Host "The name provided does not match an existing resource group" # Error note
@@ -109,10 +115,15 @@ function GetAzResourceGroupLocksAll { # Function to get all locks assigned to a 
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         if (!$RGObject) { # If statement if $RGObject is $null
             $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceGroupLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if statement
         } # End if statement
         $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName # Collects all locks and assigns to $Locks
         if (!$Locks) { # If statement for no object assigned to $Locks
             Write-Host "No locks are on this resource group" # Write message to screen
+            Write-Host "The GetAzResourceGroupLocksAll function was terminated" # Message write to screen
             Return # Returns to calling function
         } # End if statement
         else { # Else statement for an object being assigned to $Locks
@@ -121,38 +132,8 @@ function GetAzResourceGroupLocksAll { # Function to get all locks assigned to a 
         } # End else statement
     } # End begin statement
 } # End function
-function RemoveAzResourceLock { # Function to remove resource locks
+function RemoveAzResourceLocksAll { # Function to remove resource locks, this must have $Locks passed to it to function. No input validation is done
     Begin {
-        while (!$Locks) { # While statement to get $Locks by calling another function is $Locks is $null
-            Write-Host "'1' Remove all locks on a resource group and its resources" # Write option to screen
-            Write-Host "'2' Remove a named lock on a resource group" # Write option to screen
-            Write-Host "'3' Remove all locks on a resource" # Write option to screen
-            Write-Host "'4' Remove a named lock on a resource" # Write option to screen
-            $OperatorSelect = Read-Host "Enter the number from the list" # Operator input to call function to collect $Locks
-            if ($OperatorSelect -eq '1') { # If statement for option 1
-                Write-Host "**Remove all locks on a resource group and its resources**" # Write message to screen
-                $Locks = GetAzResourceGroupLocksAll # Calls function GetAzResourceGroupLocksAll and assigns to $Locks
-            } # End if statement
-            elseif ($OperatorSelect -eq '2') { # elseif statement for option 2
-                Write-Host "**Remove a named lock on a resource group**" # Write message to screen
-                $Locks = GetAzResourceGroupLock # Calls function GetAzResourceGroupLock and assigns to $Locks
-            } # End elseif statement
-            elseif ($OperatorSelect -eq '3') { # elseif statement for option 3
-                Write-Host "**Remove all locks on a resource**" # Write message to screen
-                $Locks = GetAzResourceLocksAll # Calls function GetAzResourceLocksAll and assigns to $Locks
-            } # End elseif statement
-            elseif ($OperatorSelect -eq '4') { # elseif statement for option 4
-                Write-Host "**Remove a named lock on a resource**" # Write message to screen
-                $Locks = GetAzResourceLock # Calls function GetAzResourceLock and assigns to $Locks
-            } # End elseif statement
-            elseif ($OperatorSelect -eq 'Exit') { # elseif statement for 'Exit'
-                Write-Host "**Terminating Script**" # Write message to screen
-                Return # Returns to calling function
-            } # End elseif statement
-            else { # Else statement for no valid inputs by the operator
-                Write-Host "**That was not a valid selection**" # Write error to screen
-            } # End else statement
-        } # End while statement
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
             $LockId.name # Prints the LockId for each lock as the cycle goes
