@@ -14,7 +14,6 @@
     GetAzResourceGroupLockNamed:Collects a named locks on a resource group
     GetAzResourceLocksAll:      Collects all locks on a resource
     GetAzResourceLockNamed:     Collects a named lock on a resource
-    GetAzResource:              Collects resources within a resource group
 } #>
 <# Variables: {
     RemoveAzResourceLocks {
@@ -24,7 +23,7 @@
         $Locks:                 Lock or locks object
         $OperatorSelect:        Operator input what locks to collect
     }
-    GetAzResourceGroup{
+    GetAzResourceGroup {
         $RGObject:              Resource group object
         $RGObjectInput:         Operator input for the resource group name
         $RGList:                Variable used for printing all resource groups to screen if needed
