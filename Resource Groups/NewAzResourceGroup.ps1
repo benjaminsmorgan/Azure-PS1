@@ -3,7 +3,10 @@
     New-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroup?view=azps-5.1.0
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.1.0
 } #>
-<# Required Functions: {
+<# Required Functions Links: {
+    None
+} #>
+<# Functions Description: {
     NewAzResourceGroup:         Creates a resource group object
 } #>
 <# Variables: {
@@ -21,6 +24,10 @@
         :SetLocation            Named while loop for setting location
     }
 } #>
+<# Process Flow {
+    Function
+        Call NewAzResourceGroup > Get $RGObject
+}#>
 function NewAzResourceGroup { # Function to create a resource group, can pipe $RGObject to another function.
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -78,7 +85,7 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
             } # End else statement
         } # End while statement
         $ErrorActionPreference='Continue' # Turns back on error reporting, used if policy denies creation of a resource groip
-        New-AzResourceGroup -Name $RGObjectInput -Location $Location -Tag $Tag # Creates the resouce group
-        Return # Returns to a function that called it
+        $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location $Location -Tag $Tag # Creates the resouce group and assigns to $RGObject
+        Return $RGObject # Returns to a function that called it
     } # End of begin statement
 } # End of function
