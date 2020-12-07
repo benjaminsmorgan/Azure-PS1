@@ -35,7 +35,7 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                 break SetTag # Ends :SetTag while loop
             } # End if statement
             elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
-                Write-Host "**Terminating script**" # Write to screen that function is ending
+                Write-Host "NewAzResourceGroup function was terminated" # Write to screen that function is ending
                 Return # Ends function and returns to calling function
             } # End elseif statement
             else { # Else statement for all other inputs
@@ -49,7 +49,7 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                 Break SetName # Ends :SetName while loop
             } # End if statement
             elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
-                Write-Host "**Terminating script**" # Write to screen that function is ending
+                Write-Host "NewAzResourceGroup function was terminated" # Write to screen that function is ending
                 Return # Ends function and returns to calling function
             } # End elseif statement
             else { # Else statement for all other inputs
@@ -64,7 +64,7 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                     Break SetLocation # Ends :SetLocation while loop
                 } # End if statement
                 elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
-                    Write-Host "**Terminating script**" # Write to screen that function is ending
+                    Write-Host "NewAzResourceGroup function was terminated" # Write to screen that function is ending
                     Return # Ends function and returns to calling function
                 } # End elseif statment
                 else { # Else statement for all other inputs
