@@ -8,16 +8,18 @@
 } #>
 <# Required Functions Links: {
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzKeyVault:              TBD
-    GetAzKeyVaultSecret:        TBD
-    SetAzKeyVaultSecret:        TBD
-    RemoveAzKeyVaultSecret:     TBD
+    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVault.ps1
+    GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
+    GetAzKeyVaultSecretValue:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecretValue.ps1   
+    SetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/SetAzKeyVaultSecret.ps1
+    RemoveAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/RemoveAzKeyVaultSecret.ps1
 } #>
 <# Functions Descriptions: { 
     ManageAzKeyVaultSecret:    Manages all other function calls
     GetAzResourceGroup:         Collects resource group object
     GetAzKeyVault:              Collects the key vault object
     GetAzKeyVaultSecret:        Collects a secret value
+    GetAzKeyVaultSecretValue:   Write a key vault secret value to screen
     SetAzKeyVaultSecret:        Creates a new key vault secret and value
     RemoveAzKeyVaultSecret:     Removes an existing key vault secret
 } #>
@@ -26,9 +28,6 @@
         $RGObject:              Resource group object
         $RGObjectinput:         Operator input for the resource group name
         $RGList:                variable used for printing all resource groups to screen if needed
-    }
-    ManageAzureFunction {
-        $OperatorSelect:        Operator input for selecting a management function
     }
     GetAzKeyVault {
         $RGObject:              Resource group object
@@ -52,13 +51,13 @@
         $KeyVaultSecret:        Key vault secret object
         $$KeyVaultSecretValue:  Plain text of key vault secret value
     }
-    SetAzKeyVaultSecret{
+    SetAzKeyVaultSecret {
         $KeyVault:              KeyVault object
         $KeyVaultSecretName:    Operator input for the new secret name
         $KeyVaultSecretValue:   Operator input for the new secret value
         $KeyVaultSecretHash:    $KeyVaultSecretValue converted to secure string
     }
-    RemoveAzKeyVaultSecret{
+    RemoveAzKeyVaultSecret {
         $KeyVaultSecret:        Key vault secret object
         $ConfirmDelete:         Operator confirmation for delete
     }
@@ -77,12 +76,14 @@
             Call GetAzKeyVaultSecretValue
                 Call GetAzResourceGroup > Get $RGObject
                 Call GetAzKeyVault > Get $KeyVault
+                Call GetAzKeyVaultSecret > Get $KeyVaultSecret
             Call SetAzKeyVaultSecret
                 Call GetAzResourceGroup > Get $RGObject
                 Call GetAzKeyVault > Get $KeyVault
             Call RemoveAzKeyVaultSecret
                 Call GetAzResourceGroup > Get $RGObject
                 Call GetAzKeyVault > Get $KeyVault
+                Call GetAzKeyVaultSecret > Get $KeyVaultSecret
 }#>
 function ManageAzKeyVaultSecret { # Script for managing Azure
     Begin {
