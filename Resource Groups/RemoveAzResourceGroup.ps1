@@ -10,7 +10,7 @@
     GetAzResourceGroup:         Collects resource group object
     RemoveAzResourceGroup:      Removes a resource group object
     GetAzResourceGroupLocksAll: Collects resource locks
-    RemoveAzResourceLocksAll:   Removes resource locks passed in $Locks
+    RemoveAzResourceLocks:      Removes resource locks passed in $Locks
 } #>
 <# Variables: {
         RemoveAzResourceGroup {
@@ -25,13 +25,12 @@
         $RGObjectInput:         Operator input for the resource group name
         $RGList:                Variable used for printing all resource groups to screen if needed
     }
-    RemoveAzResourceLocksAll {
+    RemoveAzResourceLocks {
         $Locks:                 Lock or locks object
     }
-    RemoveAzResourceLock {
-        $RGObject:              Resource group object
+    RemoveAzResourceLocks {
         $Locks:                 Lock or locks object
-        $OperatorSelect:        Operator input what locks to collect
+        $OperatorConfirm:        Operator input what locks to collect
     }
 } #>
 function RemoveAzResourceGroup { # Function to remove a resource group, includes function to remove all locks. Can be called from another function
@@ -68,7 +67,7 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
         $Locks = GetAzResourceGroupLocksAll ($RGObject) # Calls function GetAzResourceLock and assigns to $Locks
         if ($Locks) { # If statement for if function GetAzResourceLock collects any locks and assigns them to $locks
             Write-Host "Removing all locks"... # Message write to screen
-            RemoveAzResourceLocksAll ($Locks) # Calls function RemoveAzResourceLocksAll
+            RemoveAzResourceLocks ($Locks) # Calls function RemoveAzResourceLocks
             Write-Host "Locks removed" # Message write to screen
         } # End if statement
         Write-Host $RGObject.ResourceGroupName"is being removed, this may take a while" # Message write to screen
@@ -132,12 +131,30 @@ function GetAzResourceGroupLocksAll { # Function to get all locks assigned to a 
         } # End else statement
     } # End begin statement
 } # End function
-function RemoveAzResourceLocksAll { # Function to remove resource locks, this must have $Locks passed to it to function. No input validation is done
+function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
     Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
-            $LockId.name # Prints the LockId for each lock as the cycle goes
-            Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
-        } # End foreach loop
+        if (!$Locks) { # If statement if $Locks is $null
+            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
+            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
+                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+                Return $Locks # Returns to calling function
+            } # End if statement
+        } # End if statement
+        $Locks.Name # Writes all names contained in $Locks
+        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
+        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
+            $Locks = $null # $Locks is set to $null
+            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+            Return $Locks # Return to calling function
+        } # End if statement
+        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
+            $ErrorActionPreference='silentlyContinue' # Disables Errors
+            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
+                $LockId.name # Prints the LockId for each lock as the cycle goes
+                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
+            } # End foreach loop
+            $Locks = $null # Clears $Locks prior to returning to calling function
+            Return $Locks # Returns to calling function
+        } # End else statement
     } # End begin statement
 } # End function
