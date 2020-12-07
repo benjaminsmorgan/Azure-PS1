@@ -3,7 +3,6 @@
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzResource:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-5.1.0
     Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
-    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
 } #>
 <# Required Functions Links: {
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
@@ -64,20 +63,18 @@
     }
 } #>
 <# Process Flow {
-    GetAzResourceLocks              ->          [Call] GetAzResourceGroupLocksAll       ->          [Request] $Locks
-        GetAzResourceGroupLocksAll      ->          [Call] GetAzResourceGroup               ->          [Request] $RGObject
-            GetAzResourceGroupLocksAll      ->          [Return] GetAzResourceLocks              ->          [Return]  $Locks
-    GetAzResourceLocks              ->          [Call] GetAzResourceGroupLocksNamed     ->          [Request] $Locks
-        GetAzResourceGroupLocksNamed    ->          [Call] GetAzResourceGroup               ->          [Request] $RGObject
-            GetAzResourceGroupLocksNamed    ->          [Return] GetAzResourceLocks              ->          [Return]  $Locks
-    GetAzResourceLocks              ->          [Call] GetAzResourceLocksAll            ->          [Request] $Locks
-        GetAzResourceLocksAll           ->          [Call] GetAzResourceGroup               ->          [Request] $RGObject
-            GetAzResourceLocksAll           ->          [Call] GetAzResource                    ->          [Request] $RSObject
-                GetAzResourceLocksAll           ->          [Return] GetAzResourceLocks              ->          [Return]  $Locks
-    GetAzResourceLocks              ->          [Call] GetAzResourceLocksNamed          ->          [Request] $Locks
-        GetAzResourceLocksNamed         ->          [Call] GetAzResourceGroup               ->          [Request] $RGObject
-            GetAzResourceLocksNamed         ->          [Call] GetAzResource                    ->          [Request] $RSObject
-                GetAzResourceLocksNamed         ->          [Return] GetAzResourceLocks              ->          [Return]  $Locks    
+    Function
+        Call GetAzResourceLocks > Get $Locks
+            Call GetAzResourceGroupLocksAll > Get $Locks
+                Call GetAzResourceGroup > Get $RGObject
+            Call GetAzResourceGroupLockNamed > Get $Locks
+                Call GetAzResourceGroup > Get $RGObject
+            Call GetAzResourceLocksAll > Get $Locks
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzResource > Get $RSObject
+            Call GetAzResourceLockNamed > Get $Locks
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzResource > Get $RSObject    
 }#>
 function GetAzResourceLocks { # Function to manage getting resource locks, can pipe $Locks into another function
     Begin {

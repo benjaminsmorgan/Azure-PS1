@@ -5,7 +5,16 @@
     Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
     Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
 } #>
-<# Required Functions: {
+<# Required Functions Links: {
+    GetAzResourceLocks:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocks.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
+    GetAzResourceGroupLocksAll: TBD
+    GetAzResourceGroupLockNamed:TBD
+    GetAzResourceLocksAll:      TBD
+    GetAzResourceLockNamed:     TBD
+} #>
+<# Functions Description: {
     RemoveAzResourceLocks:      Removes locks
     GetAzResourceLocks:         Management function to get different sets of locks
     GetAzResourceGroup:         Collects resource group object
