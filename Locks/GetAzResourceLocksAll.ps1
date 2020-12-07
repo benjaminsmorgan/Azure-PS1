@@ -33,7 +33,7 @@
 } #>
 <# Process Flow {
     Function
-        Call GetAzResourceGroupLocksAll > Get $Locks
+        Call GetAzResourceLocksAll > Get $Locks
             Call GetAzResourceGroup > Get $RGObject
             Call GetAzResource > Get $RSObject
 }#>
