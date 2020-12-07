@@ -2,7 +2,10 @@
 <# Ref: { Mircosoft docs links
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
-<# Required Functions: {
+<# Required Functions Links: {
+    None
+} #>
+<# Functions Description: {
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
