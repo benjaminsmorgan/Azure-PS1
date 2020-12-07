@@ -6,8 +6,15 @@
     Set-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-5.1.0
     Remove-AzKeyVaultSecret:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultsecret?view=azps-5.1.0
 } #>
-<# Required Functions: { 
-    ManageAzKeyVault:           Manages all other function calls
+<# Required Functions Links: {
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzKeyVault:              TBD
+    GetAzKeyVaultSecret:        TBD
+    SetAzKeyVaultSecret:        TBD
+    RemoveAzKeyVaultSecret:     TBD
+} #>
+<# Functions Descriptions: { 
+    ManageAzKeyVaultSecret:    Manages all other function calls
     GetAzResourceGroup:         Collects resource group object
     GetAzKeyVault:              Collects the key vault object
     GetAzKeyVaultSecret:        Collects a secret value
@@ -58,12 +65,26 @@
 } #>
 <# Process Flow {
     Function
-        Call ManageAzKeyVault
+        Call ManageAzKeyVaultSecrets
             Call GetAzResourceGroup > Get $RGObject
             Call GetAzKeyVault > Get $KeyVault
             Call GetAzKeyVaultSecretList
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzKeyVault > Get $KeyVault
+            Call GetAzKeyVaultSecret
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzKeyVault > Get $KeyVault
+            Call GetAzKeyVaultSecretValue
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzKeyVault > Get $KeyVault
+            Call SetAzKeyVaultSecret
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzKeyVault > Get $KeyVault
+            Call RemoveAzKeyVaultSecret
+                Call GetAzResourceGroup > Get $RGObject
+                Call GetAzKeyVault > Get $KeyVault
 }#>
-function ManageAzKeyVault { # Script for managing Azure
+function ManageAzKeyVaultSecret { # Script for managing Azure
     Begin {
         $RGObject = $null # Clears any previous use of $RGObject
         while (!$OperatorSelect) { # Loop for script to function
