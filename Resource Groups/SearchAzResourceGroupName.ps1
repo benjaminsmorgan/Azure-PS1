@@ -11,7 +11,6 @@
 } #>
 <# Variables: {
         SearchAzResourceGroupName {
-        $Endlessloop:           $null value used for the find loops
         $OperatorSearchOption:  Operator input for search option
         $RSObjectInput:         Operator input for the resource name
         $RSObject:              Resource object, used to get $RGObject
@@ -29,8 +28,7 @@
 }#>
 function SearchAzResourceGroupName { # Searchs for resource group using partial name matches on the group name, or a contained resource name
     Begin {
-        $Endlessloop = $null # Sets $Endlessloop to $null
-        :SearchAzureRGByName while(!$Endlessloop) { # :SearchAzureRGByName loop finds a resource group off partial name inputs
+        :SearchAzureRGByName while($true) { # :SearchAzureRGByName loop finds a resource group off partial name inputs
             Write-Host "Resource Group Search By Name" # Write message to screen
             Write-Host "1 Search by resource name" # Write message to screen
             Write-Host "2 Search by group name" # Write message to screen
@@ -39,7 +37,7 @@ function SearchAzResourceGroupName { # Searchs for resource group using partial 
                 Break SearchAzureRGByName # Breaks the SearchAzureRGByName loop
             } # End exit if statement
             elseif ($OperatorSearchOption -eq '1') { # Elseif statement for search by resource name
-                :SearchAzureRSName while (!$Endlessloop) { # :SearchAzureRSName loop finds resource group off partial resource name inputs
+                :SearchAzureRSName while ($true) { # :SearchAzureRSName loop finds resource group off partial resource name inputs
                     Write-Host "Search by resource name" # Write message to screen
                     $RSObjectInput = Read-Host "Parital resource name" # Operator input for $RSObjectInput
                     if ($RSObjectInput -eq 'exit') { # Ends SearchAzureRSName loop if operator types exit
@@ -69,8 +67,8 @@ function SearchAzResourceGroupName { # Searchs for resource group using partial 
                     } # End else statment for no $RSObject value found
                 } # End :SearchAzureRSName loop
             } # End else if statment for $OperatorSearchOption -eq '1'
-            elseif ($OperatorSearchOption -eq '2') {
-                :SearchAzureRGName while (!$Endlessloop) { # :SearchAzureRGName loop finds resource group off partial resource group name inputs
+            elseif ($OperatorSearchOption -eq '2') {  # Elseif statement for search by resource group name
+                :SearchAzureRGName while ($true) { # :SearchAzureRGName loop finds resource group off partial resource group name inputs
                     Write-Host "Search by resource group name" # Write message to screen
                     $RGObjectInput = Read-Host "Parital resource group name" # Operator input for $RGObjectInput
                     if ($RGObjectInput -eq 'exit') { # Ends SearchAzureRGName loop if operator types exit
@@ -98,6 +96,7 @@ function SearchAzResourceGroupName { # Searchs for resource group using partial 
                     } # End else statment for no $RGObject value found
                 } # End :SearchAzureRGName loop
             } # End else if statment for $OperatorSearchOption -eq '2'
-        } # End $SearchAzRGName while statement
+        } # End $SearchAzRGName while statement 
+        Return # Returns to calling function empty if operator has used 'exit' options
     } # End begin statement
 } # End SearchAzResourceGroupName
