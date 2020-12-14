@@ -32,7 +32,7 @@
         Call SearchAzResourceGroupLoc > Get $RGObject
             Return Function > Send $RGObject
 }#>
-function SearchAzResourceGroupLoc { # Searchs for resource group using partial name matches on the group name, or a contained resource name
+function SearchAzResourceGroupLoc { # Searchs for resource group using location matches on the group, or a contained resource
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         $ValidLocation = Get-AzLocation # Collects the list of all valid Azure locations
@@ -126,4 +126,4 @@ function SearchAzResourceGroupLoc { # Searchs for resource group using partial n
         } # End :SearchAzureByLoc while statement 
         Return # Returns to calling function empty if operator has used 'exit' options
     } # End begin statement
-} # End SearchAzResourceGroupName
+} # End SearchAzResourceGroupLoc

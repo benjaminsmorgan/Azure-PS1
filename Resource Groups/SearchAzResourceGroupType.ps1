@@ -8,7 +8,7 @@
     None
 } #>    
 <# Function Description: {
-    SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
+    SearchAzResourceGroupType:  # Searchs for resource group resource provider or type on a resource or resource group
 } #>
 <# Variables: {
         SearchAzResourceGroupType {
@@ -35,10 +35,10 @@
         Call SearchAzResourceGroupType > Get $RGObject
             Return Function > Send $RGObject
 }#>
-function SearchAzResourceGroupType { # Searchs for resource group using partial name matches on the group name, or a contained resource name
+function SearchAzResourceGroupType { # Searchs for resource group resource provider or type on a resource or resource group
     Begin {
         $ProviderList = Get-AzResourceProvider | select-object ProviderNamespace # Collects all current Azure resource provider names
-        :SearchAzureRGByType while($True) { # :SearchAzureRGByName loop finds a resource group off resource providers and types
+        :SearchAzureRGByType while($True) { # :SearchAzureRGByType loop finds a resource group off resource providers and types
             Write-Host "Resource Group Search By Resource Type" # Write message to screen
             Write-Host "1 Search by provider type" # Write message to screen
             Write-Host "2 Search by resource type" # Write message to screen
