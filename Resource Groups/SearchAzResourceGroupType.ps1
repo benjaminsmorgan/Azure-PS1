@@ -184,6 +184,6 @@ function SearchAzResourceGroupType { # Searchs for resource group using partial 
                 } # End :SearchAzureRSType while($True)
             } # End elseif ($OperatorSearchOption -eq '2')
         } # End :SearchAzRGByType while statement
-        Return # Returns to calling function empty handed if operator has used 'exit' options
+        Return # Returns to calling function empty if operator has used 'exit' options
     } # End begin statement
 } # End SearchAzResourceGroupType
