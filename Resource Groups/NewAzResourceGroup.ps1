@@ -63,7 +63,7 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                 $RGObjectInput = $null # Sets $RGObject to $null restsrting while loop
             } # End else statement
         } # End while statement
-        :SetLocation while (!$Location) { # Loop for creating and verifing $Location
+        :SetLocation while ($true) { # Loop for creating and verifing $Location
             $Location = Read-Host "New resource group location" # Operator input for the location
             if ($Location -iin $ValidLocation.Location) { # Validates $Location against $ValidLocation
                 $OperatorConfirm = Read-Host "The new resource group will be located in" $Location # Operator confirmation that the location is correct
@@ -75,12 +75,12 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                     Return # Ends function and returns to calling function
                 } # End elseif statment
                 else { # Else statement for all other inputs
-                    $Location = $null # Sets $Location to $null restsrting while loop
+                    Write-Host "Location was not accepted, requesting location"
                 } # End else statement
             } # End if statement
             else { # Else statement for $Location not matching anything in $ValidLocation
                 Write-Host "The location provided is not valid, please chose from the following" # Error reporting to the screen
-                $ValidLocation.Location # Outputs the valid location lists
+                Write-Host $ValidLocation.Location -Separator `n # Outputs the valid location lists
                 $Location = $null # Sets $Location back to $null
             } # End else statement
         } # End while statement
