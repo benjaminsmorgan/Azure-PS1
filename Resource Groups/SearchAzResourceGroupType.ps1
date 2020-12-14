@@ -8,7 +8,7 @@
     None
 } #>    
 <# Function Description: {
-    SearchAzResourceGroupType:  Searchs for resource group using partial name matches on the group name, or a contained resource name
+    SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
 } #>
 <# Variables: {
         SearchAzResourceGroupType {
