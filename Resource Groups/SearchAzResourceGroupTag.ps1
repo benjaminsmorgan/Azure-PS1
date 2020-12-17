@@ -11,8 +11,9 @@
     SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
 } #>
 <# Variables: {
-        SearchAzResourceGroupName {
-        $ValidTagName:         Object containing all Azure Tags
+    SearchAzResourceGroupTag {
+        $ValidTagName:          Object containing all Azure Tags
+        $ValidTagValue:         Object containing all the $TagNameInput values
         $OperatorSearchOption:  Operator input for search option
         $TagNameInputNameInput: Operator input for the tag name
         $TagNameInputValueInput:Operator input for the tag value
@@ -22,7 +23,7 @@
         $RGObject:              Resource group object, used for all actions
         :SearchAzureRGByTag     Named outer loop for function
         :SearchAzureRSTag       Named middle loop for finding $RGObject using resource Tag
-        :SearchAzureRSTag       Named middle loop for finding $RGObject using resource group Tag
+        :SearchAzureRGTag       Named middle loop for finding $RGObject using resource group Tag
         :SetTagName             Named inner loop for getting and verifying Azure tag name, used in both middle loops
         :SetTagValue            Named inner loop for getting and verifying Azure tag value, used in both middle loops
         :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSTag
