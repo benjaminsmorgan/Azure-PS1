@@ -13,17 +13,18 @@
         $RGObject:              Resource group object
         $RGObjectInput:         Operator input for the resource group name
         $RGList:                Variable used for printing all resource groups to screen if needed
+        :GetAzureResourceGroup  Named loop for getting the resource group object
     }
 } #>
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
         $RGObject = $null # Clears $RGObject from all previous use
-        while (!$RGObject) { # Loop to continue getting a resource group until the operator provided name matches an existing group
+        :GetAzureResourceGroup while ($true) { # Loop to continue getting a resource group until the operator provided name matches an existing group
             $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
             if ($RGObjectInput -eq 'exit') { # Operator input for exit
                 Write-Host "GetAzResourceGroup function was terminated"
-                Return # Returns to calling function
+                Break GetAzureResourceGroup # Ends :GetAzureResourceGroup loop
             } # End if statement
             $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
             if (!$RGObject) { # Error reporting if input does not match an existing group
@@ -36,8 +37,9 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
             } # End of if statement
             else { # Else for when $RGObject is assigned
                 Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
+                Return $RGObject
             } # End of else statement
         } # End of while statement
-        Return $RGObject  # Returns the value of $RGObject to a function that called it
+        Return # Returns to calling function
     } # End of begin statement
 } # End of function
