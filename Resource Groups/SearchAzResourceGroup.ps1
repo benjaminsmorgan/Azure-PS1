@@ -13,6 +13,7 @@
     SearchAzResourceGroupTag:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupTag.ps1
 } #>    
 <# Function Description: {
+    SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
     SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
     SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
     SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
