@@ -128,8 +128,11 @@
             Call SearchAzResourceGroup > Get $RGObject
                 Return RemoveAzResourceGroup > Send $RGObject
             Call GetAzResourceGroupLocksAll > Get $Locks
+                Return RemoveAzResourceGroup > Send $Locks
             Call RemoveAzResourceLocks > Send $Locks
-        Return Function > Send $null
+                Return RemoveAzResourceGroup > Send $Null
+            End Function
+                Return Function > Send $null
 }#>
 function RemoveAzResourceGroup { # Function to remove a resource group, includes function to remove all locks. Can be called from another function
     Begin {
