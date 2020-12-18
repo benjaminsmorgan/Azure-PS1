@@ -138,8 +138,8 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
     Begin {
         :RemoveAzureRGObject while ($true) { # named loop for function
             $ErrorActionPreference='silentlyContinue' # Disables Errors
-            :GetAzureRGObject while ($true) { # Named while loop to collect the resource group object and confirm its deletion
-                if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                :GetAzureRGObject while ($true) { # Named while loop to collect the resource group object and confirm its deletion
                     Write-Host "1 Get resource group by exact name match" # Write message to screen
                     Write-Host "2 Search for resource group" # Write message to screen
                     $OperatorSearchOption = Read-Host "Option?" # Operator input for the type of $RGObject collection
@@ -164,8 +164,8 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
                             Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
                         } # End else (if ($RGObject))
                     } # End elseif ($OperatorSearchOption -eq '2')
-                } # End if statement
-            } # End :GetAzureRGObject while ($true)
+                } # End :GetAzureRGObject while ($true)
+            } # End if (!$RGObject)
             Write-Host "|////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\|" # Warning write to screen
             Write-Host "|"$RGObject.ResourceGroupName "will be deleted, this cannot be undone" # Warning write to screen
             Write-Host "| All resource locks will be removed automatically if confirmed |" # Warning write to screen
@@ -192,9 +192,11 @@ function RemoveAzResourceGroup { # Function to remove a resource group, includes
             $RGObjectVerify = Get-AzResourceGroup -Name $RGObjectName # Collects the resource group using $RGObjectName and assigns to $RGObjectVerify
             if (!$RGObjectVerify) { # If statement for $RGObjectVerify being empty (This is a successful deletion)
                 Write-Host $RGObjectName "has been deleted" # Write message to screen
+                Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
             } # End if (!$RGObjectVerify)
             else { # Else statement for $RGObjectVerify having a value (This is an unsuccessful deletion)
                 Write-Host $RGObjectName "was not deleted, you may not have correct permissions" # Write message to screen
+                Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
             } # End else (if (!$RGObjectVerify))
         } # End :RemoveAzureRGObject while ($True)
         Return # Returns to calling function

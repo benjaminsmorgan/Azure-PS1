@@ -6,6 +6,9 @@
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.2.0
     Get-AzTag:                  https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azTag?view=azps-5.2.0
     New-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroup?view=azps-5.1.0
+    Remove-AzResourceGroup:     https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcegroup?view=azps-5.1.0
+    Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
+    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
 } #>
 <# Required Functions Links: {
     SearchAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroup.ps1
@@ -16,7 +19,9 @@
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     NewAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/NewAzResourceGroup.ps1 
     GetAzResourceGroupResources:TBD        
-    RemoveAzResourceGroup:      
+    RemoveAzResourceGroup:      TBD
+        GetAzResourceGroupLocksAll: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceGroupLocksAll.ps1
+        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1      
 } #>
 <# Functions ManageAZResourceGroup Description: {
     ManageAzResourceGroup:      Manages all functions related to Resource Group objects
@@ -28,7 +33,9 @@
     GetAzResourceGroup:         Gets resource group from full name match
     NewAzResourceGroup:         Creates a resource group object
     ManageAzResourceGroupLocks: Manages all functions related to Lock objects
-    RemoveAzResourceGroup:      
+    RemoveAzResourceGroup:      Removes a resource group object
+        GetAzResourceGroupLocksAll: Collects resource locks
+        RemoveAzResourceLocks:      Removes resource locks passed in $Locks      
 } #>
 <# Variables: {
     ManageAzResourceGroup {
@@ -120,6 +127,23 @@
         :SetName                Named inner loop for setting name
         :SetLocation            Named inner loop for setting location
     }
+    RemoveAzResourceGroup {
+        $RGObject:              Resource group object, used for all actions
+        $RGObjectName:          Name of the resource group object, used only in confirmation
+        $RGObjectVerify:        Resource group object pulled again using $RGObjectName to check if existing
+        $OperatorSearchOption:  Operator input for how to get $RGObject
+        $OperatorConfirm:       Operator confirmation info is correctly input
+        $Locks:                 All lock objects if existing
+        :RemoveAzureRGObject    Named outer loop for running all commands in function
+        :GetAzureRGObject       Named inner loop for setting and confirming the resource group object
+        RemoveAzResourceLocks {
+            $Locks:                 Lock or locks object
+        }
+        RemoveAzResourceLocks {
+            $Locks:                 Lock or locks object
+            $OperatorConfirm:       Operator input what locks to collect
+        }
+    } End RemoveAzResourceGroup
 } #>
 <# Process Flow {
     Function
@@ -129,24 +153,25 @@
                 Call SearchAzResourceGroupType > Get $RGObject
                 Call SearchAzResourceGroupLoc  > Get $RGObject
                 Call SearchAzResourceGroupTag  > Get $RGObject
+                End Function    
                     Return SearchAzResourceGroup > Send $RGObject
                         Return ManageAzResourceGroups > Send $RGObject
             Call GetAzResourceGroup > Get $RGObject
                 Return ManageAzResourceGroup > Send $RGObject
             Call NewAzResourceGroup
                 Return ManageAzResourceGroup > Send $RGObject
-            Call RemoveAzResourceGroup
+            Call RemoveAzResourceGroup > Send $RGObject
                 Call GetAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceGroup > Send $RGObject
+                Call SearchAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceGroup > Send $RGObject
                 Call GetAzResourceGroupLocksAll > Get $Locks
+                    Return RemoveAzResourceGroup > Send $Locks
                 Call RemoveAzResourceLocks > Send $Locks
-            Call ManageAzResource
-                Call GetAzResource
-                Call RemoveAzResource 
-                    Call GetAzResourceGroup > Get $RGObject
-                    Call GetAzResource > Get $RSObject
-                    Call GetAzResourceLocksAll > Get $Locks
-                    Call RemoveAzResourceLocks > Send $Locks
-}#>
+                    Return RemoveAzResourceGroup > Send $Null
+                End Function
+                    Return ManageAzResourceGroups > Send $null
+}#>   
 function ManageAzResourceGroup {
     Begin {
         :ManageAzureRG while($true) {
@@ -180,11 +205,21 @@ function ManageAzResourceGroup {
                 $RGObject
             } # End elseif statement
             elseif ($OperatorSearchOption -eq '4') {
-                Functionnamegohere
+                Write-Host "Remove resource group"
+                RemoveAzResourceGroup ($RGObject)
+                Write-Host "Returned to ManageAzResourceGroup"
             } # End elseif statement
             elseif ($OperatorSearchOption -eq '5') {
                 Functionnamegohere
             } # End elseif statement
+            elseif ($OperatorSearchOption -eq '0') {
+                $RGObject = $null
+                Write-Host '$RGObject has been cleared'
+            }
+            if ($RGOBject) {
+            Write-Host $RGObject.ResourceGroupName "is the currently selected resource group"
+            Write-Host 'Use option "0" to clear $RGOBject'
+            }
             $OperatorSearchOption = $null
         }# End :ManageAzResourceGroup while loop
     } # End begin statement
@@ -878,3 +913,120 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
         Return # Returns to a function that called it
     } # End of begin statement
 } # End of function
+function RemoveAzResourceGroup { # Function to remove a resource group, includes function to remove all locks. Can be called from another function
+    Begin {
+        :RemoveAzureRGObject while ($true) { # named loop for function
+            $ErrorActionPreference='silentlyContinue' # Disables Errors
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                :GetAzureRGObject while ($true) { # Named while loop to collect the resource group object and confirm its deletion
+                    Write-Host "1 Get resource group by exact name match" # Write message to screen
+                    Write-Host "2 Search for resource group" # Write message to screen
+                    $OperatorSearchOption = Read-Host "Option?" # Operator input for the type of $RGObject collection
+                    if ($OperatorSearchOption -eq 'exit') { # If statement to break :RemoveAzureRGObject
+                        Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+                    } # End if ($OperatorSearchOption -eq 'exit')
+                    elseif ($OperatorSearchOption -eq '1') { # else if statement for using the full resource group name
+                        $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+                        if ($RGObject) { # If statement for an object in $RGObject
+                            Break GetAzureRGObject # Breaks :GetAzureRGObject
+                        } # End if ($RGObject)
+                        else { # Else statement for no object in $RGObject
+                            Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+                        } # End else (if ($RGObject))
+                    } # End elseif ($OperatorSearchOption -eq '1')
+                    elseif ($OperatorSearchOption -eq '2') { # else if statement for searching for the resource group
+                        $RGObject = SearchAzResourceGroup # Calls function SearchAzResourceGroup and assigns to $RGObject
+                        if ($RGObject) { # If statement for an object in $RGObject
+                            Break GetAzureRGObject # Breaks :GetAzureRGObject
+                        } # End if ($RGObject)
+                        else { # Else statement for no object in $RGObject
+                            Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+                        } # End else (if ($RGObject))
+                    } # End elseif ($OperatorSearchOption -eq '2')
+                } # End :GetAzureRGObject while ($true)
+            } # End if (!$RGObject)
+            Write-Host "|////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\|" # Warning write to screen
+            Write-Host "|"$RGObject.ResourceGroupName "will be deleted, this cannot be undone" # Warning write to screen
+            Write-Host "| All resource locks will be removed automatically if confirmed |" # Warning write to screen
+            Write-Host "| All resources within the resource group will also be deleted  |" # Warning write to screen
+            Write-Host "| This option can be exited by typing 'Exit'                    |" # Warning write to screen
+            Write-Host "|\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////|" # Warning write to screen
+            $OperatorConfirm = Read-Host "Confirm with 'Y' or 'Yes' (Case Sensitive)" # Operator input on confirming deletion of the resource group
+            $RGObjectName = $RGObject.ResourceGroupName # Collects the name of the resource group for later use
+            if ($OperatorConfirm -ceq "Y" -or $OperatorConfirm -ceq "Yes") { # If statement for operator confirmation on deletion
+                Write-Host "This resource group has been approved for deletion"
+            } # End if ($OperatorConfirm -ceq "Y" -or $OperatorConfirm -ceq "Yes")
+            else { # Elseif statement for operator input to end this function
+                Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+            } # End else (if ($OperatorConfirm -ceq "Y" -or $OperatorConfirm -ceq "Yes"))
+            $Locks = $null # Clears any previous use of $Locks
+            $Locks = GetAzResourceGroupLocksAll ($RGObject) # Calls function GetAzResourceLock and assigns to $Locks
+            if ($Locks) { # If statement for if function GetAzResourceLock collects any locks and assigns them to $locks
+                Write-Host "Removing all locks"... # Message write to screen
+                RemoveAzResourceLocks ($Locks) # Calls function RemoveAzResourceLocks
+                Write-Host "Locks removed" # Message write to screen
+            } # End if ($Locks)
+            Write-Host $RGObject.ResourceGroupName"is being removed, this may take a while" # Message write to screen
+            Remove-AzResourceGroup -Name $RGObject.ResourceGroupName -Force # Removes the resource group assigned to $RGObject, -force removes confirmation
+            $RGObjectVerify = Get-AzResourceGroup -Name $RGObjectName # Collects the resource group using $RGObjectName and assigns to $RGObjectVerify
+            if (!$RGObjectVerify) { # If statement for $RGObjectVerify being empty (This is a successful deletion)
+                Write-Host $RGObjectName "has been deleted" # Write message to screen
+                Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+            } # End if (!$RGObjectVerify)
+            else { # Else statement for $RGObjectVerify having a value (This is an unsuccessful deletion)
+                Write-Host $RGObjectName "was not deleted, you may not have correct permissions" # Write message to screen
+                Break RemoveAzureRGObject # Breaks :RemoveAzureRGObject
+            } # End else (if (!$RGObjectVerify))
+        } # End :RemoveAzureRGObject while ($True)
+        Return # Returns to calling function
+    } # End begin statement
+} # End function
+function GetAzResourceGroupLocksAll { # Function to get all locks assigned to a resource group, can pipe $Locks to another function
+    Begin {
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        if (!$RGObject) { # If statement if $RGObject is $null
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceGroupLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if statement
+        } # End if statement
+        $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName # Collects all locks and assigns to $Locks
+        if (!$Locks) { # If statement for no object assigned to $Locks
+            Write-Host "No locks are on this resource group" # Write message to screen
+            Write-Host "The GetAzResourceGroupLocksAll function was terminated" # Message write to screen
+            Return # Returns to calling function
+        } # End if statement
+        else { # Else statement for an object being assigned to $Locks
+            Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLocksAll
+            Return $Locks # Returns $Locks to the calling function
+        } # End else statement
+    } # End begin statement
+} # End function
+function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
+    Begin {
+        if (!$Locks) { # If statement if $Locks is $null
+            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
+            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
+                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+                Return $Locks # Returns to calling function
+            } # End if statement
+        } # End if statement
+        $Locks.Name # Writes all names contained in $Locks
+        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
+        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
+            $Locks = $null # $Locks is set to $null
+            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+            Return $Locks # Return to calling function
+        } # End if statement
+        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
+            $ErrorActionPreference='silentlyContinue' # Disables Errors
+            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
+                $LockId.name # Prints the LockId for each lock as the cycle goes
+                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
+            } # End foreach loop
+            $Locks = $null # Clears $Locks prior to returning to calling function
+            Return $Locks # Returns to calling function
+        } # End else statement
+    } # End begin statement
+} # End function
