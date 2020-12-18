@@ -14,78 +14,78 @@
 } #>    
 <# Function Description: {
     SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
-    SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
-    SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
-    SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
-    SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
-
+        SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
+        SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
+        SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
+        SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
 } #>
 <# Variables: {
     SearchAzResourceGroup {
         $SearchAzRG:            Operator input for type of search
         :SearchAzureRG          Named loop for selecting search type
     }
-    SearchAzResourceGroupName {
-        $OperatorSearchOption:  Operator input for search option
-        $RSObjectInput:         Operator input for the resource name
-        $RSObject:              Resource object, used to get $RGObject
-        $RGObjectInput:         Operator input for the resource group name
-        $RGObject:              Resource group object, used for all actions
-        :SearchAzureRGByName    Named outer loop for function
-        :SearchAzureRSName      Named inner loop for finding $RGObject using resource name
-        :SearchAzureRGName      Named inner loop for finding $RGObject
-    }
-    SearchAzResourceGroupType {
-        $ProviderList:          List of all available Azure providers, created at function start as takes time to create
-        $OperatorSearchOption:  Operator input for the search type within this function
-        $RPObjectInput:         Operator input for search option
-        $RPObject:              Resource provider object
-        $RPTObjectInput:        Operator input for the resource provider type
-        $RPTObject:             Object for the resource provider type, only used to verify type exists
-        $RPTObjectName:         Combination of $RPObject.ProviderNamespace "/" $RPTObject.ResourceTypeName, used for getting $RSObject
-        $RSObjectInput:         Operator input for the resource name
-        $RSObject:              Resource object, used to get $RGObject
-        $RGObject:              Resource group object, used for all actions
-        :SearchAzureRStype      Named outer loop for function
-        :SearchAzureRSProvider  Named middle loop for getting a resource group by provider name only
-        :SearchAzureRSType      Named middle loop for getting a resource group by provider name plus type
-        :SearchAzureRPName      Named inner loop for getting the provider name, used in both middle loops
-        :GetAzureRPTName        Named inner loop for getting the provider type, used in :SearchAzureRSType only
-        :GetAzureRSObject       Named inner loop for getting the resource object and resource group, used in both middle loops
-    }
-    SearchAzResourceGroupName {
-        $ValidLocation:         Object containing all Azure location names
-        $OperatorSearchOption:  Operator input for search option
-        $Location:              Operator input for the Azure location
-        $RSObjectInput:         Operator input for the resource name
-        $RSObject:              Resource object, used to get $RGObject
-        $RGObjectInput:         Operator input for the resource group name
-        $RGObject:              Resource group object, used for all actions
-        :SearchAzureRGByLoc     Named outer loop for function
-        :SearchAzureRSLoc       Named middle loop for finding $RGObject using resource location
-        :SearchAzureRGLoc       Named middle loop for finding $RGObject using resource group location
-        :SetLocation            Named inner loop for getting and verifying Azure location, used in both middle loops
-        :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSLoc
-        :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGLoc
-    }
-    SearchAzResourceGroupTag {
-        $ValidTagName:          Object containing all Azure Tags
-        $ValidTagValue:         Object containing all the $TagNameInput values
-        $OperatorSearchOption:  Operator input for search option
-        $TagNameInputNameInput: Operator input for the tag name
-        $TagNameInputValueInput:Operator input for the tag value
-        $RSObjectInput:         Operator input for the resource name
-        $RSObject:              Resource object, used to get $RGObject
-        $RGObjectInput:         Operator input for the resource group name
-        $RGObject:              Resource group object, used for all actions
-        :SearchAzureRGByTag     Named outer loop for function
-        :SearchAzureRSTag       Named middle loop for finding $RGObject using resource Tag
-        :SearchAzureRGTag       Named middle loop for finding $RGObject using resource group Tag
-        :SetTagName             Named inner loop for getting and verifying Azure tag name, used in both middle loops
-        :SetTagValue            Named inner loop for getting and verifying Azure tag value, used in both middle loops
-        :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSTag
-        :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGTag
-    }
+        SearchAzResourceGroupName {
+            $OperatorSearchOption:  Operator input for search option
+            $RSObjectInput:         Operator input for the resource name
+            $RSObject:              Resource object, used to get $RGObject
+            $RGObjectInput:         Operator input for the resource group name
+            $RGObject:              Resource group object, used for all actions
+            :SearchAzureRGByName    Named outer loop for function
+            :SearchAzureRSName      Named inner loop for finding $RGObject using resource name
+            :SearchAzureRGName      Named inner loop for finding $RGObject
+        }
+        SearchAzResourceGroupType {
+            $ProviderList:          List of all available Azure providers, created at function start as takes time to create
+            $OperatorSearchOption:  Operator input for the search type within this function
+            $RPObjectInput:         Operator input for search option
+            $RPObject:              Resource provider object
+            $RPTObjectInput:        Operator input for the resource provider type
+            $RPTObject:             Object for the resource provider type, only used to verify type exists
+            $RPTObjectName:         Combination of $RPObject.ProviderNamespace "/" $RPTObject.ResourceTypeName, used for getting $RSObject
+            $RSObjectInput:         Operator input for the resource name
+            $RSObject:              Resource object, used to get $RGObject
+            $RGObject:              Resource group object, used for all actions
+            :SearchAzureRStype      Named outer loop for function
+            :SearchAzureRSProvider  Named middle loop for getting a resource group by provider name only
+            :SearchAzureRSType      Named middle loop for getting a resource group by provider name plus type
+            :SearchAzureRPName      Named inner loop for getting the provider name, used in both middle loops
+            :GetAzureRPTName        Named inner loop for getting the provider type, used in :SearchAzureRSType only
+            :GetAzureRSObject       Named inner loop for getting the resource object and resource group, used in both middle loops
+        }
+        SearchAzResourceGroupName {
+            $ValidLocation:         Object containing all Azure location names
+            $OperatorSearchOption:  Operator input for search option
+            $Location:              Operator input for the Azure location
+            $RSObjectInput:         Operator input for the resource name
+            $RSObject:              Resource object, used to get $RGObject
+            $RGObjectInput:         Operator input for the resource group name
+            $RGObject:              Resource group object, used for all actions
+            :SearchAzureRGByLoc     Named outer loop for function
+            :SearchAzureRSLoc       Named middle loop for finding $RGObject using resource location
+            :SearchAzureRGLoc       Named middle loop for finding $RGObject using resource group location
+            :SetLocation            Named inner loop for getting and verifying Azure location, used in both middle loops
+            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSLoc
+            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGLoc
+        }
+        SearchAzResourceGroupTag {
+            $ValidTagName:          Object containing all Azure Tags
+            $ValidTagValue:         Object containing all the $TagNameInput values
+            $OperatorSearchOption:  Operator input for search option
+            $TagNameInputNameInput: Operator input for the tag name
+            $TagNameInputValueInput:Operator input for the tag value
+            $RSObjectInput:         Operator input for the resource name
+            $RSObject:              Resource object, used to get $RGObject
+            $RGObjectInput:         Operator input for the resource group name
+            $RGObject:              Resource group object, used for all actions
+            :SearchAzureRGByTag     Named outer loop for function
+            :SearchAzureRSTag       Named middle loop for finding $RGObject using resource Tag
+            :SearchAzureRGTag       Named middle loop for finding $RGObject using resource group Tag
+            :SetTagName             Named inner loop for getting and verifying Azure tag name, used in both middle loops
+            :SetTagValue            Named inner loop for getting and verifying Azure tag value, used in both middle loops
+            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSTag
+            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGTag
+        }
+    } # End SearchAzResourceGroup
 } #>
 <# Process Flow {
     Function

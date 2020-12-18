@@ -124,6 +124,7 @@
     Function
         Call RemoveAzResourceGroup > Send $RGObject
             Call GetAzResourceGroup > Get $RGObject
+                Return RemoveAzResourceGroup > Send $RGObject
             Call SearchAzResourceGroup > Get $RGObject
                 Return RemoveAzResourceGroup > Send $RGObject
             Call GetAzResourceGroupLocksAll > Get $Locks
