@@ -21,7 +21,8 @@
     GetAzResourceGroupResources:TBD        
     RemoveAzResourceGroup:      TBD
         GetAzResourceGroupLocksAll: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceGroupLocksAll.ps1
-        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1      
+        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1  
+    ManageAzResourceGroupLocks: TBD    
 } #>
 <# Functions ManageAZResourceGroup Description: {
     ManageAzResourceGroup:      Manages all functions related to Resource Group objects
@@ -210,7 +211,7 @@ function ManageAzResourceGroup {
                 Write-Host "Returned to ManageAzResourceGroup"
             } # End elseif statement
             elseif ($OperatorSearchOption -eq '5') {
-                Functionnamegohere
+                ManageAzResourceGroupLocks
             } # End elseif statement
             elseif ($OperatorSearchOption -eq '0') {
                 $RGObject = $null
@@ -224,41 +225,6 @@ function ManageAzResourceGroup {
         }# End :ManageAzResourceGroup while loop
     } # End begin statement
 } # End function
-function SearchAzResourceGroup {
-    Begin {
-        :SearchAzureRG while(!$SearchAzRG) {
-            Write-Host "Azure Resource Group Search"
-            Write-Host "1 Search by partial name lookup"
-            Write-Host "2 Search by contained resource type"
-            Write-Host "3 Search by resource group location"
-            Write-Host "4 Search by Random"
-            Write-Host "'Exit to return'"
-            $SearchAzRG = Read-Host "Option?"
-            if ($SearchAzRG -eq 'exit') {
-                Break SearchAzureRG
-            } # End if statement
-            elseif ($SearchAzRG -eq '1') {
-                Write-Host "Search by name"
-                $RGObject = SearchAzResourceGroupName
-            } # End elseif statement
-            elseif ($SearchAzRG -eq '2') {
-                Write-Host "Search by type"
-                $RGObject = SearchAzResourceGroupType
-            } # End elseif statement
-            elseif ($SearchAzRG -eq '3') {
-                Write-Host "Option 3"
-            } # End elseif statement
-            elseif ($SearchAzRG -eq '4') {
-                Write-Host "Option 4"
-            } # End elseif statement
-            elseif ($SearchAzRG -eq '5') {
-                Write-Host "Option 5"
-            } # End elseif statement
-            Return $RGObject
-        } # End $SearchAzRG while statement
-        Return
-    } # End begin statement
-} # End SearchAzResourceGroup function
 function SearchAzResourceGroup { # Search for resource group management function
     Begin {
         :SearchAzureRG while($true) { # :SearchAzureRG named loop to select search function
