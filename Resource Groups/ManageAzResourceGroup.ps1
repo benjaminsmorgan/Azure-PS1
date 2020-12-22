@@ -291,7 +291,7 @@ function ManageAzResourceGroup {
             Write-Host "4 Remove Resource Group"
             Write-Host "5 Remove Resource from Group (In dev)"
             Write-Host "6 Manage Resources (In dev)"
-            Write-Host "7 Manage Locks (In dev)"
+            Write-Host "7 Manage Locks"
             Write-Host "8 Manage Tags (In dev)"
             Write-Host "'Exit to return'"
             $OperatorSearchOption = Read-Host "Option?"
