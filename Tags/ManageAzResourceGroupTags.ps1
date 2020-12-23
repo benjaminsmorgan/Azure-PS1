@@ -1,151 +1,193 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AZTag:                  https://docs.microsoft.com/en-us/powershell/module/az.resources/new-aztag?view=azps-5.2.0
     Get-AzTag:                  https://docs.microsoft.com/en-us/powershell/module/az.resources/get-aztag?view=azps-5.2.0
     Update-AzTag:               https://docs.microsoft.com/en-us/powershell/module/az.resources/update-aztag?view=azps-5.2.0             
     Remove-AzTag:               https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-aztag?view=azps-5.2.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzResource:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-5.1.0
-
 } #>
 <# Required Functions Links: {
-    NewAzResourceGroupTag:      TBD
-    NewAzResourceTag:           TBD
-    GetAzResourceTag:           TBD
-    GetAzResourceGroup:         TBD
-    GetAzResource:              TBD
+    SetAzTagPair:               TBD
+    AddAzResourceGroupTag:      TBD
+    AddAzResourceTag:           TBD
+    GetAzResourceGroupTags:     TBD
+    GetAzResourceTags:          TBD
+    RemoveAzResourceGroupTag:   TBD
+    RemoveAzResourceTag:        TBD
+    RemoveAzResourceGroupTags:  TBD
+    RemoveAzResourceTags:       TBD
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
 } #>
 <# Functions Description: {
     ManageAzResourceGroupTags:  Management function for tags functions
     SetAzTagPair:               Create a tag for multiple uses
     NewAzResourceGroupTag:      Create a new resource lock on a resource group
     GetAzResourceGroupLocksTag: Collects tag on a resource group
-    GetAzResourceTag:           Collects tag on a resource
+    GetAzResourceTags:          Collects tag on a resource
     GetAzResourceGroup:         Collects resource group object
     GetAzResource:              Collects resources within a resource group
 } #>
-<# Variables: {
-    ManageAzResourceGroupLocks {
-        $OperatorManageOption:  Operator input for management option
-        $OperatorSelect:        Operator input for clearing $Vars
-        :ManageAzureRGTag       Outer loop for function
-        SetAzTagPair {
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :SetAzureTagPair        Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }
-        NewAzResourceGroupTag {
-            $RGObject:              Resource group object
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :NewAzureRGTag          Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }
-        NewAzResourceTag {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :NewAzureRSTag          Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }
-        GetAzResourceGroupTag {
-            $RGObject:              Resource group object
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :GetAzureRGTag          Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }
-        GetAzResourceTag {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :GetAzureRGTag          Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }
-        RemoveAzResourceTags {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $TagFull:               Tag array
-            $Tags:                  Tag object
-            :GetAzureRGTag          Outer loop for function
-            :GetAzureTagName        Inner loop for getting tag name
-            :GetAzureTagValue       Inner loop for getting tag value
-        }    
-        GetAzResourceGroup {
-            $RGObject:              Resource group object
-            $RGObjectInput:         Operator input for the resource group name
-            $RGList:                Variable used for printing all resource groups to screen if needed
-        }
-            GetAzResource {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name
-            $RSList:                Variable used for printing all resources to screen if needed
-        }
-    } End ManageAzResourceGroupLocks
-} #>
-<# Process Flow { # FIX THIS***************
+<# ManageAzResourceGroupTags { 
+    :ManageAzureRGTag           Outer loop for function
+    $OperatorManageOption:      Operator input for the management function
+    $TagNameInput:              Operator input for the tag name
+    $TagValueInput:             Operator input for the tag value
+    $TagsList:                  Write-Host writable tag name and value list
+    $RGObject:                  Resource group object
+    $RSObject:                  Resource object
+    SetAzTagPair { 
+        :SetAzureTagPair            Outer loop for function
+        :SetAzureTagName            Inner loop for setting the tag name
+        :SetAzureTagValue           Inner loop for setting the tag value
+        $TagNameInput:              Operator input for the tag name
+        $TagValueInput:             Operator input for the tag value 
+        $OperatorConfirm:           Operator confirmation on tag name and value 
+    }  End SetAzTagPair    
+    AddAzResourceGroupTag {
+        :AddAzureRGTag              Outer loop for function
+        :SetAzureTagArray           Inner loop for setting the tag name and value 
+        $RGObject:                  Resource group object
+        $TagNameInput:              Operator input for the tag name
+        $TagValueInput:             Operator input for the tag value
+        $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
+        $TagsList:                  Write-Host writable tag name and value list
+    } End AddAzResourceGroupTag 
+    AddAzResourceTag {
+        :AddAzureRSTag              Outer loop for function
+        :SetAzureTagArray           Inner loop for setting the tag name and value
+        $RGObject:                  Resource group object
+        $RSObject:                  Resource object
+        $TagNameInput:              Operator input for the tag name
+        $TagValueInput:             Operator input for the tag value
+        $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
+        $TagsList:                  Write-Host writable tag name and value list
+    } End AddAzResourceTag
+    GetAzResourceGroupTags { 
+        :GetAzureRGTag              Outer loop for function
+        $RGObject:                  Resource group object
+        $TagsList:                  Write-Host writable tag name and value list
+    } End GetAzResourceGroupTags
+    GetAzResourceTags {
+        :GetAzureRSTag              Outer loop for function
+        $RGObject:                  Resource group object
+        $RSObject:                  Resource object
+        $TagsList:                  Write-Host writable tag name and value list
+    } End GetAzResourceTags    
+    RemoveAzResourceGroupTag { 
+        :RemoveAzureRGTag           Outer loop for function
+        :SetAzureTagArray           Inner loop for setting the tag name and value 
+        $RGObject:                  Resource group object
+        $ValidTagName:              List of all tag names on resource group
+        $TagNameInput:              Operator input for the tag name
+        $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
+        $TagsList:                  Write-Host writable tag name and value list
+    } End RemoveAzResouceGroupTag 
+    RemoveAzResourceTag { 
+        :RemoveAzureRSTag           Outer loop for function
+        :SetAzureTagArray           Inner loop for setting the tag name and value
+        $RGObject:                  Resource group object
+        $RSObject:                  Resource object
+        $ValidTagName:              List of all tag names on resource
+        $TagNameInput:              Operator input for the tag name
+        $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
+        $TagsList:                  Write-Host writable tag name and value list
+    } End RemoveAzResouceTag    
+    RemoveAzResourceGroupTags {
+        :RemoveAzureRGTags          Outer loop for function
+        $RGObject:                  Resource group object
+        $TagsList:                  Write-Host writable tag name and value list
+    } End RemoveAzResourceGroupTags 
+    RemoveAzResourceTags {
+        :RemoveAzureRSTags          Outer loop for function
+        $RGObject:                  Resource group object
+        $RSObject:                  Resource object
+        $TagsList:                  Write-Host writable tag name and value list
+    } End RemoveAzResourceTags
+    GetAzResourceGroup { 
+        :GetAzureResourceGroup      Outer loop for function
+        RGObject:                   Resource group object 
+        RGObjectInput:              Resource group object input
+        RGObject:                   Resource group object
+        $RGList:                    List of all availiable resource groups
+    } End GetAzResourceGroup 
+    GetAzResource { 
+        $RSObject:                  Resource object
+        RGObject:                   Resource group object
+        $RSObjectInput:             Resource object input
+        $RSList:                    List of all availiable resources
+    } End GetAzResource 
+} End ManageAzResourceGroupTags 
+#>
+<# Process Flow {
     Function
-        Call ManageAzResourceGroupLock
-            Call NewAzResourceGroupLock > Get $Locks
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call NewAzResourceLock > Get $Locks 
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceGroupLocksAll > Get $Locks
+        Call ManageAzResourceGroupTags > Send $RGObject, $RSObject
+            Call SetAzTagPair > Get $TagNameInput, $TagValueInput
+                Return ManageAzResourceGroupTags > Send $TagNameInput, $TagValueInput
+            Call AddAzResourceGroupTag > Get $TagList
                 Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceGroupLocksAll > Send $RGObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceGroupLockNamed > Get $Locks
-                Call GetAzResourceGroup > Get RGObject
-                    Return GetAzResourceGroup > Send $RGObject
-                Return ManageAzResourceGroupLock > Send $Locks                
-            Call GetAzResourceLocksAll > Get $Locks
+                    Return AddAzResourceGroupTag > Send $RGObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call AddAzResourceTag > Get $TagList
                 Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceLocksAll > Send $RGObject
+                    Return AddAzResourceTag > Send $RGObject
                 Call GetAzResource > Get $RSObject
-                    Return GetAzResource > Send $RSObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceLockNamed > Get $Locks
+                    Return AddAzResourceTag > Send $RSObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call GetAzResourceGroupTags > Get $TagList
                 Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceLockNamed > Send $RGObject
+                    Return GetAzResourceGroupTags > Send $RGObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call GetAzResourceTags > Get $TagList
+                Call GetAzResourceGroup > Get $RGObject
+                    Return GetAzResourceTags > Send $RGObject
                 Call GetAzResource > Get $RSObject
-                    Return GetAzResourceLockNamed > Send $RSObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call RemoveAzResourceLocks > Send $Locks
-                Return ManageAzResourceGroupLock 
-            End Function
-                Return Function
+                    Return GetAzResourceTags > Send $RSObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call RemoveAzResourceGroupTag > Get $TagList
+                Call GetAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceGroupTag > Send $RGObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call RemoveAzResourceTag  > Get $TagList
+                Call GetAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceTag > Send $RGObject
+                Call GetAzResource > Get $RSObject
+                    Return RemoveAzResourceTag > Send $RSObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call RemoveAzResourceGroupTags > Get $TagList
+                Call GetAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceGroupTags > Send $RGObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            Call RemoveAzResourceTags > Get $TagList
+                Call GetAzResourceGroup > Get $RGObject
+                    Return RemoveAzResourceTags > Send $RGObject
+                Call GetAzResource > Get $RSObject
+                    Return RemoveAzResourceTags > Send $RSObject
+                End function
+                Return ManageAzResourceGroupTags > Send $TagList
+            End ManageAzResourceGroupTags
+                Return Function > Send $null
 }#>
-function ManageAzResourceGroupTags {
+function ManageAzResourceGroupTags { # Management function for tags
     Begin {
         :ManageAzureRGTag while($true) { # :ManageAzureRGTag loop for managing resource group tags 
             Write-Host "Resource Group Tag Management" # Write message to screen
             Write-Host "1 Set Tag Info For Multiple Use" # Write message to screen
-            Write-Host "2 New Resource Group Tag" # Write message to screen
-            Write-Host "3 New Resource Tag" # Write message to screen
-            Write-Host "4 Get Resource Group Tag" # Write message to screen
-            Write-Host "5 Get Resource Tag" # Write message to screen
-            Write-Host "6 Remove Tag" # Write message to screen
+            Write-Host "2 Add Resource Group Tag" # Write message to screen
+            Write-Host "3 Add Resource Tag" # Write message to screen
+            Write-Host "4 Get All Resource Group Tags" # Write message to screen
+            Write-Host "5 Get All Resource Tags" # Write message to screen
+            Write-Host "6 Remove Named Resource Group Tag" # Write message to screen
+            Write-Host "7 Remove Named Resource Tag" # Write message to screen
+            Write-Host "8 Remove All Resource Group Tags" # Write message to screen
+            Write-Host "9 Remove All Resource Tags" # Write message to screen
             Write-Host "'Exit to return'" # Write message to screen
             $OperatorManageOption = Read-Host "Option?" # Operator input to select management function
             if ($OperatorManageOption -eq 'exit') { # If statement for exiting this function
@@ -153,34 +195,48 @@ function ManageAzResourceGroupTags {
             } # End if ($OperatorManageOption -eq 'exit')
             elseif ($OperatorManageOption -eq '1') { # Option for setting tag name and value
                 Write-Host "Set Tag Info For Multiple Use" # Write message to screen
-                $TagNameInput, $TagValueInput = SetAzTagPair # Calls function 
-                $Tags = @{$TagNameInput=$TagValueInput}
+                $TagNameInput, $TagValueInput = SetAzTagPair # Calls function
             } # End elseif ($OperatorManageOption -eq '1')
             elseif ($OperatorManageOption -eq '2') { # Option for new resource group tag
-                Write-Host "New Resource Group Tag" # Write message to screen
-                $Tags = NewAzResourceGroupTag ($Tags) # Calls function and assigns value to $Tags
-                $Tags # For Testing Purposes
+                Write-Host "Add Resource Group Tag" # Write message to screen
+                $TagsList = AddAzResourceGroupTag ($RGObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
             } # End elseif ($OperatorManageOption -eq '2')
             elseif ($OperatorManageOption -eq '3') { # Option for new resource tag
-                Write-Host "New Resource Tag" # Write message to screen
-                $Tags = NewAzResourceTag # Calls function and assigns value to $Tags
-                $Tags # For Testing Purposes
+                Write-Host "Add Resource Tag" # Write message to screen
+                $TagsList = AddAzResourceTag ($RGObject, $RSObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
             } # End elseif ($OperatorManageOption -eq '3')
-            elseif ($OperatorManageOption -eq '4') { # Option to get tag on a resource group
+            elseif ($OperatorManageOption -eq '4') { # Option to get tags a resource group
                 Write-Host "Get Resource Group Tag" # Write message to screen
-                $Tags = GetAzResourceGroupTag # Calls function and assigns value to $Tag
-                $Tags # For Testing Purposes
+                $TagsList = GetAzResourceGroupTags ($RGObject) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
             } # End elseif ($OperatorManageOption -eq '4')
-            elseif ($OperatorManageOption -eq '5') { # Option to get a tag on a resource
+            elseif ($OperatorManageOption -eq '5') { # Option to get tags on a resource
                 Write-Host "Get Resource Tag" # Write message to screen
-                $Tags = GetAzResourceTag # Calls function and assigns value to $Tag
-                $Tags # For Testing Purposes
+                $TagsList = GetAzResourceTags ($RGObject, $RSObject) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
             } # End elseif ($OperatorManageOption -eq '5')
-            elseif ($OperatorManageOption -eq '6') { # Option to remove tag
-                Write-Host "Remove Tag" # Write message to screen
-                RemoveAzResourceTag ($Tags) # Calls function to remove $Tags
-                $Tags # For Testing Purposes
+            elseif ($OperatorManageOption -eq '6') { # Option to remove a named tag on resource group
+                Write-Host "Remove Named Resource Group Tag" # Write message to screen
+                $TagsList = RemoveAzResourceGroupTag ($RGObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
             } # End elseif ($OperatorManageOption -eq '6')
+            elseif ($OperatorManageOption -eq '7') { # Option to remove a named tag on a resource
+                Write-Host "Remove Named Resource Tag" # Write message to screen
+                $TagsList = RemoveAzResourceTag ($RGObject, $RSObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
+            } # End elseif ($OperatorManageOption -eq '7')
+            elseif ($OperatorManageOption -eq '8') { # Option to remove all resource group tags
+                Write-Host "Remove Resource Group Tag" # Write message to screen
+                $TagsList = RemoveAzResourceGroupTags ($RGObject) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
+            } # End elseif ($OperatorManageOption -eq '8')
+            elseif ($OperatorManageOption -eq '9') { # Option to remove all resource tags
+                Write-Host "Remove Resource Tag" # Write message to screen
+                $TagsList = RemoveAzResourceTags ($RGObject, $RSObject) # Calls function and assigns value to $TagsList
+                Write-Host $TagsList # Writes existing tags to screen
+            } # End elseif ($OperatorManageOption -eq '9')
             elseif ($OperatorManageOption -eq '0') { # Option to clear the current $Tags, $RGObject, $RSObject values
                 $OperatorSelect = Read-Host "Tag, RGObject, and/or RSObject" # Operator input for removing a value from $var
                 if ($OperatorSelect -like "*Tag*") { # Option for clearing $TagNameInput
@@ -199,13 +255,8 @@ function ManageAzResourceGroupTags {
             } # End elseif ($OperatorManageOption -eq '0')
             if ($TagNameInput -or $RGObject -or $RSObject) { # If $TagNameInput, $RGObject, or $RSObject object has a value, writes info to screen
                 if ($TagNameInput) { # If $TagsName has a value
-                    if ($TagNameInput -gt 1) { # If $Tags has 2 or more objects
-                        Write-Host $TagNameInput "are the currently selected Tags" # Write message to screen
-                    } # End if ($Tags.count -gt 1)
-                    else { # If $Tags has a single object
                     Write-Host $TagNameInput "is the currently selected Tag" # Write message to screen
-                    } # End else if ($Tags.count -gt 1)
-                } # End if ($Tags)
+                } # End if if ($TagNameInput)
                 if ($RGObject) { # If $RGObject has a value
                     Write-Host $RGObject.ResourceGroupName "is the currently selected resource group" # Write message to screen
                 } # End if ($RGObject)
@@ -219,11 +270,11 @@ function ManageAzResourceGroupTags {
         Return # Returns to calling function, no info is returned
     } # End begin
 } # End function ManageAzResourceGroupTags
-function SetAzTagPair {
+function SetAzTagPair { # Function for setting the tag name and value pair
     Begin {
-        :SetAzureTagPair while ($true) {
-            :SetAzureTagName while ($true) {
-                $TagNameInput = Read-Host "Tag Name"
+        :SetAzureTagPair while ($true) { # :SetAzureTagPairLoop
+            :SetAzureTagName while ($true) { # :SetAzureTagNameLoop
+                $TagNameInput = Read-Host "Tag Name" # Operator input for the tag name
                 if ($TagNameInput -eq 'exit') { # If $TagNameInput equals 'exit'
                     Break SetAzureTagPair # Breaks :SetAzureTagPair loop
                 } # End if ($TagNameInput -eq 'exit')
@@ -232,8 +283,8 @@ function SetAzTagPair {
                     Break SetAzureTagName # Breaks :setAzureTagName
                 } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
             } # End :SetAzureTagName while ($true)
-            :SetAzureTagValue while ($true) {
-                $TagValueInput = Read-Host "Tag Value"
+            :SetAzureTagValue while ($true) { # :SetAzureTagValue loop
+                $TagValueInput = Read-Host "Tag Value" # Operator input for the tag value
                 if ($TagValueInput -eq 'exit') { # If $TagValueInput equals 'exit'
                     Break SetAzureTagPair # Breaks :SetAzureTagPair loop
                 } # End if ($TagVlaueInput -eq 'exit')
@@ -242,285 +293,247 @@ function SetAzTagPair {
                     Break SetAzureTagValue # Breaks :SetAzureTagName
                 } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
             } # End :SetAzureTagValue while ($true)
-            :SetAzureTagArray while ($true) {
-                #$TagsArray = @{$TagNameInput=$TagValueInput}
-                Write-Host "Tag name is:"$TagNameInput
-                Write-Host "Tag value is:"$TagValueInput
-                $OperatorConfirm = Read-Host "Is this correct" # Operator confirmation that the tag entered is correct
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                    Return $TagNameInput, $TagValueInput
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                Break SetAzureTagArray
-            } # End :GetAzureTagArray while ($true)
+            Return $TagNameInput, $TagValueInput # Returns $TagNameInput and $TagValueInput to the calling function
         } # End :SetAzureTagPair while ($true)
-        Return
+        Return # Retruns to calling function with $null
     } # End begin
 } # End function SetAzTagPair
-
-function NewAzResourceGroupTag { # Function to create a new resource lock on a resource
+function AddAzResourceGroupTag { # Function to add a new tag to a resource group
     Begin {
-        :NewAzureRGTag while ($true) { # :NewAzureRGTag loop for creating a new resource group lock
+        :AddAzureRGTag while ($true) { # :AddAzureRGTag loop for adding a new tag on a resource group
             if (!$RGObject) { # If $RGObject is $null
                 $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
                 if (!$RGObject) { # If called function returns empty
-                    Break NewAzureRGTag # Breaks :NewAzureRGTag loop
+                    Break AddAzureRGTag # Breaks :AddAzureRSTag loop
                 } # End if (!$RGObject)
             } # End if (!$RGObject)
-            if (!$Tags) {
-                :SetAzureTagName while ($true) { # :GetAzureTagName loop for setting the tag name
-                    $TagNameInput = Read-Host "Tag Name"
-                    if ($TagNameInput -eq 'exit') { # If $TagNameInput equals 'exit'
-                        Break SetAzureTagPair # Breaks :SetAzureTagPair loop
-                    } # End if ($TagNameInput -eq 'exit')
-                    $OperatorConfirm = Read-Host $TagNameInput "is correct" # Operator confirmation that the name entered is correct
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureTagName # Breaks :setAzureTagName
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                } # End :SetAzureTagName while ($true)
-                :SetAzureTagValue while ($true) { # :GetAzureTagValue loop for setting lock level
-                    $TagValueInput = Read-Host "Tag Value"
-                    if ($TagValueInput -eq 'exit') { # If $TagValueInput equals 'exit'
-                        Break SetAzureTagPair # Breaks :SetAzureTagPair loop
-                    } # End if ($TagVlaueInput -eq 'exit')
-                    $OperatorConfirm = Read-Host $TagValueInput "is correct" # Operator confirmation that the value entered is correct
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureTagValue # Breaks :SetAzureTagName
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                } # End :SetAzureTagValue while ($true)
-                :SetAzureTagArray while ($true) {
-                    $Tags = @{$TagNameInput=$TagValueInput}
-                    Write-Host "Tag name is:"$TagNameInput
-                    Write-Host "Tag value is:"$TagValueInput
-                    $OperatorConfirm = Read-Host "Is this correct" # Operator confirmation that the tag entered is correct
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                    Break SetAzureTagArray
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetAzureTagValue while($true)
-                Update-AzTag -ResourceID $RGObject.ResourceID -Operation Merge -Tag $Tags
-                #Return  # Returns $Locks to calling function
-            } # End else (if ($OperatorSelect -eq "y" -or $OperatorSelect -eq 'yes'))
-        } # End :NewAzureRGTag while ($true) {
-        Return
+            if (!$TagNameInput) { # If $TagNameInput is $null
+                :SetAzureTagArray while ($true) { # :SetAzureTagArray loop
+                    $TagNameInput, $TagValueInput = SetAzTagPair # Calls function
+                    if (!$TagNameInput) { # if SetAzTagPair returns $null
+                        Break AddAzureRGTag # Breaks :AddAzureRGTag loop
+                    } # End if (!$TagNameInput)
+                    $TagsArray = @{$TagNameInput=$TagValueInput} # Builds the tag array to be applied 
+                    Break SetAzureTagArray # Breaks :SetAzureTagArray
+                } # End :SetAzureTagArray while ($true)
+            } # End if (!$TagNameInput)
+            Update-AzTag -ResourceID $RGObject.ResourceID -Operation 'Merge' -Tag $TagsArray # Adds the new tag to the resource group without changing the others
+            $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+            Return $TagsList # Returns $TagsList to the calling function
+        } # End :AddAzureRGTag while ($true) {
+        Return # Returns to the calling function with $null
     } # End begin
-} # End function NewAzResourceGroupLock
-function NewAzResourceLock { # Function to create a new resource lock on a resource
+} # End function AddAzResourceGroupTag
+function AddAzResourceTag { # Function to add a new tag to a resource
     Begin {
-        :NewAzureRSLock while ($true) { # :NewAzureRsLock loop for creating a new resource lock
+        :AddAzureRSTag while ($true) { # :AddAzureRSTag loop for adding a new tag on a resource group
             if (!$RGObject) { # If $RGObject is $null
                 $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
                 if (!$RGObject) { # If called function returns empty
-                    Break NewAzureRGTag # Breaks :NewAzureRGTag loop
+                    Break AddAzureRSTag # Breaks :AddAzureRSTag loop
                 } # End if (!$RGObject)
             } # End if (!$RGObject)
             if (!$RSObject) { # If $RSObject is $null
                 $RSObject = GetAzResource # Calls GetAzResource and assigns output to $RSObject
                 if (!$RSObject) { # If called function returns empty
-                    Break NewAzureRSLock # Breaks :NewAzureRSLock loop
+                    Break AddAzureRSTag # Breaks :AddAzureRSTag loop
                 } # End if (!$RSObject)
             } # End if (!$RSObject)
-            :GetAzureTagName while ($true) { # :GetAzureTagName loop for setting the lock name
-                $LockName = Read-Host "Lock Name?" # Operator input for the lock name
-                if ($LockName -eq 'exit') { # If operator input is 'exit'
-                    Break NewAzureRSLock # Breaks :NewAzureRSLock loop
-                } # End if ($LockName -eq 'exit')
-                Write-Host "The lock name will be" $LockName # Write message to screen
-                $OperatorConfirm = Read-Host "Confirm?" # Operator input to confirm the lock name
-                if ($OperatorConfirm -eq 'exit') { # If operator input is 'exit' 
-                    Break NewAzureRSLock # Breaks :NewAzureRSLock loop
-                } # End if ($OperatorConfirm -eq 'exit')
-                elseif ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # Operator confirm is 'y' or 'yes'
-                    Break GetAzureTagName # Breaks :GetAzureTagName
-                } # End elseif ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :GetAzureTagName while ($true)
-            :GetAzureTagValue while ($true) { # :GetAzureTagValue loop for setting lock level
-                Write-Host "1 Read Only" # Write message to screen
-                Write-Host "2 Can Not Delete" # Write message to screen
-                $LockLevel = Read-Host "Option"
-                if ($LockLevel -eq 'exit') { # If operator input is 'exit'
-                    Break NewAzureRSLock # Breaks :NewAzureRSLock loop
-                } # End if ($LockLevel -eq 'exit')
-                elseif ($LockLevel -eq '1') { # If $LockLevel is '1'
-                    $LockLevel = 'ReadOnly' # Sets $LockLevel to 'ReadOnly'
-                    Break GetAzureTag:GetAzureTagValue # Breaks GetAzureTag:GetAzureTagValue
-                } # End elseif ($LockLevel -eq '1')
-                elseif ($LockLevel -eq '2') { # If $LockLevel is '2'
-                    $LockLevel = 'CanNotDelete'# Sets $LockLevel to 'CanNotDelete'
-                    Break GetAzureTag:GetAzureTagValue # Breaks GetAzureTag:GetAzureTagValue
-                } # End elseif ($LockLevel -eq '2')
-                else { # All other inputs for $LockLevel
-                    Write-Host "That is not a valid option"  # Write message to screen
-                } # End else (if ($LockLevel -eq 'exit'))
-            } # End :GetAzureTagValue while($true)
-            $LockNotes = Read-Host "Add lock notes" # Operator input for lock notes
-            if ($LockNotes) { # If $LocksNotes has a value
-                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockNotes $LockNotes -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RGObject.ResourceGroupName -Force # Deploys resource lock to resource (With lock notes)   
-                Return $Locks # Returns $Locks to calling function
-            } # End if ($OperatorSelect -eq "y" -or $OperatorSelect -eq 'yes')
-            else { # If $LockNotes is $null
-                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RGObject.ResourceGroupName -Force # Deploys resource lock to resource (No lock notes)
-                Return $Locks # Returns $Locks to calling function
-            } # End else (if ($OperatorSelect -eq "y" -or $OperatorSelect -eq 'yes'))
-        } # End :NewAzureRSLock while ($true) {
-        Return
+            if (!$TagNameInput) { # If $TagNameInput is $null
+                :SetAzureTagArray while ($true) { # :SetAzureTagArray loop
+                    $TagNameInput, $TagValueInput = SetAzTagPair # Calls function
+                    if (!$TagNameInput) { # if SetAzTagPair returns $null
+                        Break AddAzureRSTag # Breaks :AddAzureRSTag loop
+                    } # End if (!$TagNameInput)
+                    $TagsArray = @{$TagNameInput=$TagValueInput} # Builds the tag array to be applied 
+                    Break SetAzureTagArray # Breaks :SetAzureTagArray
+                } # End :SetAzureTagArray while ($true)
+            } # End if (!$TagNameInput)
+            Update-AzTag -ResourceID $RSObject.ResourceID -Operation 'Merge' -Tag $TagsArray # Adds the new tag to the resource group without changing the others
+            $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable | Out-String
+            Return $TagsList # Returns $Tags to the calling function
+        } # End :AddAzureRSTag while ($true) {
+        Return # Returns to the calling function with $null
     } # End begin
-} # End function NewAzResourceLock
-function GetAzResourceGroupLocksAll { # Function to get all locks assigned to a resource group, can pipe $Locks to another function
+} # End function AddAzResourceTag
+function GetAzResourceGroupTags { # Gets all resource group tags and writes them to screen with values
     Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        if (!$RGObject) { # If statement if $RGObject is $null
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResourceGroupLocksAll function was terminated" # Message write to screen
-                Return # Returns to calling function
-            } # End if statement
-        } # End if statement
-        $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName # Collects all locks and assigns to $Locks
-        if (!$Locks) { # If statement for no object assigned to $Locks
-            Write-Host "No locks are on this resource group" # Write message to screen
-            Write-Host "The GetAzResourceGroupLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        else { # Else statement for an object being assigned to $Locks
-            Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLocksAll
-            Return $Locks # Returns $Locks to the calling function
-        } # End else statement
-    } # End begin statement
-} # End function
-function GetAzResourceGroupLockNamed { # Function to get a named lock assigned to a resource group, can pipe $Locks to another function
+        :GetAzureRGTag while ($true) { # :GetAzureRGTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break GetAzureRGTag # Breaks :GetAzureRGTag loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+            $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable | Out-String # Formats hashable array into 
+            if (!$TagsList) { # If $TagsList is $null
+                Write-Host "No tags exist on this resource" # Write message to screen
+            } # End if (!$TagsList)
+            Return $TagsList # Returns $TagsList to the calling function
+        } # End :GetAzureRGTag while ($true) {
+        Return # Returns to the calling function with $null
+    } # End begin
+} # End function GetAzResourceGroupTags
+function GetAzResourceTags {
     Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        if (!$RGObject) { # If statement if $RGObject is $null
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResourceGroupLockNamed function was terminated"
-                Return # Returns to calling function
-            } # End if statement
-        } # End if statement
-        $Locks = $null
-        while (!$Locks) { # While statement used for looping until the correct lock has been found
-            $LocksInput = Read-Host "Enter the lock name" # Operator input for a resource group lock name
-            if ($LocksInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResourceGroupLockNamed function was terminated"
-                Return # Returns to calling function
-            } # End if statement
-            $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -LockName $LocksInput # Collects the named lock and assigns to $Locks
-            if (!$Locks) { # If statement for no object assigned to $Locks
-                Write-Host "No locks by that name were found on this resource group" # Write message to screen
-                Write-Host "The following are the current locks assigned to" $RGObject.ResourceGroupName
-                $LocksList = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -AtScope
-                Write-Host $LocksList.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLocksAll
-            } # End if statement
-            else { # Else statement if a lock is found with the operator input
-                $OperatorConfirm = Read-Host "Is this the correct lock" $Locks.Name 
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLock
-                    Return $Locks # Returns $Locks to the calling function
-                } # End if statement
-                elseif ($OperatorSelect -eq 'Exit') { # Elseif statement for 'Exit'
-                    Write-Host "GetAzResourceGroupLockNamed function was terminated" # Message write to screen
-                    Return # Returns to calling function
-                } # End elseif statement
-                else { # Else statement if operator does not confirm the lock
-                    $Locks = $null # Clears $Locks to restart the loop
-                } # End else statement
-            } # End else statement
-        } # End while statement
-    } # End begin statement
-} # End function
-function GetAzResourceLocksAll { # Function to get all locks assigned to a resource, can pipe $Locks to another function
+        :GetAzureRSTag while ($true) { # :GetAzureRSTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break GetAzureRSTag # Breaks :GetAzureRSTag loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+            if (!$RSObject) { # If $RSObject is $null
+                $RSObject = GetAzResource # Calls GetAzResource and assigns output to $RSObject
+                if (!$RSObject) { # If called function returns empty
+                    Break GetAzureRSTag # Breaks :GetAzureRSTag loop
+                } # End if (!$RSObject)
+            } # End if (!$RSObject)
+            $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+            if (!$TagsList) { # If $TagsList is $null
+                Write-Host "No tags exist on this resource" # Write message to screen
+            } # End if (!$TagsList)
+            Return $TagsList # Returns $TagsList to the calling function
+        } # End :GetAzureRSTag while ($true) {
+        Return # Returns to the calling function with $null
+    } # End begin
+} # End function GetAzResourceTags
+function RemoveAzResourceGroupTag { # Function to remove all tags from a resource
     Begin {
-        $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
-        if (!$Locks) { # If statement for no object assigned to $Locks
-            Write-Host "No locks are on this resource" # Write message to screen
-            Write-Host "The GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        else { # Else statement for an object being assigned to $Locks
-            Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceLocksAll
-            Return $Locks # Returns $Locks to the calling function
-        } # End else statement
-    } # End begin statement
-} # End function
-function GetAzResourceLockNamed { # Function to get a named lock assigned to a resource, can pipe $Locks to another function
+        :RemoveAzureRGTag while ($true) { # :RemoveAzureRGTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break RemoveAzureRGTag # Breaks :RemoveAzureRGTag loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+            $ValidTagName = (Get-AzResourceGroup -ResourceId $RGObject.ResourceId).Tags.Keys # Collects current tag names on resource group and lists them in $ValidTagName
+            if ($TagNameInput -notin $ValidTagName) { # Checks passed $TagNameInput against $ValidTagName
+                $TagNameInput = $null # Clears $TagNameInput
+            } # End if ($TagNameInput -notin $ValidTagName)
+            if (!$TagNameInput) { # If $TagNameInput is $null
+                :SetAzureTagArray while ($true) { # :SetAzureTagArray loop      
+                    $TagNameInput = Read-Host "Tag name to be removed"
+                    if (!$TagNameInput -or $TagNameInput -eq 'exit') { # if SetAzTagPair is $null or 'exit'
+                        Break RemoveAzureRGTag # Breaks :RemoveAzureRGTag loop
+                    } # End if (!$TagNameInput)
+                    elseif ($TagNameInput -iin $ValidTagName) { # If $TagNameInput is in $ValidTagName
+                        $TagsArray = @{$TagNameInput=""} # Builds the tag array to be removed
+                        Break SetAzureTagArray # Breaks :SetAzureTagArray
+                    } # End elseif ($TagNameInput -iin $ValidTagName) 
+                    else { # All other inputs for $TagNameInput
+                        Write-Host "The Tag name provided does not exist" # Write message to screen
+                        Write-Host "Please select from the following" # Write message to screen
+                        Write-Host $ValidTagName -Separator `n # Write $ValidTagName list to screen
+                    } # End else (if (!$TagNameInput -or $TagNameInput -eq 'exit'))
+                } # End :SetAzureTagArray while ($true)
+            } # End if (!$TagNameInput)
+            else { # If $TagNameInput is not $null and is in $ValidTagName build the array
+                $TagsArray = @{$TagNameInput=""} # Builds the tag array to be removed
+            } # End else (if (!$TagNameInput))
+            Update-AzTag -ResourceID $RGObject.ResourceID -Operation 'Delete' -Tag $TagsArray # Removes the named tag from the resource group without changing the others
+            $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+            if (!$TagsList) { # If $TagsList is $null
+                Write-Host "No tags exist on this resource group" # Write message to screen
+            } # End if (!$TagsList)
+            Return $TagsList # Returns $TagsList to the calling function
+        } # End :RemoveAzureRGTag while ($true) {
+        Return # Returns to the calling function with $null
+    } # End begin
+} # End function RemoveAzResouceGroupTag
+function RemoveAzResourceTag { # Function to remove all tags from a resource
     Begin {
-        $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLockNamed function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLockNamed function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $Locks = $null
-        while (!$Locks) { # While statement used for looping until the correct lock has been found
-            $LocksInput = Read-Host "Enter the lock name" # Operator input for a resource lock name
-            if ($LocksInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResourceLockNamed function was terminated"
-                Return # Returns to calling function
-            } # End if statement
-            $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -LockName $LocksInput | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
-            if (!$Locks) { # If statement for no object assigned to $Locks
-                Write-Host "No locks by that name were found on this resource" # Write message to screen
-                Write-Host "The following are the current locks assigned to" $RSObject.Name
-                $LocksList = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
-                Write-Host $LocksList.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLocksAll
-            } # End if statement
-            else {
-                $OperatorConfirm = Read-Host "Is this the correct lock" $Locks.Name 
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceGroupLock
-                    Return $Locks # Returns $Locks to the calling function
-                } # End if statement
-                elseif ($OperatorSelect -eq 'Exit') { # Elseif statement for 'Exit'
-                    Write-Host "GetAzResourceLockNamed function was terminated" # Message write to screen
-                    Return # Returns to calling function
-                } # End elseif statement
-                else { # Else statement if operator does not confirm the lock
-                    $Locks = $null # Clears $Locks to restart the loop
-                } # End else statement
-            } # End else statement
-        } # End while statement
-    } # End begin statement
-} # End funtion
-function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
+        :RemoveAzureRSTag while ($true) { # :RemoveAzureRSTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break RemoveAzureRSTag # Breaks :RemoveAzureRSTag loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+            if (!$RSObject) { # If $RSObject is $null
+                $RSObject = GetAzResource # Calls GetAzResource and assigns output to $RSObject
+                if (!$RSObject) { # If called function returns empty
+                    Break RemoveAzureRSTag # Breaks :RemoveAzureRSTag loop
+                } # End if (!$RSObject)
+            } # End if (!$RSObject)
+            $ValidTagName = (Get-AzResource -ResourceId $RSObject.ResourceId).Tags.Keys # Collects current tag names on resource and lists them in $ValidTagName
+            if ($TagNameInput -notin $ValidTagName) {
+                $TagNameInput = $null
+            } # End if ($TagNameInput -notin $ValidTagName)
+            if (!$TagNameInput) { # If $TagNameInput is $null
+                :SetAzureTagArray while ($true) { # :SetAzureTagArray loop      
+                    $TagNameInput = Read-Host "Tag name to be removed"
+                    if (!$TagNameInput -or $TagNameInput -eq 'exit') { # if SetAzTagPair is $null or 'exit'
+                        Break RemoveAzureRSTag # Breaks :RemoveAzureRSTag loop
+                    } # End if (!$TagNameInput)
+                    elseif ($TagNameInput -iin $ValidTagName) { # If $TagNameInput is in $ValidTagName
+                        $TagsArray = @{$TagNameInput=""} # Builds the tag array to be removed
+                        Break SetAzureTagArray # Breaks :SetAzureTagArray
+                    } # End elseif ($TagNameInput -iin $ValidTagName) 
+                    else { # All other inputs for $TagNameInput
+                        Write-Host "The Tag name provided does not exist" # Write message to screen
+                        Write-Host "Please select from the following" # Write message to screen
+                        Write-Host $ValidTagName -Separator `n # Write $ValidTagName list to screen
+                    } # End else (if (!$TagNameInput -or $TagNameInput -eq 'exit'))
+                } # End :SetAzureTagArray while ($true)
+            } # End if (!$TagNameInput)
+            else { # If $TagNameInput is not $null and is in $ValidTagName, build the array
+                $TagsArray = @{$TagNameInput=""} # Builds the tag array to be removed
+            } # End else (if (!$TagNameInput))
+            Update-AzTag -ResourceID $RSObject.ResourceID -Operation 'Delete' -Tag $TagsArray # Removes the named tag from the resource without changing the others
+            $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+            if (!$TagsList) { # If $TagsList is $null
+                Write-Host "No tags exist on this resource" # Write message to screen
+            } # End if (!$TagsList)
+            Return $TagsList # Returns $Tags to the calling function
+        } # End :RemoveAzureRSTag while ($true) {
+        Return # Returns to the calling function with $null
+    } # End begin
+} # End function RemoveAzResouceTags
+function RemoveAzResourceGroupTags {
+    Begin { 
+        :RemoveAzureRGTags while ($true) { # :RemoveAzureRGTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break RemoveAzureRGTags # Breaks :RemoveAzureRGTags loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+        Remove-AzTag -ResourceId $RGObject.ResourceID -PassThru # Removes all tags on the resource group
+        $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+        if (!$TagsList) { # If $TagsList is $null
+            Write-Host "No tags exist on this resource group" # Write message to screen
+        } # End if (!$TagsList)
+        Return $TagsList # Returns $TagsList to the calling function
+    } # End :RemoveAzureRGTags while ($true) {
+    Return # Returns to the calling function with $null
+    } # End begin
+} # End function RemoveAzResourceGroupTags
+function RemoveAzResourceTags {
     Begin {
-        if (!$Locks) { # If statement if $Locks is $null
-            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
-            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
-                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-                Return $Locks # Returns to calling function
-            } # End if statement
-        } # End if statement
-        $Locks.Name # Writes all names contained in $Locks
-        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
-        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
-            $Locks = $null # $Locks is set to $null
-            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-            Return $Locks # Return to calling function
-        } # End if statement
-        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
-            $ErrorActionPreference='silentlyContinue' # Disables Errors
-            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
-                $LockId.name # Prints the LockId for each lock as the cycle goes
-                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
-            } # End foreach loop
-            $Locks = $null # Clears $Locks prior to returning to calling function
-            Return $Locks # Returns to calling function
-        } # End else statement
-    } # End begin statement
-} # End function
+        :RemoveAzureRSTags while ($true) { # :RemoveAzureRSTag loop for removing named tag on a resource
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
+                if (!$RGObject) { # If called function returns empty
+                    Break RemoveAzureRSTags # Breaks :RemoveAzureRSTags loop
+                } # End if (!$RGObject)
+            } # End if (!$RGObject)
+            if (!$RSObject) { # If $RSObject is $null
+                $RSObject = GetAzResource # Calls GetAzResource and assigns output to $RSObject
+                if (!$RSObject) { # If called function returns empty
+                    Break RemoveAzureRSTags # Breaks :RemoveAzureRSTags loop
+                } # End if (!$RSObject)
+            } # End if (!$RSObject)
+            Remove-AzTag -ResourceId $RSObject.ResourceID -PassThru # Removes all tags on the resource
+            $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable | Out-String # Formats hashable array into string
+            if (!$TagsList) { # If $TagsList is $null
+                Write-Host "No tags exist on this resource" # Write message to screen
+            } # End if (!$TagsList)
+            Return $TagsList # Returns $Tags to the calling function
+        } # End :RemoveAzureRSTags while ($true) {
+        Return # Returns to the calling function with $null
+    } # End begin
+} # End function RemoveAzResourceTags
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
