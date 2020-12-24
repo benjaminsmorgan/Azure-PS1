@@ -22,9 +22,14 @@
 <# Functions Description: {
     ManageAzResourceGroupTags:  Management function for tags functions
     SetAzTagPair:               Create a tag for multiple uses
-    NewAzResourceGroupTag:      Create a new resource lock on a resource group
-    GetAzResourceGroupLocksTag: Collects tag on a resource group
-    GetAzResourceTags:          Collects tag on a resource
+    AddAzResourceGroupTag:      Create a new resource tag on a resource group
+    AddAzResourceTag:           Create a new resource tag on a resource
+    GetAzResourceGroupTags:     Get all tags on a resource group
+    GetAzResourceTags:          Get all tags on a resource
+    RemoveAzResourceGroupTag:   Remove a named tag from a resource group
+    RemoveAzResourceTag:        Remove a named tag from a resource
+    RemoveAzResourceGroupTags:  Remove all tags from a resource group
+    RemoveAzResourceTags:       Remove all tags from a resource
     GetAzResourceGroup:         Collects resource group object
     GetAzResource:              Collects resources within a resource group
 } #>
@@ -106,14 +111,13 @@
     } End RemoveAzResourceTags
     GetAzResourceGroup { 
         :GetAzureResourceGroup      Outer loop for function
-        RGObject:                   Resource group object 
-        RGObjectInput:              Resource group object input
-        RGObject:                   Resource group object
+        $RGObject:                  Resource group object 
+        $RGObjectInput:             Resource group object input
         $RGList:                    List of all availiable resource groups
     } End GetAzResourceGroup 
     GetAzResource { 
         $RSObject:                  Resource object
-        RGObject:                   Resource group object
+        $RGObject:                  Resource group object
         $RSObjectInput:             Resource object input
         $RSList:                    List of all availiable resources
     } End GetAzResource 
