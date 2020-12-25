@@ -348,7 +348,7 @@
                 Call SearchAzResourceGroupType > Get $RGObject
                 Call SearchAzResourceGroupLoc  > Get $RGObject
                 Call SearchAzResourceGroupTag  > Get $RGObject
-                End Function    
+                End SearchAzResourceGroup    
                     Return SearchAzResourceGroup > Send $RGObject
                         Return ManageAzResourceGroups > Send $RGObject
             Call GetAzResourceGroup > Get $RGObject
@@ -364,7 +364,7 @@
                     Return RemoveAzResourceGroup > Send $Locks
                 Call RemoveAzResourceLocks > Send $Locks
                     Return RemoveAzResourceGroup > Send $Null
-                End Function
+                End RemoveAzResourceGroup
                     Return ManageAzResourceGroups > Send $null
             Call ManageAzResourceGroupLock
                 Call NewAzResourceGroupLock > Get $Locks
@@ -393,61 +393,63 @@
                     Return ManageAzResourceGroupLock > Send $Locks
                 Call RemoveAzResourceLocks > Send $Locks
                     Return ManageAzResourceGroupLock 
+                End ManageAzResourceGroupLock
+                    Return ManageAzResourceGroup > Send $null
             Call ManageAzResourceGroupTags > Send $RGObject, $RSObject
                 Call SetAzTagPair > Get $TagNameInput, $TagValueInput
                     Return ManageAzResourceGroupTags > Send $TagNameInput, $TagValueInput
                 Call AddAzResourceGroupTag > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return AddAzResourceGroupTag > Send $RGObject
-                    End function
+                    End function AddAzResourceGroupTag
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call AddAzResourceTag > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return AddAzResourceTag > Send $RGObject
                     Call GetAzResource > Get $RSObject
                         Return AddAzResourceTag > Send $RSObject
-                    End function
+                    End AddAzResourceTag
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call GetAzResourceGroupTags > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return GetAzResourceGroupTags > Send $RGObject
-                    End function
+                    End GetAzResourceGroupTags
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call GetAzResourceTags > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return GetAzResourceTags > Send $RGObject
                     Call GetAzResource > Get $RSObject
                         Return GetAzResourceTags > Send $RSObject
-                    End function
+                    End GetAzResourceTags
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call RemoveAzResourceGroupTag > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return RemoveAzResourceGroupTag > Send $RGObject
-                    End function
+                    End RemoveAzResourceGroupTag
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call RemoveAzResourceTag  > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return RemoveAzResourceTag > Send $RGObject
                     Call GetAzResource > Get $RSObject
                         Return RemoveAzResourceTag > Send $RSObject
-                    End function
+                    End RemoveAzResourceTag
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call RemoveAzResourceGroupTags > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return RemoveAzResourceGroupTags > Send $RGObject
-                    End function
+                    End RemoveAzResourceGroupTags
                     Return ManageAzResourceGroupTags > Send $TagList
                 Call RemoveAzResourceTags > Get $TagList
                     Call GetAzResourceGroup > Get $RGObject
                         Return RemoveAzResourceTags > Send $RGObject
                     Call GetAzResource > Get $RSObject
                         Return RemoveAzResourceTags > Send $RSObject
-                    End function
+                    End RemoveAzResourceTags
                     Return ManageAzResourceGroupTags > Send $TagList
                 End ManageAzResourceGroupTags
                     Return ManageAzResourceGroups > Send $null
             End Function ManageAzResourceGroups
-                Return Function                                    
+                Return Function > Send $null                                    
 }#>  
 function ManageAzResourceGroup {
     Begin {
@@ -458,7 +460,6 @@ function ManageAzResourceGroup {
             Write-Host "3 New Resource Group"
             Write-Host "4 Remove Resource Group"
             Write-Host "5 Remove Resource from Group (In dev)"
-            Write-Host "6 Manage Resources (In dev)"
             Write-Host "7 Manage Locks"
             Write-Host "8 Manage Tags"
             Write-Host "'Exit to return'"
