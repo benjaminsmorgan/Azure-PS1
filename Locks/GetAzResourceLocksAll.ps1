@@ -39,17 +39,19 @@
 }#>
 function GetAzResourceLocksAll { # Function to get all locks assigned to a resource, can pipe $Locks to another function
     Begin {
-        $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
-        if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-            Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
+        if (!$RSObject) {
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if (!$RGObject)
+            $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if if (!$RSObject)
+        } # End if (!$RSObject)
+        $Locks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
         if (!$Locks) { # If statement for no object assigned to $Locks
             Write-Host "No locks are on this resource" # Write message to screen
             Write-Host "The GetAzResourceLocksAll function was terminated" # Message write to screen
