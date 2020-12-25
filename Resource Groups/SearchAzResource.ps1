@@ -79,20 +79,20 @@
 } #>
 <# Process Flow {
     Function
-        Call SearchAzResourceGroup > Get $RSObject
+        Call SearchAzResource > Get $RSObject
             Call SearchAzResourceName > Get $RSObject
             End SearchAzResourceName
-                Return SearchAzResourceGroup > Send $RSObject
+                Return SearchAzResource > Send $RSObject
             Call SearchAzResourceType > Get $RSObject
             End SearchAzResourceType
-                Return SearchAzResourceGroup > Send $RSObject                
+                Return SearchAzResource > Send $RSObject                
             Call SearchAzResourceLoc  > Get $RSObject
             End SearchAzResourceLoc
-                Return SearchAzResourceGroup > Send $RSObject
+                Return SearchAzResource > Send $RSObject
             Call SearchAzResourceTag  > Get $RSObject
             End SearchAzResourceTag
-                Return SearchAzResourceGroup > Send $RSObject
-            End SearchAzResourceGroup
+                Return SearchAzResource > Send $RSObject
+            End SearchAzResource
                 Return Function > Send $RSObject
 }#>
 function SearchAzResource { # Search for resource group management function
