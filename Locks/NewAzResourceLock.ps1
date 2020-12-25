@@ -49,13 +49,11 @@
 function NewAzResourceLock { # Function to create a new resource lock on a resource
     Begin {
         :NewAzureRSLock while ($true) { # :NewAzureRsLock loop for creating a new resource lock
-            if (!$RGObject) { # If $RGObject is $null
+            if (!$RSObject) { # If $RGObject is $null
                 $RGObject = GetAzResourceGroup # Calls GetAzResourceGroup and assigns output to $RGObject
                 if (!$RGObject) { # If called function returns empty
                     Break NewAzureRGLock # Breaks :NewAzureRGLock loop
                 } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            if (!$RSObject) { # If $RSObject is $null
                 $RSObject = GetAzResource # Calls GetAzResource and assigns output to $RSObject
                 if (!$RSObject) { # If called function returns empty
                     Break NewAzureRSLock # Breaks :NewAzureRSLock loop
@@ -96,11 +94,11 @@ function NewAzResourceLock { # Function to create a new resource lock on a resou
             } # End :GetAzureLockLevel while($true)
             $LockNotes = Read-Host "Add lock notes" # Operator input for lock notes
             if ($LockNotes) { # If $LocksNotes has a value
-                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockNotes $LockNotes -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RGObject.ResourceGroupName -Force # Deploys resource lock to resource (With lock notes)   
+                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockNotes $LockNotes -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RSObject.ResourceGroupName -Force # Deploys resource lock to resource (With lock notes)   
                 Return $Locks # Returns $Locks to calling function
             } # End if ($OperatorSelect -eq "y" -or $OperatorSelect -eq 'yes')
             else { # If $LockNotes is $null
-                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RGObject.ResourceGroupName -Force # Deploys resource lock to resource (No lock notes)
+                $Locks = New-AzResourceLock -LockLevel $LockLevel -LockName $LockName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType -ResourceGroupName $RSObject.ResourceGroupName -Force # Deploys resource lock to resource (No lock notes)
                 Return $Locks # Returns $Locks to calling function
             } # End else (if ($OperatorSelect -eq "y" -or $OperatorSelect -eq 'yes'))
         } # End :NewAzureRSLock while ($true) {
