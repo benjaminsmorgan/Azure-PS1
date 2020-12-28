@@ -19,7 +19,7 @@
         SearchAzResourceTag:        Searchs for resource using tag matches on a resource
 } #>
 <# Variables: {
-    SearchAzResourceGroup {
+    SearchAzResource {
         :SearchAzureRS          Outer loop for function
         $SearchAzRS:            Operator input for type of search
         $RSObject:              Resource object      
@@ -75,7 +75,7 @@
             $RSObjectInput:         Operator input for the resource name 
             $RGObjectInput:         Operator input for the resource group name
         } End SearchAzResourceTag
-    } # End SearchAzResourceGroup
+    } End SearchAzResource
 } #>
 <# Process Flow {
     Function
