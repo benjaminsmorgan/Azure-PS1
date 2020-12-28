@@ -188,7 +188,7 @@ function RemoveAzResource { # Removes a selected resource
                 } # End :GetAzureRSObject while ($true)
             } # End if (!$RSObject)
             $RGLocks = $null # Clears $RGLocks from all previous uses
-            $RGLocks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName # Collects all locks on $RSObject group and assigns to $RGLocks
+            $RGLocks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName -AtScope # Collects all locks on $RSObject group and assigns to $RGLocks
             if ($RGLocks) { # If $RGLocks is not empty
                 Write-Host $RSObject.Name "cannot be deleted until the locks on"$RSObject.ResourceGroupName"have been removed" # Write message to screen
                 Break RemoveAzureRSObject # Breaks :RemoveAzureRSObject
@@ -214,7 +214,7 @@ function RemoveAzResource { # Removes a selected resource
                 Write-Host "Locks removed" # Message write to screen
             } # End if ($Locks)
             Write-Host $RSObject.Name"is being removed, this may take a while" # Message write to screen
-            Remove-AzResource -Name $RSObject.Name -Force # Removes the resource assigned to $RSObject, -force removes confirmation
+            Remove-AzResource -Name $RSObject.Name -ResourceGroup $RSObject.ResourceGroupName -ResourceType $RSObject.ResourceType -Force # Removes the resource assigned to $RSObject, -force removes confirmation
             $RSObjectVerify = Get-AzResource -Name $RSObjectName # Collects the resource using $RSObjectName and assigns to $RSObjectVerify
             if (!$RSObjectVerify) { # If statement for $RSObjectVerify being empty (This is a successful deletion)
                 Write-Host $RSObjectName "has been deleted" # Write message to screen
