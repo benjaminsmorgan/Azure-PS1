@@ -155,7 +155,7 @@
             End RemoveAzResource
                 Return Function > Send $null                                    
 }#>  
-function RemoveAzResource { Removes a selected resource
+function RemoveAzResource { # Removes a selected resource
     Begin {
         :RemoveAzureRSObject while ($true) { # named loop for function
             $ErrorActionPreference='silentlyContinue' # Disables Errors
