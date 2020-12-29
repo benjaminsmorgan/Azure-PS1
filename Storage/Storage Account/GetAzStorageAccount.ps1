@@ -61,5 +61,5 @@ function GetAzStorageAccount { # Function to get a storage account, can pipe $St
             } # End :GetAzureStorageAcc while ($true)
         } # End :GetAzureStorageAccByName while ($true)
         Return # Returns to calling function with $null
-    } # End of begin statement
-} # End of function
+    } # End begin 
+} # End function GetAzStorageAccount
