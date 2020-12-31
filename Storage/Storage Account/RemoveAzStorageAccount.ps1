@@ -102,4 +102,4 @@ function RemoveAzStorageAccount { # Function to get a storage account, can pipe 
         Write-Host "No changes made"
         Return # Returns to calling function with $null
     } # End begin 
-} # End function GetAzStorageAccount
+} # End function RemoveAzStorageAccount
