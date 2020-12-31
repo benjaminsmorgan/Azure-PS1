@@ -67,8 +67,8 @@ function RemoveAzStorageAccount { # Function to get a storage account, can pipe 
                     } # End if (!$StorageAccObject)
             } # End if (!$StorageAccObject)
             else { # Else for when $StorageAccObject is assigned
-                $StoreAccName = $StorageAccObject.name # Collects the name of the storage account and assigns to own $var
-                $OperatorConfirm = Read-Host "Remove the following storage account" $StorageAccObject.Name "in" $StorageAccObject.ResourceGroupName # Operator confimation to remove the storage account
+                $StoreAccName = $StorageAccObject.StorageAccountName # Collects the name of the storage account and assigns to own $var
+                $OperatorConfirm = Read-Host "Remove the following storage account" $StorageAccObject.StorageAccountName "in" $StorageAccObject.ResourceGroupName # Operator confimation to remove the storage account
                 if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')) { # If Operator confirm is not (equal 'y' or 'yes')
                     Break RemoveAzureStorageAcc # Breaks RemoveAzureStorageAcc
                 } # End if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes'))
@@ -95,11 +95,11 @@ function RemoveAzStorageAccount { # Function to get a storage account, can pipe 
                     } # End else (if (Get-AzResourceLock -ResourceGroupName $StorageAccObject.ResourceGroupName -AtScope))
                     Break RemoveAzureStorageAcc # Breaks RemoveAzureStorageAcc
                 } # End Catch
-                Write-Host $StoreAccName"has been removed" # Write message to screen
+                Write-Host $StoreAccName" has been removed" # Write message to screen
                 Return # Returns to calling function
             } # End else ((!$StorageAccObject))
         } # End :RemoveAzureStorageAcc while ($true)
         Write-Host "No changes made"
         Return # Returns to calling function with $null
     } # End begin 
-} # End function RemoveAzStorageAccount
+} # End function GetAzStorageAccount
