@@ -46,6 +46,9 @@ function GetAzStorageAccount { # Function to get a storage account, can pipe $St
             } # End if (!$RGObject)
             :GetAzureStorageAcc while ($true) { # Loop to continue getting a storage account until the operator provided name matches an existing account
                 $StorageAccObjectInput = Read-Host "Storage account name" # Operator input of the storage account name
+                if ($StorageAccObjectInput -eq 'exit') { # If $StorageAccObjectInput is 'exit
+                    Break GetAzureStorageAccByName # Break :GetAzureStorageAccByName
+                } # Endif ($StorageAccObjectInput -eq 'exit')
                 $StorageAccObject = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName -Name $StorageAccObjectInput # Collection of the storage account from the operator input
                 if (!$StorageAccObject) { # Error reporting if input does not match and existing account
                     Write-Host "The name provided does not match an existing storage account" # Error reporting
