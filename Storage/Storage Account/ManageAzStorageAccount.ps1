@@ -152,15 +152,18 @@ function NewAzStorageAccount { # Creates a new storage account
                 } # End if (!$RGObject)
             } # End if (!$RGObject)
             :SetAzureStorageAccName while ($true) { # Inner loop for setting the storage account name
-                $StorageAccNameInput = '000100000000001000000' # Assigns a value for elseif statement if operator input is invalid
+                $StorageAccNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
                 try { # Try statement for operator input of account name
-                    [ValidatePattern('^[a-z,0-9]+$')][ValidateLength (3, 24)]$StorageAccNameInput = [string](Read-Host "New storage account name").ToLower() # Operator input for the account name, only allows letters and numbers. All letters converted to lowercase
+                    [ValidatePattern('^[a-z,0-9]+$')]$StorageAccNameInput = [string](Read-Host "New storage account name (3-24 letters and numbers only").ToLower() # Operator input for the account name, only allows letters and numbers. All letters converted to lowercase
                 } # End try
-                catch {Write-Host "The provided name was not valid characters in length and use numbers and lower-case letters only"} # Error message for failed try
+                catch {Write-Host "The account name must only include letters and numbers"} # Error message for failed try
                 if ($StorageAccNameInput -eq 'exit') { # $StorageAccNameInput is equal to exit
                     Break NewAzureStorageAcc # Breaks NewAzureStorageAcc loop
                 } # if ($StorageAccNameInput -eq 'exit')
-                elseif ($StorageAccNameInput -eq '000100000000001000000') {}# Elseif when Try statement fails
+                elseif ($StorageAccNameInput -eq '0') {}# Elseif when Try statement fails
+                elseif ($StorageAccNameInput.Length -le 2 -or $StorageAccNameInput.Length -ge 25) { # If $StorageAccNameInput is not between 3 and 24 characters
+                    Write-Host "The account name must be between 3 and 24 characters in length" # Write message to screen
+                } # End elseif ($StorageAccNameInput.Length -le 2 -or $StorageAccNameInput.Length -ge 25)
                 else { # If Try statement input has value not equal to exit
                     Write-Host $StorageAccNameInput # Writes $var to screen
                     $OperatorConfirm = Read-Host "Is this name correct" # Operator confirmation
