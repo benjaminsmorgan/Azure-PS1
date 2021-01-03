@@ -112,6 +112,9 @@ function ManageAzStorageAccount {
             Write-Host "'Exit to return'" # Write message to screen
             $ManageAzStorageACC = Read-Host "Option?" # Collects operator input on $ManageAzStorageACC option
             if ($ManageAzStorageACC -eq 'exit') { # Exit if statement for this function
+                if ($StorageAccObject) { # If $StorageAccObject is not $null
+                    Return $StorageAccObject # Returns $StorageAccObject to calling function
+                } # End if ($StorageAccObject)
                 Break ManageAzureStorageAcc # Ends :ManageAzureStorageAcc loop, leading to return statement
             } # End if ($ManageAzStorageACC -eq 'exit')
             elseif ($ManageAzStorageACC -eq '1') { # Elseif statement for creating storage accounts
@@ -154,7 +157,7 @@ function NewAzStorageAccount { # Creates a new storage account
             :SetAzureStorageAccName while ($true) { # Inner loop for setting the storage account name
                 $StorageAccNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
                 try { # Try statement for operator input of account name
-                    [ValidatePattern('^[a-z,0-9]+$')]$StorageAccNameInput = [string](Read-Host "New storage account name (3-24 letters and numbers only").ToLower() # Operator input for the account name, only allows letters and numbers. All letters converted to lowercase
+                    [ValidatePattern('^[a-z,0-9]+$')]$StorageAccNameInput = [string](Read-Host "New storage account name (3-24 letters and numbers only)").ToLower() # Operator input for the account name, only allows letters and numbers. All letters converted to lowercase
                 } # End try
                 catch {Write-Host "The account name must only include letters and numbers"} # Error message for failed try
                 if ($StorageAccNameInput -eq 'exit') { # $StorageAccNameInput is equal to exit
