@@ -248,8 +248,6 @@ function GetAzStorageAccount { # Function to get a storage account, can pipe $St
         Return # Returns to calling function with $null
     } # End begin 
 } # End function GetAzStorageAccount
-
-
 function RemoveAzStorageAccount { # Function to get a storage account, can pipe $StorageAccObject to another function
     Begin {
         :RemoveAzureStorageAcc while ($true) { # Outer loop for function
