@@ -46,7 +46,7 @@
             End GetAzStorageAccount 
                 Return GetAzStorageContainer > Send $StorageAccObject
             End GetAzStorageContainer 
-                Return Function > Send $null
+                Return Function > Send $StorageConObject
 }#>
 function GetAzStorageContainer { # Collects storage container in a storage accoun
     Begin {
