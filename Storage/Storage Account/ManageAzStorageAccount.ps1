@@ -99,7 +99,18 @@
                 End GetAzResourceGroup
                     Return GetAzStorageAccount > Send $RGObject
             End GetAzStorageAccount 
-                Return Function > Send $StorageAccObject
+                Return ManagageAzStorageAccount > Send $StorageAccObject
+            Call RemoveAzStorageAccount > Get $null
+                Call GetAzStorageAccount > Get $StorageAccObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return GetAzStorageAccount > Send $RGObject
+                End GetAzStorageAccount 
+                    Return RemoveAzStorageAccount > Send $StorageAccObject
+            End RemoveAzStorageAccount
+                Return ManageAzStorageAccount > Send $Null
+        End ManageAzStorageAccount
+            Return function > Send $null
 }#>
 function ManageAzStorageAccount {
     Begin {
