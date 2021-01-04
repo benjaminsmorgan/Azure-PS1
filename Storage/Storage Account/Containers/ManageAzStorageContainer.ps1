@@ -135,17 +135,6 @@
                     Return ManageAzStorageContainer > Send $null
             End ManageAzStorageContainer > Send $null
 }#>
-<# Process Flow {
-    function
-        Call RemoveAzStorageContainer > Get $null
-            Call GetAzStorageContainer > Get $StorageConObject
-                Call GetAzStorageAccount > Get $StorageAccObject
-                    Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGroup
-                        Return GetAzStorageAccount > Send $RGObject
-                End RemoveAzStorageContainer 
-                    Return Function > Send $null
-}#>
 function ManageAzStorageContainer {
     Begin {
         :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
