@@ -43,8 +43,6 @@
                 Call GetAzResourceGroup > Get $RGObject
                 End GetAzResourceGroup
                     Return GetAzStorageAccount > Send $RGObject
-            End GetAzStorageAccount 
-                Return GetAzStorageContainer > Send $StorageAccObject
             End GetAzStorageContainer 
                 Return Function > Send $StorageConObject
 }#>
