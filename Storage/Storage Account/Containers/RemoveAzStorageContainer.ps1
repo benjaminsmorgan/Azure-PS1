@@ -1,3 +1,4 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
     Remove-AzStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstoragecontainer?view=azps-5.2.0
     Get-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragecontainer?view=azps-5.2.0
