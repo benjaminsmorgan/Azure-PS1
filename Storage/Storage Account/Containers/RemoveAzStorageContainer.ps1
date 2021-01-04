@@ -11,7 +11,7 @@
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     } #>
 <# Functions Description: {
-    RemoveAzStorageContainer:   emoves existing storage container
+    RemoveAzStorageContainer:   Removes existing storage container
     GetAzStorageContainer:      Collects storage container in a storage account    
     GetAzStorageAccount:        Collects the storage account object
     GetAzResourceGroup:         Collects resource group object
