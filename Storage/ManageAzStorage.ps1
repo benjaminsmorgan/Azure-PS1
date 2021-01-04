@@ -1,4 +1,237 @@
-
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    New-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageaccount?view=azps-5.2.0
+    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
+    Remove-AzStorageAccount:    https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageaccount?view=azps-5.2.0
+    New-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstoragecontainer?view=azps-5.2.0
+    Get-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragecontainer?view=azps-5.2.0
+    Remove-AzStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstoragecontainer?view=azps-5.2.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
+    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
+} #>
+<# Required Functions Links: {
+    ManageAzStorageAccount:     TBD
+    NewAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/NewAzStorageAccount.ps1
+    GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
+    RemoveAzStorageAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/RemoveAzStorageAccount.ps1
+    ManageAzStorageContainer:   TBD
+    NewAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/NewAzStorageContainer.ps1
+    GetAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/GetAzStorageContainer.ps1
+    RemoveAzStorageContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/RemoveAzStorageContainer.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocksAll.ps1
+    RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1 
+} #>
+<# Functions Description: {
+    ManageAzStorageAccount:     Management function for storage accounts
+    NewAzStorageAccount:        Creates new storage account object
+    GetAzStorageAccount:        Collects the storage account object
+    RemoveAzStorageAccount:     Removes the selected storage account
+    GetAzStorageAccount:        Collects the storage account object
+    ManageAzStorageContainer:   Management function for storage containers
+    NewAzStorageContainer:      Creates new storage container(s) in a storage account 
+    GetAzStorageContainer:      Collects storage container in a storage account  
+    RemoveAzStorageContainer:   Removes existing storage container
+    GetAzResourceGroup:         Collects resource group object
+    RemoveAzResourceLocks:      Removes locks
+    GetAzResourceLocksAll:      Collects all locks on a resource
+} #>
+<# Variables: {
+    ManageAzStorage {
+        ManageAzStorageAccount {
+            :ManageAzureStorageAcc      Outer loop for function
+            $ManageAzStorageAcc:        Operator input for choosing sub function
+            NewAzStorageAccount{
+                :NewAzureStorageAcc         Outer loop for function
+                :SetAzureStorageAccName     Inner loop for setting name
+                :SetAzureStorageAccSku      Inner loop for setting sku
+                :SetAzureStorageAccLoc      Inner loop for setting location
+                $OperatorConfirm:           Operator input to confirm previous inputs
+                $RGObject:                  Resource group object
+                $StorageAccNameInput:       Operator input for name
+                $ValidSku:                  List of valid skus for storage accounts
+                $StorageAccSkuInput:        Operator input for sku
+                $ValidLocation:             List of valid azure locations
+                $StorageAccLocInput:        Operator input for location
+                $StorageAccObject:          New storage account object
+                GetAzResourceGroup {
+                    $RGObject:                  Resource group object
+                    $RGObjectInput:             Operator input for the resource group name
+                    $RGList:                    Variable used for printing all resource groups to screen if needed
+                } End GetAzResourceGroup
+            } End NewAzStorageAccount
+            GetAzStorageAccount{
+                :GetAzureStorageAccByName   Outer loop for managing funciton
+                :GetAzureStorageAcc         Inner loop for getting the storage account
+                $RGObject:                  Resource group object
+                $StorageAccObjectInput:     Operator input for the name of the storage account
+                $SAList:                    List of all storage accounts within $RGObject
+                $StorageAccObject:          Storage account object    
+                GetAzResourceGroup {
+                    $RGObject:                  Resource group object
+                    $RGObjectInput:             Operator input for the resource group name
+                    $RGList:                    Variable used for printing all resource groups to screen if needed
+                } End GetAzResourceGroup
+            } End GetAzStorageAccount
+            RemoveAzStorageAccount{
+                :RemoveAzureStorageAcc      Outer loop for managing function
+                $StorageAccObject:          Storage account object 
+                $StoreAccName:              Storage account object name
+                $OperatorConfirm:           Operator confirmation to remove the storage account
+                $RSObject:                  Resource object
+                $RGObject:                  Resource group object
+                $Locks:                     Locks on the storage account   
+                GetAzResourceGroup {
+                    $RGObject:                  Resource group object
+                    $RGObjectInput:             Operator input for the resource group name
+                    $RGList:                    Variable used for printing all resource groups to screen if needed
+                } End GetAzResourceGroup
+                GetAzResourceLocksAll {
+                    $RGObject:              Resource group object
+                    $RSObject:              Resource object
+                    $Locks:                 Locks object
+                } End GetAzResourceLocksAll
+                RemoveAzResourceLocks {
+                    $Locks:                 Lock or locks object
+                } End RemoveAzResourceLocks    
+            } End RemoveAzStorageAccount
+        } End ManageAzStorageAccount
+        ManageAzStorageContainer {
+            :ManageAzureStorageCon      Outer loop for function
+            $ManageAzStorageCon:        Operator input for choosing sub function
+            NewAzStorageContainer {
+                :NewAzureStorageCon         Outer loop for function
+                :SetAzureStorageConName     Inner loop for setting storage account name
+                :SetAzureStorageConRights   Inner loop for setting the rights level
+                $StorageAccObject:          Storage account object for new containers
+                $StorageConNameInput:       Operator input for the container names
+                $StorageConName:            Non-string $Var of $StorageConNameInput
+                $StorageConNameSplit:       List of $StorageConName seperated by [Space]
+                $ValidRights:               List of valid rights input
+                $StorageConRightsInput:     Operator input for the rights level
+                GetAzStorageAccount{
+                    :GetAzureStorageAccByName   Outer loop for managing funciton
+                    :GetAzureStorageAcc         Inner loop for getting the storage account
+                    $RGObject:                  Resource group object
+                    $StorageAccObjectInput:     Operator input for the name of the storage account
+                    $SAList:                    List of all storage accounts within $RGObject
+                    $StorageAccObject:          Storage account object    
+                    GetAzResourceGroup {
+                        $RGObject:                  Resource group object
+                        $RGObjectInput:             Operator input for the resource group name
+                        $RGList:                    Variable used for printing all resource groups to screen if needed
+                    } End GetAzResourceGroup
+                } End GetAzStorageAccount
+            } End NewAzStorageContainer
+            GetAzStorageContainer{
+                :GetAzureStorageContainer   Outer loop for managing function
+                :GetAzureStorageConName     Inner loop for getting the storage container
+                $StorageAccObject:          Storage account object    
+                $StorageConNameInput:       Operator input for the storage container name
+                $StorageConObject:          Storage container object
+                $StorageConList:            List of all containers in storage account
+                GetAzStorageAccount{
+                    :GetAzureStorageAccByName   Outer loop for managing funciton
+                    :GetAzureStorageAcc         Inner loop for getting the storage account
+                    $RGObject:                  Resource group object
+                    $StorageAccObjectInput:     Operator input for the name of the storage account
+                    $SAList:                    List of all storage accounts within $RGObject
+                    $StorageAccObject:          Storage account object    
+                    GetAzResourceGroup {
+                        $RGObject:                  Resource group object
+                        $RGObjectInput:             Operator input for the resource group name
+                        $RGList:                    Variable used for printing all resource groups to screen if needed
+                    } End GetAzResourceGroup
+                } End GetAzStorageAccount
+            } End GetAzStorageContainer
+            RemoveAzStorageContainer{
+                :RemoveAzureStorageCon      Outer loop for managing function
+                $StorageConObject:          Storage container object
+                $OperatorConfirm:           Operator confirmation to remove the storage container
+                GetAzStorageContainer {
+                    :GetAzureStorageContainer   Outer loop for managing function
+                    :GetAzureStorageConName     Inner loop for getting the storage container
+                    $StorageAccObject:          Storage account object    
+                    $StorageConNameInput:       Operator input for the storage container name
+                    $StorageConObject:          Storage container object
+                    $StorageConList:            List of all containers in storage account
+                    GetAzStorageAccount{
+                        :GetAzureStorageAccByName   Outer loop for managing funciton
+                        :GetAzureStorageAcc         Inner loop for getting the storage account
+                        $RGObject:                  Resource group object
+                        $StorageAccObjectInput:     Operator input for the name of the storage account
+                        $SAList:                    List of all storage accounts within $RGObject
+                        $StorageAccObject:          Storage account object    
+                        GetAzResourceGroup {
+                            $RGObject:                  Resource group object
+                            $RGObjectInput:             Operator input for the resource group name
+                            $RGList:                    Variable used for printing all resource groups to screen if needed
+                        } End GetAzResourceGroup
+                    } End GetAzStorageAccount
+                } End GetAzStorageContainer
+            } End RemoveAzStorageContainer      
+        } End ManageAzStorageContainer
+} #>
+<# Process Flow {
+    function
+        Call ManageAzStorage > Get $null
+            Call ManageAzStorageAccount > Get $null
+                Call NewAzStorageAccount > Get $StorageAccObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return NewAzStorageAccount > Send $RGObject
+                End NewAzStorageAccount 
+                    Return Function > Send $StorageAccObject
+                Call GetAzStorageAccount > Get $StorageAccObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return GetAzStorageAccount > Send $RGObject
+                End GetAzStorageAccount 
+                    Return ManagageAzStorageAccount > Send $StorageAccObject
+                Call RemoveAzStorageAccount > Get $null
+                    Call GetAzStorageAccount > Get $StorageAccObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return GetAzStorageAccount > Send $RGObject
+                    End GetAzStorageAccount 
+                        Return RemoveAzStorageAccount > Send $StorageAccObject
+                End RemoveAzStorageAccount
+                    Return ManageAzStorageAccount > Send $Null
+            End ManageAzStorageAccount
+                Return ManageAzStorage > Send $null
+            Call ManageAzStorageContainer > Get $null
+                Call NewAzStorageContainer > Get $null
+                    Call GetAzStorageAccount > Get $StorageAccObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return GetAzStorageAccount > Send $RGObject
+                    End GetAzStorageAccount 
+                        Return Function > Send $StorageAccObject
+                    End NewAzStorageContainer 
+                        Return ManageStorageContainer > Send $null
+                Call GetAzStorageContainer > Get $StorageConObject
+                    Call GetAzStorageAccount > Get $StorageAccObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageContainer > Send $StorageAccObject
+                    End GetAzStorageContainer 
+                        Return ManageAzStorageContainer > Send $StorageConObject
+                Call RemoveAzStorageContainer > Get $null
+                    Call GetAzStorageContainer > Get $StorageConObject
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                    End RemoveAzStorageContainer      
+                        Return ManageAzStorageContainer > Send $null
+                End ManageAzStorageContainer
+                    Return ManageAzStorage > Send $null
+            End ManageAzStorage
+                Return Function > Send $null
+}#>
 function ManageAzStorage {
     Begin {
         :ManageAzureStorage while ($true) { # :ManageAzureStorage named loop to select search function
@@ -47,109 +280,6 @@ function ManageAzStorage {
         Return # Returns to calling function if no search option is used
     } # End begin
 } # End function ManageAzStorage
-# Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
-    New-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageaccount?view=azps-5.2.0
-    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
-    Remove-AzStorageAccount:    https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageaccount?view=azps-5.2.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
-    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
-} #>
-<# Required Functions Links: {
-    NewAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/NewAzStorageAccount.ps1
-    GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
-    RemoveAzStorageAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/RemoveAzStorageAccount.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocksAll.ps1
-    RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1 
-} #>
-<# Functions Description: {
-    ManageAzStorageAccount:     Management function for storage accounts
-    NewAzStorageAccount:        Creates new storage account object
-    GetAzStorageAccount:        Collects the storage account object
-    RemoveAzStorageAccount:     Removes the selected storage account
-    GetAzStorageAccount:        Collects the storage account object
-    GetAzResourceGroup:         Collects resource group object
-    RemoveAzResourceLocks:      Removes locks
-    GetAzResourceLocksAll:      Collects all locks on a resource
-} #>
-<# Variables: {
-    ManageAzStorageAccount {
-        :ManageAzureStorageAcc      Outer loop for function
-        $ManageAzStorageAcc:        Operator input for choosing sub function
-        NewAzStorageAccount{
-            :NewAzureStorageAcc         Outer loop for function
-            :SetAzureStorageAccName     Inner loop for setting name
-            :SetAzureStorageAccSku      Inner loop for setting sku
-            :SetAzureStorageAccLoc      Inner loop for setting location
-            $OperatorConfirm:           Operator input to confirm previous inputs
-            $RGObject:                  Resource group object
-            $StorageAccNameInput:       Operator input for name
-            $ValidSku:                  List of valid skus for storage accounts
-            $StorageAccSkuInput:        Operator input for sku
-            $ValidLocation:             List of valid azure locations
-            $StorageAccLocInput:        Operator input for location
-            $StorageAccObject:          New storage account object
-            GetAzResourceGroup {
-                $RGObject:                  Resource group object
-                $RGObjectInput:             Operator input for the resource group name
-                $RGList:                    Variable used for printing all resource groups to screen if needed
-            } End GetAzResourceGroup
-        } End NewAzStorageAccount
-        GetAzStorageAccount{
-            :GetAzureStorageAccByName   Outer loop for managing funciton
-            :GetAzureStorageAcc         Inner loop for getting the storage account
-            $RGObject:                  Resource group object
-            $StorageAccObjectInput:     Operator input for the name of the storage account
-            $SAList:                    List of all storage accounts within $RGObject
-            $StorageAccObject:          Storage account object    
-            GetAzResourceGroup {
-                $RGObject:                  Resource group object
-                $RGObjectInput:             Operator input for the resource group name
-                $RGList:                    Variable used for printing all resource groups to screen if needed
-            } End GetAzResourceGroup
-        } End GetAzStorageAccount
-        RemoveAzStorageAccount{
-            :RemoveAzureStorageAcc      Outer loop for managing function
-            $StorageAccObject:          Storage account object 
-            $StoreAccName:              Storage account object name
-            $OperatorConfirm:           Operator confirmation to remove the storage account
-            $RSObject:                  Resource object
-            $RGObject:                  Resource group object
-            $Locks:                     Locks on the storage account   
-            GetAzResourceGroup {
-                $RGObject:                  Resource group object
-                $RGObjectInput:             Operator input for the resource group name
-                $RGList:                    Variable used for printing all resource groups to screen if needed
-            } End GetAzResourceGroup
-            GetAzResourceLocksAll {
-                $RGObject:              Resource group object
-                $RSObject:              Resource object
-                $Locks:                 Locks object
-            } End GetAzResourceLocksAll
-            RemoveAzResourceLocks {
-                $Locks:                 Lock or locks object
-            } End RemoveAzResourceLocks    
-        } End RemoveAzStorageAccount
-    } End ManageAzStorageAccount
-} #>
-<# Process Flow {
-    function
-        Call ManageAzStorageAccount > Get $null
-            Call NewAzStorageAccount > Get $StorageAccObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzStorageAccount > Send $RGObject
-            End NewAzStorageAccount 
-                Return Function > Send $StorageAccObject
-            Call GetAzStorageAccount > Get $StorageAccObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return GetAzStorageAccount > Send $RGObject
-            End GetAzStorageAccount 
-                Return Function > Send $StorageAccObject
-}#>
 function ManageAzStorageAccount {
     Begin {
         :ManageAzureStorageAcc while ($true) { # :ManageAzureStorageAcc named loop to select search function
@@ -347,86 +477,6 @@ function RemoveAzStorageAccount { # Function to get a storage account, can pipe 
         Return # Returns to calling function with $null
     } # End begin 
 } # End function GetAzStorageAccount
-function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
-    Begin {
-        if (!$Locks) { # If statement if $Locks is $null
-            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
-            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
-                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-                Return $Locks # Returns to calling function
-            } # End if statement
-        } # End if statement
-        $Locks.Name # Writes all names contained in $Locks
-        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
-        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
-            $Locks = $null # $Locks is set to $null
-            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-            Return $Locks # Return to calling function
-        } # End if statement
-        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
-            $ErrorActionPreference='silentlyContinue' # Disables Errors
-            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
-                $LockId.name # Prints the LockId for each lock as the cycle goes
-                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
-            } # End foreach loop
-            $Locks = $null # Clears $Locks prior to returning to calling function
-            Return $Locks # Returns to calling function
-        } # End else statement
-    } # End begin statement
-} # End function
-function GetAzResourceLocksAll { # Function to get all locks assigned to a resource, can pipe $Locks to another function
-    Begin {
-        if (!$RSObject) {
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-                Return # Returns to calling function
-            } # End if (!$RGObject)
-            $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
-                Return # Returns to calling function
-            } # End if if (!$RSObject)
-        } # End if (!$RSObject)
-        $Locks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
-        if (!$Locks) { # If statement for no object assigned to $Locks
-            Write-Host "No locks are on this resource" # Write message to screen
-            Write-Host "The GetAzResourceLocksAll function was terminated" # Message write to screen
-            Return # Returns to calling function
-        } # End if statement
-        else { # Else statement for an object being assigned to $Locks
-            Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceLocksAll
-            Return $Locks # Returns $Locks to the calling function
-        } # End else statement
-    } # End begin statement
-} # End function   
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RGObject = $null # Clears $RGObject from all previous use
-        :GetAzureResourceGroup while ($true) { # Loop to continue getting a resource group until the operator provided name matches an existing group
-            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
-            if ($RGObjectInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResourceGroup function was terminated"
-                Break GetAzureResourceGroup # Ends :GetAzureResourceGroup loop
-            } # End if statement
-            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
-            if (!$RGObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource group" # Error note
-                Write-Host "This is the list of available resource groups" # Error note
-                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RGObject is assigned
-                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
-                Return $RGObject
-            } # End of else statement
-        } # End of while statement
-        Return # Returns to calling function
-    } # End of begin statement
-} # End of function
 function ManageAzStorageContainer {
     Begin {
         :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
@@ -571,6 +621,11 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
                 } # End if (!$StorageAccObject)
             } # End if (!$StorageAccObject)
             :GetAzureStorageConName while ($true) { # Inner loop for getting the storage container
+                if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) { # Checks for a ReadOnly lock on the owning resource group
+                    Write-Host "There is a ReadOnly lock on"$StorageAccObject.ResourceGroupName"that is preventing the search of the storage container" # Write message to screen
+                    Write-Host "This will need to be removed or converted to a CanNotDeleteLock" # Write message to screen
+                    Break GetAzureStorageContainer # Break :GetAzureStorageContainer
+                } # End if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) 
                 $StorageConNameInput = Read-Host "Storage container name" # Operator input for the storage container name
                 if ($StorageConNameInput -eq 'exit') { # If $StorageConNameInput is 'exit'
                     Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
@@ -594,3 +649,117 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
         Return # Returns to calling function with $null
     } # End Begin
 } # End function GetAzStorageContainer
+function RemoveAzStorageContainer { # Removes existing storage container
+    Begin {
+        :RemoveAzureStorageCon while ($true) { # Outer loop for function
+            <#if (!$StorageAccObject) { # If $StorageAccObject is $null
+                $StorageAccObject = GetAzStorageAccount ($RGObject) # Calls function and assigns to $var
+                    if (!$StorageAccObject) { # If $StorageAccObject is still $null after calling function
+                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
+                    } # End if (!$StorageAccObject)
+            } # End if (!$StorageAccObject) #>
+            if (!$StorageConObject) { # If $StorageConObject is $null
+                $StorageConObject = GetAzStorageContainer ($StorageAccObject) # Calls function and assigns to $var
+                    if (!$StorageConObject) { # If $StorageConObject is still $null after calling function
+                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
+                    } # End if (!$StorageAccObject)
+            } # End if (!$StorageAccObject)
+            Write-Host "***WARNING RESOURCELOCKS WILL NOT PROTECT THIS STORAGECONTAINER FROM BEING DELETED***"
+            $OperatorConfirm = Read-Host "Remove the following storage container" $StorageConObject.Name "in" $StorageAccObject.StorageAccountName # Operator confimation to remove the storage container
+                if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')) { # If Operator confirm is not (equal 'y' or 'yes')
+                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageCon
+                } # End if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes'))
+                $StoreConName = $StorageConObject.Name
+                Try { # Try to execute Remove-AzStorageAccount
+                    Remove-AzStorageContainer -Context $StorageAccObject.Context -Name $StorageConObject.Name -Force -ErrorAction Stop # Removes storage container, -ErrorAction Stop used for catch statement
+                } # End Try
+                catch { # Try fails
+                    Write-Host "You may not have the permissions to remove this storage account" # Write message to screen
+                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageAcc
+                } # End Catch
+                Write-Host $StoreConName" has been removed" # Write message to screen
+                Return # Returns to calling function
+        } # End :RemoveAzureStorageCon while ($true)
+        Return # Returns to calling function
+    } # End Begin
+} # End function RemoveAzStorageContainer
+function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
+    Begin {
+        if (!$Locks) { # If statement if $Locks is $null
+            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
+            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
+                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+                Return $Locks # Returns to calling function
+            } # End if statement
+        } # End if statement
+        $Locks.Name # Writes all names contained in $Locks
+        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
+        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
+            $Locks = $null # $Locks is set to $null
+            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
+            Return $Locks # Return to calling function
+        } # End if statement
+        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
+            $ErrorActionPreference='silentlyContinue' # Disables Errors
+            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
+                $LockId.name # Prints the LockId for each lock as the cycle goes
+                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
+            } # End foreach loop
+            $Locks = $null # Clears $Locks prior to returning to calling function
+            Return $Locks # Returns to calling function
+        } # End else statement
+    } # End begin statement
+} # End function
+function GetAzResourceLocksAll { # Function to get all locks assigned to a resource, can pipe $Locks to another function
+    Begin {
+        if (!$RSObject) {
+            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if (!$RGObject)
+            $RSObject = GetAzResource # Calls function GetAzResourceGroup and assigns to $RGObject
+            if (!$RSObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
+                Write-Host "GetAzResourceLocksAll function was terminated" # Message write to screen
+                Return # Returns to calling function
+            } # End if if (!$RSObject)
+        } # End if (!$RSObject)
+        $Locks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType | Where-Object {$_.ResourceName -eq $RSObject.Name} # Collects all locks and assigns to $Locks
+        if (!$Locks) { # If statement for no object assigned to $Locks
+            Write-Host "No locks are on this resource" # Write message to screen
+            Write-Host "The GetAzResourceLocksAll function was terminated" # Message write to screen
+            Return # Returns to calling function
+        } # End if statement
+        else { # Else statement for an object being assigned to $Locks
+            Write-Host $Locks.Name -Separator `n # Write-host used so list is written to screen when function is used as $Locks = GetAzResourceLocksAll
+            Return $Locks # Returns $Locks to the calling function
+        } # End else statement
+    } # End begin statement
+} # End function   
+function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
+    Begin {
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $RGObject = $null # Clears $RGObject from all previous use
+        :GetAzureResourceGroup while ($true) { # Loop to continue getting a resource group until the operator provided name matches an existing group
+            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
+            if ($RGObjectInput -eq 'exit') { # Operator input for exit
+                Write-Host "GetAzResourceGroup function was terminated"
+                Break GetAzureResourceGroup # Ends :GetAzureResourceGroup loop
+            } # End if statement
+            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
+            if (!$RGObject) { # Error reporting if input does not match an existing group
+                Write-Host "The name provided does not match an existing resource group" # Error note
+                Write-Host "This is the list of available resource groups" # Error note
+                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
+                Write-Host "" # Error reporting
+                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
+                Write-Host "" # Error reporting
+            } # End of if statement
+            else { # Else for when $RGObject is assigned
+                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
+                Return $RGObject
+            } # End of else statement
+        } # End of while statement
+        Return # Returns to calling function
+    } # End of begin statement
+} # End of function
