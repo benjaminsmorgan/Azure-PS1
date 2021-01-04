@@ -247,6 +247,11 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
                 } # End if (!$StorageAccObject)
             } # End if (!$StorageAccObject)
             :GetAzureStorageConName while ($true) { # Inner loop for getting the storage container
+                if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) { # Checks for a ReadOnly lock on the owning resource group
+                    Write-Host "There is a ReadOnly lock on"$StorageAccObject.ResourceGroupName"that is preventing the search of the storage container" # Write message to screen
+                    Write-Host "This will need to be removed or converted to a CanNotDeleteLock" # Write message to screen
+                    Break GetAzureStorageContainer # Break :GetAzureStorageContainer
+                } # End if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) 
                 $StorageConNameInput = Read-Host "Storage container name" # Operator input for the storage container name
                 if ($StorageConNameInput -eq 'exit') { # If $StorageConNameInput is 'exit'
                     Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
