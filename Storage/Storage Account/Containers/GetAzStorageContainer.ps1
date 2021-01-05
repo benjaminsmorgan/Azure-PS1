@@ -44,7 +44,7 @@
                 End GetAzResourceGroup
                     Return GetAzStorageAccount > Send $RGObject
             End GetAzStorageContainer 
-                Return Function > Send $StorageConObject
+                Return Function > Send $StorageConObject, $StorageAccObject
 }#>
 function GetAzStorageContainer { # Collects storage container in a storage accoun
     Begin {
@@ -72,7 +72,7 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
                 } # End if (!$StorageConNameInput)
                 $StorageConObject = Get-AzStorageContainer -Name $StorageConNameInput -Context $StorageAccObject.Context # Gets the storage container and assigns to $StorageConObject
                 if ($StorageConObject) { # If $StorageConObject has a value
-                    Return $StorageConObject # Returns $StorageConObject to calling function
+                    Return $StorageConObject, $StorageAccObject # Returns $StorageConObject to calling function
                 } # End if ($StorageConObject)
                 else { # If $StorageConObject is empty
                     Write-Host "The name provided does not match and existing storage container" # Write message to screen

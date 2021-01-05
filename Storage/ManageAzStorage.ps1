@@ -218,7 +218,7 @@
                         End GetAzStorageAccount 
                             Return GetAzStorageContainer > Send $StorageAccObject
                     End GetAzStorageContainer 
-                        Return ManageAzStorageContainer > Send $StorageConObject
+                        Return ManageAzStorageContainer > Send $StorageConObject, $StorageAccObject
                 Call RemoveAzStorageContainer > Get $null
                     Call GetAzStorageContainer > Get $StorageConObject
                         Call GetAzStorageAccount > Get $StorageAccObject
@@ -635,7 +635,7 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
                 } # End if (!$StorageConNameInput)
                 $StorageConObject = Get-AzStorageContainer -Name $StorageConNameInput -Context $StorageAccObject.Context # Gets the storage container and assigns to $StorageConObject
                 if ($StorageConObject) { # If $StorageConObject has a value
-                    Return $StorageConObject # Returns $StorageConObject to calling function
+                    Return $StorageConObject, $StorageAccObject # Returns $StorageConObject to calling function
                 } # End if ($StorageConObject)
                 else { # If $StorageConObject is empty
                     Write-Host "The name provided does not match and existing storage container" # Write message to screen
