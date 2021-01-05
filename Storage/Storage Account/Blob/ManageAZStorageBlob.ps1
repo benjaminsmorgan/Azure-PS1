@@ -1,124 +1,210 @@
-<# 
-Author - Benjamin Morgan benjamin.s.morgan@outlook.com 
-Ref: {
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.1.0
-    Get-AzureStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/azure.storage/get-azurestoragecontainer?view=azurermps-6.13.0
-    Get-AzStorageBlob:          https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblob?view=azps-5.1.0
-    Get-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblobcontent?view=azps-5.1.0
-    Set-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.1.0
-    Remove-AzStorageBlob:       https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.1.0
-}
-Required Functions: {
-    GetAzResourceGroup:         Collects resource group object
-    GetAzStorageAccount:        Collects the storage account object
-    GetAzStorageContainer:      Collects the storage container object
-    GetAzStorageBlob:           Collects any blob object
-    GetAzStorageBlobContent:    Downloads blob from storage container
-    SetAzStorageBlobContent:    Uploads blobs to a storage container
-    RemoveAzStorageBlob:        Removes the listed blob object
-}
-Variables: {
-    GetAzResourceGroup {
-        $RGObject - Resource group object
-        $RGObjectinput - Operator input for the resource group name
-        $RGList - variable used for printing all resource groups to screen if needed
-    }
-    GetAzStorageAccount {
-        $RGObject - Resource group object
-        $StorageAccount - Storage account object
-        $StorageAccointInput - Operator input for the sotrage account name
-        $SAList - variable used for printing all storage accounts to screen if needed 
-    }
-    GetAzStorageContainer {
-        $StorageAccount - Storage account object
-        $StorageContainer - Storage container object
-        $StorageContainerInput - Operator input for the storage container name
-        $SCList - variable used for printing all storage containers to screen if needed 
-    }
-    GetAzStorageBlob {
-        $StorageAccount - Storage account object
-        $StorageContainer - Storage container object
-        $SCBlobList - Storage container blob info object
-    }
-    GetAzStorageBlobContent
-        $StorageAccount - Storage account object
-        $StorageContainer - Storage container object
-        $SCBlobList - Storage container blob info object
-        $BlobFileName - Blob object
-        $BlobFileNameInput - Operator input for blob object
-        $LocalFileDownLoadPath - Operator input for blob download location
-        $OperatorSelectAnotherBlob - Operator input for keeping same container and download location
-    }
-    SetAzStorageBlobContent {
-        $SetTier - Operator input for access tier for blobs
-        $LocalFileName - Operator input for current file location, name, and extension
-        $BlobFileName - Operator input for the blob name in Azure
-        $StorageContainer - Storage account object
-        StorageAccount - Storage container object
-    }
-    RemoveAzStorageBlob {
-        $BlobFileName - Blob object
-        $BlobFileNameInput - Operator input for blob object
-        $SCBlobList - If needed, outputs all blob objects in a container
-        $StorageAccount - Storage account object
-        $StorageContainer - Storage container object
-    }
-    ManageAzStorageBlob {
-        $OperatorSelect - Operator input for executing different scripts
-        $RGObject - Resource group object
-        $StorageAccount - Storage account object
-        $StorageContainer - Storage container object
-    }
-}
-#>
-function ManageAzStorageBlob { # Script for managing storage blobs
+function ManageAzStorageBlob {
     Begin {
-        $RGObject = $null # Clears any previous use of $RGObject
-        $StorageAccount = $null # Clears any previous use of $StorageAccount
-        $StorageContainer = $null # Clears any previous use of $StorageContainer
-        while (!$OperatorSelect) { # Loop for script to function
-            Write-Host "'0' Select new container" # Write option to screen
-            Write-Host "'1' GetAzStorageBlob" # Write option list to screen
-            Write-Host "'2' GetAzStorageBlobContent" # Write option list to screen
-            Write-Host "'3' SetAzStorageBlobContent" # Write option list to screen
-            Write-Host "'4' RemoveAzStorageBlob" # Write option list to screen
-            Write-Host "'Exit' to end script" # Write option list to screen
-            $OperatorSelect = Read-Host "Chose option" # Operator input for which option they need to run
-            if ($OperatorSelect -eq '0') { # If statment for setting the storage container for multiple uses
-                $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-                $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
-                $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
-            } # End if statement 
-            elseif ($OperatorSelect -eq '1') { # Elseif statement for getting blob list in storage container
-                Write-Host "***GetAzStorageBlob***" # Option selection write to screen
-                GetAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer) # Calls function GetAZStorageBlob
-            } # End elseif statement
-            elseif ($OperatorSelect -eq '2') { # Elseif statement for downloading a blob
-                Write-Host "***GetAzStorageBlobContent***" # Option selection write to screen
-                GetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer) # Calls function GetAzStorageBlobContent 
-            } # End elseif statement
-            elseif ($OperatorSelect -eq '3') { # Elseif statement for uploading a new blob
-                Write-Host "***SetAzStorageBlobContent***" # Option selection write to screen
-                SetAzStorageBlobContent ($RGObject, $StorageAccount, $StorageContainer) # Calls function SetAzStorageBlobContent 
-            } # End elseif statement
-            elseif ($OperatorSelect -eq '4') { # Elseif statment for removing a blob
-                Write-Host "***RemoveAzStorageBlob***"  # Option selection write to screen
-                RemoveAzStorageBlob ($RGObject, $StorageAccount, $StorageContainer) # Calls function RemoveAzStorageBlob
-            } # End elseif statement
-            elseif ($OperatorSelect -eq 'exit') { # Elseif statement for ending the srcipt
-                Write-Host "***Terminating Script***" # Option selection write to screen
-                Break # Terminates script
-            } # End elseif statement
-            else { # Esle statement for all other values
-                Write-Host "Invalid option" # Option selection write to screen
-                #$OperatorSelect = $null # Empties $OperatorSelect to restart operator input selection 
-            } # End else statement
-        $OperatorSelect = $null
-        } # End while statement
-    } # End begin statemnt
-} # End function
-function GetAzStorageBlob () { # Gets blob info within a storage container
+        :ManageAzureStorageBlob while ($true) { # :ManageAzureStorageBlob named loop to select search function
+            Write-Host "Azure Storage Blob Management" # Write message to screen
+            Write-Host "1 Add Storage Blob" # Write message to screen
+            Write-Host "2 Get Storage Blobs" # Write message to screen
+            Write-Host "3 Download Storage Blobs" # Write message to screen
+            Write-Host "4 Remove Storage Blobs" # Write message to screen
+            Write-Host "'Exit to return'" # Write message to screen
+            $ManageAzStorageBlob = Read-Host "Option?" # Collects operator input on $ManageAzStorageBlob option
+            if ($ManageAzStorageBlob -eq 'exit') { # Exit if statement for this function
+                Break ManageAzureStorageBlob # Ends :ManageAzureStorageBlob loop, leading to return statement
+            } # End if ($ManageAzStorageBlob -eq 'exit')
+            elseif ($ManageAzStorageBlob -eq '1') { # Elseif statement for managing storage accounts
+                Write-Host "Add Storage Blob" # Write message to screen
+                $StorageBlobObject = SetAzStorageBlobContent ($StorageAccObject, $StorageConObject) 
+            } # End elseif ($ManageAzStorageBlob -eq '1')
+            elseif ($ManageAzStorageBlob -eq '2') { # Elseif statement for managing storage containers
+                Write-Host "Get Storage Blobs" # Write message to screen
+                $StorageBlobObject = GetAzStorageBlob ($StorageAccObject, $StorageConObject) 
+                Write-Host $StorageBlobObject
+            } # End elseif ($ManageAzStorageBlob -eq '2')
+            elseif ($ManageAzStorageBlob -eq '3') { # Elseif statement for managing Blobs
+                Write-Host "Download Storage Blobs" # Write message to screen
+                $StorageBlobObject = GetAzStorageBlobContent ($StorageAccObject, $StorageConObject) 
+            } # End elseif ($ManageAzStorageBlob -eq '3')
+            elseif ($ManageAzStorageBlob -eq '4') { # Elseif statement for managing file shares
+                Write-Host "Remove Storage Blobs" # Write message to screen
+                Remove-AzStorageBlob ($StorageAccObject, $StorageConObject) 
+            } # End elseif ($ManageAzStorageBlob -eq '4')
+            elseif ($ManageAzStorageBlob -eq '0') { # Elseif statement for managing disks
+                Write-Host "Clearing" $StorageAccObject "and" $StorageConObject
+            } # End elseif ($ManageAzStorageBlob -eq '6')
+            Write-Host $RGObject.ResourceGroupName
+            Write-Host $RSObject.Name
+            Write-Host $StorageAccObject.StorageAccountName
+            Write-Host $StorageConObject.Name
+        } # End ManageAzureStorageBlob while ($true)
+        Return # Returns to calling function if no search option is used
+    } # End begin
+} # End function ManageAzStorage
+function SetAzStorageBlobContent {
+    Begin {
+        :SetAzureBlobContent while ($true) {
+            if (!$StorageConObject) {
+                $StorageConObject, $StorageAccObject = GetAzStorageContainer
+                if (!$StorageConObject) {
+                    Break SetAzureBlobContent
+                } # End if (!$StorageConObject)
+            } # End if (!$StorageConObject)
+            :SetAzureBlobTier while($true) {
+                $BlobTierInput = Read-Host "Hot or Cool" # Operator input for $BlobTierInput
+                if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool') {
+                    Break SetAzureBlobTier
+                } # End if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool')
+                elseif ($BlobTierInput -eq 'exit') {
+                    Break SetAzureBlobContent
+                } # End elseif ($BlobTierInput -eq 'exit')
+                else {
+                    Write-Host "Please enter hot or cool"
+                } # End else (if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool'))
+            } # End :SetAzureBlobTier while($true)
+            :SetLocalFileName while ($true) {
+                $LocalFileNameInput = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
+                if ($LocalFileNameInput -eq 'exit') {
+                    Break SetAzureBlobContent
+                } # End if ($LocalFileNameInput -eq 'exit')
+                Write-Host "This is the file to be uploaded"
+                Write-Host $LocalFileNameInput
+                $OperatorConfirm = Read-Host "[Y] or [N]"
+                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
+                    Break SetLocalFileName
+                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
+            } # End :SetLocalFileName while ($true)
+            :SetAzureBlobName while ($true) {
+                $BlobFileNameInput = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
+                if ($BlobFileNameInput -eq 'exit') {
+                    Break SetAzureBlobContent
+                } # End if ($BlobFileNameInput -eq 'exit')
+                Write-Host "This will be the file name in the container"
+                Write-Host $BlobFileNameInput
+                $OperatorConfirm = Read-Host "[Y] or [N]"
+                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
+                    Break SetAzureBlobName
+                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
+            } # End :SetAzureBlobName while ($true)
+            $StorageBlobObject = Set-AzStorageBlobContent -File $LocalFileNameInput -Blob $BlobFileNameInput -Container $StorageConObject.Name -Context $StorageAccObject.Context -StandardBlobTier $BlobTierInput
+            Return $StorageBlobObject 
+        } # End  :SetAzureBlobContent while ($true)
+        Return # Returns to calling function with $null
+    } # End Begin
+} # End function SetAzStorageBlobContent
+function GetAzStorageBlob {
+    Begin {
+
+    } # End Begin
+} # End function GetAzStorageBlob
+function GetAzStorageBlobContent {
+    Begin {
+
+    } # End Begin
+} # End function GetAzStorageBlobContent
+function RemoveAzStorageBlob {
+    Begin {
+        
+    } # End Begin
+} # End function RemoveAzStorageBlob
+function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccObject to another function
+    Begin {
+        :GetAzureStorageAccByName while ($true) { # Outer loop for function
+            $ErrorActionPreference ='silentlyContinue' # Disables errors
+            if (!$RGObject) { # If $RGObject is $null
+                $RGObject = GetAzResourceGroup # Calls (Function) GetAzResourceGroup to get $RGObject
+                if (!$RGObject) { # If $RGObject is $null
+                    Break GetAzureStorageACCByName # Ends :GetAzureStorageAccByName
+                } # End if (!$RGObject) 
+            } # End if (!$RGObject)
+            :GetAzureStorageAcc while ($true) { # Loop to continue getting a storage account until the operator provided name matches an existing account
+                $StorageAccObjectInput = Read-Host "Storage account name" # Operator input of the storage account name
+                if ($StorageAccObjectInput -eq 'exit') { # If $StorageAccObjectInput is 'exit
+                    Break GetAzureStorageAccByName # Break :GetAzureStorageAccByName
+                } # Endif ($StorageAccObjectInput -eq 'exit')
+                $StorageAccObject = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName -Name $StorageAccObjectInput # Collection of the storage account from the operator input
+                if (!$StorageAccObject) { # Error reporting if input does not match and existing account
+                    Write-Host "The name provided does not match an existing storage account" # Error reporting
+                    $SAList = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName # Collects all storage accounts within $RGObject and assigns to $SAList
+                    Write-Host "" # Error reporting
+                    Write-Host $SAList.Storageaccountname -Separator `n # Write-host used so list is written to screen when function is used as $StorageAccObject = GetAzStorageAccount
+                    Write-Host "" # Error reporting
+                } # End (!$StorageAccObject)
+                else { # Else for when $StorageAccObject is assigned
+                    Write-Host $StorageAccObject.StorageAccountName 'Has been assigned to "$StorageAccObject"' # Writes the storage account name to the screen before ending function
+                    Return $StorageAccObject # Returns $var to calling function
+                } #End else ((!$StorageAccObject))
+            } # End :GetAzureStorageAcc while ($true)
+        } # End :GetAzureStorageAccByName while ($true)
+        Return # Returns to calling function with $null
+    } # End begin 
+} # End function GetAzStorageAccount
+function GetAzStorageContainer { # Collects storage container in a storage accoun
+    Begin {
+        $ErrorActionPreference='silentlyContinue'
+        $StorageConObject = $null # Clears $StorageConObject from all previous use
+        :GetAzureStorageContainer while ($true) { # Outer loop for managing function
+            if (!$StorageAccObject) { # If $StorageAccObject is $null
+                $StorageAccObject = GetAzStorageAccount # Call function and assigns to $var
+                if (!$StorageAccObject) { # If $StorageAccObject is $null after returning from function
+                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
+                } # End if (!$StorageAccObject)
+            } # End if (!$StorageAccObject)
+            :GetAzureStorageConName while ($true) { # Inner loop for getting the storage container
+                if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) { # Checks for a ReadOnly lock on the owning resource group
+                    Write-Host "There is a ReadOnly lock on"$StorageAccObject.ResourceGroupName"that is preventing the search of the storage container" # Write message to screen
+                    Write-Host "This will need to be removed or converted to a CanNotDeleteLock" # Write message to screen
+                    Break GetAzureStorageContainer # Break :GetAzureStorageContainer
+                } # End if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) 
+                $StorageConNameInput = Read-Host "Storage container name" # Operator input for the storage container name
+                if ($StorageConNameInput -eq 'exit') { # If $StorageConNameInput is 'exit'
+                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
+                } # End if ($StorageConNameInput -eq 'exit')
+                if (!$StorageConNameInput) { # If $StorageConNameInput is $null
+                    $StorageConNameInput = '0' # Sets a value that cannot be an existing storage container name
+                } # End if (!$StorageConNameInput)
+                $StorageConObject = Get-AzStorageContainer -Name $StorageConNameInput -Context $StorageAccObject.Context # Gets the storage container and assigns to $StorageConObject
+                if ($StorageConObject) { # If $StorageConObject has a value
+                    Return $StorageConObject, $StorageAccObject # Returns $StorageConObject to calling function
+                } # End if ($StorageConObject)
+                else { # If $StorageConObject is empty
+                    Write-Host "The name provided does not match and existing storage container" # Write message to screen
+                    $StorageConList = Get-AzStorageContainer -Context $StorageAccObject.Context # Gets list of all containers in storage account
+                    Write-Host $StorageConList.Name -Separator `n # Writes $StorageConList list to screen
+                    Write-Host " " # Write message to screen
+                    Write-Host "Please re-enter the storage container name" # Write message to screen
+                } # End else (if ($StorageConObject))
+            } # End :GetAzureStorageConName while ($true)
+        } # End :GetAzureStorageContainer while ($true)
+        Return # Returns to calling function with $null
+    } # End Begin
+} # End function GetAzStorageContainer
+function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
+    Begin {
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $RGObject = $null # Clears $RGObject from all previous use
+        :GetAzureResourceGroup while ($true) { # Loop to continue getting a resource group until the operator provided name matches an existing group
+            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
+            if ($RGObjectInput -eq 'exit') { # Operator input for exit
+                Write-Host "GetAzResourceGroup function was terminated"
+                Break GetAzureResourceGroup # Ends :GetAzureResourceGroup loop
+            } # End if statement
+            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
+            if (!$RGObject) { # Error reporting if input does not match an existing group
+                Write-Host "The name provided does not match an existing resource group" # Error note
+                Write-Host "This is the list of available resource groups" # Error note
+                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
+                Write-Host "" # Error reporting
+                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
+                Write-Host "" # Error reporting
+            } # End of if statement
+            else { # Else for when $RGObject is assigned
+                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
+                Return $RGObject
+            } # End of else statement
+        } # End of while statement
+        Return # Returns to calling function
+    } # End of begin statement
+} # End of function
+function GetAzStorageBlobOLD () { # Gets blob info within a storage container
     Begin {
         if (!$StorageContainer) { # Check to see if container needs to be assigned to $StorageContainer
             $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
@@ -129,7 +215,7 @@ function GetAzStorageBlob () { # Gets blob info within a storage container
         $SCBloblist # Prints blob list to screen
     } # End begin statement
 } # End function
-function GetAzStorageBlobContent { # Downloads a selected blob to a operator specified path
+function GetAzStorageBlobContentOLD { # Downloads a selected blob to a operator specified path
     Begin {
         if (!$StorageContainer) { # Check to see if container needs to be assigned to $StorageContainer
             $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
@@ -155,26 +241,7 @@ function GetAzStorageBlobContent { # Downloads a selected blob to a operator spe
         } # End while statement
     } # End begin statement
 } # End function
-Function SetAzStorageBlobContent { # Function to upload a blob (File) into an existing storage container
-    Begin {
-        $SetTier = $null # Clears $SetTier from all previous use
-        While (-Not($SetTier -eq 'Cool' -or $SetTier -eq 'Hot')) { # Loop to continue getting an access tier that is used in azure
-            $SetTier = Read-Host "Hot or Cool" # Operator input for $SetTier
-            if (-Not($SetTier -eq 'Cool' -or $SetTier -eq 'Hot')) { # Error reporting if $SetTier does not match a valid value
-                Write-Host "Invalid input" # Error reporting
-            } # End if statment
-        } # End while statement
-        $LocalFileName = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
-        $BlobFileName = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
-        if (!$StorageContainer) { # Check to see if container needs to be assigned to $StorageContainer
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
-            $StorageContainer = GetAzStorageContainer ($RGObject, $StorageAccount) # Calls function GetAzStorageContainer and assigns to $StorageContainer
-        } # End if statment
-        Set-AzStorageBlobContent -File $LocalFileName -Blob $BlobFileName -Container $StorageContainer.Name -Context $StorageAccount.Context -StandardBlobTier $SetTier # Uploads the file to azure
-    } # End begin statement
-} # End function
-Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existing storage container
+Function RemoveAzStorageBlobOLD { # Function to remove a blob (File) from an existing storage container
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables errors
         if (!$StorageContainer) {  # Check to see if container needs to be assigned to $StorageContainer
@@ -206,77 +273,3 @@ Function RemoveAzStorageBlob { # Function to remove a blob (File) from an existi
         } # End else statement
     } # End begin statement
 } # End function
-function GetAzStorageContainer { # Function to get a storage container, can pipe $StorageContainer to another function
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables errors
-        if (!$StorageAccount) { # Check to see if account needs to be assigned to $StorageAccount
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            $StorageAccount = GetAzStorageAccount ($RGObject) # Calls function GetAzStorageAccount and assigns to $StorageAccount
-        } # End if statement
-        $StorageContainer = $null # Clears $StorageContainer from all previous use
-        while (!$StorageContainer) { # Loop to continue getting a storage container until the operator provided name matches an existing container
-            $StorageContainerInput = Read-Host "Storage container name" # Operator input of the storage container name
-            $StorageContainer = Get-AzStorageContainer -Context $StorageAccount.Context -Name $StorageContainerInput # Collection of the storage container from the operator input
-            if (!$StorageContainer) { # Error reporting if input does not match and existing container
-                Write-Host "The name provided does not match an existing storage container" # Error reporting
-                Write-Host "This is the list of available storage containers" # Error reporting
-                $SCList = Get-AzStorageContainer -Context $StorageAccount.Context  # Collects all storage containers within $StorageAccount and assigns them to $SClist
-                Write-Host "" # Error reporting
-                Write-Host $SCList.Name -Separator `n # Write-host used so list is written to screen when function is used as $StorageContainer = GetAzStorageContainer
-                Write-Host "" # Error reporting
-            } # End if statement
-            else { # Else for when $StorageContainer is assigned
-                Write-Host $StorageContainer.Name # Writes the storage account name to the screen before ending function
-            } # End of else statement
-        } # End of while statement
-        Return $StorageContainer # Returns $StorageContainer back to a calling function
-    } # End of begin statement
-} # End of function
-function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccount to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables errors
-        if (!$RGObject) { # Check to see if resource group needs to be assigned to $RGObject
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-        } # End if statement
-        $StorageAccount = $null # Clears $StorageAccount from all previous use
-        while (!$StorageAccount) { # Loop to continue getting a storage account until the operator provided name matches an existing account
-            $StorageAccountInput = Read-Host "Storage account name" # Operator input of the storage account name
-            $StorageAccount = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName -Name $StorageAccountInput # Collection of the storage account from the operator input
-            if (!$StorageAccount) { # Error reporting if input does not match and existing account
-                Write-Host "The name provided does not match an existing storage account" # Error reporting
-                $SAList = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName # Collects all storage accounts within $RGObject and assigns to $SAList
-                Write-Host "" # Error reporting
-                Write-Host $SAList.Storageaccountname -Separator `n # Write-host used so list is written to screen when function is used as $StorageAccount = GetAzStorageAccount
-                Write-Host "" # Error reporting
-            } # End if statement
-            else { # Else for when $StorageAccount is assigned
-                Write-Host $StorageAccount.StorageAccountName 'Has been assigned to "$StorageAccount"' # Writes the storage account name to the screen before ending function
-            } #End else statement
-        } # End of while statement
-        Return $StorageAccount # Returns $StorageAccount back to a calling function
-    } # End of begin statement
-} # End of function
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function.
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RGObject = $null # Clears $RGObject from all previous use
-        while (!$RGObject) { # Loop to continue getting a resource group until the operator provided name matches an existing group
-            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
-            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
-            if (!$RGObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource group" # Error note
-                Write-Host "This is the list of available resource groups" # Error note
-                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RGObject is assigned
-                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
-            } # End of else statement
-        } # End of while statement
-        Return $RGObject  # Returns the value of $RGObject to a function that called it
-    } # End of begin statement
-} # End of function
-
-
