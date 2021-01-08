@@ -6,19 +6,28 @@
     New-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstoragecontainer?view=azps-5.2.0
     Get-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragecontainer?view=azps-5.2.0
     Remove-AzStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstoragecontainer?view=azps-5.2.0
+    Set-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.3.0
+    Get-AzStorageBlob:          https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblob?view=azps-5.3.0
+    Get-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblobcontent?view=azps-5.3.0
+    Remove-AzStorageBlob:       https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.3.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
     Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
 } #>
 <# Required Functions Links: {
-    ManageAzStorageAccount:     TBD
+    ManageAzStorageAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/ManageAzStorageAccount.ps1
     NewAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/NewAzStorageAccount.ps1
     GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
     RemoveAzStorageAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/RemoveAzStorageAccount.ps1
-    ManageAzStorageContainer:   TBD
+    ManageAzStorageContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/ManageAzStorageContainer.ps1
     NewAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/NewAzStorageContainer.ps1
     GetAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/GetAzStorageContainer.ps1
     RemoveAzStorageContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/RemoveAzStorageContainer.ps1
+    ManageAzStorageBlobs:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Blob/ManageAZStorageBlob.ps1
+    SetAzStorageBlobContent:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Blob/SetAzStorageBlobContent.ps1
+    ListAzStorageBlobs:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Blob/ListAzStorageBlobs.ps1
+    GetAzStorageBlobContent:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Blob/GetAzStorageBlobContent.ps1
+    RemoveAzStorageBlob:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Blob/RemoveAzStorageBlob.ps1
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocksAll.ps1
     RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1 
@@ -33,6 +42,10 @@
     NewAzStorageContainer:      Creates new storage container(s) in a storage account 
     GetAzStorageContainer:      Collects storage container in a storage account  
     RemoveAzStorageContainer:   Removes existing storage container
+    SetAzStorageBlobContent:    Uploads new blobs
+    ListAzStorageBlobs:         Gets blob(s) information
+    GetAzStorageBlobContent:    Downloads existing blob(s)
+    RemoveAzStorageBlob:        Removes blobs from Azure
     GetAzResourceGroup:         Collects resource group object
     RemoveAzResourceLocks:      Removes locks
     GetAzResourceLocksAll:      Collects all locks on a resource
@@ -172,6 +185,136 @@
                 } End GetAzStorageContainer
             } End RemoveAzStorageContainer      
         } End ManageAzStorageContainer
+        ManageAzStorageBlob {
+            :ManageAzureStorageBlob     Outer loop for managing function
+            $ManageAzStorageBlob:       Operator input for choosing a management function
+            $StorageBlobObject:         Storage blob object or objects
+            $StorageAccObject:          Storage account for the container holding the blobs
+            $StorageConObject:          Storage container holding the blobs
+            $RGObject:                  Resource group object holding the storage account
+            SetAzStorageBlobContent {
+                :SetAzureBlobContent        Outer loop for managing function
+                :SetAzureBlobTier           Inner loop for setting a new blob access tier
+                :SetLocalFileName           Inner loop for setting the local machine file path
+                :SetAzureBlobName           Inner loop for setting the file name and ext in azure
+                $StorageConObject:          Storage container holding the blobs
+                $StorageAccObject:          Storage account for the container holding the blobs
+                $BlobTierInput:             Operator input for the access tier
+                $LocalFileNameInput:        Operator input for the local file path and file name
+                $OperatorConfirm:           Operator confirmation that info is correct
+                $BlobFileNameInput:         Operator input for the blob name in azure
+                $StorageBlobObject:         Storage blob object or objects
+                GetAzStorageContainer{
+                    :GetAzureStorageContainer   Outer loop for managing function
+                    :GetAzureStorageConName     Inner loop for getting the storage container
+                    $StorageAccObject:          Storage account object    
+                    $StorageConNameInput:       Operator input for the storage container name
+                    $StorageConObject:          Storage container object
+                    $StorageConList:            List of all containers in storage account
+                    GetAzStorageAccount{
+                        :GetAzureStorageAccByName   Outer loop for managing funciton
+                        :GetAzureStorageAcc         Inner loop for getting the storage account
+                        $RGObject:                  Resource group object
+                        $StorageAccObjectInput:     Operator input for the name of the storage account
+                        $SAList:                    List of all storage accounts within $RGObject
+                        $StorageAccObject:          Storage account object    
+                        GetAzResourceGroup {
+                            $RGObject:                  Resource group object
+                            $RGObjectInput:             Operator input for the resource group name
+                            $RGList:                    Variable used for printing all resource groups to screen if needed
+                        } End GetAzResourceGroup
+                    } End GetAzStorageAccount
+                } End GetAzStorageContainer
+            } End SetAzStorageBlobContent
+            ListAzStorageBlob {
+                :ListAzureBlobs             Outer loop for managing function
+                $StorageConObject:          Storage container holding the blobs
+                $StorageAccObject:          Storage account for the container holding the blobs
+                $OperatorSelect:            Operator input for blob object selection
+                $StorageBlobNameInput:      Operator input for blob name
+                $StorageBlobList:           List of all blobs in container
+                $StorageBlobObject:         Storage blob object or objects
+                GetAzStorageContainer{
+                    :GetAzureStorageContainer   Outer loop for managing function
+                    :GetAzureStorageConName     Inner loop for getting the storage container
+                    $StorageAccObject:          Storage account object    
+                    $StorageConNameInput:       Operator input for the storage container name
+                    $StorageConObject:          Storage container object
+                    $StorageConList:            List of all containers in storage account
+                    GetAzStorageAccount{
+                        :GetAzureStorageAccByName   Outer loop for managing funciton
+                        :GetAzureStorageAcc         Inner loop for getting the storage account
+                        $RGObject:                  Resource group object
+                        $StorageAccObjectInput:     Operator input for the name of the storage account
+                        $SAList:                    List of all storage accounts within $RGObject
+                        $StorageAccObject:          Storage account object    
+                        GetAzResourceGroup {
+                            $RGObject:                  Resource group object
+                            $RGObjectInput:             Operator input for the resource group name
+                            $RGList:                    Variable used for printing all resource groups to screen if needed
+                        } End GetAzResourceGroup
+                    } End GetAzStorageAccount
+                } End GetAzStorageContainer
+            } End ListAzStorageBlob
+            GetAzStorageBlobContent {
+                :GetAzureBlobs              Outer loop for managing function
+                :SetLocalFilePath           Inner loop for setting the download path
+                $StorageBlobObject:         Storage blob object or objects
+                $StorageAccObject:          Storage account for the container holding the blobs
+                $StorageConObject:          Storage container holding the blobs
+                $LocalFileDownloadPath:     Operator input for the file path blob will be downloaded to
+                $OperatorConfirm:           Operator confirmation that info is correct
+                GetAzStorageContainer{
+                    :GetAzureStorageContainer   Outer loop for managing function
+                    :GetAzureStorageConName     Inner loop for getting the storage container
+                    $StorageAccObject:          Storage account object    
+                    $StorageConNameInput:       Operator input for the storage container name
+                    $StorageConObject:          Storage container object
+                    $StorageConList:            List of all containers in storage account
+                    GetAzStorageAccount{
+                        :GetAzureStorageAccByName   Outer loop for managing funciton
+                        :GetAzureStorageAcc         Inner loop for getting the storage account
+                        $RGObject:                  Resource group object
+                        $StorageAccObjectInput:     Operator input for the name of the storage account
+                        $SAList:                    List of all storage accounts within $RGObject
+                        $StorageAccObject:          Storage account object    
+                        GetAzResourceGroup {
+                            $RGObject:                  Resource group object
+                            $RGObjectInput:             Operator input for the resource group name
+                            $RGList:                    Variable used for printing all resource groups to screen if needed
+                        } End GetAzResourceGroup
+                    } End GetAzStorageAccount
+                } End GetAzStorageContainer
+            } End GetAzStorageBlobContent
+            RemoveAzStorageBlob {
+                :RemoveAzureBlobs           Outer loop for managing function
+                $StorageBlobObject:         Storage blob object or objects
+                $StorageAccObject:          Storage account for the container holding the blobs
+                $StorageConObject:          Storage container holding the blobs
+                $ConfirmDelete:             Operator confirmation for deletion
+                GetAzStorageContainer{
+                    :GetAzureStorageContainer   Outer loop for managing function
+                    :GetAzureStorageConName     Inner loop for getting the storage container
+                    $StorageAccObject:          Storage account object    
+                    $StorageConNameInput:       Operator input for the storage container name
+                    $StorageConObject:          Storage container object
+                    $StorageConList:            List of all containers in storage account
+                    GetAzStorageAccount{
+                        :GetAzureStorageAccByName   Outer loop for managing funciton
+                        :GetAzureStorageAcc         Inner loop for getting the storage account
+                        $RGObject:                  Resource group object
+                        $StorageAccObjectInput:     Operator input for the name of the storage account
+                        $SAList:                    List of all storage accounts within $RGObject
+                        $StorageAccObject:          Storage account object    
+                        GetAzResourceGroup {
+                            $RGObject:                  Resource group object
+                            $RGObjectInput:             Operator input for the resource group name
+                            $RGList:                    Variable used for printing all resource groups to screen if needed
+                        } End GetAzResourceGroup
+                    } End GetAzStorageAccount
+                } End GetAzStorageContainer
+            } End RemoveAzStorageBlob
+        } End  ManageAzStorageBlob 
 } #>
 <# Process Flow {
     function
@@ -227,10 +370,61 @@
                                 Return GetAzStorageAccount > Send $RGObject
                     End RemoveAzStorageContainer      
                         Return ManageAzStorageContainer > Send $null
-                End ManageAzStorageContainer
-                    Return ManageAzStorage > Send $null
-            End ManageAzStorage
-                Return Function > Send $null
+            End ManageAzStorageContainer
+                Return ManageAzStorage > Send $null
+            Call ManageAzStorageBlob
+                Call SetAzStorageBlobContent > Get $StorageBlobObject
+                    Call GetAzStorageContainer > Get $StorageConObject
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageContainer > Send $StorageAccObject
+                    End GetAzStorageContainer 
+                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
+                End SetAzStorageBlobContent
+                    Return ManageAzStorageBlob > Send $StorageBlobObject
+                Call ListAzStorageBlob > Get $StorageBlobObject
+                    Call GetAzStorageContainer > Get $StorageConObject
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageContainer > Send $StorageAccObject
+                    End GetAzStorageContainer 
+                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
+                End ListAzStorageBlob
+                    Return ManageAzStorageBlob > Send $StorageBlobObject
+                Call GetAzStorageBlobContent > Get $StorageBlobObject
+                    Call GetAzStorageContainer > Get $StorageConObject
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageContainer > Send $StorageAccObject
+                    End GetAzStorageContainer 
+                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
+                End GetAzStorageBlobContent
+                    Return ManageAzStorageBlob > Send $StorageBlobObject 
+                Call RemoveAzStorageBlob > Get $null
+                    Call GetAzStorageContainer > Get $StorageConObject
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageContainer > Send $StorageAccObject
+                    End GetAzStorageContainer 
+                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
+                End RemoveAzStorageBlob
+                    Return ManageAzStorageBlob > Send $null
+            End ManageAzStorageBlob
+                Return ManageAzStorage > Send $null 
+        End ManageAzStorage
+            Return Function > Send $null
 }#>
 function ManageAzStorage {
     Begin {
