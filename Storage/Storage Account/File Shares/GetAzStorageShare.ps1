@@ -14,7 +14,7 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    GetAzStorageShare               
+    GetAzStorageShare {              
         :GetAzureStorageShare       Outer loop for managing function
         :GetAzureStorageShareName   Inner loop for getting the named storage share
         $StorageAccObject:          Storage account object
@@ -57,26 +57,31 @@ Function GetAzStorageShare { # Gets a storage share
                     Break GetAzureStorageShare # Breaks :GetAzureStorageShare
                 } # End if (!$StorageAccObject) 
             } # End if (!$StorageAccObject) {
+            $StorageShareList = Get-AzStorageShare -Context $StorageAccObject.Context # Collects all shares in selected storage account
             :GetAzureStorageShareName while ($true) { # Inner loop for getting the named storage share
+                $StorageShareObject = $null # Clears from previous use
                 $ShareNameInput = Read-Host "Storage share name" # Operator input for the share name
                 if ($ShareNameInput -eq 'exit') { # If $ShareNameInput is 'exit'
                     Break GetAzureStorageShare # Breaks :GetAzureStorageShare
                 } # End if ($ShareNameInput -eq 'exit')
-                Try { # Try to get $StorageShareObject
-                    $StorageShareObject = Get-AzStorageShare -Context $StorageAccObject.Context -Name $ShareNameInput # Collects the Storage share and assigns to $StorageShareObject
-                } # End Try
-                Catch { # If Try fails
-                    $StorageShareObject = $null # Clears from previous use
+                if ($ShareNameInput -notin $StorageShareList.Name) {
                     Write-Host "The name provided does not match an existing share" # Write message to screen
                     Write-Host "Please select from the following" # Write message to screen
                     Write-Host "" # Write message to screen
-                    $StorageShareList = Get-AzStorageShare -Context $StorageAccObject.Context # Collects all shares in selected storage account
                     Write-Host $StorageShareList.Name -Separator `n # Writes $StorageShareList to screen
                     Write-Host "" # Write message to screen
-                } # End catch
-                if ($StorageShareObject) { # If $StorageShareObject is not $null
-                    Return $StorageShareObject # Returns $StorageShareObject to calling function
-                } # End if ($StorageShareObject) 
+                } # End if ($ShareNameInput -notin $StorageShareList)
+                else {
+                    Try { # Try to get $StorageShareObject
+                        $StorageShareObject = Get-AzStorageShare -Context $StorageAccObject.Context -Name $ShareNameInput # Collects the Storage share and assigns to $StorageShareObject
+                    } # End Try
+                    Catch { # If Try fails
+                        Write-Host "The share was not collected, you may not have the permissions" # Write message to screen
+                    } # End catch
+                    if ($StorageShareObject) { # If $StorageShareObject is not $null
+                        Return $StorageShareObject, $StorageAccObject # Returns $StorageShareObject to calling function
+                    } # End if ($StorageShareObject)
+                } # End else (if ($ShareNameInput -notin $StorageShareList)) 
             } # End :GetAzureStorageShareName while ($true)
         } # End :GetAzureStorageShare while ($true)
         Return # Returns nothing
