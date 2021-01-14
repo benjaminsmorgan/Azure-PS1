@@ -22,20 +22,9 @@
         SearchAzResourceGroupTag:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupTag.ps1    
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     NewAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/NewAzResourceGroup.ps1 
-    GetAzResourceGroupResources:TBD        
     RemoveAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/RemoveAzResourceGroup.ps1
-        GetAzResourceGroupLocksAll: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceGroupLocksAll.ps1
-        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLocks.ps1  
     RemoveAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/RemoveAzResource.ps1
-        GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        SearchAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResource.ps1
-            SearchAzResourceName:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceName.ps1
-            SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceType.ps1
-            SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceLoc.ps1
-            SearchAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceTag.ps1
-        GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceLocksAll.ps1
-        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLocks.ps1   
+    GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
     SearchAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResource.ps1
         SearchAzResourceName:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceName.ps1
         SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceType.ps1
@@ -46,10 +35,7 @@
         NewAzResourceLock:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/NewAzResourceLock.ps1
         GetAzResourceGroupLocksAll: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceGroupLocksAll.ps1
         GetAzResourceGroupLockNamed:https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceGroupLockNamed.ps1
-        GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceLocksAll.ps1
         GetAzResourceLockNamed:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceLockNamed.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
     ManageAzResourceGroupTags:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/ManageAzResourceGroupTags.ps1    
         SetAzTagPair:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/SetAzTagPair.ps1
         AddAzResourceGroupTag:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/AddAzResourceGroupTag.ps1
@@ -60,462 +46,111 @@
         RemoveAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTag.ps1
         RemoveAzResourceGroupTags:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceGroupTags.ps1
         RemoveAzResourceTags:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTags.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
 } #>
 <# Functions Description: {
     ManageAzResourceGroup:      Manages all functions related to Resource Group objects
-    SearchAzResouceGroup:       Management function for all SearchAzResourceGroup*
-        SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
-        SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
-        SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
-        SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
-    GetAzResourceGroup:         Gets resource group from full name match
-    NewAzResourceGroup:         Creates a resource group object
-    ManageAzResourceGroupLocks: Manages all functions related to Lock objects
-    RemoveAzResourceGroup:      Removes a resource group object
-        GetAzResourceGroupLocksAll: Collects resource locks
-        RemoveAzResourceLocks:      Removes resource locks passed in $Locks
-    RemoveAzResource:           Removes a selected resource
-        GetAzResource:              Collects resources within a resource group 
+        SearchAzResouceGroup:       Management function for all SearchAzResourceGroup*
+            SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
+            SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
+            SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
+            SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
         GetAzResourceGroup:         Gets resource group from full name match
-        SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
-            SearchAzResourceName:       Searchs for resource using partial name matches on a resource name
-            SearchAzResourceType:       Searchs for resource using resource provider or type on a resource or resource
-            SearchAzResourceLoc:        Searchs for resource using location matches on a resource
-            SearchAzResourceTag:        Searchs for resource using tag matches on a resource
-        GetAzResourceLocksAll:      Collects all locks on a resource
-        RemoveAzResourceLocks:      Removes resource locks passed in $Locks
-    SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
-        SearchAzResourceName:       Searchs for resource using partial name matches on a resource name
-        SearchAzResourceType:       Searchs for resource using resource provider or type on a resource or resource
-        SearchAzResourceLoc:        Searchs for resource using location matches on a resource
-        SearchAzResourceTag:        Searchs for resource using tag matches on a resource
-    ManageAzResourceGroupLocks: Management function for Locks functions
-        NewAzResourceGroupLock:     Create a new resource lock on a resource group
-        GetAzResourceGroupLocksAll: Collects all locks on a resource group and its resources
-        GetAzResourceGroupLockNamed:Collects a named locks on a resource group
-        GetAzResourceLocksAll:      Collects all locks on a resource
-        GetAzResourceLockNamed:     Collects a named lock on a resource
-        GetAzResourceGroup:         Collects resource group object
-        GetAzResource:              Collects resources within a resource group  
-    ManageAzResourceGroupTags:  Management function for tags functions
-        SetAzTagPair:               Create a tag for multiple uses
-        AddAzResourceGroupTag:      Create a new resource tag on a resource group
-        AddAzResourceTag:           Create a new resource tag on a resource
-        GetAzResourceGroupTags:     Get all tags on a resource group
-        GetAzResourceTags:          Get all tags on a resource
-        RemoveAzResourceGroupTag:   Remove a named tag from a resource group
-        RemoveAzResourceTag:        Remove a named tag from a resource
-        RemoveAzResourceGroupTags:  Remove all tags from a resource group
-        RemoveAzResourceTags:       Remove all tags from a resource
-        GetAzResourceGroup:         Collects resource group object
-        GetAzResource:              Collects resources within a resource group    
+        NewAzResourceGroup:         Creates a resource group object
+        RemoveAzResourceGroup:      Removes a resource group object
+        RemoveAzResource:           Removes a selected resource    
+        GetAzResource:              Gets a resource from a full name match
+        SearchAzResource:           Management function for all SearchAzResource*
+            SearchAzResourceName:       Searches for a resource using a partial name match
+            SearchAzResourceType:       Searches for a resource usting a resource provider or type match
+            SearchAzResourceLoc:        Searches for a resource using a location match
+            SearchAzResourceTag:        Searches for a resource using a tag match
+        ManageAzResourceGroupLocks: Management function for Locks functions
+            NewAzResourceGroupLock:     Create a new resource lock on a resource group
+            GetAzResourceGroupLocksAll: Collects all locks on a resource group and its resources
+            GetAzResourceGroupLockNamed:Collects a named locks on a resource group
+            GetAzResourceLocksAll:      Collects all locks on a resource
+            GetAzResourceLockNamed:     Collects a named lock on a resource
+        ManageAzResourceGroupTags:  Management function for tags functions
+            SetAzTagPair:               Create a tag for multiple uses
+            AddAzResourceGroupTag:      Create a new resource tag on a resource group
+            AddAzResourceTag:           Create a new resource tag on a resource
+            GetAzResourceGroupTags:     Get all tags on a resource group
+            GetAzResourceTags:          Get all tags on a resource
+            RemoveAzResourceGroupTag:   Remove a named tag from a resource group
+            RemoveAzResourceTag:        Remove a named tag from a resource
+            RemoveAzResourceGroupTags:  Remove all tags from a resource group
+            RemoveAzResourceTags:       Remove all tags from a resource   
 } #>
 <# Variables: {
     ManageAzResourceGroup {
-        $OperatorSearchOption:  Operator input for search option
-        :ManageAzureRG          Named loop for selecting the management option
-    }
-    SearchAzResourceGroup {
-        $SearchAzRG:            Operator input for type of search
-        :SearchAzureRG          Named loop for selecting search type
-        SearchAzResourceGroupName {
-            $OperatorSearchOption:  Operator input for search option
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByName    Named outer loop for function
-            :SearchAzureRSName      Named inner loop for finding $RGObject using resource name
-            :SearchAzureRGName      Named inner loop for finding $RGObject
-        }
-        SearchAzResourceGroupType {
-            $ProviderList:          List of all available Azure providers, created at function start as takes time to create
-            $OperatorSearchOption:  Operator input for the search type within this function
-            $RPObjectInput:         Operator input for search option
-            $RPObject:              Resource provider object
-            $RPTObjectInput:        Operator input for the resource provider type
-            $RPTObject:             Object for the resource provider type, only used to verify type exists
-            $RPTObjectName:         Combination of $RPObject.ProviderNamespace "/" $RPTObject.ResourceTypeName, used for getting $RSObject
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRStype      Named outer loop for function
-            :SearchAzureRSProvider  Named middle loop for getting a resource group by provider name only
-            :SearchAzureRSType      Named middle loop for getting a resource group by provider name plus type
-            :SearchAzureRPName      Named inner loop for getting the provider name, used in both middle loops
-            :GetAzureRPTName        Named inner loop for getting the provider type, used in :SearchAzureRSType only
-            :GetAzureRSObject       Named inner loop for getting the resource object and resource group, used in both middle loops
-        }
-        SearchAzResourceGroupName {
-            $ValidLocation:         Object containing all Azure location names
-            $OperatorSearchOption:  Operator input for search option
-            $Location:              Operator input for the Azure location
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByLoc     Named outer loop for function
-            :SearchAzureRSLoc       Named middle loop for finding $RGObject using resource location
-            :SearchAzureRGLoc       Named middle loop for finding $RGObject using resource group location
-            :SetLocation            Named inner loop for getting and verifying Azure location, used in both middle loops
-            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSLoc
-            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGLoc
-        }
-        SearchAzResourceGroupTag {
-            $ValidTagName:          Object containing all Azure Tags
-            $ValidTagValue:         Object containing all the $TagNameInput values
-            $OperatorSearchOption:  Operator input for search option
-            $TagNameInputNameInput: Operator input for the tag name
-            $TagNameInputValueInput:Operator input for the tag value
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByTag     Named outer loop for function
-            :SearchAzureRSTag       Named middle loop for finding $RGObject using resource Tag
-            :SearchAzureRGTag       Named middle loop for finding $RGObject using resource group Tag
-            :SetTagName             Named inner loop for getting and verifying Azure tag name, used in both middle loops
-            :SetTagValue            Named inner loop for getting and verifying Azure tag value, used in both middle loops
-            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSTag
-            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGTag
-        }
-    } End SearchAzResourceGroup
-    GetAzResourceGroup {
-        $RGObject:              Resource group object
-        $RGObjectInput:         Operator input for the resource group name
-        $RGList:                Variable used for printing all resource groups to screen if needed
-        :GetAzureResourceGroup  Named loop for getting the resource group object
-    }
-    NewAzResourceGroup {
-        $RGObject:              Resource group object
-        $RGObjectinput:         Operator input for the resource group name
-        $OperatorConfirm:       Operator confirmation info is correctly input
-        $TagNameInput:          Operator input for a tag name
-        $TagValueInput:         Operator input for the tag value
-        $Tag:                   Full tag to be applied to the resource group creation
-        $ValidLocation:         Collection of all Azure locations
-        $LocationInput:         Operator input for the location
-        :NewAzureRGObject       Named outer loop for creating a new resource group
-        :SetTag                 Named inner loop for setting tag
-        :SetName                Named inner loop for setting name
-        :SetLocation            Named inner loop for setting location
-    }
-    RemoveAzResourceGroup {
-        $RGObject:              Resource group object, used for all actions
-        $RGObjectName:          Name of the resource group object, used only in confirmation
-        $RGObjectVerify:        Resource group object pulled again using $RGObjectName to check if existing
-        $OperatorSearchOption:  Operator input for how to get $RGObject
-        $OperatorConfirm:       Operator confirmation info is correctly input
-        $Locks:                 All lock objects if existing
-        :RemoveAzureRGObject    Named outer loop for running all commands in function
-        :GetAzureRGObject       Named inner loop for setting and confirming the resource group object
-        RemoveAzResourceLocks {
-            $Locks:                 Lock or locks object
-        }
-        RemoveAzResourceLocks {
-            $Locks:                 Lock or locks object
-            $OperatorConfirm:       Operator input what locks to collect
-        }
-    } End RemoveAzResourceGroup
-    Remove-AzResource {
-        :RemoveAzureRSObject   Outer loop for function      
-        :GetAzureRSObject      Inner loop to collect $RSObject
-        $RSObject:             Resource object
-        $OperatorSearchOption: Operator input for method to get $RSObject 
-        $RGLocks:              Check if $RSObject's containing resource group has locks
-        $OperatorConfirm:      Operator confirmation to delete $RSObject
-        $RSObjectName:         $RSObject name, used to check for sucessful deletion
-        $Locks:                All locks assigned to $RSObject
-        $RSObjectVerify:       Check if $RSObjectName still returns a valid object
-        GetAzResource {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name
-            $RSList:                Variable used for printing all resources to screen if needed
-            GetAzResourceGroup {
-                $RGObject:              Resource group object
-                $RGObjectInput:         Operator input for the resource group name
-                $RGList:                Variable used for printing all resource groups to screen if needed
-                :GetAzureResourceGroup  Named loop for getting the resource group object
-            } # End GetAzResourceGroup
-        } # End GetAzResource 
-        SearchAzResource {
-            :SearchAzureRS          Outer loop for function
-            $SearchAzRS:            Operator input for type of search
-            $RSObject:              Resource object      
-            SearchAzResourceName {
-                :SearchAzureRSByName    Outer loop for function
-                :SearchAzureRSName      Inner loop for finding resource by name
-                $RSObjectInput:         Operator input for the resource name
-                $RSObject:              Resource object
-                $RGObjectInput:         Operator input for the resource group name
-                $ForEachCount:          Number used in foreach statement for each found resource
-            } End SearchAzResourceName
-            SearchAzResourceType {                
-                :SearchAzureRSByType    Outer loop for function
-                :SearchAzureRPName      Inner lopp for getting the Azure resource provider
-                :SearchAzureRSType      Inner loop for getting the Azure resource provider type
-                :GetAzureRSObject       Inner loop for collecting the resource object
-                $OperatorSearchOption:  Operator input to search by provider or provider and type
-                $ProviderList:          List of all Azure resource providers
-                $RPObjectInput:         Azure resource provider object input
-                $RPObject:              Azure resource provider object
-                $RPTObjectList:         List of all types on selected Azure resource provider 
-                $RPTObjectInput:        Operator input for Azure resource provider type object
-                $RPTObject:             Azure resource provider type object
-                $RSObjectInput:         Operator input for the resource name
-                $RSObject:              Resource object
-                $RGObjectInput:         Operator input for the resource group name       
-                $OperatorConfirm:       Operator confirmation that the resource provider and type are correct
-                $ForEachCount:          Number used in foreach statement for each found resource
-            } End SearchAzResourceType
-            SearchAzResourceLoc {
-                :SearchAzureRSByLoc     Outer loop for function
-                :SearchAzureRSLoc       Inner loop for finding resource by location
-                :SetLocation            Inner loop for setting $Location
-                :GetAzureRSObject       Inner loop for collecting the resource object
-                $ValidLocation:         List of all valid Azure locations
-                $Location:              Operator input for the resource location
-                $RSObject:              Resource object
-                $RSObjectInput:         Operator input for the resource name 
-                $RGObjectInput:         Operator input for the resource group name 
-                $ForEachCount:          Number used in foreach statement for each found resource
-            } End SearchAzResourceLoc
-            SearchAzResourceTag {
-                :SearchAzureRSByTag     Outer loop for function
-                :SearchAzureRSTag       Inner loop for finding resource by tags
-                :SetTagName             Inner loop for setting tag name
-                :SetTagValue            Inner loop for setting tag value
-                $ValidTagName:          List of all available tags in Azure subscription
-                $TagNameInput:          Operator input for the tag name
-                $TagValueInput:         Operator input for the tag value
-                $RSObject:              Resource object
-                $OperatorSearchOption:  Operator input to narrow search 
-                $ForEachCount:          Number used in foreach statement for each found resource          
-                $RSObjectInput:         Operator input for the resource name 
-                $RGObjectInput:         Operator input for the resource group name
-            } End SearchAzResourceTag
-        } End SearchAzResource
-        GetAzResourceLocksAll {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $Locks:                 Locks object
-        } End GetAzResourceLocksAll
-        RemoveAzResourceLocks {
-            $Locks:                 Lock or locks object
-        } End RemoveAzResourceLocks
-    } End RemoveAzResource
-    SearchAzResource {
-        :SearchAzureRS          Outer loop for function
-        $SearchAzRS:            Operator input for type of search
-        $RSObject:              Resource object      
-        SearchAzResourceName {
-            :SearchAzureRSByName    Outer loop for function
-            :SearchAzureRSName      Inner loop for finding resource by name
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object
-            $RGObjectInput:         Operator input for the resource group name
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceName
-        SearchAzResourceType {                
-            :SearchAzureRSByType    Outer loop for function
-            :SearchAzureRPName      Inner lopp for getting the Azure resource provider
-            :SearchAzureRSType      Inner loop for getting the Azure resource provider type
-            :GetAzureRSObject       Inner loop for collecting the resource object
-            $OperatorSearchOption:  Operator input to search by provider or provider and type
-            $ProviderList:          List of all Azure resource providers
-            $RPObjectInput:         Azure resource provider object input
-            $RPObject:              Azure resource provider object
-            $RPTObjectList:         List of all types on selected Azure resource provider 
-            $RPTObjectInput:        Operator input for Azure resource provider type object
-            $RPTObject:             Azure resource provider type object
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object
-            $RGObjectInput:         Operator input for the resource group name       
-            $OperatorConfirm:       Operator confirmation that the resource provider and type are correct
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceType
-        SearchAzResourceLoc {
-            :SearchAzureRSByLoc     Outer loop for function
-            :SearchAzureRSLoc       Inner loop for finding resource by location
-            :SetLocation            Inner loop for setting $Location
-            :GetAzureRSObject       Inner loop for collecting the resource object
-            $ValidLocation:         List of all valid Azure locations
-            $Location:              Operator input for the resource location
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name 
-            $RGObjectInput:         Operator input for the resource group name 
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceLoc
-        SearchAzResourceTag {
-            :SearchAzureRSByTag     Outer loop for function
-            :SearchAzureRSTag       Inner loop for finding resource by tags
-            :SetTagName             Inner loop for setting tag name
-            :SetTagValue            Inner loop for setting tag value
-            $ValidTagName:          List of all available tags in Azure subscription
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $RSObject:              Resource object
-            $OperatorSearchOption:  Operator input to narrow search 
-            $ForEachCount:          Number used in foreach statement for each found resource          
-            $RSObjectInput:         Operator input for the resource name 
-            $RGObjectInput:         Operator input for the resource group name
-        } End SearchAzResourceTag
-    } End SearchAzResource
-    ManageAzResourceGroupLocks {
-        :ManageAzureRGLocks     Outer loop for function
-        $OperatorManageOption:  Operator input for management option
-        $OperatorSelect:        Operator input for clearing $Vars
-        $ForEachCount:          Number used in foreach statement for each found resource
-        NewAzResourceGroupLock {
-            $RGObject:              Resource group object
-            $LockName:              Operator input for the lock name
-            $LockLevel:             Operator input for the lock level
-            $LockNotes:             Optional operator input for the lock notes
-            $Locks:                 Locks object
-            :NewAzureRGLock         Outer loop for function
-            :GetAzureLockName       Inner loop for getting lock name
-            :GetAzureLockLevel      Inner loop for getting lock level
-        }
-        NewAzResourceLock {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $LockName:              Operator input for the lock name
-            $LockLevel:             Operator input for the lock level
-            $LockNotes:             Optional operator input for the lock notes
-            $Locks:                 Locks object
-            :NewAzureRSLock         Outer loop for function
-            :GetAzureLockName       Inner loop for getting lock name
-            :GetAzureLockLevel      Inner loop for getting lock level
-        }
-        GetAzResourceGroupLocksAll {
-            $RGObject:              Resource group object
-            $Locks:                 Locks object
-        }
-        GetAzResourceGroupLockNamed {
-            $RGObject:              Resource group object
-            $Locks:                 Locks object
-            $LocksInput:            Input to collect a named lock
-            $LocksList:             Object containing all locks within the resource group
-            $OperatorConfirm:       Operator confirmation that the lock found was the intended 
-        }
-        GetAzResourceLocksAll {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $Locks:                 Locks object
-        }
-        GetAzResourceLockNamed {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $Locks:                 Lock objects
-            $OperatorConfirm:       Operator input that the correct object has been found
-        }
-        RemoveAzResourceLocks {
-            $Locks:                 Lock or locks object
-        }    
-        GetAzResourceGroup {
-            $RGObject:              Resource group object
-            $RGObjectInput:         Operator input for the resource group name
-            $RGList:                Variable used for printing all resource groups to screen if needed
-        }
-        GetAzResource {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name
-            $RSList:                Variable used for printing all resources to screen if needed
-        }
-    } End ManageAzResourceGroupLocks
-    ManageAzResourceGroupTags { 
-        :ManageAzureRGTag           Outer loop for function
-        $OperatorManageOption:      Operator input for the management function
-        $TagNameInput:              Operator input for the tag name
-        $TagValueInput:             Operator input for the tag value
-        $TagsList:                  Write-Host writable tag name and value list
-        $RGObject:                  Resource group object
-        $RSObject:                  Resource object
-        SetAzTagPair { 
-            :SetAzureTagPair            Outer loop for function
-            :SetAzureTagName            Inner loop for setting the tag name
-            :SetAzureTagValue           Inner loop for setting the tag value
-            $TagNameInput:              Operator input for the tag name
-            $TagValueInput:             Operator input for the tag value 
-            $OperatorConfirm:           Operator confirmation on tag name and value 
-        }  End SetAzTagPair    
-        AddAzResourceGroupTag {
-            :AddAzureRGTag              Outer loop for function
-            :SetAzureTagArray           Inner loop for setting the tag name and value 
-            $RGObject:                  Resource group object
-            $TagNameInput:              Operator input for the tag name
-            $TagValueInput:             Operator input for the tag value
-            $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
-            $TagsList:                  Write-Host writable tag name and value list
-        } End AddAzResourceGroupTag 
-        AddAzResourceTag {
-            :AddAzureRSTag              Outer loop for function
-            :SetAzureTagArray           Inner loop for setting the tag name and value
-            $RGObject:                  Resource group object
-            $RSObject:                  Resource object
-            $TagNameInput:              Operator input for the tag name
-            $TagValueInput:             Operator input for the tag value
-            $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
-            $TagsList:                  Write-Host writable tag name and value list
-        } End AddAzResourceTag
-        GetAzResourceGroupTags { 
-            :GetAzureRGTag              Outer loop for function
-            $RGObject:                  Resource group object
-            $TagsList:                  Write-Host writable tag name and value list
-        } End GetAzResourceGroupTags
-        GetAzResourceTags {
-            :GetAzureRSTag              Outer loop for function
-            $RGObject:                  Resource group object
-            $RSObject:                  Resource object
-            $TagsList:                  Write-Host writable tag name and value list
-        } End GetAzResourceTags    
-        RemoveAzResourceGroupTag { 
-            :RemoveAzureRGTag           Outer loop for function
-            :SetAzureTagArray           Inner loop for setting the tag name and value 
-            $RGObject:                  Resource group object
-            $ValidTagName:              List of all tag names on resource group
-            $TagNameInput:              Operator input for the tag name
-            $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
-            $TagsList:                  Write-Host writable tag name and value list
-        } End RemoveAzResouceGroupTag 
-        RemoveAzResourceTag { 
-            :RemoveAzureRSTag           Outer loop for function
-            :SetAzureTagArray           Inner loop for setting the tag name and value
-            $RGObject:                  Resource group object
-            $RSObject:                  Resource object
-            $ValidTagName:              List of all tag names on resource
-            $TagNameInput:              Operator input for the tag name
-            $TagsArray:                 Hashable value of $TagNameInput and $TagValueInput
-            $TagsList:                  Write-Host writable tag name and value list
-        } End RemoveAzResouceTag    
-        RemoveAzResourceGroupTags {
-            :RemoveAzureRGTags          Outer loop for function
-            $RGObject:                  Resource group object
-            $TagsList:                  Write-Host writable tag name and value list
-        } End RemoveAzResourceGroupTags 
-        RemoveAzResourceTags {
-            :RemoveAzureRSTags          Outer loop for function
-            $RGObject:                  Resource group object
-            $RSObject:                  Resource object
-            $TagsList:                  Write-Host writable tag name and value list
-        } End RemoveAzResourceTags
-        GetAzResourceGroup { 
-            :GetAzureResourceGroup      Outer loop for function
-            $RGObject:                  Resource group object 
-            $RGObjectInput:             Resource group object input
-            $RGList:                    List of all availiable resource groups
-        } End GetAzResourceGroup 
-        GetAzResource { 
-            $RSObject:                  Resource object
-            $RGObject:                  Resource group object
-            $RSObjectInput:             Resource object input
-            $RSList:                    List of all availiable resources
-        } End GetAzResource 
-    } End ManageAzResourceGroupTags 
+        $OperatorSearchOption:      Operator input for search option
+        :ManageAzureRG              Named loop for selecting the management option
+        SearchAzResourceGroup{}     Gets $RGObject
+            SearchAzResourceGroupName{} Gets $RGObject
+            SearchAzResourceGroupType{} Gets $RGObject
+            SearchAzResourceGroupName{} Gets $RGObject
+            SearchAzResourceGroupTag{}  Gets $RGObject
+        GetAzResourceGroup{}        Gets $RGObject
+        NewAzResourceGroup{}        Creates $RGObject
+        RemoveAzResourceGroup{}     Removes $RGObject
+            GetAzResourceGroup{}        Gets $RGObject
+            GetAzResourceGroupLocksAll{}Gets $Locks
+            RemoveAzResourceLocks{}     Removes $Locks
+        Remove-AzResource{}         Removes $RSObject
+            SearchAzResource{}          Gets $RSObject
+                SearchAzResourceName{}      Gets $RSObject
+                SearchAzResourceType{}      Gets $RSObject
+                SearchAzResourceLoc{}       Gets $RSObject
+                SearchAzResourceTag{}       Gets $RSObject
+            GetAzResourceLocksAll{}     Gets $Locks
+            RemoveAzResourceLocks{}     Removes $Locks
+        GetAzResource{}             Gets Gets $RSObject
+        SearchAzResource{}          Gets $RSObject
+            SearchAzResourceName{}      Gets $RSObject
+            SearchAzResourceType{}      Gets $RSObject
+            SearchAzResourceLoc{}       Gets $RSObject
+            SearchAzResourceTag{}       Gets $RSObject
+        ManageAzResourceGroupLocks{}Gets $Locks
+            NewAzResourceGroupLock{}    Creates $Locks
+                GetAzResourceGroup{}        Gets $RGObject
+            NewAzResourceLock{}         Creates $Locks
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            GetAzResourceGroupLocksAll{}Gets $Locks
+                GetAzResourceGroup{}        Gets $RGObject            
+            GetAzResourceGroupLockNamed{}Gets $Locks
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzResourceLocksAll{}     Gets $Locks
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            GetAzResourceLockNamed{}    Gets $Locks
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceLocks{}     Removes $Locks
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+        ManageAzResourceGroupTags{} Gets $TagArray
+            SetAzTagPair{}              Creates $TagArray
+            AddAzResourceGroupTag{}     Creates $TagArray
+                GetAzResourceGroup{}        Gets $RGObject
+            AddAzResourceTag{}          Creates $TagArray
+                GetAzResource{} 
+                    GetAzResourceGroup{} 
+            GetAzResourceGroupTags{}    Gets $TagArray
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzResourceTags{}         Gets $TagArray
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceGroupTag{}  Removes $TagArray
+                GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceTag{}       Removes $TagArray
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceGroupTags{} Removes $TagArray
+                GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceTags{}      Removes $TagArray
+                GetAzResource{}             Gets $RSObject
+                    GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     Function
@@ -1306,29 +941,36 @@ function SearchAzResourceGroupTag { # Searchs for resource group using tag match
 } # End SearchAzResourceGroupTag
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
     Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RGObject = $null # Clears $RGObject from all previous use
-        :GetAzureResourceGroup while ($true) { # Loop to continue getting a resource group until the operator provided name matches an existing group
-            $RGObjectInput = Read-Host "Resource group name" # Operator input of the resource group name
-            if ($RGObjectInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResourceGroup function was terminated"
-                Break GetAzureResourceGroup # Ends :GetAzureResourceGroup loop
-            } # End if statement
-            $RGObject = Get-AzResourceGroup -Name $RGObjectInput # Collection of the resource group from the operator input
-            if (!$RGObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource group" # Error note
-                Write-Host "This is the list of available resource groups" # Error note
-                $RGList = Get-AzResourceGroup # Collects all resource group objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RGList.ResourceGroupName -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RGObject is assigned
-                Write-Host $RGObject.ResourceGroupName 'Has been assigned to "$RGObject"' # Writes the resource group name to the screen before ending function
-                Return $RGObject
-            } # End of else statement
-        } # End of while statement
-        Return # Returns to calling function
+        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
+        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
+        if (!$RGList) { # If $RGList returns empty
+            Write-Host "No resource groups found" # Message write to screen
+            Return # Returns to calling function with $null
+        } # End if (!$RGList)
+        $RGListNumber = 1 # Sets the base value of the list
+        Write-Host "0. Exit" # Adds exit option to beginning of list
+        foreach ($_ in $RGList) { # For each item in list
+            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
+            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
+        } # End foreach ($_ in $RGList)
+        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
+            $RGListNumber = 1 # Resets list number to 1
+            $RGListSelect = Read-Host "Enter the option number" # Operator input for selecting which resource group
+            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
+                Return # Returns to calling function with $null
+            } # End if ($RGListSelect -eq '0')
+            foreach ($_ in $RGList) { # For each item in list
+                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
+                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
+                    Break GetAzureResourceGroup # Breaks :GetAzureResourceGroup
+                } # End if ($RGListSelect -eq $RGListNumber)
+                else { # If user input does not match the current $RGListNumber
+                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
+                } # End else (if ($RGListSelect -eq $RGListNumber))
+            } # End foreach ($_ in $RGList)
+            Write-Host "That was not a valid selection, please try again" # Write message to screen
+        } # End :GetAzureResourceGroup while ($true)
+        Return $RGObject # Returns $RGObject to calling function
     } # End of begin statement
 } # End of function
 function GetAzResource { # Function to get a resource, can pipe $RSObject to another function
