@@ -11,14 +11,14 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-        :GetAzureStorageAccByName   Outer loop for managing funciton
-        :GetAzureStorageAccount     Inner loop for selecting the storage account
-        $RGObject:                  Resource group object
-        $StorageAccList:            List of all storage accounts in $RGObject
-        $StorageAccListNumber:      Used for listing and selecting a storage account
-        $StorageAccListSelect:      Operator input to select the storage account
-        $StorageAccObject:          Storage account object    
-        GetAzResourceGroup{}        Gets $RGObject
+    :GetAzureStorageAccByName   Outer loop for managing funciton
+    :GetAzureStorageAccount     Inner loop for selecting the storage account
+    $RGObject:                  Resource group object
+    $StorageAccList:            List of all storage accounts in $RGObject
+    $StorageAccListNumber:      Used for listing and selecting a storage account
+    $StorageAccListSelect:      Operator input to select the storage account
+    $StorageAccObject:          Storage account object    
+    GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
