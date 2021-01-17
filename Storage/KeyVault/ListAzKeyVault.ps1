@@ -9,7 +9,7 @@
     ListAzKeyVault:             Lists all key vaults in subscription
 } #>
 <# Variables: {      
-        $KVList:                    List of all jey vaults in $RGObject
+        $KVList:                List of all jey vaults in $RGObject
 } #>
 <# Process Flow {
     function
