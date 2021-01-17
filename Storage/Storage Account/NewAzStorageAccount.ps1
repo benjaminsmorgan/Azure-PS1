@@ -24,12 +24,7 @@
         $ValidLocation:             List of valid azure locations
         $StorageAccLocInput:        Operator input for location
         $StorageAccObject:          New storage account object
-        GetAzResourceGroup {
-            $RGObject:                  Resource group object
-            $RGObjectInput:             Operator input for the resource group name
-            $RGList:                    Variable used for printing all resource groups to screen if needed
-        } End GetAzResourceGroup
-    } End NewAzStorageAccount
+        GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
