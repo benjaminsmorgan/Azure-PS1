@@ -27,22 +27,22 @@
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1 
 } #>
 <# Functions Description: {
-    ManageAzKeyVault:            Manage function for storage
+    ManageAzKeyVault:            Management function for key vaults
         NewAzKeyVault:              Creates new key vault object
-        ListAzKeyVault:             TBD
-        GetAzKeyVault:              TBD
-        RemoveAzKeyVault:           TBD
-        ManageAzKeyVaultKey:        TBD
+        ListAzKeyVault:             Lists all key vaults in subscription
+        GetAzKeyVault:              Gets $KeyVaultObject
+        RemoveAzKeyVault:           Removes $KeyVaultObject
+        ManageAzKeyVaultKey:        Management function for key vault keys
             NewAzKeyVaultKey:           TBD
             ListAzKeyVaultKey:          TBD
             GetAzKeyVaultKey:           TBD
             RemoveAzKeyVaultKey:        TBD
-        ManageAzKeyVaultSecret:     TBD
+        ManageAzKeyVaultSecret:     Management function for key vault secrets
             NewAzKeyVaultSecret:        TBD
             ListAzKeyVaultSecret:       TBD
-            GetAzKeyVaultSecret:        TBD
-            ShowAzKeyVaultSecret:       TBD
-            RemoveAzKeyVaultSecret:     TBD
+            GetAzKeyVaultSecret:        Gets $KeyVaultSecretObject
+            ShowAzKeyVaultSecret:       Displays $KeyVaultSecretObject in plain text
+            RemoveAzKeyVaultSecret:     Removes $KeyVaultSecretObject
         GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
