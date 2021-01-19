@@ -19,6 +19,8 @@
     $RGObject:                  Resource group object
     $KeyVaultObject:            Key vault object
     $KeyVaultSecretObject:      Key vault secret object
+    $KeyVaultSecretHash:        Hashed version of $KeyVaultSecretValue
+    $KeyVaultSecretValue:       Plain text value of $KeyVaultSecretObject
     GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
         GetAzKeyVault{}             Gets $KeyVaultSecret
             GetAzResourceGroup{}        Gets $RGObject
@@ -40,26 +42,26 @@
 }#>
 function GetAzKeyVaultSecretValue { # Function to return the value of a key vault secret
     Begin {
-        #$ErrorActionPreference='silentlyContinue' # Disables Errors
-        #$WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :GetAzureKeyVaultSecretValue while ($true) { # Outer loop for managing function
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        :GetAzureKeyVaultSecretVal while ($true) { # Outer loop for managing function
             if (!$KeyVaultSecretObject) { # If $var is $null
                 $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
                 if (!$KeyVaultSecretObject) { # If $var is $null
                     Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
                 } # End if (!$KeyVaultSecretObject)
             } # End if (!$KeyVaultSecretObject)
-            KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
-            $ssPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
+            $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
+            $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
             try { # Provided by MS Azure
-                $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr) # Provided by MS Azure
+                $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure
             } # Provided by MS Azure
-            Catch { # If error occurs
-                Write-Host "An error has occured, you may not the permissions to this object" # Write message to screen
+            Catch { # Catch for try statement
+                Write-Host "An error has occured, you may not have permissions to this secret or vault" # Write message to screen
                 Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
             } # End catch
             finally { # Provided by MS Azure
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ssPtr) # Provided by MS Azure
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KeyVaultSecretHash) # Provided by MS Azure
             } # Provided by MS Azure # This code was provided by MS, at this time is not needed and has commented out
             Write-Host "The value of"$KeyVaultSecretObject.Name "is:" $KeyVaultSecretValue # Prints secret name and value to screen
             Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
