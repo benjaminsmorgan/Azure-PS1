@@ -118,7 +118,7 @@ function ManageAzKeyVaultSecret { # Script for managing Azure
             Write-Host "1 New Key Vault Secrets" # Write message to screen
             Write-Host "2 List All Key Vaults Secrets" # Write message to screen
             Write-Host "3 Get Key Vault Secret" # Write message to screen
-            Write-Host "4 Get Key Vaule Secret Value (In Dev)" # Write message to screen
+            Write-Host "4 Get Key Vaule Secret Value" # Write message to screen
             Write-Host "5 Update Key Vault Secret Value" # Write message to screen
             Write-Host "6 Remove Key Vault Secret Value" # Write message to screen
             Write-Host "'Exit' to end script" # Write option list to screen
@@ -204,6 +204,28 @@ function NewAzKeyVaultSecret { # Creates a new key vault secret
         Return # Returns to calling function with $null
     } # End Begin
 } # End function NewAzKeyVaultSecret
+function ListAzKeyVaultSecret { # Lists all key vault secrets
+    Begin {
+        $KVList = Get-AzKeyVault # Creates lists of all key vaults
+        foreach ($VaultName in $KVList) { # For each key vault in $KVList
+            Write-Host "-----------------------------------" # Write message to screen
+            $KVSecretlist = Get-AzKeyVaultSecret -VaultName $VaultName.VaultName # Creates a list of all keys in current $VaultName
+            Write-Host "Vault Name: " $VaultName.VaultName # Write message to screen
+            Write-Host "" # Write message to screen
+            foreach ($Name in $KVSecretlist) { # For each secret name in $KVSecretList
+                Write-Host "Secret Name:" $Name.Name # Write message to screen
+                Write-Host "Enabled:    " $Name.Enabled # Write message to screen
+                Write-Host "Created:    " $Name.Created # Write message to screen
+                Write-Host "Updated:    " $Name.Updated # Write message to screen
+                if ($Name.Expires) { # If Selected key has an existing expiration
+                    Write-Host "Expires:    " $Name.Expires # Write message to screen
+                } # End if ($Name.Expires)
+                Write-Host "" # Write message to screen
+            } # End foreach ($Name in $KVSecretlist)
+        } # End foreach ($VaultName in $KVList)
+        Write-Host "-----------------------------------" # Write message to screen
+    } # End Begin 
+} # End function ListAzKeyVaultSecret
 function GetAzKeyVaultSecret { # Function to get a key vault secret
     Begin {
         $WarningPreference = "silentlyContinue" # Disables key vault warnings
@@ -233,7 +255,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
             } # End if ($KVSecretlistSelect -eq '0')
             :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
                 if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
-                    $KeyVaultSecretObject = $_ # Edit this to assign to whatever varible
+                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Uses the selected secret name to repull the secret in full
                     Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
                 } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
                 else { # If user input does not match the current $KVSecretlistNumber
@@ -247,23 +269,26 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
 } # End GetAzKeyVaultSecret
 function GetAzKeyVaultSecretValue { # Function to return the value of a key vault secret
     Begin {
-        #$ErrorActionPreference='silentlyContinue' # Disables Errors
-        #$WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :GetAzureKeyVaultSecretValue while ($true) { # Outer loop for managing function
+        $ErrorActionPreference='silentlyContinue' # Disables Errors
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        :GetAzureKeyVaultSecretVal while ($true) { # Outer loop for managing function
             if (!$KeyVaultSecretObject) { # If $var is $null
                 $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
                 if (!$KeyVaultSecretObject) { # If $var is $null
                     Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
                 } # End if (!$KeyVaultSecretObject)
             } # End if (!$KeyVaultSecretObject)
-            #$KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
-            Write-Host $KeyVaultSecretObject.SecretValue
+            $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
             $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
             try { # Provided by MS Azure
                 $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure
             } # Provided by MS Azure
+            Catch { # Catch for try statement
+                Write-Host "An error has occured, you may not have permissions to this secret or vault" # Write message to screen
+                Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
+            } # End catch
             finally { # Provided by MS Azure
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ssPtr) # Provided by MS Azure
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KeyVaultSecretHash) # Provided by MS Azure
             } # Provided by MS Azure # This code was provided by MS, at this time is not needed and has commented out
             Write-Host "The value of"$KeyVaultSecretObject.Name "is:" $KeyVaultSecretValue # Prints secret name and value to screen
             Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
