@@ -11,8 +11,8 @@
     ListAzKeyVaultSecret:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/ListAzKeyVaultSecret.ps1
     GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
     GetAzKeyVaultSecretValue:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecretValue.ps1
-    UpdateAzKeyVaultSecret:     TBD
-    RemoveAzKeyVaultSecret:     TBD
+    UpdateAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/UpdateAzKeyVaultSecret.ps1
+    RemoveAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/RemoveAzKeyVaultSecret.ps1
     GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
         GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
@@ -36,18 +36,21 @@
         GetAzKeyVault{}             Gets $KeyVaultSecret
             GetAzResourceGroup{}        Gets $RGObject
     ListAzKeyVaultSecret{}      Lists all secrets in subscription
-    GetAzKeyVaultSecret         Gets $KeyVaultSecretObject
+    GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
         GetAzKeyVault{}             Gets $KeyVaultObject
             GetAzResourceGroup{}        Gets $RGObject 
     GetAzKeyVaultSecretValue{}  Lists value of $KeyVaultSecretObject
-        GetAzKeyVault{}             Gets $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject
+        GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+                GetAzResourceGroup{}        Gets $RGObject
     UpdateAzKeyVaultSecret{}    Updates $KeyVaultSecretObject
-        GetAzKeyVault{}             Gets $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject    
+        GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+                GetAzResourceGroup{}        Gets $RGObject   
     RemoveAzKeyVaultSecret{}    Removes $KeyVaultSecretObject
-        GetAzKeyVault{}             Gets $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject    
+        GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+                GetAzResourceGroup{}        Gets $RGObject   
 } #>
 <# Process Flow {
     Function
@@ -115,8 +118,8 @@ function ManageAzKeyVaultSecret { # Script for managing Azure
             if ($RGObject -or $KeyVaultObject -or $KeyVaultSecretObject) { # If $RGObject, $KeyVaultObject, or $KeyVaultSecretObject has a value
                 Write-Host '0 to clear $RGObject, $KeyVaultObject $KeyVaultSecretObject' # Write message to screen
             } # End if ($RGObject -or $KeyVaultObject)
-            Write-Host "1 New Key Vault Secrets" # Write message to screen
-            Write-Host "2 List All Key Vaults Secrets" # Write message to screen
+            Write-Host "1 New Key Vault Secret" # Write message to screen
+            Write-Host "2 List All Key Vaults Secret" # Write message to screen
             Write-Host "3 Get Key Vault Secret" # Write message to screen
             Write-Host "4 Get Key Vaule Secret Value" # Write message to screen
             Write-Host "5 Update Key Vault Secret Value" # Write message to screen
@@ -243,11 +246,11 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
                 Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
             } # End if (!$KVSecretlist)
             $KVSecretlistNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Write message to screen
             foreach ($_ in $KVSecretlist) { # For each item in list
                 Write-Host $KVSecretlistNumber"." $_.Name # Writes list to screen
                 $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
             } # End foreach ($_ in $KVSecretlist) 
-            Write-Host "0. Exit" # Write message to screen
             $KVSecretlistNumber = 1 # Resets list number to 1
             $KVSecretlistSelect = Read-Host "Enter the option number" # Operator input to select from list
             if ($KVSecretlistSelect -eq '0') { # If $KVSecretListSelect is 0
@@ -255,7 +258,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
             } # End if ($KVSecretlistSelect -eq '0')
             :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
                 if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
-                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Uses the selected secret name to repull the secret in full
+                    $KeyVaultSecretObject = $_ # Edit this to assign to whatever varible
                     Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
                 } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
                 else { # If user input does not match the current $KVSecretlistNumber
@@ -296,81 +299,71 @@ function GetAzKeyVaultSecretValue { # Function to return the value of a key vaul
         Return # Returns to calling function with $null
     } # End begin statement   
 } # End function GetAzKeyVaultSecretValue
-
-function GetAzKeyVault { # Collects a key vault object
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        :GetAzureKeyVault while ($true) { # Outer loop for managing function
-            if (!$RGObject) { # If $RGObject is empty
-                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
-                if (!$RGObject) { # If $RGObject is still empty after returning
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            $KVList = Get-AzKeyVault -ResourceGroupName $RGObject.ResourceGroupName # Gets all key vaults in resource group and assigns to $KVList
-            if (!$KVList) { # If $KVList returns empty
-                Write-Host "No key vaults found" # Message write to screen
-                Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-            } # End if (!$KVList)
-            $KVListNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Adds exit option to beginning of list
-            foreach ($_ in $KVList) { # For each item in list
-                Write-Host $KVListNumber"." $_.VaultName # Writes the option number and key vault name
-                $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-            } # End foreach ($_ in $KVList)
-            :SelectAzureKeyVault while ($true) { # Loop for selecting the key vault object
-                $KVListNumber = 1 # Resets list number to 1
-                $KVListSelect = Read-Host "Enter the option number" # Operator input for selecting which key vault
-                if ($KVListSelect -eq '0') { # If $KVListSelect is equal to 0
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if ($KVListSelect -eq '0')
-                foreach ($_ in $KVList) { # For each item in list
-                    if ($KVListSelect -eq $KVListNumber) { # If the operator input matches the current $KVListNumber
-                        $KeyVaultObject = $_ # Currently selected item in $KVList is assigned to $KeyVaultObject
-                        Break SelectAzureKeyVault # Breaks :SelectAzureKeyVault
-                    } # End if ($KVListSelect -eq $KVListNumber)
-                    else { # If user input does not match the current $KVListNumber
-                        $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-                    } # End else (if ($KVListSelect -eq $KVListNumber))
-                } # End foreach ($_ in $KVList)
-                Write-Host "That was not a valid selection, please try again" # Write message to screen
-            } # End :SelectAzureKeyVault while ($true)
-            Return $KeyVaultObject # Returns $RGObject to calling function
-        } # End :GetAzureKeyVault while ($true)
+function UpdateAzKeyVaultSecret { # Updates the value of selected key
+    Begin { 
+        :UpdateAzureKeyVaultSecret while ($true) { # Outer loop for managing funciton
+            if (!$KeyVaultSecretObject) { # If $var is $null
+                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
+                if (!$KeyVaultSecretObject) { # If $var is $null
+                    Break UpdateAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
+                } # End if (!$KeyVaultSecretObject)
+            } # End if (!$KeyVaultSecretObject)
+            :UpdateAzureKVSecretValue while ($true) { # Inner loop for updating key vault secret value
+                $KeyVaultSecretValue = Read-Host "New key vault secret value for"$KeyVaultSecretObject.Name # Prompt for operator input for $KeyVaultSecretvalue
+                if ($KeyVaultSecretValue -eq 'exit') { # If $KeyVaultSecretValue is equal to 'exit'
+                    Break UpdateAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
+                } # End if ($KeyVaultSecretValue -eq 'exit')
+                Write-Host $KeyVaultSecretValue # Write message to screen
+                $OperatorConfirm = Read-Host "Use this as the secret value [Y] or [N]" # Operator confirmation of value
+                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
+                    Break UpdateAzureKVSecretValue # Breaks :UpdateAzureKVSecretValue
+                } # End if ($OperatorConfirm -eq 'y')
+            } # End :UpdateAzureKVSecretValue while ($true)
+            $KeyVaultSecretHash = ConvertTo-SecureString -String $KeyVaultSecretValue -AsPlainText -Force # Converts the operator input to secure string
+            try { # Try to do the following
+                $KeyVaultSecretObject = Set-AzKeyVaultSecret -VaultName $KeyVaultSecretObject.VaultName -Name $KeyVaultSecretObject.Name -SecretValue $KeyVaultSecretHash # Updates $KeyVaultSecretObject
+            } # End Try
+            catch { # If try statement fails
+                Write-Host "There was an issue updating this secret" # Write message to screen
+                Write-Host "You may not have the permissions to modify this secret" # Write message to screen
+                Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue 
+            } # End catch
+            Write-Host $KeyVaultSecretObject.Name"has been updated with the new value" # Write message to screen
+            Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue
+        } # End  :UpdateAzureKeyVaultSecret while ($true)
         Return # Returns to calling function with $null
     } # End Begin
-} # End function GetAzKeyVault
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
+} # End function UpdateAzKeyVaultSecret
+function RemoveAzKeyVaultSecret {
     Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Enter the option number" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Break GetAzureResourceGroup # Breaks :GetAzureResourceGroup
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+        $ErrorActionPreference='silentlyContinue' # Disables errors
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        :RemoveAzureKeyVaultSecret while ($true) { # Outer loop for managing function
+            if (!$KeyVaultSecretObject) { # If $var is $null
+                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
+                if (!$KeyVaultSecretObject) { # If $var is $null
+                    Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
+                } # End if (!$KeyVaultSecretObject)
+            } # End if (!$KeyVaultSecretObject)
+            Write-host "The selected secret for removal is:"$KeyVaultSecretObject.Name"in vault:"$KeyVaultSecretObject.VaultName # Write message to screen
+            $ConfirmDelete = Read-Host "Remove this secret [Y] or [N]" # Operator confirmation for deletion
+            if (!($ConfirmDelete -eq 'y')) { # $Confirm delete is not equal to 'y'
+                Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
+            } # End if (!($ConfirmDelete -eq 'y'))
+            else { # If $ConfirmDelete is equal to 'y'
+                Write-Host "Removing" $KeyVaultSecretObject.Name # Write message to screen
+                Try { # Try the following
+                    Remove-AzKeyVaultSecret -Name $KeyVaultSecretObject.Name -VaultName $KeyVaultSecretObject.VaultName -Force # Removes the selected key
+                } # End Try
+                catch { # If error on Try
+                    Write-Host "There was an issue removing the selected key" # Write message to screen
+                    Write-Host "You may not have the permissions to remove this key" # Write message to screen
+                    Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret 
+                } # End catch
+                Write-Host "This secret has been removed" # Write message to screen
+                Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
+            } # End else (if (!($ConfirmDelete -eq 'y')))
+        } # End :RemoveAzureKeyVaultSecret while ($true)
+        Return # Returns to calling function with $null
+    } # End Begin
+} # End function RemoveAzKeyVaultSecret
