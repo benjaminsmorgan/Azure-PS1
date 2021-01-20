@@ -54,6 +54,7 @@ function GetAzKeyVaultSecretValue { # Function to return the value of a key vaul
                 } # End if (!$KeyVaultSecretObject)
             } # End if (!$KeyVaultSecretObject)
             $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
+            $KeyVaultSecretHash = $null # Clears $KeyVaultSecretHash from all previous use
             $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
             try { # Provided by MS Azure
                 $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure

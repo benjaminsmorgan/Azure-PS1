@@ -140,7 +140,7 @@ function ManageAzKeyVaultSecret { # Script for managing Azure
                 $KeyVaultSecretObject
             } # End elseif statement
             elseif ($ManageAzKeyVaultSecretSel -eq '4') { # Elseif statement for option 4
-                Write-Host "Get Key Vaule Secret Value" # Option selection write to screen
+                Write-Host "Get Key Vault Secret Value" # Option selection write to screen
                 GetAzKeyVaultSecretValue ($RGObject, $KeyVaultObject, $KeyVaultSecretObject) # Calls function GetAzKeyVaultSecretValue
             } # End elseif statement
             elseif ($ManageAzKeyVaultSecretSel -eq '5') { # Elseif statement for option 5
@@ -282,6 +282,7 @@ function GetAzKeyVaultSecretValue { # Function to return the value of a key vaul
                 } # End if (!$KeyVaultSecretObject)
             } # End if (!$KeyVaultSecretObject)
             $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
+            $KeyVaultSecretHash = $null # Clears $KeyVaultSecretHash from all previous use
             $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
             try { # Provided by MS Azure
                 $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure
