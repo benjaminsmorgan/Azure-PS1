@@ -63,11 +63,11 @@ function NewAzKeyVaultSecret { # Creates a new key vault secret
             } # End :NewAzureKeyVaultSecretName while ($true)
             :NewAzureKeyVaultSecretValue while ($true) { # Inner loop for setting the new key vault secret value
                 $KeyVaultSecretValue = Read-Host "New key vault secret value" # Prompt for operator input for $KeyVaultSecretvalue
+                if ($KeyVaultSecretValue -eq 'exit') { # If $KeyVaultSecretValue is equal to 'exit'
+                    Break UpdateAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
+                } # End if ($KeyVaultSecretValue -eq 'exit')
                 Write-Host $KeyVaultSecretValue # Write message to screen
                 $OperatorConfirm = Read-Host "Use this as the secret value [Y] or [N]" # Operator confirmation of value
-                if ($OperatorConfirm -eq 'exit') { # If $OperatorConfirm is equal to 'exit'
-                    Break NewAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
-                } # End if ($OperatorConfirm -eq 'exit')
                 if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
                     Break :NewAzureKeyVaultSecretValue # Breaks :NewAzureKeyVaultSecretValue
                 } # End if ($OperatorConfirm -eq 'y')
@@ -79,3 +79,4 @@ function NewAzKeyVaultSecret { # Creates a new key vault secret
         Return # Returns to calling function with $null
     } # End Begin
 } # End function NewAzKeyVaultSecret
+
