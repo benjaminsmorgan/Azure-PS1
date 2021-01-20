@@ -53,11 +53,11 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
                 Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
             } # End if (!$KVSecretlist)
             $KVSecretlistNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Write message to screen
             foreach ($_ in $KVSecretlist) { # For each item in list
                 Write-Host $KVSecretlistNumber"." $_.Name # Writes list to screen
                 $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
             } # End foreach ($_ in $KVSecretlist) 
-            Write-Host "0. Exit" # Write message to screen
             $KVSecretlistNumber = 1 # Resets list number to 1
             $KVSecretlistSelect = Read-Host "Enter the option number" # Operator input to select from list
             if ($KVSecretlistSelect -eq '0') { # If $KVSecretListSelect is 0
