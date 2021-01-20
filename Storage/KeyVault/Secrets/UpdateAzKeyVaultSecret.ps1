@@ -18,7 +18,7 @@
 } #>
 <# Variables: {
     :UpdateAzureKeyVaultSecret  Outer loop for managing function
-    :UpdateAzureKVSecretValule  Inner loop for setting the new secret value
+    :UpdateAzureKVSecretValue  Inner loop for setting the new secret value
     $RGObject:                  Resource group object
     $KeyVaultObject:            Key vault object
     $KeyVaultSecretObject:      Key vault secret object
@@ -53,17 +53,17 @@ function UpdateAzKeyVaultSecret { # Updates the value of selected key
                     Break UpdateAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
                 } # End if (!$KeyVaultSecretObject)
             } # End if (!$KeyVaultSecretObject)
-            :UpdateAzureKVSecretValule while ($true) { # Inner loop for updating key vault secret value
-                $KeyVaultSecretValue = Read-Host "New key vault secret value" # Prompt for operator input for $KeyVaultSecretvalue
+            :UpdateAzureKVSecretValue while ($true) { # Inner loop for updating key vault secret value
+                $KeyVaultSecretValue = Read-Host "New key vault secret value for"$KeyVaultSecretObject.Name # Prompt for operator input for $KeyVaultSecretvalue
                 if ($KeyVaultSecretValue -eq 'exit') { # If $KeyVaultSecretValue is equal to 'exit'
                     Break UpdateAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
                 } # End if ($KeyVaultSecretValue -eq 'exit')
                 Write-Host $KeyVaultSecretValue # Write message to screen
                 $OperatorConfirm = Read-Host "Use this as the secret value [Y] or [N]" # Operator confirmation of value
                 if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
-                    Break UpdateAzureKVSecretValule # Breaks :UpdateAzureKVSecretValule
+                    Break UpdateAzureKVSecretValue # Breaks :UpdateAzureKVSecretValue
                 } # End if ($OperatorConfirm -eq 'y')
-            } # End :UpdateAzureKVSecretValule while ($true)
+            } # End :UpdateAzureKVSecretValue while ($true)
             $KeyVaultSecretHash = ConvertTo-SecureString -String $KeyVaultSecretValue -AsPlainText -Force # Converts the operator input to secure string
             try { # Try to do the following
                 $KeyVaultSecretObject = Set-AzKeyVaultSecret -VaultName $KeyVaultSecretObject.VaultName -Name $KeyVaultSecretObject.Name -SecretValue $KeyVaultSecretHash # Updates $KeyVaultSecretObject
@@ -71,10 +71,10 @@ function UpdateAzKeyVaultSecret { # Updates the value of selected key
             catch { # If try statement fails
                 Write-Host "There was an issue updating this secret" # Write message to screen
                 Write-Host "You may not have the permissions to modify this secret" # Write message to screen
-                Break UpdateAzureKVSecretValule # Breaks :UpdateAzureKVSecretValule 
+                Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue 
             } # End catch
             Write-Host $KeyVaultSecretObject.Name"has been updated with the new value" # Write message to screen
-            Break UpdateAzureKVSecretValule # Breaks :UpdateAzureKVSecretValule
+            Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue
         } # End  :UpdateAzureKeyVaultSecret while ($true)
         Return # Returns to calling function with $null
     } # End Begin
