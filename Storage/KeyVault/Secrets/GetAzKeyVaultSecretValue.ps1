@@ -6,11 +6,13 @@
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
-    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
+        GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
+            GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
-    NewAzKeyVaultSecret:        Creates a new key vault secret
+    GetAzKeyVaultSecretValue:   Returns the value of a key vault secret
+    GetAzKeyVaultSecret:        Gets the key vault secret object
     GetAzKeyVault:              Gets key vault object
     GetAzResourceGroup:         Gets resource group object
 } #>
