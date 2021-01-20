@@ -65,7 +65,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
             } # End if ($KVSecretlistSelect -eq '0')
             :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
                 if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
-                    $KeyVaultSecretObject = $_ # Edit this to assign to whatever varible
+                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Collects the full $KeyVaultSecretObject
                     Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
                 } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
                 else { # If user input does not match the current $KVSecretlistNumber

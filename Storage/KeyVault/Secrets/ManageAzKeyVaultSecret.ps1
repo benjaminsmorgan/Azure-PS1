@@ -121,7 +121,7 @@ function ManageAzKeyVaultSecret { # Script for managing Azure
             Write-Host "1 New Key Vault Secret" # Write message to screen
             Write-Host "2 List All Key Vaults Secret" # Write message to screen
             Write-Host "3 Get Key Vault Secret" # Write message to screen
-            Write-Host "4 Get Key Vaule Secret Value" # Write message to screen
+            Write-Host "4 Get Key Vault Secret Value" # Write message to screen
             Write-Host "5 Update Key Vault Secret Value" # Write message to screen
             Write-Host "6 Remove Key Vault Secret Value" # Write message to screen
             Write-Host "'Exit' to end script" # Write option list to screen
@@ -258,7 +258,7 @@ function GetAzKeyVaultSecret { # Function to get a key vault secret
             } # End if ($KVSecretlistSelect -eq '0')
             :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
                 if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
-                    $KeyVaultSecretObject = $_ # Edit this to assign to whatever varible
+                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Collects the full $KeyVaultSecretObject
                     Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
                 } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
                 else { # If user input does not match the current $KVSecretlistNumber
