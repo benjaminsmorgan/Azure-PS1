@@ -44,8 +44,6 @@
             GetAzKeyVaultSecret:        Gets a key vault secret
             UpdateAzKeyVaultSecret:     Updates the value of selected key vault secret
             RemoveAzKeyVaultSecret:     Removes a selected key vault secret
-            GetAzKeyVault:              Gets key vault object
-            GetAzResourceGroup:         Gets resource group object
         GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
