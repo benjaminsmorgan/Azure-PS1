@@ -58,7 +58,7 @@ function GetAzKeyVault { # Collects a key vault object
                 } # End if ($KVListSelect -eq '0')
                 foreach ($_ in $KVList) { # For each item in list
                     if ($KVListSelect -eq $KVListNumber) { # If the operator input matches the current $KVListNumber
-                        $KeyVaultObject = $_ # Currently selected item in $KVList is assigned to $KeyVaultObject
+                        $KeyVaultObject = Get-AzKeyVault -VaultName $_.VaultName # Currently selected item in $KVList is assigned to $KeyVaultObject
                         Break SelectAzureKeyVault # Breaks :SelectAzureKeyVault
                     } # End if ($KVListSelect -eq $KVListNumber)
                     else { # If user input does not match the current $KVListNumber
