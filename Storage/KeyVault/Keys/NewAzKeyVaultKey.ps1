@@ -1,24 +1,70 @@
-function NewAzKeyVaultKey {
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Add-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/add-azkeyvaultkey?view=azps-5.4.0
+    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+} #>
+<# Required Functions Links: {
+    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+} #>
+<# Functions Description: {
+    NewAzKeyVaultKey:           Creates a new key vault key
+    GetAzKeyVault:              Gets key vault object
+    GetAzResourceGroup:         Gets resource group object
+} #>
+<# Variables: {
+    :NewAzureKeyVaultKey        Outer loop for managing function
+    :AzureKeyVaultKeyName       Inner loop for validating and setting $KeyVaultKeyObject name
+    :AzureKeyVaultKeyExpire     Inner loop for setting expiration date
+    :AzureKeyVaultKeyEncrypt    Inner loop for setting the encyption type
+    $RGObject:                  Resource group object
+    $KeyVaultObject:            Key vault object
+    $KeyVaultKeyNameInput:      Operator input for the key name 
+    $OperatorConfirm:           Operator confirmation
+    $KeyExpiration:             Operator input if key will have an expiration
+    $StartDate:                 Gets current date
+    $EndDate:                   Operator input for end date
+    $DateDiff:                  Gets count of days between current and end date
+    $KeyExpires:                Key expiration date
+    $KeyNotBefore:              Key valid start date
+    $KeyEncryptType:            Operator input for the key encryption type
+    $KeyVaultKeyObject:         Key vault key
+    GetAzKeyVault{}             Gets $KeyVaultSecret
+        GetAzResourceGroup{}        Gets $RGObject
+} #>
+<# Process Flow {
+    Function
+        Call NewAzKeyVaultKey > Get $KeyVaultSecretObject
+            Call GetAzKeyVault > Get $KeyVaultObject
+                Call GetAzResourceGroup > Get $RGObject
+                End GetAzResourceGroup
+                    Return GetAzKeyVault > Send $RGObject
+            End GetAzKeyVault
+                Return NewAzKeyVaultKey > Send $KeyVaultObject  
+        End NewAzKeyVaultKey
+            Return Function > Send $KeyVaultSecretObject
+}#>
+function NewAzKeyVaultKey { # Creates a new $KeyVaultKeyObject
     Begin {
-        :NewAzureKeyVaultKey while ($true) {
+        :NewAzureKeyVaultKey while ($true) { # Outer loop for managing function
             if (!$KeyVaultObject) { # If $KeyVaultObject is $null 
                 $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
                 if (!$KeyVaultObject) { # If $var is still $null
                     Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey    
                 } # End if (!$KeyVaultObject)
             } # End if (!$KeyVaultObject)
-            Write-Host $KeyVaultObject.Sku
-            :AzureKeyVaultKeyName while ($true) {
+            :AzureKeyVaultKeyName while ($true) { # Inner loop for validating and setting $KeyVaultKeyObject name
                 $KeyVaultKeyNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
-                try { # Try statement for operator input of vault name
-                    [ValidatePattern('^[a-z,0-9]+$')]$KeyVaultKeyNameInput = [string](Read-Host "New key name (less than 64 characters, letters and numbers only)") # Operator input for the vault name, only allows letters and numbers. All letters converted to lowercase
+                try { # Try statement for operator input of key name
+                    [ValidatePattern('^[a-z,0-9]+$')]$KeyVaultKeyNameInput = [string](Read-Host "New key name (less than 64 characters, letters and numbers only)") # Operator input for the key name, only allows letters and numbers. 
                 } # End try
-                catch {Write-Host "The vault name can only include letters and numbers"} # Error message for failed try
+                catch {Write-Host "The key name can only include letters and numbers"} # Error message for failed try
                 if ($KeyVaultKeyNameInput -eq 'exit') { # $KeyVaultKeyNameInput is equal to exit
                     Break NewAzureKeyVaultKey # Breaks NewAzureKeyVault loop
                 } # if ($KeyVaultKeyNameInput -eq 'exit')
                 elseif ($KeyVaultKeyNameInput.Length -ge 64) { # If $KeyVaultKeyNameInput is greater than 63 characters
-                    Write-Host "The vault name must be between 3 and 24 characters in length" # Write message to screen
+                    Write-Host "The key name must be between 1 and 63 characters in length" # Write message to screen
                     $KeyVaultKeyNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
                 } # End elseif ($KeyVaultKeyNameInput.Length -ge 63
                 elseif ($KeyVaultKeyNameInput -eq '0') {}# Elseif when Try statement fails)
@@ -33,105 +79,62 @@ function NewAzKeyVaultKey {
             } # End :AzureKeyVaultKeyName while ($true)
             $KeyNotBefore = $null # Clears all previous uses of this $var
             $KeyExpiration = Read-Host "Set key expiration [Y] or [N]"
-            if ($KeyExpiration -eq 'y'){
-                :AzureKeyVaultKeyExpire while ($true) {
-                    $StartDate = (Get-Date).Date
-                    $EndDate = Read-Host 'Key expiration date: YEAR-MO-DY'
-                    if ($EndDate -eq 'exit') {
-                        Break NewAzureKeyVaultKey
-                    }
-                    $DateDiff = New-TimeSpan -Start $StartDate -End $EndDate
-                    if (!$DateDiff) {
-                        Write-Host "The expiration date entry was not valid"
-                        Write-Host "Please enter a date in the listed format"
-                    }
-                    elseif ($DateDiff -le 0) {
-                        Write-Host "The date entered was not in the future"
-                        Write-Host "Please enter a future date"
-                        $DateDiff = $null
-                    }
-                    elseif ($DateDiff) {
-                        $KeyExpires = (Get-Date).AddDays($DateDiff.Days).ToUniversalTime()
-                        $KeyNotBefore = (Get-Date).ToUniversalTime()
-                        Break AzureKeyVaultKeyExpire
+            if ($KeyExpiration -eq 'y') { # If $KeyExpiration equals 'y'
+                :AzureKeyVaultKeyExpire while ($true) { # Inner loop for setting expiration date
+                    $StartDate = (Get-Date).Date # Gets current date
+                    $EndDate = Read-Host 'Key expiration date: YEAR-MO-DY' # Operator input for end date
+                    if ($EndDate -eq 'exit') { # If $EndDate equals 'exit'
+                        Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey
+                    } # End if ($EndDate -eq 'exit')
+                    $DateDiff = New-TimeSpan -Start $StartDate -End $EndDate # Gets count of days between current and end date
+                    if (!$DateDiff) { # If $DateDiff does not have a value (Result of bad $EndDate entry)
+                        Write-Host "The expiration date entry was not valid" # Write message to screen
+                        Write-Host "Please enter a date in the listed format" # Write message to screen
+                    } # End if (!$DateDiff)
+                    elseif ($DateDiff -le 0) { # $DateDiff is 0 or less
+                        Write-Host "The date entered was not in the future" # Write message to screen
+                        Write-Host "Please enter a future date" # Write message to screen
+                        $DateDiff = $null # Clears all previous uses of this $var
+                    } # End elseif ($DateDiff -le 0) 
+                    elseif ($DateDiff) { # If $DateDiff has a value of 1 or higher
+                        $KeyExpires = (Get-Date).AddDays($DateDiff.Days).ToUniversalTime() # Sets $KeyExpires to operator selected date
+                        $KeyNotBefore = (Get-Date).ToUniversalTime() # Sets $KeyNotBefore to current date
+                        Break AzureKeyVaultKeyExpire # Breaks :AzureKeyVaultKeyExpire
                     } # End if ($DateDiff)
                 } # End AzureKeyVaultKeyExpire while ($true)
             } # End if ($KeyExpiration -eq 'y')
-            :AzureKeyVaultKeyEncrypt while ($true) {
-                $KeyEncrypttype = Read-Host "[HSM] or [Software]"
-                if ($KeyEncrypttype -eq 'exit') {
-                    Break NewAzureKeyVaultKey
-                }
-                elseif ($KeyEncrypttype -eq 'HSM') {
-                    if ($KeyVaultObject.SKU -eq 'Standard') {
-                        Write-Host "HSM is not supported on this key vault"
-                        Write-Host "Please enter 'Software' if this vault is used"
-                        Write-Host "Otherwise, enter 'exit' to leave this function"
+            :AzureKeyVaultKeyEncrypt while ($true) { # Inner loop for setting the encyption type
+                $KeyEncryptType = Read-Host "[HSM] or [Software]" # Operator input for the key encryption type
+                if ($KeyEncryptType -eq 'exit') { # If $KeyEncryptType is equal to 'exit'
+                    Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey
+                } # End if ($KeyEncryptType -eq 'exit')
+                elseif ($KeyEncryptType -eq 'HSM') { # If $KeyEncryptType is equal to 'HSM'
+                    if ($KeyVaultObject.SKU -eq 'Standard') { # If $KeyEncryptType is equal to 'HSM' and $KeyVaultObject.SKU is equal to 'Standard'
+                        Write-Host "HSM is not supported on this key vault" # Write message to screen
+                        Write-Host "Please enter 'Software' if this vault is used" # Write message to screen
+                        Write-Host "Otherwise, enter 'exit' to leave this function" # Write message to screen
                     } # End if ($KeyVaultObject.Sku -eq 'Standard')
-                    else {
-                        Break AzureKeyVaultKeyEncrypt
-                    }
-                } # End elseif ($KeyEncrypttype -eq 'HSM')
-                elseif ($KeyEncrypttype -like 'Soft*') {
-                    $KeyEncrypttype = 'Software'
-                    Break AzureKeyVaultKeyEncrypt
-                } # End elseif ($KeyEncrypttype -like 'Soft*')
-                else {
-                    Write-Host "That was not a valid input"
-                }
+                    else { # If $KeyVaultObject.SKU does not equal 'standard'
+                        Break AzureKeyVaultKeyEncrypt # Breaks :AzureKeyVaultKeyEncrypt 
+                    } # End else (if ($KeyVaultObject.Sku -eq 'Standard'))
+                } # End elseif ($KeyEncryptType -eq 'HSM')
+                elseif ($KeyEncryptType -like 'Soft*') { # If $KeyEncryptType is equal to 'Soft*'
+                    $KeyEncryptType = 'Software' # Sets $KeyEncryptType to 'Software'
+                    Break AzureKeyVaultKeyEncrypt # Breaks :AzureKeyVaultKeyEncrypt
+                } # End elseif ($KeyEncryptType -like 'Soft*')
+                else { # If $KeyEncryptType is not HSM or Software
+                    Write-Host "That was not a valid input" # Write message to screen
+                } # End ese (if ($KeyEncryptType -eq 'exit'))
             } # End :AzureKeyVaultKeyEncrypt while ($true)
-            if ($KeyNotBefore) {
-                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncrypttype -Expires $KeyExpires -NotBefore $KeyNotBefore
-                Return $KeyVaultKeyObject
-            }
-            else {
-                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncrypttype
-                Return $KeyVaultKeyObject
-            }
+            if ($KeyNotBefore) { # If $KeyNotBefore has a value
+                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncryptType -Expires $KeyExpires -NotBefore $KeyNotBefore # Creates the new key and assgins object to #var
+                Return $KeyVaultKeyObject # Returns to calling function with $KeyVaultKeyObject
+            } # End if ($KeyNotBefore)
+            else { # If $KeyNotBefore is $null
+                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncryptType # Creates the new key and assgins object to #var
+                Return $KeyVaultKeyObject # Returns to calling function with $KeyVaultKeyObject
+            } # End else (if ($KeyNotBefore))
         } # End :NewAzureKeyVaultKey while ($true)
         Return # Returns with $null
     } # End Begin
 } # End function NewAzKeyVaultKey
-function GetAzKeyVault { # Collects a key vault object
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        :GetAzureKeyVault while ($true) { # Outer loop for managing function
-            if (!$RGObject) { # If $RGObject is empty
-                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
-                if (!$RGObject) { # If $RGObject is still empty after returning
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            $KVList = Get-AzKeyVault -ResourceGroupName $RGObject.ResourceGroupName # Gets all key vaults in resource group and assigns to $KVList
-            if (!$KVList) { # If $KVList returns empty
-                Write-Host "No key vaults found" # Message write to screen
-                Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-            } # End if (!$KVList)
-            $KVListNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Adds exit option to beginning of list
-            foreach ($_ in $KVList) { # For each item in list
-                Write-Host $KVListNumber"." $_.VaultName # Writes the option number and key vault name
-                $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-            } # End foreach ($_ in $KVList)
-            :SelectAzureKeyVault while ($true) { # Loop for selecting the key vault object
-                $KVListNumber = 1 # Resets list number to 1
-                $KVListSelect = Read-Host "Enter the option number" # Operator input for selecting which key vault
-                if ($KVListSelect -eq '0') { # If $KVListSelect is equal to 0
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if ($KVListSelect -eq '0')
-                foreach ($_ in $KVList) { # For each item in list
-                    if ($KVListSelect -eq $KVListNumber) { # If the operator input matches the current $KVListNumber
-                        $KeyVaultObject = Get-AzKeyVault -VaultName $_.VaultName # Currently selected item in $KVList is assigned to $KeyVaultObject
-                        Break SelectAzureKeyVault # Breaks :SelectAzureKeyVault
-                    } # End if ($KVListSelect -eq $KVListNumber)
-                    else { # If user input does not match the current $KVListNumber
-                        $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-                    } # End else (if ($KVListSelect -eq $KVListNumber))
-                } # End foreach ($_ in $KVList)
-                Write-Host "That was not a valid selection, please try again" # Write message to screen
-            } # End :SelectAzureKeyVault while ($true)
-            Return $KeyVaultObject # Returns $RGObject to calling function
-        } # End :GetAzureKeyVault while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function GetAzKeyVault
