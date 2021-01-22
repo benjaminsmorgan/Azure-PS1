@@ -227,6 +227,7 @@ function ListAzKeyVaultSecret { # Lists all key vault secrets
             } # End foreach ($Name in $KVSecretlist)
         } # End foreach ($VaultName in $KVList)
         Write-Host "-----------------------------------" # Write message to screen
+        Return # Retures to calling function with $null
     } # End Begin 
 } # End function ListAzKeyVaultSecret
 function GetAzKeyVaultSecret { # Function to get a key vault secret
