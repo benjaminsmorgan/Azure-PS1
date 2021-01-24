@@ -10,6 +10,7 @@
 } #>
 <# Required Functions Links: {
     NewAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/NewAzStorageContainer.ps1
+    ListAzStorageContainer:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/ListAzStorageContainer.ps1
     GetAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/GetAzStorageContainer.ps1
     RemoveAzStorageContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/RemoveAzStorageContainer.ps1
     GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Container/GetAzStorageContainer.ps1
@@ -19,7 +20,8 @@
 } #>
 <# Functions Description: {
     ManageAzStorageContainer:   Management function for storage containers
-    NewAzStorageContainer:      Creates new storage container(s) in a storage account 
+    NewAzStorageContainer:      Creates new storage container(s) in a storage account
+    ListAzStorageContainer:     Lists all storage containers by storage account 
     GetAzStorageContainer:      Collects storage container in a storage account  
     RemoveAzStorageContainer:   Removes existing storage container
     GetAzStorageAccount:        Collects the storage Container object
@@ -28,86 +30,24 @@
     GetAzResourceLocksAll:      Collects all locks on a resource
 } #>
 <# Variables: {
-    ManageAzStorageContainer {
-        :ManageAzureStorageCon      Outer loop for function
-        $ManageAzStorageCon:        Operator input for choosing sub function
-        NewAzStorageContainer {
-            :NewAzureStorageCon         Outer loop for function
-            :SetAzureStorageConName     Inner loop for setting storage account name
-            :SetAzureStorageConRights   Inner loop for setting the rights level
-            $StorageAccObject:          Storage account object for new containers
-            $StorageConNameInput:       Operator input for the container names
-            $StorageConName:            Non-string $Var of $StorageConNameInput
-            $StorageConNameSplit:       List of $StorageConName seperated by [Space]
-            $ValidRights:               List of valid rights input
-            $StorageConRightsInput:     Operator input for the rights level
-            GetAzStorageAccount{
-                :GetAzureStorageAccByName   Outer loop for managing funciton
-                :GetAzureStorageAcc         Inner loop for getting the storage account
-                $RGObject:                  Resource group object
-                $StorageAccObjectInput:     Operator input for the name of the storage account
-                $SAList:                    List of all storage accounts within $RGObject
-                $StorageAccObject:          Storage account object    
-                GetAzResourceGroup {
-                    $RGObject:                  Resource group object
-                    $RGObjectInput:             Operator input for the resource group name
-                    $RGList:                    Variable used for printing all resource groups to screen if needed
-                } End GetAzResourceGroup
-            } End GetAzStorageAccount
-        } End NewAzStorageContainer
-        GetAzStorageContainer{
-            :GetAzureStorageContainer   Outer loop for managing function
-            :GetAzureStorageConName     Inner loop for getting the storage container
-            $StorageAccObject:          Storage account object    
-            $StorageConNameInput:       Operator input for the storage container name
-            $StorageConObject:          Storage container object
-            $StorageConList:            List of all containers in storage account
-            GetAzStorageAccount{
-                :GetAzureStorageAccByName   Outer loop for managing funciton
-                :GetAzureStorageAcc         Inner loop for getting the storage account
-                $RGObject:                  Resource group object
-                $StorageAccObjectInput:     Operator input for the name of the storage account
-                $SAList:                    List of all storage accounts within $RGObject
-                $StorageAccObject:          Storage account object    
-                GetAzResourceGroup {
-                    $RGObject:                  Resource group object
-                    $RGObjectInput:             Operator input for the resource group name
-                    $RGList:                    Variable used for printing all resource groups to screen if needed
-                } End GetAzResourceGroup
-            } End GetAzStorageAccount
-        } End GetAzStorageContainer
-        RemoveAzStorageContainer{
-            :RemoveAzureStorageCon      Outer loop for managing function
-            $StorageConObject:          Storage container object
-            $OperatorConfirm:           Operator confirmation to remove the storage container
-            GetAzStorageContainer {
-                :GetAzureStorageContainer   Outer loop for managing function
-                :GetAzureStorageConName     Inner loop for getting the storage container
-                $StorageAccObject:          Storage account object    
-                $StorageConNameInput:       Operator input for the storage container name
-                $StorageConObject:          Storage container object
-                $StorageConList:            List of all containers in storage account
-                GetAzStorageAccount{
-                    :GetAzureStorageAccByName   Outer loop for managing funciton
-                    :GetAzureStorageAcc         Inner loop for getting the storage account
-                    $RGObject:                  Resource group object
-                    $StorageAccObjectInput:     Operator input for the name of the storage account
-                    $SAList:                    List of all storage accounts within $RGObject
-                    $StorageAccObject:          Storage account object    
-                    GetAzResourceGroup {
-                        $RGObject:                  Resource group object
-                        $RGObjectInput:             Operator input for the resource group name
-                        $RGList:                    Variable used for printing all resource groups to screen if needed
-                    } End GetAzResourceGroup
-                } End GetAzStorageAccount
-            } End GetAzStorageContainer
-        } End RemoveAzStorageContainer      
-    } End ManageAzStorageContainer
+    :ManageAzureStorageCon      Outer loop for function
+    $ManageAzStorageCon:        Operator input for choosing sub function
+    NewAzStorageContainer{}     Function for creating new storage containers
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
+    ListAzStorageContainer{}    Lists all storage container by accounts
+    GetAzStorageContainer{}     Gets $StorageConObject
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
+    RemoveAzStorageContainer{}  Removes $StorageConObject
+        GetAzStorageContainer{}     Gets $StorageConObject
+            GetAzStorageAccount{}       Gets $StorageAccObject
+                GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
         Call ManageAzStorageContainer > Get $null
-            Call NewAzStorageContainer > Get $null
+            Call NewAzStorageContainer > Get $StorageConObject
                 Call GetAzStorageAccount > Get $StorageAccObject
                     Call GetAzResourceGroup > Get $RGObject
                     End GetAzResourceGroup
@@ -115,7 +55,10 @@
                 End GetAzStorageAccount 
                     Return Function > Send $StorageAccObject
                 End NewAzStorageContainer 
-                    Return ManageStorageContainer > Send $null
+                    Return ManageStorageContainer > Send $StorageConObject
+            Call ListAzStorageContainer > Get $null
+            End ListAzStorageContainer
+                Return ManageStorageContainer > Send $null
             Call GetAzStorageContainer > Get $StorageConObject
                 Call GetAzStorageAccount > Get $StorageAccObject
                     Call GetAzResourceGroup > Get $RGObject
@@ -140,8 +83,9 @@ function ManageAzStorageContainer {
         :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
             Write-Host "Azure Storage Container Management" # Write message to screen
             Write-Host "1 New Storage Container" # Write message to screen
-            Write-Host "2 Get Storage Container" # Write message to screen
-            Write-Host "3 Remove Storage Container" # Write message to screen
+            Write-Host "2 List All Storage Containers" # Write message to screen
+            Write-Host "3 Get Storage Container" # Write message to screen
+            Write-Host "4 Remove Storage Container" # Write message to screen
             Write-Host '0 Clear "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
             Write-Host "'Exit to return'" # Write message to screen
             $ManageAzStorageCon = Read-Host "Option?" # Collects operator input on $ManageAzStorageCon option
@@ -153,14 +97,18 @@ function ManageAzStorageContainer {
                 NewAzStorageContainer ($RSObject, $RGObject, $StorageAccObject) # Calls function and assigns to $var
             } # End elseif ($ManageAzStorageCon -eq '1')
             elseif ($ManageAzStorageCon -eq '2') { # Elseif statement for getting storage Containers
+                Write-Host "List All Storage Containers" # Write message to screen
+                ListAzStorageContainer # Calls function    
+            } # End elseif ($ManageAzStorageCon -eq '2')
+            elseif ($ManageAzStorageCon -eq '3') { # Elseif statement for getting storage Containers
                 Write-Host "Get Storage Container" # Write message to screen
                 $StorageAccObject = GetAzStorageContainer ($RSObject, $RGObject, $StorageAccObject)  # Calls function and assigns to $var
                 Write-Host $StorageAccObject.StorageContainerName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind  #Writes message to screen
-            } # End elseif ($ManageAzStorageCon -eq '2')
-            elseif ($ManageAzStorageCon -eq '3') { # Elseif statement for removing storage Containers
+            } # End elseif ($ManageAzStorageCon -eq '3')
+            elseif ($ManageAzStorageCon -eq '4') { # Elseif statement for removing storage Containers
                 Write-Host "Remove Storage Containers" # Write message to screen
                 RemoveAzStorageContainer  # Calls function
-            } # End elseif ($ManageAzStorageCon -eq '3')
+            } # End elseif ($ManageAzStorageCon -eq '4')
             elseif ($ManageAzStorageCon -eq '0') { # Elseif statement for clearing $vars
                 Write-Host 'Clearing "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
                 $StorageAccObject = $null # Clears $var
@@ -267,10 +215,46 @@ function NewAzStorageContainer { # Creates new storage container(s) in a storage
         } # End :NewAzureStorageCon while ($true)
     } # End begin
 } # End NewAzStorageContainer
-function GetAzStorageContainer { # Collects storage container in a storage accoun
+function ListAzStorageContainer {
+    Begin {
+        $RGList = Get-AzResourceGroup # creates list of all resource groups
+        foreach ($_ in $RGList) { # For each object in $RGList
+            Write-Host "------------------------------------------" # Write message to screen
+            Write-Host $_.ResourceGroupName # Write message to screen
+            $StorageAccList = Get-AzStorageAccount -ResourceGroupName $_.ResourceGroupName # Creates a list of all storage accounts in current resource group
+            if ($StorageAccList) { # If storage accounts exist in this group
+                foreach ($StorageAccountName in $StorageAccList) { # For each object in $StorageAccList
+                    Write-Host "------------------------------------------" # Write message to screen
+                    Write-Host "StorageAccount: " $StorageAccountName.StorageAccountName # Write message to screen
+                    Try { # Try the following command
+                        $StorageConList = Get-AzStorageContainer -Context $StorageAccountName.Context # Creates a list of all containers in current $StorageAccount
+                    } # End Try
+                    catch { # If try fails
+                        Write-Host "You may not have the permissions to view this acount" # Write message to screen
+                        Write-Host "The account maybe locked which prevents listing containers" # Write message to screen
+                    } # End catch
+                    if ($StorageConList) { # If storage containers exist in the current account
+                        Write-Host "" # Write message to screen
+                        foreach ($Name in $StorageConList) { # For each object in $StorageConList
+                            Write-Host "Container Name:   " $Name.Name # Write message to screen
+                        } # End foreach ($Name in $StorageConList)
+                    } # End if ($StorageConList)
+                    else { # If no storage containers exist in the current account
+                        Write-Host "No containers exist in this storage account" # Write message to screen
+                    } # End if ($StorageConList)
+                } # End foreach ($_ in $StorageAccList)
+            } # End if ($StorageAccList)
+            else { # If no storage accounts exist in current group
+                Write-Host "No Storage Accounts in this resource group" # Write message to screen
+            } # End else(if ($StorageAccList))
+        } # End foreach ($_ in $RGList)
+        Write-Host "------------------------------------------" # Write message to screen
+        Return # Returns to calling function
+    } # End Begin
+} # End function ListAzStorageContainer
+function GetAzStorageContainer {
     Begin {
         $ErrorActionPreference='silentlyContinue'
-        $StorageConObject = $null # Clears $StorageConObject from all previous use
         :GetAzureStorageContainer while ($true) { # Outer loop for managing function
             if (!$StorageAccObject) { # If $StorageAccObject is $null
                 $StorageAccObject = GetAzStorageAccount # Call function and assigns to $var
@@ -278,35 +262,35 @@ function GetAzStorageContainer { # Collects storage container in a storage accou
                     Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
                 } # End if (!$StorageAccObject)
             } # End if (!$StorageAccObject)
-            :GetAzureStorageConName while ($true) { # Inner loop for getting the storage container
-                if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) { # Checks for a ReadOnly lock on the owning resource group
-                    Write-Host "There is a ReadOnly lock on"$StorageAccObject.ResourceGroupName"that is preventing the search of the storage container" # Write message to screen
-                    Write-Host "This will need to be removed or converted to a CanNotDeleteLock" # Write message to screen
-                    Break GetAzureStorageContainer # Break :GetAzureStorageContainer
-                } # End if (Get-AzResourceLock -AtScope -ResourceGroupName $StorageAccObject.ResourceGroupName | Where-Object {$_.Properties -like "@{Level=Read*"}) 
-                $StorageConNameInput = Read-Host "Storage container name" # Operator input for the storage container name
-                if ($StorageConNameInput -eq 'exit') { # If $StorageConNameInput is 'exit'
+            $SCList = Get-AzStorageContainer -Context $StorageAccObject.Context
+            $SCListNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Adds exit option to beginning of list
+            foreach ($_ in $SCList) { # For each item in list
+                Write-Host $SCListNumber"." $_.Name # Writes the option number and storage container name
+                $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
+            } # End foreach ($_ in $SCList)
+            :GetAzureStorageConName while ($true) { # Loop for selecting the storage container object
+                $SCListNumber = 1 # Resets list number to 1
+                $SCListSelect = Read-Host "Please enter the number of the storage container" # Operator input for selecting which storage container
+                if ($SCListSelect -eq '0') { # If $SCListSelect is equal to 0
                     Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
-                } # End if ($StorageConNameInput -eq 'exit')
-                if (!$StorageConNameInput) { # If $StorageConNameInput is $null
-                    $StorageConNameInput = '0' # Sets a value that cannot be an existing storage container name
-                } # End if (!$StorageConNameInput)
-                $StorageConObject = Get-AzStorageContainer -Name $StorageConNameInput -Context $StorageAccObject.Context # Gets the storage container and assigns to $StorageConObject
-                if ($StorageConObject) { # If $StorageConObject has a value
-                    Return $StorageConObject, $StorageAccObject # Returns $StorageConObject to calling function
-                } # End if ($StorageConObject)
-                else { # If $StorageConObject is empty
-                    Write-Host "The name provided does not match and existing storage container" # Write message to screen
-                    $StorageConList = Get-AzStorageContainer -Context $StorageAccObject.Context # Gets list of all containers in storage account
-                    Write-Host $StorageConList.Name -Separator `n # Writes $StorageConList list to screen
-                    Write-Host " " # Write message to screen
-                    Write-Host "Please re-enter the storage container name" # Write message to screen
-                } # End else (if ($StorageConObject))
+                } # End if ($SCListSelect -eq '0')
+                foreach ($_ in $SCList) { # For each item in list
+                    if ($SCListSelect -eq $SCListNumber) { # If the operator input matches the current $SCListNumber
+                        $StorageConObject = Get-AzStorageContainer -Context $StorageAccObject.Context -Name $_.Name # collects the full storage container object
+                        Break GetAzureStorageConName # Breaks :GetAzureStorageConName 
+                    } # End if ($SCListSelect -eq $SCListNumber)
+                    else { # If user input does not match the current $SCListNumber
+                        $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
+                    } # End else (if ($SCListSelect -eq $SCListNumber))
+                } # End foreach ($_ in $SCList)
+                Write-Host "That was not a valid selection, please try again" # Write message to screen
             } # End :GetAzureStorageConName while ($true)
-        } # End :GetAzureStorageContainer while ($true)
-        Return # Returns to calling function with $null
+            Return $StorageConObject
+        } # End GetAzureStorageContainer
+        Return # Returns to calling function with #null
     } # End Begin
-} # End function GetAzStorageContainer
+} # End GetAzStorageContainer
 function RemoveAzStorageContainer { # Removes existing storage container
     Begin {
         :RemoveAzureStorageCon while ($true) { # Outer loop for function
