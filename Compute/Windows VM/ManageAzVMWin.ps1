@@ -137,6 +137,50 @@ function ManageAzVMWin {
 function NewAzVMWin {
     Begin {
         Write-Host "In Dev"
+        :SetAzureServerImage while($true) {
+            $ImageSkuList = Get-AzVMImageSku -Location $Location -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowServer'
+            $ImageSkuListNumber = 1
+            Write-Host "0 Exit"
+            foreach ($Skus in $ImageSkuList) {
+                Write-Host $ImageSkuListNumber $Skus.Skus
+                $ImageSkuListNumber = $ImageSkuListNumber + 1
+            } # End foreach ($Skus in $ImageSkuList)
+            :SetAzureServerImageName while ($true) {
+                $ImageSkuSelect = Read-Host "Please enter the number of the image"
+                if ($ImageSkuSelect -eq '0') {
+                    Break :NamedLoop
+                } # End if ($ImageSkuSelect -eq '0')
+                $ImageSkuListNumber = 1
+                foreach ($Skus in $ImageSkuList) {
+                    if ($ImageSkuSelect -eq $ImageSkuListNumber) {
+                        $WinVMImageSkuList = Get-AzVMImage -Location $Location -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowServer' -Skus $Skus.Skus
+                        $WinVMImageSkuListNumber = 1
+                        Write-Host '0. Exit'
+                        foreach ($Version in $WinVMImageSkuList) {
+                            Write-Host WinVMImageSkuListNumber"." $Version.Version $Version.Skus
+                            WinVMImageSkuListNumber = WinVMImageSkuListNumber + 1
+                        } # End foreach ($Version in $WinVMImageSkuList)
+                        $ImageVersionSelect = Read-Host "Please enter the number of the version"
+                        if ($ImageVersionSelect -eq '0') {
+                            Break :NamedLoop
+                        } # End if ($ImageVersionSelect -eq '0')
+                        $WinVMImageSkuListNumber = 1
+                        foreach ($Version in $WinVMImageSkuList) {
+                            if ($ImageVersionSelect -eq $WinVMImageSkuListNumber) {
+                                $WinVMImageObject = Get-AzVMImage -Location $Location -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowServer' -Skus.Skus -version $Version.Version
+                            } # End if ($ImageVersionSelect -eq $WinVMImageSkuListNumber)
+                            else { # if ($ImageVersionSelect -eq $WinVMImageSkuListNumber)
+                            $WinVMImageSkuListNumber + 1 
+                            } # End else (if ($ImageVersionSelect -eq $WinVMImageSkuListNumber))
+                        } # End foreach ($Version in $WinVMImageSkuList)
+                    } # End if ($ImageSkuSelect -eq $ImageSkuListNumber)
+                    else { # if ($ImageSkuSelect -eq $ImageSkuListNumber)
+                        $ImageSkuListNumber = $ImageSkuListNumber + 1
+                    } # End else (if ($ImageSkuSelect -eq $ImageSkuListNumber))
+                    Break :SetAzureServerImageName
+                    } # End foreach ($Skus in $ImageSkuList)
+            } # End :SetAzureServerImageName while ($true)
+        } # End :SetAzureServerImage while($true)
     } # End Begin
 } # End function NewAzVMWin
 function ListAzVMWin { # Lists all Windows VM by resource group
