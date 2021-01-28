@@ -46,6 +46,7 @@
         RemoveAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTag.ps1
         RemoveAzResourceGroupTags:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceGroupTags.ps1
         RemoveAzResourceTags:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTags.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
 } #>
 <# Functions Description: {
     ManageAzResourceGroup:      Manages all functions related to Resource Group objects
@@ -80,6 +81,7 @@
             RemoveAzResourceTag:        Remove a named tag from a resource
             RemoveAzResourceGroupTags:  Remove all tags from a resource group
             RemoveAzResourceTags:       Remove all tags from a resource   
+        GetAzLocation:              Gets Azure location
 } #>
 <# Variables: {
     ManageAzResourceGroup {
@@ -2360,3 +2362,35 @@ function RemoveAzResourceTags {
         Return # Returns to the calling function with $null
     } # End begin
 } # End function RemoveAzResourceTags
+function GetAzLocation { # Gets azure location
+    Begin {
+        :GetAzureLocation while ($true) { # Outer loop for managing function
+            $LocationList = Get-AzLocation # Gets a list of all Azure locations
+            $LocationListNumber = 1 # $Var for selecting the location
+            Write-Host "0. Exit" # Write message to screen
+            foreach ($Location in $LocationList) { # For each item in $LocationList
+                Write-Host $LocationListNumber"." $Location.DisplayName # Writes list to screen
+                $LocationListNumber = $LocationListNumber + 1 # Increments $LocationListNumber by 1
+            } # End foreach ($Location in $LocationList)
+            :GetAzureLocationName while ($true) { # Inner loop for selecting location from list
+                $LocationSelect = Read-Host "Please enter the number of the location" # Operator input for the selection
+                if ($LocationSelect -eq '0') { # If $LocationSelect is 0
+                    Break GetAzureLocation # Breaks :GetAzureLocation
+                } # End if ($LocationSelect -eq '0')
+                $LocationListNumber = 1 # Resets $LocationListNumber
+                foreach ($Location in $LocationList) { # For each item in $locationList
+                    if ($LocationSelect -eq $LocationListNumber) { # If $LocationSelect equals $LocationListNumber
+                        $LocationObject = Get-AzLocation | Where-Object {$_.Location -eq $Location.Location} # Collects the current location and assigns to $Location
+                        Break GetAzureLocationName # Breaks :GetAzureLocationName 
+                    } # End if ($LocationSelect -eq $LocationListNumber)
+                    else { # If $locationSelect does not equal $LocationListNumber
+                        $LocationListNumber = $LocationListNumber + 1 # Increments $LocationListNumber by 1
+                    } # End else if ($LocationSelect -eq $LocationListNumber)
+                } # End foreach ($Location in $LocationList)
+                Write-Host "That was not a valid selection" # Write message to screen
+            } # End :GetAzureLocationName while ($true)
+            Return $LocationObject # Returns $Location to calling function
+        } # End :GetAzureLocation while ($true)
+        Return # Returns with $null 
+    } # End Begin
+} # End function GetAzLocation
