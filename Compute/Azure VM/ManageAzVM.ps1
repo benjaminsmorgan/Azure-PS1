@@ -46,8 +46,8 @@ function ManageAzVM {
                 Write-Host "Remove VM" # Write message to screen
                 RemoveAzVM ($VMObject)
             } # End elseif ($ManageAzVM -eq '6')
-            elseif ($ManageAzVM -eq '6') { # Elseif statement for option 0
-                Write-Host "Clearing $vars" # Write message to screen
+            elseif ($ManageAzVM -eq '0') { # Elseif statement for option 0
+                Write-Host 'Clearing "$vars"' # Write message to screen
                 $RGObject = $null # Clears $var
                 $LocationObject = $null # Clears $var
                 $VMObject = $null # Clears $var
