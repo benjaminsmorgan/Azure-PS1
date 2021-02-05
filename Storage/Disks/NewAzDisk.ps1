@@ -70,14 +70,53 @@ function NewAzDisk {
                     } # End else (if ($DiskOSObject -eq 'exit') )
                 } # End :SetAzureDiskOSType while ($true)
                 :EnableAzureDiskEncrypt while ($true) { # ***IN PROGRESS***
-                    Break
+                    $UseEncryptOption = Read-Host "Encypt this disk [Y] or [N]"
+                    if ($UseEncryptOption -eq 'exit') {
+                        Break NewAzureDisk # Breaks :NewAzureDisk
+                    } # End if ($UseEncryptOption -eq 'exit')
+                    elseif ($UseEncryptOption -eq 'n') {
+                        Break EnableAzureDiskEncrypt
+                    } # End elseif ($UseEncryptOption -eq 'n')
+                    elseif ($UseEncryptOption -eq 'y') {
+                        if (!$KeyVaultObject) {
+                            $KeyVaultObject = GetAzKeyVault 
+                            if (!$KeyVaultObject) {
+                                Break NewAzureDisk # Breaks :NewAzureDisk
+                            } # End if (!$KeyVaultObject)
+                        } # End if (!$KeyVaultObject)
+                        if (!$KeyVaultKeyObject) {
+                            $KeyVaultKeyObject = GetAzKeyVaultKey ($KeyVaultObject)
+                            if (!$KeyVaultKeyObject) {
+                                Break NewAzureDisk # Breaks :NewAzureDisk
+                            } # End if (!$KeyVaultKeyObject)
+                        } # End if (!$KeyVaultKeyObject)
+                        if (!$KeyVaultSecretObject) {
+                            $KeyVaultSecretObject = GetAzKeyVaultSecret ($KeyVaultObject)
+                            if (!$KeyVaultSecretObject) {
+                                Break NewAzureDisk # Breaks :NewAzureDisk
+                            } # End if (!$KeyVaultSecretObject)
+                        } # End if (!$KeyVaultSecretObject)
+                        Break EnableAzureDiskEncrypt # Breaks :EnableAzureDiskEncrypt
+                    } # End elseif ($UseEncryptOption -eq 'y')
+                    else {
+                        Write-Host "That was not a valid option"
+                    } # End else (if ($UseEncryptOption -eq 'exit'))
                 } # End :EnableAzureDiskEncrypt while ($true)
                 Break SetAzureDiskOptions
             } # End :SetAzureDiskOptions while ($true)
-            Write-Host $RGObject.ResourceGroupName
-            Write-Host $LocationObject.Location
-            Write-Host $SkuObject
-            Write-Host $DiskSizeObject
+            if ($UseEncryptOption -eq 'y') {
+                $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $true
+                $KeyVaultSecretUrl = $KeyVaultSecretObject.ID
+                $KeyVaultKeyUrl = $KeyVaultKeyObject.ID 
+                $KeyVaultID = $KeyVaultObject.ResourceID
+                $DiskConfig = Set-AzDiskDiskEncryptionKey -Disk $DiskConfig -SecretUrl $KeyVaultSecretUrl -SourceVaultId $KeyVaultID
+                $DiskConfig = Set-AzDiskKeyEncryptionKey -Disk $DiskConfig -KeyUrl $KeyVaultKeyUrl -SourceVaultId $KeyVaultID
+                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName "Tacos" -Disk $DiskConfig
+            } # End if ($UseEncryptOption -eq 'y') 
+            elseif ($UseEncryptOption -eq 'n') {
+                $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $false
+                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName "Tacos2" -Disk $DiskConfig
+            } # End elseif ($UseEncryptOption -eq 'n')
             Return $DiskObject # Returns to calling function with $DiskObject
         } # End :NewAzureDisk while ($true)
         Return # Returns to calling function with $null
@@ -120,3 +159,128 @@ function GetAzResourceGroup { # Function to get a resource group, can pipe $RGOb
         Return $RGObject # Returns $RGObject to calling function
     } # End of begin statement
 } # End of function
+function GetAzKeyVaultSecret { # Function to get a key vault secret
+    Begin {
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
+        :GetAzureKeyVaultSecret while ($true) { # Outer loop for managing function
+            if (!$KeyVaultObject) { # If $KeyVaultObject is $null 
+                $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
+                if (!$KeyVaultObject) { # If $var is still $null
+                    Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret    
+                } # End if (!$KeyVaultObject)
+            } # End if (!$KeyVaultObject)
+            $KVSecretlist = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName # Creates list of all secrets in vault
+            if (!$KVSecretlist) { # If $KVSecretlist returns empty
+                Write-Host "No secrets found" # Message write to screen
+                Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
+            } # End if (!$KVSecretlist)
+            $KVSecretlistNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Write message to screen
+            foreach ($_ in $KVSecretlist) { # For each item in list
+                Write-Host $KVSecretlistNumber"." $_.Name # Writes list to screen
+                $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
+            } # End foreach ($_ in $KVSecretlist) 
+            $KVSecretlistNumber = 1 # Resets list number to 1
+            $KVSecretlistSelect = Read-Host "Enter the option number" # Operator input to select from list
+            if ($KVSecretlistSelect -eq '0') { # If $KVSecretListSelect is 0
+                Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
+            } # End if ($KVSecretlistSelect -eq '0')
+            :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
+                if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
+                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Collects the full $KeyVaultSecretObject
+                    Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
+                } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
+                else { # If user input does not match the current $KVSecretlistNumber
+                    $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
+                } # End else (if ($KVSecretlistSelect -eq $KVSecretlistNumber))
+            } # End :SelectAzureKeyVaultSecret
+            Return $KeyVaultSecretObject # Returns $KeyVaultSecretObject to calling function
+        } # End :GetAzureKeyVaultSecret while ($true) {
+        Return # Returns $null to calling function
+    } # End begin statement
+} # End GetAzKeyVaultSecret
+function GetAzKeyVaultKey { # Function to get a key vault Key
+    Begin {
+        $WarningPreference = "silentlyContinue" # Disables key vault warnings
+        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
+        :GetAzureKeyVaultKey while ($true) { # Outer loop for managing function
+            if (!$KeyVaultObject) { # If $KeyVaultObject is $null 
+                $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
+                if (!$KeyVaultObject) { # If $var is still $null
+                    Break GetAzureKeyVaultKey # Breaks :GetAzureKeyVaultKey    
+                } # End if (!$KeyVaultObject)
+            } # End if (!$KeyVaultObject)
+            $KVKeylist = Get-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName # Creates list of all Keys in vault
+            if (!$KVKeylist) { # If $KVKeylist returns empty
+                Write-Host "No Keys found" # Message write to screen
+                Break GetAzureKeyVaultKey # Breaks :GetAzureKeyVaultKey
+            } # End if (!$KVKeylist)
+            $KVKeylistNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Write message to screen
+            foreach ($_ in $KVKeylist) { # For each item in list
+                Write-Host $KVKeylistNumber"." $_.Name # Writes list to screen
+                $KVKeylistNumber = $KVKeylistNumber+1 # Adds 1 to $KVKeylistNumber
+            } # End foreach ($_ in $KVKeylist) 
+            $KVKeylistNumber = 1 # Resets list number to 1
+            $KVKeylistSelect = Read-Host "Enter the option number" # Operator input to select from list
+            if ($KVKeylistSelect -eq '0') { # If $KVKeyListSelect is 0
+                Break GetAzureKeyVaultKey # Breaks :GetAzureKeyVaultKey
+            } # End if ($KVKeylistSelect -eq '0')
+            :SelectAzureKeyVaultKey foreach ($_ in $KVKeylist) { # For each item in list
+                if ($KVKeylistSelect -eq $KVKeylistNumber) { # If the user input matches the current $KVKeylistNumber
+                    $KeyVaultKeyObject = Get-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $_.Name # Collects the full $KeyVaultKeyObject
+                    Break SelectAzureKeyVaultKey # Breaks :SelectAzureKeyVaultKey
+                } # End if ($KVKeylistSelect -eq $KVKeylistNumber)
+                else { # If user input does not match the current $KVKeylistNumber
+                    $KVKeylistNumber = $KVKeylistNumber+1 # Adds 1 to $KVKeylistNumber
+                } # End else (if ($KVKeylistSelect -eq $KVKeylistNumber))
+            } # End :SelectAzureKeyVaultKey
+            Return $KeyVaultKeyObject # Returns $KeyVaultKeyObject to calling function
+        } # End :GetAzureKeyVaultKey while ($true) {
+        Return # Returns $null to calling function
+    } # End begin statement
+} # End GetAzKeyVaultKey
+function GetAzKeyVault { # Collects a key vault object
+    Begin {
+        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
+        :GetAzureKeyVault while ($true) { # Outer loop for managing function
+            #if (!$RGObject) { # If $RGObject is empty
+                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
+            #    if (!$RGObject) { # If $RGObject is still empty after returning
+            #        Break GetAzureKeyVault # Breaks :GetAzureKeyVault
+            #    } # End if (!$RGObject)
+            #} # End if (!$RGObject)
+            $KVList = Get-AzKeyVault -ResourceGroupName $RGObject.ResourceGroupName # Gets all key vaults in resource group and assigns to $KVList
+            if (!$KVList) { # If $KVList returns empty
+                Write-Host "No key vaults found" # Message write to screen
+                Break GetAzureKeyVault # Breaks :GetAzureKeyVault
+            } # End if (!$KVList)
+            $KVListNumber = 1 # Sets the base value of the list
+            Write-Host "0. Exit" # Adds exit option to beginning of list
+            foreach ($_ in $KVList) { # For each item in list
+                Write-Host $KVListNumber"." $_.VaultName # Writes the option number and key vault name
+                $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
+            } # End foreach ($_ in $KVList)
+            :SelectAzureKeyVault while ($true) { # Loop for selecting the key vault object
+                $KVListNumber = 1 # Resets list number to 1
+                $KVListSelect = Read-Host "Enter the option number" # Operator input for selecting which key vault
+                if ($KVListSelect -eq '0') { # If $KVListSelect is equal to 0
+                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
+                } # End if ($KVListSelect -eq '0')
+                foreach ($_ in $KVList) { # For each item in list
+                    if ($KVListSelect -eq $KVListNumber) { # If the operator input matches the current $KVListNumber
+                        $KeyVaultObject = Get-AzKeyVault -VaultName $_.VaultName # Currently selected item in $KVList is assigned to $KeyVaultObject
+                        Break SelectAzureKeyVault # Breaks :SelectAzureKeyVault
+                    } # End if ($KVListSelect -eq $KVListNumber)
+                    else { # If user input does not match the current $KVListNumber
+                        $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
+                    } # End else (if ($KVListSelect -eq $KVListNumber))
+                } # End foreach ($_ in $KVList)
+                Write-Host "That was not a valid selection, please try again" # Write message to screen
+            } # End :SelectAzureKeyVault while ($true)
+            Return $KeyVaultObject # Returns $RGObject to calling function
+        } # End :GetAzureKeyVault while ($true)
+        Return # Returns to calling function with $null
+    } # End Begin
+} # End function GetAzKeyVault
