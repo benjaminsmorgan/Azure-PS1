@@ -23,8 +23,8 @@
     GetAzKeyVaultKey:           Gets a key vault key 
 } #>
 <# Variables: {
-    :NewAzureVMWin              Outer loop for managing function
     :NewAzureDisk               Outer loop for managing function 
+    :SetAzureDiskName           Inner loop for setting the disk name
     :SetAzureDiskSku            Inner loop for setting the disk sku
     :SelectAzureDiskSku         Inner loop for selection the disk sku
     :SetAzureDiskSize           Inner loop for setting the disk size
@@ -32,6 +32,8 @@
     :EnableAzureDiskEncrypt     Inner loop for setting the encyption settings 
     $RGObject:                  Resource group object
     $LocationObject:            Location object
+    $DiskNameInput:             Operator input for the disk name
+    $OperatorConfirm:           Operator confirmation of the disk name
     $ValidSku:                  Empty array that is loaded by $ValidSkuList
     $ValidSkuList:              Static list of disk skus          
     $SkuNumber:                 $var used in the list and selection
@@ -84,7 +86,29 @@ function NewAzDisk {
                     Break NewAzureDisk # Breaks :NewAzureDisk
                 } # End if (!$RGObject) 
             } # End if (!$RGObject)
-            $LocationObject = Get-AzLocation | Where-Object {$_.Location -eq $RGObject.Location} # Pulls location from $RGObject  
+            $LocationObject = Get-AzLocation | Where-Object {$_.Location -eq $RGObject.Location} # Pulls location from $RGObject 
+            :SetAzureDiskName while ($true) { # Inner loop for setting the disk name
+                $DiskNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
+                try { # Try statement for operator input of disk name
+                    [ValidatePattern('^[a-z,0-9]+$')]$DiskNameInput = [string](Read-Host "New disk name (3-24 letters and numbers only)") # Operator input for the disk name, only allows letters and numbers. 
+                } # End try
+                catch {Write-Host "The disk name can only include letters and numbers"} # Error message for failed try
+                if ($DiskNameInput -eq 'exit') { # $DiskNameInput is equal to exit
+                    Break NewAzureDisk # Breaks :NewAzureDisk loop
+                } # if ($DiskNameInput -eq 'exit')
+                elseif ($DiskNameInput -eq '0') {}# Elseif when Try statement fails
+                elseif ($DiskNameInput.Length -le 2 -or $DiskNameInput.Length -ge 25) { # If $DiskNameInput is not between 3 and 24 characters
+                    Write-Host "The disk name must be between 3 and 24 characters in length" # Write message to screen
+                } # End elseif ($DiskNameInput.Length -le 2 -or $DiskNameInput.Length -ge 25)
+                else { # If Try statement input has value not equal to exit
+                    Write-Host $DiskNameInput # Writes $var to screen
+                    $OperatorConfirm = Read-Host "Is this name correct [Y] or [N]" # Operator confirmation
+                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
+                        Break SetAzureDiskName # Breaks SetAzureDiskName
+                    } # End If ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
+                    else {} # If $OperatorConfirm is not -eq 'y' or 'yes;
+                } # End else (if ($DiskNameInput -eq 'exit'))
+            } # End :SetAzureDiskName while ($true)
             :SetAzureDiskSku while ($true) { # Inner loop for configuring the new disk sku
                 [System.Collections.ArrayList]$ValidSku = @() # Creates the valid sku array
                 $ValidSkuList = @('Standard_LRS','Premium_LRS','StandardSSD_LRS','UltraSSD_LRS') # Creates a list of items to load into $ValidSku Array
@@ -185,11 +209,11 @@ function NewAzDisk {
                 $KeyVaultID = $KeyVaultObject.ResourceID # Assigns key vault ID for later use
                 $DiskConfig = Set-AzDiskDiskEncryptionKey -Disk $DiskConfig -SecretUrl $KeyVaultSecretUrl -SourceVaultId $KeyVaultID # Sets the disk encyption secret
                 $DiskConfig = Set-AzDiskKeyEncryptionKey -Disk $DiskConfig -KeyUrl $KeyVaultKeyUrl -SourceVaultId $KeyVaultID # Sets the disk encyption key
-                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName "Tacos" -Disk $DiskConfig # Creates the disk
+                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName $DiskNameInput -Disk $DiskConfig # Creates the disk
             } # End if ($UseEncryptOption -eq 'y') 
             elseif ($UseEncryptOption -eq 'n') { # If $UseEncyptOption equals 'n'
                 $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $false # Sets the disk settings
-                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName "Tacos2" -Disk $DiskConfig # Creates the disk
+                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName $DiskNameInput -Disk $DiskConfig # Creates the disk
             } # End elseif ($UseEncryptOption -eq 'n')
             Return $DiskObject # Returns to calling function with $DiskObject
         } # End :NewAzureDisk while ($true)
