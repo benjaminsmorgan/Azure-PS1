@@ -1,3 +1,4 @@
+# Linux publisher list https://gmusumeci.medium.com/how-to-find-azure-linux-vm-images-for-terraform-or-packer-deployments-24e8e0ac68a
 function SetLinuxOS {
     Begin {
         :SelectAzureLinuxPub while ($true) {
