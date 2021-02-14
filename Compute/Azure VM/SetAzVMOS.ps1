@@ -132,7 +132,7 @@ function SetAzVMOS {                                                            
                 }                                                                           # End else (if ($ImageTypeObject -eq '0'))
             }                                                                               # End :GetAzureImagePublisher while ($true)
             :GetAzureImageOffer while ($true) {
-                $ImageOfferList = Get-AzVMImageOffer -Location $LocationObject.DisplayName `
+                $ImageOfferList = Get-AzVMImageOffer -Location $LocationObject.Location `
                     -PublisherName $VMPublisherObject                                       # Generates the image offer list
                 $ImageOfferNumber = 1                                                       # Sets $ImageOfferNumber to 1
                 [System.Collections.ArrayList]$ImageOfferArray = @()                        # Creates the valid Pub array
@@ -162,7 +162,7 @@ function SetAzVMOS {                                                            
                 }                                                                           # End :SelectAzureImage while ($true)
             }                                                                               # End :GetAzureImageOffer while ($true)
             :GetAzureImageSku while ($true) {                                               #
-                $VMOfferObject = Get-AzVMImageOffer -Location $LocationObject.DisplayName `
+                $VMOfferObject = Get-AzVMImageOffer -Location $LocationObject.Location `
                     -PublisherName $VMPublisherObject | Where-Object {$_.Offer `
                     -eq $VMOfferObject.Name}                                                # Pulls the full $VMOfferObject
                 $ImageSkuList = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
