@@ -46,7 +46,7 @@
 function GetAzVMSize {                                                                      # Function for setting the VM size
     Begin {                                                                                 # Begin function
         :GetAzureVMSize while ($true) {                                                     # Outer loop for managing function
-            $VMSizeList = Get-AzVMSize -Location $LocationObject.DisplayName                # Gets a list of all VM sizes in location
+            $VMSizeList = Get-AzVMSize -Location $LocationObject.Location                   # Gets a list of all VM sizes in location
             :SetAzureVMCoreCount while ($true) {                                            # Inner loop for setting the core count
                 $CoreCountList = $VMSizeList                                                # Passes original list to loop list
                 $CoreCountList = $CoreCountList.NumberOfCores | Sort-Object | Get-Unique    # Retains only the core count values, sorts them and only keeps unique 
@@ -131,7 +131,8 @@ function GetAzVMSize {                                                          
                 elseif ($DiskCount -in $ValidDisk.Number) {                                 # Else if $DiskCount is in $ValidDisk.Number list
                     $DiskCount = $ValidDisk | Where-Object {$_.Number -eq $DiskCount}       # $DiskCount equals $ValidDisk where $ValidDisk.Number equals $DiskCount
                     $DiskCount = $DiskCount.Count                                           # $DiskCount equals $DiskCount.Count
-                    $OperatorConfirm = Read-Host "Confirm"$DiskCount" max disks? [Y] or [N]"# Operator confirmation of the disk count
+                    $OperatorConfirm = Read-Host `
+                        "Confirm"$DiskCount" max disks? [Y] or [N]"                          # Operator confirmation of the disk count
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
                         Break SetAzureVMDiskCount                                           # Breaks :SetAzureVMDiskCount
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
@@ -145,7 +146,8 @@ function GetAzVMSize {                                                          
             :SetAzureVMName while ($true) {                                                 # Inner loop for selecting the VM size
                 [System.Collections.ArrayList]$ValidVMSize = @()                            # Creates array to load list into
                 $VMSizeNumber = 1                                                           # Creates list number $var
-                Write-Host "[ 0 ] to exit"                                                  # Write message to scrren
+                Write-Host "[ 0 ] to exit"                                                  # Write message to screen
+                Write-Host ""                                                               # Write message to screen
                 foreach ($_ in $VMSizeList) {                                               # For each item in list
                     $VMSizeInput = [PSCustomObject]@{'Name' = $_.Name;'Number' = `
                         $VMSizeNumber;'OSDiskSize' = $_.OSDiskSizeInMB; `
