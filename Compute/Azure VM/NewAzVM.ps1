@@ -66,7 +66,7 @@
 } #>
 <# Process Flow {
     Function
-        Call NewAzVMWin > Get $WinVMObject
+        Call NewAzVMWin > Get $VMObject
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGoup
                 Return NewAzVMWin > Send $RGObject
@@ -95,9 +95,9 @@
             End GetAzVMSize
                 Return NewAzVMWin > Send $VMImageObject
         End NewAzVMWin
-            Return Function > Send $WinVMObject
+            Return Function > Send $VMObject
 }#>
-function NewAzVM {                                                                          # Creates a new Windows VM
+function NewAzVM {                                                                          # Creates a new virtual machine
     Begin {                                                                                 # Begin function
         :NewAzureVM while ($true) {                                                         # Outer loop for managing function
             :SetAzureVMType while ($true) {                                                 # Inner loop for setting the VM type
