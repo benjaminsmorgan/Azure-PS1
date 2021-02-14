@@ -1,3 +1,61 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Get-AzVMImageOffer:         https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimageoffer?view=azps-5.5.0
+    Get-AzVMImageSku:           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku?view=azps-5.5.0
+    Get-AzImage:                https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage?view=azps-5.5.0:       
+    Azure Linux Publishers:     https://gmusumeci.medium.com/how-to-find-azure-linux-vm-images-for-terraform-or-packer-deployments-24e8e0ac68a     
+} #>
+<# Required Functions Links: {
+    None:                       In order for this function to work, another function will need to pass $LocationObject.DisplayName
+} #>
+<# Functions Description: {
+    SetVMOS:                     Function to get a valid image for new VM
+} #>
+<# Variables: {      
+    :GetAzureVMImage            Outer loop for managing function
+    :GetAzureImagePublisher     Inner loop for getting the image publisher
+    :GetAzureLinuxPublisher     Inner loop for getting the linux publisher
+    :SelectAzurePub             Inner loop for selecting the linux publisher
+    :GetAzureImageOffer         Inner loop for getting the image offerings
+    :SelectAzureImageOffer      Inner loop for selecting the image offer
+    :GetAzureImageSku           Inner loop for getting the image skus
+    :SelectAzureImageSku        Inner loop for selecting the image sku
+    :GetAzureImageVersion       Inner loop for getting the image version
+    :SelectAzureImageVersion    Inner loop for selecting the image version
+    $LocationObject:            Location object
+    $ImageTypeObject:           Object determining if image will be windows or linux            
+    $ImagePublisherList:        List of linux publishers
+    $ImagePublisherNumber:      $var used in list
+    $ImagePublisherArray        Array used for selecting the publisher
+    $ImagePublisherInput:       $Var that loads items into array
+    $PublisherSelect:           Operator input for the publisher selection
+    $VMPublisherObject:         Publisher name object  
+    $ImageOfferList:            List of all offers
+    $ImageOfferNumber:          $var used in list
+    $ImageOfferArray:           Array used for selecting the offer
+    $ImageOfferInput:           $Var that loads items into array
+    $OfferSelect:               Operator input for the offer selection
+    $VMOfferObject:             Offer name object
+    $ImageSkuList:              List of all skus
+    $ImageSkuNumber:            $var used in list
+    $ImageSkuArray:             Array used for selecting the sku
+    $ImageSkuInput:             $Var that loads items into array
+    $SkuSelect:                 Operator input for the sku selection
+    $VMSkuObject:               The sku name object
+    $ImageVersionList:          List of all versions 
+    $ImageVersionNumber:        $var used in list 
+    $ImageVersionArray:         Array used to select the version
+    $ImageVersionInput:         $Var used to load items into array
+    $VersionSelect:             Operator input for the version selection
+    $VMVersionObject:           Version name object
+    $VMImageObject:             Object used to select the image for VM creation
+} #>
+<# Process Flow {
+    function
+        Call SetVMOS > Get $VMImageObject
+        End SetVMOS
+            Return Function > Send $VMImageObject
+}#>
 function SetVMOS {                                                                          # Function to get a valid image sku for linux VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
@@ -20,9 +78,9 @@ function SetVMOS {                                                              
                             'Oracle','CoreOS')                                              # Creates a list of items to load into $ImagePublisherArray Array
                         $ImagePublisherNumber = 1                                           # Sets the base number for the valid Pub array
                         foreach ($_ in $ImagePublisherList) {                               # For each item in $ImagePublisherList
-                            $PubInput = [PSCustomObject]@{'Name' = $_;'Number' `
+                            $ImagePublisherInput = [PSCustomObject]@{'Name' = $_;'Number' `
                                 = $ImagePublisherNumber}                                    # Creates the item to loaded into array
-                            $ImagePublisherArray.Add($PubInput) | Out-Null                  # Loads item into array, out-null removes write to screen
+                            $ImagePublisherArray.Add($ImagePublisherInput) | Out-Null       # Loads item into array, out-null removes write to screen
                             $ImagePublisherNumber = $ImagePublisherNumber + 1               # Increments $ImagePublisherNumber up 1
                         }                                                                   # End foreach ($_ in $ImagePublisherList)
                         Write-Host '0 Exit'                                                 # Write message to screen
