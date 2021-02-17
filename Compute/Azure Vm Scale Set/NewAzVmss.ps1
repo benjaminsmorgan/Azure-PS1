@@ -26,6 +26,9 @@ function NewAzVmss {                                                            
                 {$_.Location -eq $RGObject.Location}                                        # Creates $LocationObject
             :SetAzureVmssSkuCapacity while ($true) {
                 $VmssSkuCapacityObject = Read-Host "Enter the max number of VMs"
+                if ($VmssSkuCapacityObject -eq '0') {
+                    Break NewAzureVmss                                                      # Breaks :NewAzureVmss
+                }
                 Write-Host $VmssSkuCapacityObject
                 $OperatorConfirm = Read-Host `
                 "Confirm max"$VmssSkuCapacityObject" skus [Y] or [N]"
@@ -39,30 +42,26 @@ function NewAzVmss {                                                            
             } # End if (!$VMSizeObject)
             $VmssConfigObject = New-AzVmssConfig -Location $LocationObject.Location `
                 -SkuCapacity $VmssSkuCapacityObject -SkuName $VMSizeObject.Name
-            $VmssNamePrefixObject, $VmssAdminUserNameObject, $VmssAdminPasswordObject `
-            = SetAzVmssOsProfile ($VmssConfigObject)
-            if (!$VmssAdminPasswordObject) {
+            $VmssOSProfileObject = SetAzVmssOsProfile ($VmssConfigObject, $ImageTypeObject)
+            if (!$VmssOSProfileObject) {
                 Break NewAzureVmss
-            } # End if (!$VmssAdminPasswordObject)
-            Set-AzVmssOsProfile -VirtualMachineScaleSet $VmssConfigObject `
-                -ComputerNamePrefix $VmssNamePrefixObject -AdminUsername `
-                $VmssAdminUserNameObject -AdminPassword $VmssAdminPasswordObject            #
-            SetAzVmssStorageProfile ($VmssConfigObject)
+            } # End if (!$VmssOSProfileObject)
+            $VmssStorageProfileObject = SetAzVmssStorageProfile ($VmssConfigObject)
+            if (!$VmssStorageProfileObject) {
+                Break NewAzureVmss
+            } # End if (!$VmssStorageProfileObject)
             Write-Host $RGObject.ResourceGroupName
             Return $VmssConfigObject
         }                                                                                   # End :NewAzureVmss while ($true)
     Return                                                                                  # Returns to calling function with #null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzVmss
-
-# Break NewAzureVmss                                                              # Breaks :NewAzureVmss
-
 function SetAzVmssOsProfile {                                                               # Function to set VMss OS profile
     Begin {                                                                                 # Begin function
         :SetAzureVmssOSProfile while ($true) {                                              # Outer loop to manage function
-            :SetAzureVmssOSProfilePrefix while ($true) {                                    # Inner loop for setting the VMss OS name prefix
+            :SetAzureVmssOSProPrefix while ($true) {                                        # Inner loop for setting the VMss OS name prefix
                 $VmssNamePrefixObject = Read-Host `
-                "Please enter the Vmss computer name prefix [1-15] characters"               # Operator input for the VM name prefix
+                "Please enter the Vmss computer name prefix [1-15] characters"              # Operator input for the VM name prefix
                 if ($VmssNamePrefixObject -eq 'exit') {                                     # If $VmssNamePrefixObject equals 'exit'
                     Break SetAzureVmssOSProfile                                             # Breaks :SetAzureVmssOSProfile
                 }                                                                           # End if ($VmssNamePrefixObject -eq 'exit')
@@ -75,14 +74,14 @@ function SetAzVmssOsProfile {                                                   
                     Write-Host $VmssNamePrefixObject                                        # Write message to screen
                     $OperatorConfirm = Read-Host "Use this prefix [Y] or [N]"               # Operator confirmation of the name prefix
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
-                        Break SetAzureVmssOSProfilePrefix                                   # Breaks :SetAzureVmssOSProfilePrefix 
+                        Break SetAzureVmssOSProPrefix                                       # Breaks :SetAzureVmssOSProPrefix 
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                     else {                                                                  # All other inputs
                         $VmssNamePrefixObject = $null                                       # Clears $var
                     }                                                                       # End else (if ($OperatorConfirm -eq 'y'))
                 }                                                                           # End else (if ($VmssNamePrefixObject -eq 'exit'))
-            }                                                                               # End :SetAzureVmssOSProfilePrefix while ($true)
-            :SetAzureVmssProfileUserName while ($true) {                                    # Inner loop for setting the admin username
+            }                                                                               # End :SetAzureVmssOSProPrefix while ($true)
+            :SetAzureVmssProUserName while ($true) {                                        # Inner loop for setting the admin username
                 $VmssAdminUserNameObject = Read-Host "Enter the user name"                  # Operator input for the admin username
                 if ($VmssAdminUserNameObject -eq 'exit') {                                  # If $VmssAdminUserNameObject equals 'exit'
                     Break SetAzureVmssOSProfile                                             # Breaks :SetAzureVmssOSProfile
@@ -103,62 +102,70 @@ function SetAzVmssOsProfile {                                                   
                     Write-Host $VmssAdminUserNameObject                                     # Write message to screen
                     $OperatorConfirm = Read-Host "Use this admin name [Y] or [N]"           # Operator confirmation of the admin username
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
-                        Break SetAzureVmssProfileUserName                                   # Breaks :SetAzureVmssProfileUserName
+                        Break SetAzureVmssProUserName                                       # Breaks :SetAzureVmssProUserName
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                     else {                                                                  # All other inputs
                         $VmssAdminUserNameObject = $null                                    # Clears $var
                     }                                                                       # End else (if ($OperatorConfirm -eq 'y'))
                 }                                                                           # End else (if ($VmssAdminUserNameObject -eq 'exit'))
-            }                                                                               # End :SetAzureVmssProfileUserName while ($true)
-            :SetAzureVmssProfilePassword while ($true) {                                    # Inner loop for setting the admin password
+            }                                                                               # End :SetAzureVmssProUserName while ($true)
+            :SetAzureVmssProPassword while ($true) {                                        # Inner loop for setting the admin password
                 $VmssAdminPasswordObject = Read-Host "Enter the password"                   # Operator input for the admin password
                 if ($VmssAdminPasswordObject -eq 'exit') {                                  # If $VmssAdminPasswordObject equals exit
                     Break SetAzureVmssOSProfile                                             # Breaks :SetAzureVmssOSProfile
                 }                                                                           # End if ($VmssAdminPasswordObject -eq 'exit')
                 else {                                                                      # All other inputs
                     Write-Host $VmssAdminPasswordObject                                     # Write message to screen   
-                    $OperatorConfirm = Read-Host "Use this admin name [Y] or [N]"           # Operator confirmation of the admin password
+                    $OperatorConfirm = Read-Host "Use this admin password [Y] or [N]"       # Operator confirmation of the admin password
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
-                        Break SetAzureVmssProfilePassword                                   # Breaks :SetAzureVmssProfilePassword 
+                        Break SetAzureVmssProPassword                                       # Breaks :SetAzureVmssProPassword 
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                     else {                                                                  # All other inputs
                         $VmssAdminPasswordObject = $null                                    # Clears $var
                     }                                                                       # End else (if ($OperatorConfirm -eq 'y'))
                 }                                                                           # End else (if ($VmssAdminPasswordObject -eq 'exit'))
-            }                                                                               # End :SetAzureVmssProfilePassword while ($true)
-            Return $VmssNamePrefixObject, $VmssAdminUserNameObject, `
-                $VmssAdminPasswordObject                                                    # Returns to calling function with $VmssNamePrefixObject, $VmssAdminUserNameObject, $VmssAdminPasswordObject
+            }                                                                               # End :SetAzureVmssProPassword while ($true)
+            $VmssOSProfileObject = Set-AzVmssOsProfile -VirtualMachineScaleSet `
+            $VmssConfigObject -ComputerNamePrefix $VmssNamePrefixObject -AdminUsername `
+            $VmssAdminUserNameObject -AdminPassword $VmssAdminPasswordObject                # Creates the VM scale set os profile
+            if (!$VmssOSProfileObject) {                                                    # If $VmssOSProfileObject is $null
+                Write-Host "An error has occured"
+                Break SetAzureVmssOSProfile                                                 # Breaks :SetAzureVmssOSProfile
+            }                                                                               # End if (!$VmssOSProfileObject)
+            else {                                                                          # If $VmssOSProfileObject is not $null
+                Return $VmssOSProfileObject                                                 # Returns to calling function with $VmssOSProfileObject
+            }                                                                               # End else ((!$VmssOSProfileObject))
         }                                                                                   # End :SetAzureVmssOSProfile while ($true)     
         Return                                                                              # Returns to calling function with $null                                    
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzVmssOsProfile 
-function SetAzVmssStorageProfile {
-    Begin {
-        :SetAzureVmssStorageProfile while ($true) {
-            $RGObject = $null
-            $VMImageObject = SetAzVMOS
-            if (!$VMImageObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$VMImageObject)
-            $StorageConObject = GetAzStorageContainer
-            if (!$StorageConObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$StorageConObject)
+function SetAzVmssStorageProfile {                                                          # Function to create a VM scale set operating system image and storage profile
+    Begin {                                                                                 # Begin function
+        :SetAzureVmssStorageProfile while ($true) {                                         # Outer loop for managing function
+            $RGObject = $null                                                               # Sets $RGObject to $null for storage container selection
+            $VMImageObject = SetAzVMOS                                                      # Calls function and assigns output for $var
+            if (!$VMImageObject) {                                                          # If $var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile 
+            }                                                                               # End if (!$VMImageObject)
+            $StorageConObject = GetAzStorageContainer                                       # Calls function and assigns output for $var
+            if (!$StorageConObject) {                                                       # If $var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
+            }                                                                               # End if (!$StorageConObject)
             $VmssStorageProfileObject = Set-AzVmssStorageProfile -VirtualMachineScaleSet `
                 $VmssConfigObject -OsDiskCreateOption "FromImage" -ImageReferencePublisher `
                 $VMImageObject.PublisherName -ImageReferenceOffer $VMImageObject.Offer `
                 -ImageReferenceSku $VMImageObject.Skus -ImageReferenceVersion `
-                $VMImageObject.Version -VhdContainer $StorageConObject
-            if (!$VmssStorageProfileObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$VmssStorageProfileObject)
-            else {
-                Return $VmssStorageProfileObject
-            }
-        } # End :SetAzureVmssStorageProfile while ($true)
-        Return
-    } # End begin
-} # End function SetAzVmssStorageProfile
+                $VMImageObject.Version -VhdContainer $StorageConObject                      # Sets the VM scale set os profile
+            if (!$VmssStorageProfileObject) {                                               # If $Var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
+            }                                                                               # End if (!$VmssStorageProfileObject)
+            else {                                                                          # If $var has a value
+                Return $VmssStorageProfileObject                                            # Returns to calling function
+            }                                                                               # End else (if (!$VmssStorageProfileObject))
+        }                                                                                   # End :SetAzureVmssStorageProfile while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SetAzVmssStorageProfile
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
