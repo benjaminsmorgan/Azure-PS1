@@ -1,36 +1,83 @@
-<#Set-AzVmssStorageProfile -VirtualMachineScaleSet "ContosoVMSS" -Name "Test" -OsDiskCreateOption "FromImage" -OsDiskCaching "None" `
-            -ImageReferenceOffer $ImgRef.Offer -ImageReferenceSku $ImgRef.Skus -ImageReferenceVersion $ImgRef.Version `
-            -ImageReferencePublisher $ImgRef.PublisherName -VhdContainer $VhdContainer
-
-            -PublisherName `
-                $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
-                $VMImageObject.Skus  -Version $VMImageObject.Version #>
-function SetAzVmssStorageProfile {
-    Begin {
-        :SetAzureVmssStorageProfile while ($true) {
-            $VMImageObject = SetAzVMOS
-            if (!$VMImageObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$VMImageObject)
-            $StorageConObject = GetAzStorageContainer
-            if (!$StorageConObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$StorageConObject)
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Set-AzVmssStorageProfile:   https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmssstorageprofile?view=azps-5.5.0
+    Get-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragecontainer?view=azps-5.2.0
+    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzVMImageOffer:         https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimageoffer?view=azps-5.5.0
+    Get-AzVMImageSku:           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku?view=azps-5.5.0
+    Get-AzImage:                https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage?view=azps-5.5.0:       
+    Azure Linux Publishers:     https://gmusumeci.medium.com/how-to-find-azure-linux-vm-images-for-terraform-or-packer-deployments-24e8e0ac68a     
+} #>
+<# Required Functions Links: {
+    SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
+    GetAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/GetAzStorageContainer.ps1
+    GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+} #>
+<# Functions Description: {
+    SetAzVmssStorageProfile:    Creates VM scale set operating system image and storage profile
+    SetAzVMOS:                  Function to get a valid image for new VM
+    GetAzStorageContainer:      Gets a storage container
+    GetAzStorageAccount:        Gets a storage account
+    GetAzResourceGroup:         Gets a resource group
+} #>
+<# Variables: {      
+    :SetAzureVmssStorageProfile Outer loop for managing function
+    $RGObject:                  Resource group object
+    $VMImageObject:             Image object
+    $StorageConObject:          Storage container object
+    $VmssStorageProfileObject:  VM scale set OS profile object
+    SetAzVMOS{}                 Gets $VMImageObject
+    GetAzStorageContainer{}     Gets $StorageConObject
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
+} #>
+<# Process Flow {
+    function
+        Call SetAzVmssStorageProfile > Get $VmssStorageProfileObject
+            Call SetVMOS > Get $VMImageObject
+            End SetVMOS
+                Return SetAzVmssStorageProfile > Send $VMImageObject
+            Call GetAzStorageContainer > Get $StorageConObject
+                Call GetAzStorageAccount > Get $StorageAccObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return GetAzStorageAccount > Send $RGObject
+                End GetAzStorageAccount
+                    Return GetAzStorageContainer > Send $StorageAccObject
+            End GetAzStorageContainer
+                Return SetAzVmssStorageProfile > Send $StorageConObject
+        End SetAzVmssStorageProfile
+            Return function > Send $VmssStorageProfileObject
+}#>
+function SetAzVmssStorageProfile {                                                          # Function to create a VM scale set operating system image and storage profile
+    Begin {                                                                                 # Begin function
+        :SetAzureVmssStorageProfile while ($true) {                                         # Outer loop for managing function
+            $RGObject = $null                                                               # Sets $RGObject to $null for storage container selection
+            $VMImageObject = SetAzVMOS                                                      # Calls function and assigns output for $var
+            if (!$VMImageObject) {                                                          # If $var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile 
+            }                                                                               # End if (!$VMImageObject)
+            $StorageConObject = GetAzStorageContainer                                       # Calls function and assigns output for $var
+            if (!$StorageConObject) {                                                       # If $var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
+            }                                                                               # End if (!$StorageConObject)
             $VmssStorageProfileObject = Set-AzVmssStorageProfile -VirtualMachineScaleSet `
                 $VmssConfigObject -OsDiskCreateOption "FromImage" -ImageReferencePublisher `
                 $VMImageObject.PublisherName -ImageReferenceOffer $VMImageObject.Offer `
                 -ImageReferenceSku $VMImageObject.Skus -ImageReferenceVersion `
-                $VMImageObject.Version -VhdContainer $StorageConObject
-            if (!$VmssStorageProfileObject) {
-                Break SetAzureVmssStorageProfile
-            } # End if (!$VmssStorageProfileObject)
-            else {
-                Return $VmssStorageProfileObject
-            }
-        } # End :SetAzureVmssStorageProfile while ($true)
-        Return
-    } # End begin
-} # End function SetAzVmssStorageProfile
+                $VMImageObject.Version -VhdContainer $StorageConObject                      # Sets the VM scale set os profile
+            if (!$VmssStorageProfileObject) {                                               # If $Var is null
+                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
+            }                                                                               # End if (!$VmssStorageProfileObject)
+            else {                                                                          # If $var has a value
+                Return $VmssStorageProfileObject                                            # Returns to calling function
+            }                                                                               # End else (if (!$VmssStorageProfileObject))
+        }                                                                                   # End :SetAzureVmssStorageProfile while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SetAzVmssStorageProfile
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
