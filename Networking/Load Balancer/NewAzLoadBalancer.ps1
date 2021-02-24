@@ -1,18 +1,60 @@
-function NewAzLoadBalancer {
-$RGObject = GetAzResourceGroup
-$FrontEndIPConfigObject = NewAzLBFrontendIpConfig
-$BackEndIPConfigObject = NewAzLBBackendIpConfig
-$HealthProbeObject = NewAzLBProbeConfig
-$InboundNatPoolObject = NewAzLBIBNatPoolConfig ($FrontEndIPConfigObject)
-$LBRule = New-AzLoadBalancerRuleConfig -Name 'Feb23Rule' `
-    -FrontendIPConfiguration $FrontEndIPConfigObject -BackendAddressPool $BackEndIPConfigObject `
-    -Probe $HealthProbeObject -Protocol Tcp -FrontendPort 80 -BackendPort 80 `
-    -IdleTimeoutInMinutes 15 -EnableFloatingIP -LoadDistribution SourceIP;
-$ActualLb = New-AzLoadBalancer -Name 'Feb23Balancer' -ResourceGroupName $RGObject.ResourceGroupName -Location $RGObject.Location `
-    -FrontendIpConfiguration $FrontEndIPConfigObject -BackendAddressPool $BackEndIPConfigObject `
-    -Probe $HealthProbeObject -LoadBalancingRule $LBRule -InboundNatPool $InboundNatPoolObject;
-Return $ActualLb
-}
+function NewAzLoadBalancer {                                                                # Function to create a new load balancer
+    Begin {                                                                                 # Begin function
+        :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if (!$RGObject)
+            }                                                                               # End if (!$RGObject)
+            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig                               # Calls function and assigns output to $var
+            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End if (!$FrontEndIPConfigObject)
+            $BackEndIPConfigObject = NewAzLBBackendIpConfig                                 # Calls function and assigns output to $var
+            if (!$BackEndIPConfigObject) {                                                  # If $BackEndIPConfigObject is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End if (!$BackEndIPConfigObject)
+            $HealthProbeObject = NewAzLBProbeConfig                                         # Calls function and assigns output to $var
+            if (!$HealthProbeObject) {                                                      # If $HealthProbeObject is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End if (!$HealthProbeObject)
+            $InboundNatPoolObject = NewAzLBIBNatPoolConfig ($FrontEndIPConfigObject)        # Calls function and assigns output to $var
+            if (!$InboundNatPoolObject) {                                                   # If $InboundNatPoolObject is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End if (!$InboundNatPoolObject)
+            $LoadBalanceRule = NewAzLBRuleConfig ($FrontEndIPConfigObject, `
+                $BackEndIPConfigObject, $HealthProbeObject)                                 # Calls function and assigns output to $var
+            if (!$LoadBalanceRule) {                                                        # If $LoadBalanceRule is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End if (!$LoadBalanceRule)
+            :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
+                $LBNameObject = Read-Host "Load balancer Name"                              # Operator input for the balancer name
+                if ($LBNameObject -eq 'exit') {                                             # If $LBNameObject equals $exit
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($LBNameObject -eq 'exit')
+                Write-Host $LBNameObject                                                    # Writes message to screen
+                $OperatorConfirm = Read-Host "Use as the balancer name? [Y] or [N]"         # Operator confirmation of the balancer name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureLBName                                                    # Breaks :SetAzureLBName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureLBName while ($true)
+            $LoadBalancerObject = New-AzLoadBalancer -Name $LBNameObject `
+                -ResourceGroupName $RGObject.ResourceGroupName -Location `
+                $RGObject.Location -FrontendIpConfiguration $FrontEndIPConfigObject `
+                -BackendAddressPool $BackEndIPConfigObject -Probe $HealthProbeObject `
+                -LoadBalancingRule $LBRule -InboundNatPool $InboundNatPoolObject            # Creates the load balancer
+            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
+                Return $LoadBalancerObject                                                  # Returns $LoadBalancerObject to calling function
+            }                                                                               # End if ($LoadBalancerObject)
+            else {                                                                          # If $LoadBalancerObject does not have a value
+                Write-Host "An error has occured"                                           # Write message to screen
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
+            }                                                                               # End else(if ($LoadBalancerObject))
+        }                                                                                   # End :NewAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzLoadBalancer
 function NewAzLBFrontendIpConfig {                                                          # Function to set up the front end IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBFEIpConfig while ($true) {                                               # Outer loop for managing the function
@@ -137,7 +179,7 @@ function NewAzPublicIpAddress {                                                 
         Return                                                                              # Returns to calling function with # null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzPublicIpAddress
-function GetAzPublicIpAddress {                                                             # Function for 
+function GetAzPublicIpAddress {                                                             # Function for getting an existing public IP address
     Begin {                                                                                 # Begin function
         :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
             $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
@@ -309,7 +351,7 @@ function NewAzLBIBNatPoolConfig {                                               
                     Break NewAzureLBIBNatPoolConfig                                         # Breaks :NewAzureLBIBNatPoolConfig
                 }                                                                           # End if ($NatPoolNameObject -eq 'exit')
                 Write-Host $NatPoolNameObject                                               # Writes message to screen
-                $OperatorConfirm = Read-Host "Use as the pool name? [Y] or [N]"             # Operator confirmation of the probe name
+                $OperatorConfirm = Read-Host "Use as the pool name? [Y] or [N]"             # Operator confirmation of the pool name
                 if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
                     Break NewAzureLBIBNatPoolName                                           # Breaks :NewAzureLBIBNatPoolName
                 }                                                                           # End if ($OperatorConfirm -eq 'y')
@@ -349,7 +391,7 @@ function NewAzLBIBNatPoolConfig {                                               
                         Break NewAzureLBIBNatPoolConfig                                     # Breaks :NewAzureLBIBNatPoolConfig
                     }                                                                       # End if ($OperatorConfirm -eq 'e')
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
-                        Break NewAzureLBFEPortStart                                         # Breaks :SetAzureProbeInterval        
+                        Break NewAzureLBFEPortStart                                         # Breaks :NewAzureLBFEPortStart        
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                 }                                                                           # End elseif ($FrontEndPortStart -ge 1)
             }                                                                               # End :NewAzureLBFEPortStart while ($true)
@@ -407,6 +449,114 @@ function NewAzLBIBNatPoolConfig {                                               
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBInboundNatPoolConfig
+function NewAzLBRuleConfig {                                                                # Function to create a new load balancer rule
+    Begin {                                                                                 # Begin function
+        :NewAzureLBRuleConfig while ($true) {                                               # Outer loop for managing function
+            :NewAzureLBRCName while ($true) {                                               # Inner loop for setting the rule name
+                $LBRuleNameObject = Read-Host "Rule Name"                                   # Operator input for the pool name
+                if ($LBRuleNameObject -eq 'exit') {                                         # If $LBRuleNameObject equals $null
+                    Break NewAzureLBRuleConfig                                              # Breaks :NewAzureLBRuleConfig
+                }                                                                           # End if ($LBRuleNameObject -eq 'exit')
+                Write-Host $LBRuleNameObject                                                # Writes message to screen
+                $OperatorConfirm = Read-Host "Use as the rule name? [Y] or [N]"             # Operator confirmation of the rule name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break NewAzureLBRCName                                                  # Breaks :NewAzureLBRCName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :NewAzureLBRCName while ($true) {
+            :NewAzureLBRuleProtocol while ($true) {                                         # Inner loop for setting the rule protocol
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] TCP'                                                        # Write message to screen
+                Write-Host '[2] UDP'                                                        # Write message to screen
+                $LBRuleProtocolObject = Read-Host '[0], [1], or [2]'                        # Operator input for the protocol object
+                if ($LBRuleProtocolObject -eq '0') {                                        # If $LBRuleProtocolObject equals '0'
+                    Break NewAzureLBRuleConfig                                              # Breaks :NewAzureLBRuleConfig
+                }                                                                           # End if ($LBRuleProtocolObject -eq '0')
+                elseif ($LBRuleProtocolObject -eq '1') {                                    # If $LBRuleProtocolObject equals '1'
+                    $LBRuleProtocolObject = 'TCP'                                           # Sets $LBRuleProtocolObject to 'TCP'
+                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
+                }                                                                           # End elseif ($LBRuleProtocolObject -eq '1')
+                elseif ($LBRuleProtocolObject -eq '2') {                                    # If $LBRuleProtocolObject equals '2'
+                    $LBRuleProtocolObject = 'UDP'                                           # Sets $LBRuleProtocolObject to 'UDP'
+                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
+                }                                                                           # End elseif ($LBRuleProtocolObject -eq '2')
+                else {                                                                      # All other inputs
+                    Write-Host "That was not a valid entry"                                 # Write message to screen
+                }                                                                           # End else (if ($LBRuleProtocolObject -eq '0')) 
+            }                                                                               # End :NewAzureLBRuleProtocol while ($true)
+            :NewAzureLBRuleFrontEndPort while ($true) {                                     # Inner loop for setting the rule front end port
+                Try {                                                                       # Try the following
+                    [int]$LBRuleFrontEndPort = Read-Host "Rule front end port"              # Operator input for the front end port 
+                }                                                                           # End try
+                Catch {}                                                                    # If try fails
+                if ($LBRuleFrontEndPort -le 0) {                                            # If $LBRuleFrontEndPort is less than or equal to 0
+                    Write-Host "Please enter a number"                                      # Write message to screen
+                }                                                                           # End if ($LBRuleFrontEndPort -le 0) 
+                elseif ($LBRuleFrontEndPort -ge 1) {                                        # If $LBRuleFrontEndPort is greater than or equal to 1
+                    $OperatorConfirm = Read-Host 'Front end port will be' `
+                    $LBRuleFrontEndPort '[Y], [N], or [E] to exit'                          # Operator confirmation of the front end port
+                    if ($OperatorConfirm -eq 'e') {                                         # If $OperatorConfrim equals 'e'
+                        Break NewAzureLBRuleConfig                                          # Breaks :NewAzureLBRuleConfig
+                    }                                                                       # End if ($OperatorConfirm -eq 'e')
+                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                        Break NewAzureLBRuleFrontEndPort                                    # Breaks :NewAzureLBRuleFrontEndPort        
+                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End elseif ($LBRuleFrontEndPort -ge 1)
+            }                                                                               # End :NewAzureLBRuleFrontEndPort while ($true)
+            :NewAzureLBRuleBackEndPort while ($true) {                                      # Inner loop for setting the rule back end port
+                Try {                                                                       # Try the following
+                    [int]$LBRuleBackEndPort = Read-Host "Rule back end port"                # Operator input for the back end port 
+                }                                                                           # End try
+                Catch {}                                                                    # If try fails
+                if ($LBRuleBackEndPort -le 0) {                                             # If $LBRuleBackEndPort is less than or equal to 0
+                    Write-Host "Please enter a number"                                      # Write message to screen
+                }                                                                           # End if ($LBRuleBackEndPort -le 0) 
+                elseif ($LBRuleBackEndPort -ge 1) {                                         # If $LBRuleBackEndPort is greater than or equal to 1
+                    $OperatorConfirm = Read-Host 'Back end port will be' `
+                    $LBRuleBackEndPort '[Y], [N], or [E] to exit'                           # Operator confirmation of the back end port
+                    if ($OperatorConfirm -eq 'e') {                                         # If $OperatorConfrim equals 'e'
+                        Break NewAzureLBRuleConfig                                          # Breaks :NewAzureLBRuleConfig
+                    }                                                                       # End if ($OperatorConfirm -eq 'e')
+                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                        Break NewAzureLBRuleBackEndPort                                     # Breaks :NewAzureLBRuleBackEndPort        
+                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End elseif ($LBRuleBackEndPort -ge 1)
+            }                                                                               # End :NewAzureLBRuleBackEndPort while ($true)
+            :NewAzureLBRuleIdleTO while ($true) {                                           # Inner loop for setting the rule idle timeout
+                Try {                                                                       # Try the following
+                    [int]$LBRuleIdleTO = Read-Host "Rule idle time out"                     # Operator input for the rule idle timeout
+                }                                                                           # End try
+                Catch {}                                                                    # If try fails
+                if ($LBRuleIdleTO -le 0) {                                                  # If $LBRuleIdleTO is less than or equal to 0
+                    Write-Host "Please enter a number"                                      # Write message to screen
+                }                                                                           # End if ($LBRuleIdleTO -le 0) 
+                elseif ($LBRuleIdleTO -ge 1) {                                              # If $LBRuleIdleTO is greater than or equal to 1
+                    $OperatorConfirm = Read-Host 'Load balancer idle timeout will be' `
+                    $LBRuleIdleTO '[Y], [N], or [E] to exit'                                # Operator confirmation of the rule idle timeout
+                    if ($OperatorConfirm -eq 'e') {                                         # If $OperatorConfrim equals 'e'
+                        Break NewAzureLBRuleConfig                                          # Breaks :NewAzureLBRuleConfig
+                    }                                                                       # End if ($OperatorConfirm -eq 'e')
+                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                        Break NewAzureLBRuleIdleTO                                          # Breaks :NewAzureLBRuleIdleTO        
+                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End elseif ($LBRuleIdleTO -ge 1)
+            }                                                                               # End :NewAzureLBRuleIdleTO while ($true)
+            $LoadBalanceRule = New-AzLoadBalancerRuleConfig -Name $LBRuleNameObject `
+                -FrontendIPConfiguration $FrontEndIPConfigObject -BackendAddressPool `
+                $BackEndIPConfigObject -Probe $HealthProbeObject -Protocol `
+                $LBRuleProtocolObject -FrontendPort $LBRuleFrontEndPort -BackendPort `
+                $LBRuleBackEndPort -IdleTimeoutInMinutes $LBRuleIdleTO -EnableFloatingIP `
+                -LoadDistribution SourceIP                                                  # Creates the load balancer rule
+            if ($LoadBalanceRule) {                                                         # If $LoadBalanceRule has a value
+                Return $LoadBalanceRule                                                     # Returns to calling function with $LoadBalanceRule
+            }                                                                               # End if ($LoadBalanceRule)
+            else {                                                                          # If $LoadBalanceRule does not have a value
+                Write-Host "An error has occured"                                           # Write message to screen
+                Break NewAzLBRuleConfig                                                     # Breaks :NewAzLBRuleConfig     
+            }                                                                               # End else (if ($LoadBalanceRule))
+        }                                                                                   # End :NewAzureLBRuleConfig while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzLBRuleConfig
 function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
     Begin {
         $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
