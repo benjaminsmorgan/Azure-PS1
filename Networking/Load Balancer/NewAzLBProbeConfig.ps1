@@ -6,7 +6,7 @@
     None
 } #>
 <# Functions Description: {
-    NewAzLBProbeConfig:         Creates a load balancer back end IP configuration
+    NewAzLBProbeConfig:         Creates a load balancer probe configuration
 } #>
 <# Variables: {      
     :NewAzureLBProbeConfig      Outer loop for managing function
