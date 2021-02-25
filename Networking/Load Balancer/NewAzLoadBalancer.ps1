@@ -1,3 +1,90 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    New-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
+    New-AzLoadBalancerFrontendIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
+    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerProbeConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0   
+} #>
+<# Required Functions Links: {
+    NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+    NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+    GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+    NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
+    NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
+    NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+    NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+} #>
+<# Functions Description: {
+    NewAzLoadBalancer:          Creates a new load balancer
+    NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+    NewAzPublicIpAddress:       Creates a new public IP addres
+    GetAzPublicIpAddress:       Gets an existing IP address
+    NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
+    NewAzLBProbeConfig:         Creates a load balancer probe configuration
+    NewAzLBIBNatPoolConfig:     Creates inbound pool configuration for load balancer
+    NewAzLBRuleConfig:          Creates a new load balancer rule
+    GetAzResourceGroup:         Gets an existing resource group
+} #>
+<# Variables: {      
+    :NewAzureLoadBalancer       Outer loop to manage function   
+    :SetAzureLBName             Inner loop for set the load balancer name
+    $RGObject:                  Resource group object
+    $FrontEndIPConfigObject:    Front end configuration object
+    $BackEndIPConfigObject:     Back end configuration object
+    $HealthProbeObject:         Health probe configuration object
+    $InboundNatPoolObject:      Inbound nat pool configuration object
+    $LoadBalanceRule:           Load balancer rule object
+    $LBNameObject:              Load balancer name object
+    $OperatorConfirm:           Operator confirmation of $LBNameObject
+    $LoadBalancerObject:        The load balancer object
+    GetAzResourceGroup{}        Gets $RGObject
+    NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+        NewAzPublicIpAddress{}      Creates $PublicIPObject
+            GetAzResourceGroup{}        Gets $RGObject
+        GetAzPublicIpAddress{}      Gets $PublicIPObject
+    NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
+    NewAzLBProbeConfig{}        Gets $HealthProbeObject
+    NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
+    NewAzLBRuleConfig{}         Gets $LoadBalanceRule 
+} #>
+<# Process Flow {
+    function
+        Call NewAzLoadBalancer > Get $LoadBalancerObject
+            Call GetAzResourceGroup > Get $RGObject
+            End GetAzResourceGroup
+                Return NewAzLoadBalancer > Send $RGObject          
+            Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                Call NewAzPublicIpAddress > Get $PublicIPObject
+                    Call GetAzResourceGroup > Get RGObject
+                    End GetAzResourceGroup
+                        Return NewAzPublicIpAddress > Send RGObject
+                End NewAzPublicIpAddress
+                    Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                Call GetAzPublicIpAddress > Get $PublicIPObject
+                End GetAzPublicIpAddress
+                    Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
+            End NewAzLBFrontendIpConfig
+                Return NewAzLoadBalancer > Send $FrontEndIPConfigObject    
+            Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+            End NewAzLBBackendIpConfig
+                Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
+            Call NewAzLBProbeConfig > Get $HealthProbeObject
+            End NewAzLBProbeConfig
+                Return NewAzLoadBalancer > Send $HealthProbeObject           
+            Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+            End NewAzLBIBNatPoolConfig
+                Return NewAzLoadBalancer > Send $InboundNatPoolObject
+            Call NewAzLBRuleConfig > Get $LoadBalanceRule
+            End NewAzLBRuleConfig
+                Return NewAzLoadBalancer > Send $LoadBalanceRule
+        End NewAzLoadBalancer
+            Return function > Send $LoadBalancerObject
+}#>
 function NewAzLoadBalancer {                                                                # Function to create a new load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
