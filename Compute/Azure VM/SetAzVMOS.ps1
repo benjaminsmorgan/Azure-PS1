@@ -21,6 +21,7 @@
     :GetAzureImageSku           Inner loop for getting the image skus
     :SelectAzureImageSku        Inner loop for selecting the image sku
     :GetAzureImageVersion       Inner loop for getting the image version
+    :SelectAzureImageVerType    Inner loop for selecting either latest or custom image version
     :SelectAzureImageVersion    Inner loop for selecting the image version
     $LocationObject:            Location object
     $ImageTypeObject:           Object determining if image will be windows or linux            
@@ -42,6 +43,7 @@
     $ImageSkuInput:             $Var that loads items into array
     $SkuSelect:                 Operator input for the sku selection
     $VMSkuObject:               The sku name object
+    $ImageVersionOption:        Operator input for selecting either the current version or other
     $ImageVersionList:          List of all versions 
     $ImageVersionNumber:        $var used in list 
     $ImageVersionArray:         Array used to select the version
@@ -183,8 +185,11 @@ function SetAzVMOS {                                                            
                     $SkuSelect = Read-Host "Enter the sku number"                           # Operator input for selecting the image sku
                     if ($SkuSelect -eq '0') {                                               # If $SkuSelect equals 0
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0')                                           
+                    }                                                                       # End if ($OfferSelect -eq '0') 
                     $VMSkuObject = $ImageSkuArray | Where-Object {$_.Number -eq $SkuSelect} # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
+                    $VMSkuObject = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
+                        -Location $LocationObject.DisplayName -PublisherName `
+                        $VMPublisherObject | Where-Object {$_.Skus -eq $VMSkuObject.Name}   #                                       
                     if ($VMSkuObject) {                                                     # If $VMSkuObject has a value
                         Break GetAzureImageSku                                              # Break SelectAzureImageSku
                     }                                                                       # End if ($VMOfferObject)
@@ -194,39 +199,60 @@ function SetAzVMOS {                                                            
                 }                                                                           # End :SelectAzureImage while ($true)
             }                                                                               # End :GetAzureImageSku while ($true)
             :GetAzureImageVersion while ($true) {                                           # Pulls the full $VMOfferObject
-                $ImageVersionList =  Get-AzVMImage -Location `
-                    $LocationObject.Location -PublisherName $VMPublisherObject `
-                    -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Name                     # Gets image version list and assigns to $var
-                $ImageVersionNumber = 1                                                     # Sets $ImageSkuNumber to 1
-                [System.Collections.ArrayList]$ImageVersionArray = @()                      # Creates the $ImageSkuArray     
-                foreach ($_ in $ImageVersionList) {                                         # For each Sku in $ImageSkuList
-                    $ImageVersionInput = [PSCustomObject]@{'Name' = $_.Version; `
-                        'Number' = $ImageVersionNumber}                                     # Creates the item to loaded into array
-                    $ImageVersionArray.Add($ImageVersionInput) | Out-Null                   # Loads item into array, out-null removes write to screen
-                    $ImageVersionNumber = $ImageVersionNumber + 1                           # Increments $ImageSkuNumber by 1
-                }                                                                           # End foreach ($Offer in $ImageOfferList)
-                Write-Host "0 Exit"                                                         # Write message to screen
-                foreach ($_ in $ImageVersionArray) {                                        # For each $_ in $ImageSkuArray
-                    Write-Host $_.Number $_.Name                                            # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
-                }                                                                           # End 
-                :SelectAzureImageVersion while ($true) {                                    # Inner loop for selecting the image sku
-                    $VersionSelect = Read-Host "Enter the Version number"                   # Operator input for selecting the image sku
-                    if ($VersionSelect -eq '0') {                                           # If $SkuSelect equals 0
+                :SelectAzureImageVerType while ($true) {                                    # Inner loop for chosing current or previous version of sku
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Use current version'                                    # Write message to screen
+                    Write-Host '[2] Select version'                                         # Write message to screen
+                    $ImageVersionOption = Read-Host '[0], [1], or [2]'                      # Operator input for version selection type
+                    if ($ImageVersionOption -eq '0') {                                      # If $ImageVersionOption equals 0
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0')                                           
-                    $VMVersionObject = $ImageVersionArray | `
-                        Where-Object {$_.Number -eq $VersionSelect}                         # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
-                    if ($VMVersionObject) {                                                 # If $VMSkuObject has a value
-                        $VMImageObject = Get-AzVMImage -Location `
-                        $LocationObject.Location -PublisherName $VMPublisherObject `
-                        -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Name -Version `
-                        $VMVersionObject.Name                                               # If #VMVersionObject has a value, pull the full object and assign to $var
-                        Break GetAzureImageVersion                                          # Break SelectAzureImageSku
-                    }                                                                       # End if ($VMOfferObject)
-                    else {                                                                  # If $VMSkuObject does not have a value
+                    }                                                                       # End if ($ImageVersionOption -eq '0')            
+                    elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2') {  # If $ImageVersionOption equals 1 or 2
+                        Break SelectAzureImageVerType                                       # Breaks :SelectAzureImageVerType
+                    }                                                                       # End elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2')
+                    else {                                                                  # If $ImageVersionOption is not equal to 0, 1, or 2
                         Write-Host "That was not a valid option"                            # Write message to screen
-                    }                                                                       # End else (if ($VMOfferObject))
-                }                                                                           # End :SelectAzureImageVersion while ($true)
+                    }                                                                       # End else (if ($ImageVersionOption -eq '0'))
+                }                                                                           # End :SelectAzureImageVerType while ($true)
+                if ($ImageVersionOption -eq '1') {                                          # If $ImageVersionOption equals 1
+                    $VMImageObject = $VMSkuObject                                           # VMImageObject is equal to $VMSkuObject
+                    Return $VMImageObject                                                   # Returns $VMImageObject to calling function
+                }                                                                           # End if ($ImageVersionOption -eq '1')
+                else {                                                                      # If $ImageVersionOption is not '1' (can only be '2')
+                    $ImageVersionList =  Get-AzVMImage -Location `
+                        $LocationObject.Location -PublisherName $VMPublisherObject `
+                        -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus                 # Gets image version list and assigns to $var
+                    $ImageVersionNumber = 1                                                 # Sets $ImageSkuNumber to 1
+                    [System.Collections.ArrayList]$ImageVersionArray = @()                  # Creates the $ImageSkuArray     
+                    foreach ($_ in $ImageVersionList) {                                     # For each Sku in $ImageSkuList
+                        $ImageVersionInput = [PSCustomObject]@{'Name' = $_.Version; `
+                            'Number' = $ImageVersionNumber}                                 # Creates the item to loaded into array
+                        $ImageVersionArray.Add($ImageVersionInput) | Out-Null               # Loads item into array, out-null removes write to screen
+                        $ImageVersionNumber = $ImageVersionNumber + 1                       # Increments $ImageSkuNumber by 1
+                    }                                                                       # End foreach ($Offer in $ImageOfferList)
+                    Write-Host "0 Exit"                                                     # Write message to screen
+                    foreach ($_ in $ImageVersionArray) {                                    # For each $_ in $ImageSkuArray
+                        Write-Host $_.Number $_.Name                                        # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
+                    }                                                                       # End foreach ($_ in $ImageVersionArray)
+                    :SelectAzureImageVersion while ($true) {                                # Inner loop for selecting the image sku
+                        $VersionSelect = Read-Host "Enter the Version number"               # Operator input for selecting the image sku
+                        if ($VersionSelect -eq '0') {                                       # If $SkuSelect equals 0
+                            Break GetAzureVMImage                                           # Breaks :GetAzureVMImage
+                        }                                                                   # End if ($OfferSelect -eq '0')                                           
+                        $VMVersionObject = $ImageVersionArray | `
+                            Where-Object {$_.Number -eq $VersionSelect}                     # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
+                        if ($VMVersionObject) {                                             # If $VMSkuObject has a value
+                            $VMImageObject = Get-AzVMImage -Location `
+                            $LocationObject.Location -PublisherName $VMPublisherObject `
+                            -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus -Version `
+                            $VMVersionObject.Name                                           # If #VMVersionObject has a value, pull the full object and assign to $var
+                            Break GetAzureImageVersion                                      # Break SelectAzureImageSku
+                        }                                                                   # End if ($VMOfferObject)
+                        else {                                                              # If $VMSkuObject does not have a value
+                            Write-Host "That was not a valid option"                        # Write message to screen
+                        }                                                                   # End else (if ($VMOfferObject))
+                    }                                                                       # End :SelectAzureImageVersion while ($true)
+                }                                                                           # End else(if ($ImageVersionOption -eq '1'))
             }                                                                               # End :GetAzureImageVersion while ($true)
             Return $VMImageObject                                                           # Returns #VMImageObject
         }                                                                                   # End :GetAZVMImage while ($true)
