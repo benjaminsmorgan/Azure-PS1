@@ -216,16 +216,16 @@ function NewAzVM {                                                              
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
                 }                                                                           # End if (!$VMImageObject)
             }                                                                               # End if (!$VMImageObject)
-            if ($VMImageObject.Version) {
+            if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version exists
                 $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
                     $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
                     $VMImageObject.Skus -Version $VMImageObject.Version                     # Adds image setting to $VMBuildObject (uses custom version)
-            }
-            else {
+            }                                                                               # End if ($VMImageObject.Version) 
+            else {                                                                          # If $VMImageObject.Version does not exist
                 $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
                     $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
                     $VMImageObject.Skus -Version latest                                     # Adds image setting to $VMBuildObject (uses latest version)
-            }
+            }                                                                               # End else (if ($VMImageObject.Version))
             $VMObject = New-AzVM -ResourceGroupName $RGObject.ResourceGroupName `
                 -Location $LocationObject.DisplayName -VM $VMBuildObject -Verbose           # Builds the new VM object
             Return $VMObject                                                                # Returns to calling function with $VMObject
