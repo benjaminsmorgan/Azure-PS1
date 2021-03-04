@@ -9,45 +9,57 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    GetAzResourceGroup {
-        :GetAzureResourceGroup  Named loop for getting the resource group object
-        $RGObject:              Resource group object
-        $RGListSelect:          Operator input for the resource group selection
-        $RGList:                Variable used for printing all resource groups to screen if needed
-        $RGListNumber:          Variable used for selecting from list
-    } # End GetAzResourceGroup
+    :GetAzureResourceGroup      Outer loop for managing function
+    :SelectAzureRGList          Inner loop to select the resource group
+    $RGList:                    List of all resource groups
+    $RGListNumber:              $var used as list number
+    $RGListArray:               Array containing the list number, name, and location of each resource group
+    $RGListInput:               $var used to load items into $RGListArray
+    $CallingFunction:           Name of the calling function
+    $RGSelect:                  Operator input for the resource group
+    $RGObject:                  Resource group object
 } #>
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Please enter the number of the resource group" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Return $RGObject # Returns $RGObject to calling function
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+<# Process Flow {
+    Function
+        Call GetAzResourceGroup > Get $RGObject
+        End GetAzResourceGroup
+            Return Function > Send $RGObject
+}#>
+function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
+            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
+            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
+            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
+                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
+                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
+            }                                                                               # End foreach ($_ in $RGListArray)
+            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureRGList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
