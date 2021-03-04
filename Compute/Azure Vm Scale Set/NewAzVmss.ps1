@@ -18,7 +18,8 @@ function NewAzVmss {                                                            
             }                                                                               # End :SetAzureVMType while ($true)
             :GetAzureResourceGroup while ($true) {                                          # Inner loop for getting the resource group and location
                 if (!$RGObject) {                                                           # If $RGObject is $null
-                    $RGObject = GetAzResourceGroup                                          # Calls function and assigns output to $var
+                    $CallingFunction = 'NewAzVmss'                                          # $var used to list the calling function name in GetAzResourceGroup
+                    $RGObject = GetAzResourceGroup ($CallingFunction)                       # Calls function and assigns output to $var
                     if (!$RGObject) {                                                       # If $RGObject is $null 
                         Break NewAzureVmss                                                  # Breaks :NewAzureVmss
                     }                                                                       # End if (!$RGObject)
@@ -49,103 +50,148 @@ function NewAzVmss {                                                            
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                 }                                                                           # End elseif ($VmssSkuCapacityObject -ge 1)
             }                                                                               # End :SetAzureVmssSkuCapacity while ($true)
-            :SetAzureVmssSkuConfig while ($true) {
-                $VMSizeObject = GetAzVMSize ($LocationObject)
-                if (!$VMSizeObject) {
-                    Break NewAzureVmss
-                } # End if (!$VMSizeObject)
+            :SetAzureVmssSkuConfig while ($true) {                                          # Inner loop for setting vmss profile configuration
+                $VMSizeObject = GetAzVMSize ($LocationObject)                               # Calls function and assigns output to $var
+                if (!$VMSizeObject) {                                                       #  If $VMSizeObject has no value
+                    Break NewAzureVmss                                                      # Breaks :NewAzureVmss
+                }                                                                           # End if (!$VMSizeObject)
+                :SetAzureVMSSSkuUpDate while ($true) {                                      # Inner loop for setting the OS update settings
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Automatic'                                              # Write message to screen
+                    Write-Host '[2] Manual'                                                 # Write message to screen
+                    $UpdateSetting = Read-Host '[0], [1], or [2]'                           # Operator input for the update setting
+                    if ($UpdateSetting -eq '0') {                                           # If $Update setting equals '0'
+                        Break NewAzureVmss                                                  # Breaks :NewAzureVmss
+                    }                                                                       # End if ($UpdateSetting -eq '0')
+                    elseif ($UpdateSetting -eq '1') {                                       # If $Update setting equals '1'
+                        $UpdateSetting = 'Automatic'                                        # Sets $UpdateSetting to 'Automatic' 
+                        Break SetAzureVMSSSkuUpDate                                         # Breaks :SetAzureVMSSSkuUpDate
+                    }                                                                       # End elseif ($UpdateSetting -eq '1')
+                    elseif ($UpdateSetting -eq '2') {                                       # If $Update setting equals '2'
+                        $UpdateSetting = 'Manual'                                           # Sets $UpdateSetting to 'Manual' 
+                        Break SetAzureVMSSSkuUpDate                                         # Breaks :SetAzureVMSSSkuUpDate
+                    }                                                                       # End elseif ($UpdateSetting -eq '2')
+                    else {                                                                  # If $UpdateSetting not equal to 0, 1, or 2
+                        Write-Host "That was not a valid option"                            # Write message to screen
+                    }                                                                       # End else (if ($UpdateSetting -eq '0'))
+                }                                                                           # End :SetAzureVMSSSkuUpDate while ($true)
                 $VmssConfigObject = New-AzVmssConfig -Location $LocationObject.Location `
-                    -SkuCapacity $VmssSkuCapacityObject -SkuName $VMSizeObject.Name
-                $VmssOSProfileObject = SetAzVmssOsProfile ($VmssConfigObject, $ImageTypeObject)
-                if (!$VmssOSProfileObject) {
-                    Break NewAzureVmss
-                } # End if (!$VmssOSProfileObject)
-                $VmssStorageProfileObject = SetAzVmssStorageProfile ($VmssConfigObject)
-                if (!$VmssStorageProfileObject) {
-                    Break NewAzureVmss
-                } # End if (!$VmssStorageProfileObject)
-                Break SetAzureVmssSkuConfig
-            } # End :SetAzureVmssSkuConfig while ($true)
-            :SetVmssIPConfig while ($true) {
-                :SetVmssIPConfigName while ($true) {
-                    $VmssIPConfigName = Read-Host "Name of IP config"
-                    if ($VmssIPConfigName -eq 'exit') {
-                        Break NewAzureVmss
-                    } # End if ($VmssIPConfigName -eq 'exit')
-                    $OperatorConfirm = Read-Host "Use" $VmssIPConfigName "as the IP config name"
-                    if ($OperatorConfirm -eq 'y') {
-                        Break SetVmssIPConfigName
-                    } # End if ($OperatorConfirm -eq 'y') 
-                } # End :SetVmssIPConfigName while ($true)
-                :GetAzureLoadBalancer while ($true) {
-                    Write-Host '[0] Exit'
-                    Write-Host '[1] New load balancer'
-                    Write-Host '[2] Get load balancer'
-                    $OperatorSelect = Read-Host '[0], [1], or [2]'
-                    if ($OperatorSelect -eq '0') {
-                        Break NewAzureVmss
-                    } # End if ($OperatorSelect -eq '0')
-                    elseif ($OperatorSelect -eq '1') {
-                        $LoadBalancerObject = NewAzLoadBalancer
-                        if ($LoadBalancerObject) {
-                            Break GetAzureLoadBalancer
-                        } # End if ($LoadBalancerObject)
-                        else {
-                            Break NewAzureVmss
-                        } # End else (if ($LoadBalancerObject))
-                    } # End elseif ($OperatorSelect -eq '1') 
-                    elseif ($OperatorSelect -eq '2') {
-                        $LoadBalancerObject = GetAzLoadBalancer
-                        if ($LoadBalancerObject) {
-                            Break GetAzureLoadBalancer
-                        } # End if ($LoadBalancerObject)
-                        else {
-                            Break NewAzureVmss
-                        } # End else (if ($LoadBalancerObject))
-                    } # End elseif ($OperatorSelect -eq '2') 
-                }
-                :GetAzureSubnet while ($true) {
-                    Write-Host '[0] Exit'
-                    Write-Host '[1] New subnet'
-                    Write-Host '[2] Get subnet'
-                    $OperatorSelect = Read-Host '[0], [1], or [2]'
-                    if ($OperatorSelect -eq '0') {
-                        Break NewAzureVmss
-                    } # End if ($OperatorSelect -eq '0')
-                    elseif ($OperatorSelect -eq '1') {
-                        $SubnetObject = AddAzVNetSubnetConfig
-                        if ($SubnetObject) {
-                            Break GetAzureSubnet
-                        } # End if ($SubnetObject)
-                        else {
-                            Break NewAzureVmss
-                        } # End else (if ($SubnetObject))
-                    } # End elseif ($OperatorSelect -eq '1') 
-                    elseif ($OperatorSelect -eq '2') {
-                        $SubnetObject = GetAzVNetSubnetConfig
-                        if ($SubnetObject) {
-                            Break GetAzureSubnet
-                        } # End if ($SubnetObject)
-                        else {
-                            Break NewAzureVmss
-                        } # End else (if ($SubnetObject))
-                    } # End elseif ($OperatorSelect -eq '2')                 
-                } # End :GetAzureSubnet while ($true)
+                    -SkuCapacity $VmssSkuCapacityObject -SkuName $VMSizeObject.Name `
+                    -UpgradePolicyMode $UpdateSetting                                       # Starts the Vmss config, loads location, VM settings, count, and update settings
+                $VmssOSProfileObject = SetAzVmssOsProfile `
+                    ($VmssConfigObject, $ImageTypeObject)                                   # Calls function and assigns output to $var
+                if (!$VmssOSProfileObject) {                                                # If $VmssOSProfileObject does not have a value
+                    Break NewAzureVmss                                                      # Breaks :NewAzureVmss
+                }                                                                           # End if (!$VmssOSProfileObject)
+                $VmssStorageProfileObject = SetAzVmssStorageProfile ($VmssConfigObject)     # Calls function and assigns output to $var
+                if (!$VmssStorageProfileObject) {                                           # If $VmssStorageProfileObject does not have a value
+                    Break NewAzureVmss                                                      # Breaks :NewAzureVmss
+                }                                                                           # End if (!$VmssStorageProfileObject)
+                Break SetAzureVmssSkuConfig                                                 # Breaks :SetAzureVmssSkuConfig
+            }                                                                               # End :SetAzureVmssSkuConfig while ($true)
+            :SetVmssIPConfig while ($true) {                                                # Inner loop for setting the network settings
+                :SetVmssIPConfigName while ($true) {                                        # Inner loop for setting the IP config name
+                    $VmssIPConfigName = Read-Host "Name of IP config"                       # Operator input for the IP config name
+                    if ($VmssIPConfigName -eq 'exit') {                                     # If $VmssIPConfigName equals exit
+                        Break NewAzureVmss                                                  # Breaks :NewAzureVmss
+                    }                                                                       # End if ($VmssIPConfigName -eq 'exit')
+                    $OperatorConfirm = Read-Host "Use" $VmssIPConfigName `
+                    "as the IP config name"                                                 # Operator confirmation of the IP config name
+                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
+                        Break SetVmssIPConfigName                                           # Breaks :SetVmssIPConfigName
+                    }                                                                       # End if ($OperatorConfirm -eq 'y') 
+                }                                                                           # End :SetVmssIPConfigName while ($true)
+                :GetAzureLoadBalancer while ($true) {                                       # Inner loop to get or create a load balancer
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] New load balancer'                                      # Write message to screen
+                    Write-Host '[2] Get load balancer'                                      # Write message to screen
+                    $OperatorSelect = Read-Host '[0], [1], or [2]'                          # Operator input for getting or creating a load balancer
+                    if ($OperatorSelect -eq '0') {                                          # If $OperatorSelect equals '0'
+                        Break NewAzureVmss                                                  # Breaks :NewAzureVmss
+                    }                                                                       # End if ($OperatorSelect -eq '0')
+                    elseif ($OperatorSelect -eq '1') {                                      # elseif $OperatorSelect equals '1'
+                        $LoadBalancerObject = NewAzLoadBalancer                             # Calls function and assigns output to $var
+                        if ($LoadBalancerObject) {                                          # If $LoadBalancerObject has a value
+                            Break GetAzureLoadBalancer                                      # Breaks :GetAzureLoadBalancer
+                        }                                                                   # End if ($LoadBalancerObject)
+                        else {                                                              # If $LoadBalancerObject does not have a value
+                            Break NewAzureVmss                                              # Breaks :NewAzureVmss
+                        }                                                                   # End else (if ($LoadBalancerObject))
+                    }                                                                       # End elseif ($OperatorSelect -eq '1') 
+                    elseif ($OperatorSelect -eq '2') {                                      # elseif $OperatorSelect equals '2'
+                        $LoadBalancerObject = GetAzLoadBalancer                             # Calls function and assigns output to $var
+                        if ($LoadBalancerObject) {                                          # If $LoadBalancerObject has a value
+                            Break GetAzureLoadBalancer                                      # Breaks :GetAzureLoadBalancer
+                        }                                                                   # End if ($LoadBalancerObject)
+                        else {                                                              # If $LoadBalancerObject does not have a value
+                            Break NewAzureVmss                                              # Breaks :NewAzureVmss
+                        }                                                                   # End else (if ($LoadBalancerObject))
+                    }                                                                       # End elseif ($OperatorSelect -eq '2') 
+                }                                                                           # End :GetAzureLoadBalancer while ($true)
+                :GetAzureSubnet while ($true) {                                             # Inner loop for setting the subnet
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] New subnet'                                             # Write message to screen
+                    Write-Host '[2] Get subnet'                                             # Write message to screen
+                    $OperatorSelect = Read-Host '[0], [1], or [2]'                          # Operator input for getting or creating a subnet
+                    if ($OperatorSelect -eq '0') {                                          # If $OperatorSelect equals '0'
+                        Break NewAzureVmss                                                  # Breaks :NewAzureVmss
+                    }                                                                       # End if ($OperatorSelect -eq '0')
+                    elseif ($OperatorSelect -eq '1') {                                      # elseif $OperatorSelect equals '1'
+                        $SubnetObject = AddAzVNetSubnetConfig                               # Calls function and assigns output to $var
+                        if ($SubnetObject) {                                                # If $SubnetObject has a value
+                            Break GetAzureSubnet                                            # Breaks :GetAzureSubnet
+                        }                                                                   # End if ($SubnetObject)
+                        else {                                                              # If $SubnetObject does not have a value
+                            Break NewAzureVmss                                              # Breaks :NewAzureVmss
+                        }                                                                   # End else (if ($SubnetObject))
+                    }                                                                       # End elseif ($OperatorSelect -eq '1') 
+                    elseif ($OperatorSelect -eq '2') {                                      # elseif $OperatorSelect equals '2'
+                        $SubnetObject = GetAzVNetSubnetConfig                               # Calls function and assigns output to $var
+                        if ($SubnetObject) {                                                # If $SubnetObject has a value
+                            Break GetAzureSubnet                                            # Breaks :GetAzureSubnet
+                        }                                                                   # End if ($SubnetObject)
+                        else {                                                              # If $SubnetObject does not have a value
+                            Break NewAzureVmss                                              # Breaks :NewAzureVmss
+                        }                                                                   # End else (if ($SubnetObject))
+                    }                                                                       # End elseif ($OperatorSelect -eq '2')                 
+                }                                                                           # End :GetAzureSubnet while ($true)
                 $VmssIPConfig = New-AzVmssIPConfig -Name $VmssIPConfigName `
-                -LoadBalancerInboundNatPoolsId $LoadBalancerObject.InboundNatPools[0].Id `
-                -LoadBalancerBackendAddressPoolsId $LoadBalancerObject.BackendAddressPools[0].Id `
-                -SubnetId $SubnetObject.id
-                $VmssConfigObject = Add-AzVmssNetworkInterfaceConfiguration -Name $VmssIPConfigName -Primary $true -IpConfiguration $VmssIPConfig -VirtualMachineScaleSet $VmssConfigObject
-                Break SetVmssIPConfig
-            } # End :SetVmssIPConfig while ($true)
-            #$VmssConfigObject = Set-AzVmssStorageProfile -Name
-            #$VmssConfigObject = Set-AzVmssOSProfile -ComputerNamePrefix "Test"  -AdminUsername $AdminUsername -AdminPassword $AdminPassword `
-            #$VmssConfigObject = Set-AzVmssStorageProfile -Name "Test"  -OsDiskCreateOption 'FromImage' -OsDiskCaching "None" `
-            #-ImageReferenceOffer $Offer -ImageReferenceSku $Sku -ImageReferenceVersion $Version `
-            #-ImageReferencePublisher $PublisherName -VhdContainer $VHDContainer
-            #Return $VmssConfigObject
-            $VmssObject = New-AzVmss -ResourceGroupName $RGObject.ResourceGroupName -Name 'TacoVmss' -VirtualMachineScaleSet $VmssConfigObject
-            Return $VmssObject
+                    -LoadBalancerInboundNatPoolsId `
+                    $LoadBalancerObject.InboundNatPools[0].Id `
+                    -LoadBalancerBackendAddressPoolsId `
+                    $LoadBalancerObject.BackendAddressPools[0].Id `
+                    -SubnetId $SubnetObject.id                                              # Creates the Vmss IP config
+                if ($VmssIPConfig) {                                                        # If $VmssIPConfig has a value
+                    $VmssConfigObject = Add-AzVmssNetworkInterfaceConfiguration -Name `
+                        $VmssIPConfigName -Primary $true -IpConfiguration $VmssIPConfig `
+                        -VirtualMachineScaleSet $VmssConfigObject                           # Adds the Vmss IP config to the Vmss config
+                    Break SetVmssIPConfig                                                   # Breaks :SetVmssIPConfig
+                }                                                                           # # End if ($VmssIPConfig)
+                else {                                                                      # If $VmssIPConfig does not have a value
+                    Write-Host "An error has occured"                                       # Write message to screen
+                    Break NewAzureVmss                                                      # Breaks :NewAzureVmss
+                }                                                                           # End else (if ($VmssIPConfig))
+            }                                                                               # End :SetVmssIPConfig while ($true)
+            :SetVmssName while ($true) {                                                    # Inner loop for setting the Vmss object name
+                $VmssNameObject = Read-Host 'Enter the name of the new Vmss object'         # Operator input for the Vmss name
+                if ($VmssNameObject -eq 'exit') {                                           # If $VmssNameObject equals 'exit'
+                    Break NewAzVmss                                                         # Breaks :NewAzVmss
+                }                                                                           # End if ($VmssNameObject -eq 'exit')
+                if ($VmssNameObject) {                                                      # If $VmssNameObject has a value
+                    Break SetVmssName                                                       # Breaks :SetVmssName
+                }                                                                           # End if ($VmssNameObject)
+                else {                                                                      # If $VmssNameObject does not have a value
+                    Write-Host "No input detected"                                          # Write message to screen
+                }                                                                           # End else (if ($VmssNameObject))
+            }                                                                               # End :SetVmssName while ($true)
+            $VmssObject = New-AzVmss -ResourceGroupName $RGObject.ResourceGroupName -Name `
+                $VmssNameObject -VirtualMachineScaleSet $VmssConfigObject                   # Creates the Vmss object
+            if ($VmssObject) {                                                              # If $VmssObject has a value 
+                Return $VmssObject                                                          # Returns $VmssObject to calling function
+            }                                                                               # End if ($VmssObject)
+            else {                                                                          # If $VmssObject does not have a value
+                Write-Host "An error has occured"                                           # Write message to screen
+            }                                                                               # End else (if ($VmssObject))
         }                                                                                   # End :NewAzureVmss while ($true)
     Return                                                                                  # Returns to calling function with #null
     }                                                                                       # End Begin
@@ -155,13 +201,13 @@ function SetAzVmssOsProfile {                                                   
         :SetAzureVmssOSProfile while ($true) {                                              # Outer loop to manage function
             :SetAzureVmssOSProPrefix while ($true) {                                        # Inner loop for setting the VMss OS name prefix
                 $VmssNamePrefixObject = Read-Host `
-                "Please enter the Vmss computer name prefix [1-15] characters"              # Operator input for the VM name prefix
+                "Please enter the Vmss computer name prefix [1-9] characters"               # Operator input for the VM name prefix
                 if ($VmssNamePrefixObject -eq 'exit') {                                     # If $VmssNamePrefixObject equals 'exit'
                     Break SetAzureVmssOSProfile                                             # Breaks :SetAzureVmssOSProfile
                 }                                                                           # End if ($VmssNamePrefixObject -eq 'exit')
-                elseif ($VmssNamePrefixObject.Length -gt 15) {                              # If $VmssNamePrefixObject is greater than 15 characters
+                elseif ($VmssNamePrefixObject.Length -gt 9) {                               # If $VmssNamePrefixObject is greater than 15 characters
                     Write-Host `
-                    "The input is to long, prefix is limitied to 15 or less characters"     # Write message to screen
+                    "The input is to long, prefix is limited to 9 or less characters"       # Write message to screen
                     $VmssNamePrefixObject = $null                                           # Clears $var
                 }                                                                           # End elseif ($VmssNamePrefixObject.Length -gt 15)
                 else {                                                                      # All other input
@@ -236,20 +282,58 @@ function SetAzVmssOsProfile {                                                   
 function SetAzVmssStorageProfile {                                                          # Function to create a VM scale set operating system image and storage profile
     Begin {                                                                                 # Begin function
         :SetAzureVmssStorageProfile while ($true) {                                         # Outer loop for managing function
-            $RGObject = $null                                                               # Sets $RGObject to $null for storage container selection
             $VMImageObject = SetAzVMOS                                                      # Calls function and assigns output for $var
+            if ($ImageTypeObject -eq '1') {                                                 # If $ImageTypeObject equals '1'
+                $OSDiskType = 'Windows'                                                     # Sets $OSDiskType to 'Windows'
+            }                                                                               # End if ($ImageTypeObject -eq '1')
+            if ($ImageTypeObject -eq '2') {                                                 # If $ImageTypeObject equals '2'
+                $OSDiskType = 'Linux'                                                       # Sets $OSDiskType to 'Linux'
+            }                                                                               # End if ($ImageTypeObject -eq '2')
             if (!$VMImageObject) {                                                          # If $var is null
                 Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile 
             }                                                                               # End if (!$VMImageObject)
-            $StorageConObject = GetAzStorageContainer                                       # Calls function and assigns output for $var
-            if (!$StorageConObject) {                                                       # If $var is null
-                Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
-            }                                                                               # End if (!$StorageConObject)
-            $VmssStorageProfileObject = Set-AzVmssStorageProfile -VirtualMachineScaleSet `
-                $VmssConfigObject -OsDiskCreateOption "FromImage" -ImageReferencePublisher `
-                $VMImageObject.PublisherName -ImageReferenceOffer $VMImageObject.Offer `
-                -ImageReferenceSku $VMImageObject.Skus -ImageReferenceVersion `
-                $VMImageObject.Version -VhdContainer $StorageConObject                      # Sets the VM scale set os profile
+            :SetAzureDiskSku while ($true) {                                                # Inner loop for configuring the new disk sku
+                [System.Collections.ArrayList]$ValidSku = @()                               # Creates the valid sku array
+                $ValidSkuList = @('Standard_LRS','Premium_LRS','StandardSSD_LRS',`
+                    'UltraSSD_LRS')                                                         # Creates a list of items to load into $ValidSku Array
+                $SkuNumber = 1                                                              # Sets the base number for the valid sku array
+                foreach ($_ in $ValidSkuList) {                                             # For each item in $ValidSkuList
+                    $SkuInput = [PSCustomObject]@{'Name' = $_;'Number' = $SkuNumber}        # Creates the item to loaded into array
+                    $ValidSku.Add($SkuInput) | Out-Null                                     # Loads item into array, out-null removes write to screen
+                    $SkuNumber = $SkuNumber + 1                                             # Increments $SkuNumber up 1
+                }                                                                           # End foreach ($_ in $ValidSkuList)
+                foreach ($_ in $ValidSku) {                                                 # For each item in $ValidSkut
+                    Write-Host $_.Number $_.Name                                            # Write message to screen
+                }                                                                           # End foreach ($_ in $ValidSku)
+                :SelectAzureDiskSku while ($true) {                                         # Inner loop for selecting object from list
+                    $SkuObjectSelect = Read-Host "Please enter the number of the sku"       # Operator input for the selection
+                    if ($SkuObjectSelect -eq '0') {                                         # If $$SkuObjectSelect is 0
+                        Break SetAzureVmssStorageProfile                                    # Breaks :SetAzureVmssStorageProfile
+                    }                                                                       # End if ($_Select -eq '0')
+                    $SkuObject = $ValidSku | Where-Object {$_.Number -eq $SkuObjectSelect}  # Isolates selected object 
+                    $SkuObject = $SkuObject.Name                                            # Pulls just the .name value
+                    if ($SkuObject) {                                                       # If $SkuObject has a value
+                        Break SetAzureDiskSku                                               # Breaks :SetAzureDiskSku
+                    }                                                                       # End if ($SetAzureDiskSku)
+                    Write-Host "That was not a valid selection"                             # Write message to screen 
+                }                                                                           # End :SelectAzureDiskSku while ($true)
+            }                                                                               # End :SetAzureDiskSku while ($true)
+            if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version has a value
+                $VmssStorageProfileObject = Set-AzVmssStorageProfile `
+                    -VirtualMachineScaleSet $VmssConfigObject  -OsDiskCreateOption `
+                    "FromImage" -ImageReferencePublisher $VMImageObject.PublisherName `
+                    -ImageReferenceOffer $VMImageObject.Offer -ImageReferenceSku `
+                    $VMImageObject.Skus -ImageReferenceVersion $VMImageObject.Version `
+                    -ManagedDisk $SkuObject -OsDiskOsType $OSDiskType                       # Creates the OS storage profile
+            }                                                                               # # End if ($VMImageObject.Version)
+            else {                                                                          # If $VMImageObject.Version does not have a value
+                $VmssStorageProfileObject = Set-AzVmssStorageProfile `
+                -VirtualMachineScaleSet $VmssConfigObject  -OsDiskCreateOption `
+                "FromImage" -ImageReferencePublisher $VMImageObject.PublisherName `
+                -ImageReferenceOffer $VMImageObject.Offer -ImageReferenceSku `
+                $VMImageObject.Skus -ImageReferenceVersion 'latest' `
+                -ManagedDisk $SkuObject -OsDiskOsType $OSDiskType                           # Creates the OS storage profile
+            }                                                                               # End else (if ($VMImageObject.Version))
             if (!$VmssStorageProfileObject) {                                               # If $Var is null
                 Break SetAzureVmssStorageProfile                                            # Breaks :SetAzureVmssStorageProfile
             }                                                                               # End if (!$VmssStorageProfileObject)
@@ -260,309 +344,249 @@ function SetAzVmssStorageProfile {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SetAzVmssStorageProfile
-function GetAzStorageContainer {
-    Begin {
-        $ErrorActionPreference='silentlyContinue'
-        :GetAzureStorageContainer while ($true) { # Outer loop for managing function
-            if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount # Call function and assigns to $var
-                if (!$StorageAccObject) { # If $StorageAccObject is $null after returning from function
-                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
-                } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            $SCList = Get-AzStorageContainer -Context $StorageAccObject.Context
-            $SCListNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Adds exit option to beginning of list
-            foreach ($_ in $SCList) { # For each item in list
-                Write-Host $SCListNumber"." $_.Name # Writes the option number and storage container name
-                $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
-            } # End foreach ($_ in $SCList)
-            :GetAzureStorageConName while ($true) { # Loop for selecting the storage container object
-                $SCListNumber = 1 # Resets list number to 1
-                $SCListSelect = Read-Host "Please enter the number of the storage container" # Operator input for selecting which storage container
-                if ($SCListSelect -eq '0') { # If $SCListSelect is equal to 0
-                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
-                } # End if ($SCListSelect -eq '0')
-                foreach ($_ in $SCList) { # For each item in list
-                    if ($SCListSelect -eq $SCListNumber) { # If the operator input matches the current $SCListNumber
-                        $StorageConObject = Get-AzStorageContainer -Context $StorageAccObject.Context -Name $_.Name # collects the full storage container object
-                        Break GetAzureStorageConName # Breaks :GetAzureStorageConName 
-                    } # End if ($SCListSelect -eq $SCListNumber)
-                    else { # If user input does not match the current $SCListNumber
-                        $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
-                    } # End else (if ($SCListSelect -eq $SCListNumber))
-                } # End foreach ($_ in $SCList)
-                Write-Host "That was not a valid selection, please try again" # Write message to screen
-            } # End :GetAzureStorageConName while ($true)
-            Return $StorageConObject
-        } # End GetAzureStorageContainer
-        Return # Returns to calling function with #null
-    } # End Begin
-} # End GetAzStorageContainer
-function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables errors
-        :GetAzureStorageAccByName while ($true) { # Outer loop for function
-            $ErrorActionPreference ='silentlyContinue' # Disables errors
-            if (!$RGObject) { # If $RGObject is $null
-                $RGObject = GetAzResourceGroup # Calls (Function) GetAzResourceGroup to get $RGObject
-                if (!$RGObject) { # If $RGObject is $null
-                    Break GetAzureStorageACCByName # Ends :GetAzureStorageAccByName
-                } # End if (!$RGObject) 
-            } # End if (!$RGObject)
-            $StorageAccList = Get-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName # Collects all storage accounts in $RGObject and assigns to $StorageAccList
-            if (!$StorageAccList) { # If $StorageAcclist returns empty
-                Write-Host "No storage accounts found" # Message write to screen
-                Break GetAzureStorageACCByName # Ends :GetAzureStorageAccByName
-            } # End if (!$StorageAccList)
-            $StorageAccListNumber = 1 # Sets the base value of $StorageAccListNumber
-            Write-Host "0. Exit" # Writes exit option to screen
-            foreach ($_ in $StorageAccList) { # For each item in $StorageAccList
-                Write-Host $StorageAccListNumber"." $_.StorageAccountName # Writes $StorageAccList to screen
-                $StorageAccListNumber = $StorageAccListNumber+1 # Adds 1 to $StorageAccListNumber
-            } # End foreach ($_ in $StorageAccList)
-            :GetAzureStorageAccount while ($true) {
-                $StorageAccListNumber = 1 # Sets the base value of $StorageAccListNumber
-                $StorageAccListSelect = Read-Host "Please enter the number of the storage account" # Operator input for the storage account selection
-                if ($StorageAccListSelect -eq '0') { # If $StorageAccList is '0'
-                    Break GetAzureStorageACCByName # Ends :GetAzureStorageAccByName
-                } # if ($StorageAccListSelect -eq '0')
-                foreach ($_ in $StorageAccList) { # For each item in $StorageAccList
-                    if ($StorageAccListSelect -eq $StorageAccListNumber) { # If the operator input matches the current $StorageAccListNumber
-                        $StorageAccObject = $_ # Assigns current item in $StorageAccList to $StorageAccObject
-                        Break GetAzureStorageAccount # Breaks :GetAzureStorageAccount
-                    } # End if ($StorageAccListSelect -eq $StorageAccListNumber)
-                    else { # If user input does not match the current $StorageAccListNumber
-                        $StorageAccListNumber = $StorageAccListNumber+1 # Adds 1 to $StorageAccListNumber
-                    } # End else (if ($StorageAccListSelect -eq $StorageAccListNumber))
-                } # End foreach ($_ in $StorageAccList)
-                Write-Host "That was not a valid entry" # Write message to screen
-            } # End :GetAzureStorageAccount while ($true) {
-            Return $StorageAccObject # Returns to calling function with $StorageAccObject
-        } # End :GetAzureStorageAccByName while ($true)
-        Return # Returns to calling function with $null
-    } # End begin 
-} # End function GetAzStorageAccount
-function NewAzNetworkInterface { # Creates a new network interface
-    Begin {
-        :NewAzureNIC while ($true) { # Outer loop for managing function
-            if (!$RGObject) { # If $RGObject is $null
-                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
-                if (!$RGObject) { # If $RGObject is $null
-                    Break NewAzureNIC # Breaks :NewAzureNIC
-                } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            if (!$LocationObject) { # If $LocationObject is $null
-                $LocationObject = GetAzLocation # Calls function and assigns output to $var
-                if (!$LocationObject) { # If $LocationObject is $null
-                    Break NewAzureNIC # Breaks :NewAzureNIC
-                } # End if (!$LocationObject)
-            } # End if (!$LocationObject)
-            if (!$SubnetObject) { # If $SubnetObject is $null
-                $SubnetObject = GetAzVNetSubnetConfig # Calls function and assigns output to $var
-                if (!$SubnetObject) { # If $SubnetObject is $null
-                    Break NewAzureNic # Breaks :NewAzureNic
-                } # End if (!$SubnetObject)
-            } # End if (!$SubnetObject)
-            :SetAzureNicName while ($true) { # Inner loop for setting the nic name
-                $NicName = Read-Host "Nic name" # Operator input for the nic name
-                if ($NicName -eq 'exit') { # If $NicName is 'exit'
-                    Break NewAzureNic # Breaks :NewAzureNic
-                } # End if ($NicName -eq 'exit')
-                $OperatorConfirm = Read-Host "Set" $NicName "as the Nic name [Y] or [N]" # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
-                    Break SetAzureNicName # Breaks :SetAzureNicName
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :SetAzureNicName while ($true)
-            Try { # Try the following
-                $NICObject = New-AzNetworkInterface -Name $NicName -ResourceGroupName $RGObject.ResourceGroupName -Location $LocationObject.DisplayName -SubnetId $SubnetObject.ID # Creates the object and assigns to $var
-            } # End Try
-            Catch { # If try fails
-                Write-Host "An error has occured" # Write mesage to screen
-                Write-Host "You may not have permissions to create this object" # Write mesage to screen
-                Write-Host "The resource group maybe locked" # Write mesage to screen
-                Write-Host "The name provided may not be valid" # Write mesage to screen
-                Break NewAzureNIC # Breaks :NewAzureNIC
-            } # End Catch
-            Return $NICObject # Returns NicObject to calling function
-        } # End :NewAzureNIC while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End funciton NewAzNetworkInterface
-function GetAzVirtualNetwork {
-    Begin {
-        :GetAzureVnet while ($true) { # Outer loop for managing function
-            $VNetList = Get-AzVirtualNetwork # pulls all items into list for selection
-            $VNetListNumber = 1 # $var used for selecting the virtual network
-            foreach ($Name in $VNetList) { # For each name in $VNetList
+function NewAzNetworkInterface {                                                            # Creates a new network interface
+    Begin {                                                                                 # Begin function
+        :NewAzureNIC while ($true) {                                                        # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                $Callingfunction = 'NewAzNetworkInterFace'                                  # Adds function name to $CallingFunction
+                $RGObject = GetAzResourceGroup ($Callingfunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break NewAzureNIC                                                       # Breaks :NewAzureNIC
+                }                                                                           # End if (!$RGObject)
+            }                                                                               # End if (!$RGObject)
+            if (!$LocationObject) {                                                         # If $LocationObject is $null
+                $LocationObject = GetAzLocation                                             # Calls function and assigns output to $var
+                if (!$LocationObject) {                                                     # If $LocationObject is $null
+                    Break NewAzureNIC                                                       # Breaks :NewAzureNIC
+                }                                                                           # End if (!$LocationObject)
+            }                                                                               # End if (!$LocationObject)
+            if (!$SubnetObject) {                                                           # If $SubnetObject is $null
+                $SubnetObject = GetAzVNetSubnetConfig                                       # Calls function and assigns output to $var
+                if (!$SubnetObject) {                                                       # If $SubnetObject is $null
+                    Break NewAzureNic                                                       # Breaks :NewAzureNic
+                }                                                                           # End if (!$SubnetObject)
+            }                                                                               # End if (!$SubnetObject)
+            :SetAzureNicName while ($true) {                                                # Inner loop for setting the nic name
+                $NicName = Read-Host "Nic name"                                             # Operator input for the nic name
+                if ($NicName -eq 'exit') {                                                  # If $NicName is 'exit'
+                    Break NewAzureNic                                                       # Breaks :NewAzureNic
+                }                                                                           # End if ($NicName -eq 'exit')
+                $OperatorConfirm = Read-Host "Set" $NicName "as the Nic name [Y] or [N]"    # Operator confirmation of the name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureNicName                                                   # Breaks :SetAzureNicName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureNicName while ($true)
+            Try {                                                                           # Try the following
+                $NICObject = New-AzNetworkInterface -Name $NicName -ResourceGroupName `
+                    $RGObject.ResourceGroupName -Location $LocationObject.DisplayName `
+                    -SubnetId $SubnetObject.ID                                              # Creates the object and assigns to $var
+            }                                                                               # End Try
+            Catch {                                                                         # If try fails
+                Write-Host "An error has occured"                                           # Write mesage to screen
+                Write-Host "You may not have permissions to create this object"             # Write mesage to screen
+                Write-Host "The resource group maybe locked"                                # Write mesage to screen
+                Write-Host "The name provided may not be valid"                             # Write mesage to screen
+                Break NewAzureNIC                                                           # Breaks :NewAzureNIC
+            }                                                                               # End Catch
+            Return $NICObject                                                               # Returns NicObject to calling function
+        }                                                                                   # End :NewAzureNIC while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End funciton NewAzNetworkInterface
+function GetAzVirtualNetwork {                                                              # Function to get an existing virutal network
+    Begin {                                                                                 # Begin function
+        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # pulls all items into list for selection
+            $VNetListNumber = 1                                                             # $var used for selecting the virtual network
+            foreach ($Name in $VNetList) {                                                  # For each name in $VNetList
                 Write-Host $VNetListNumber"." $Name.Name $Name.AddressSpace.AddressPrefixes # Writes items from list to screen
-                $VNetListNumber = $VNetListNumber + 1 # Increments $var up by 1
-            } # End foreach ($Name in $VNetList)
-            :GetAzureVNetName while ($true) { # Inner loop for selecting the Vnet
-                $VNetListNumber = 1 # Resets $VNetListNumber
-                $VNetListSelect = Read-Host "Please enter the number of the virtual network" # Operator input for the VNet selection
-                foreach ($Name in $VNetList) { # For each name in $VnetList
-                    if ($VNetListSelect -eq $VNetListNumber) { # If $VnetListSelect equals current $VnetListNumber
-                        $VNetObject = Get-AzVirtualNetwork -Name $Name.Name # Pulls the selected object and assigns to $var
-                        Break GetAzureVnetName # Breaks :GetAzureVnetName
-                    } # End if ($VNetListSelect -eq $VNetListNumber)
-                    else { # If $VnetListSelect does not equal the current $VnetListNumber
-                        $VNetListNumber = $VNetListNumber + 1 # Increments $var up by 1
-                    } # End else (if ($VNetListSelect -eq $VNetListNumber))
-                } # End foreach ($Name in $VNetList)
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End :GetAzureVNetName while ($true)
-            Return $VNetObject # Returns to calling function with $var
-        } # End :GetAzureVnet while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function GetAzVirtualNetwork
-function AddAzVNetSubnetConfig {
-    begin {
-        :AddAzureSubnet while ($true) { # Outer loop for managing function
-            if (!$VNetObject) { # if $VNetObject is $null
-                $VNetObject = GetAzVirtualNetwork # Calls function and assigns output to $Var
-                if (!$VNetObject) { # if $VNetObject is $null
-                    Break AddAzureSubnet # Breaks :AddAzureSubnet
-                } # End if (!$VNetObject)
-            } # End if (!$VNetObject)
-            :SetAzureSubNetName while ($true) { # Inner loop for setting the subnet name
-                $SubnetName = Read-Host "Subnet name" # Operator input for the subnet name
-                if ($SubnetName -eq 'exit') { # If $SubnetName is 'exit'
-                    Break AddAzureSubnet # Breaks :AddAzureSubnet
-                } # End if ($SubnetName -eq 'exit')
-                $OperatorConfirm = Read-Host "Set" $SubnetName "as the subnet name [Y] or [N]" # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubNetName # Breaks :SetAzureSubNetName
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :SetAzureSubNetName while ($true)
-            :SetAzureSubnetAddress while ($true) { # Inner loop for setting the subnet prefix
-                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)" # Operator input for the subnet prefix
-                $OperatorConfirm = Read-Host "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]" # Operator confirmation of the address prefix
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubnetAddress # Breaks :SetAzureSubnetAddress
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :SetAzureSubnetAddress while ($true)
-            Add-AzVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | Set-AzVirtualNetwork # Creates the new subnet config and adds to $VNetObject
-            $OperatorSelect = Read-Host "Add another subnet" # Operator input to add more subnets
-            if (!($OperatorSelect -eq 'y')) { # if $OperatorSelect does not equal 'y'
-                Break AddAzureSubnet # Breaks :AddAzureSubnetAgain
-            } # End if (!($OperatorSelect -eq 'y'))
-        } # End :AddAzureSubnet while ($true)
-        Return # Returns to calling function with $Null
-    } # End Begin
-} # End function AddAzVNetSubnetConfig
-function GetAzVNetSubnetConfig {
-    Begin {
-        :GetAzureSubnet while ($true) {
-            if (!$VnetObject) {
-                $VnetObject = GetAzVirtualNetwork
-                if (!$VnetObject) {
-                    Break GetAzureSubnet # Breaks :GetAzureSubnet
-                } # End if (!$VnetObject)
-            } # End if (!$VnetObject)
-            $SubNetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject # pulls all items into list for selection
-            $SubNetListNumber = 1 # $var used for selecting the subnet
-            foreach ($Name in $SubNetList) { # For each name in $SubNetList
-                Write-Host $SubNetListNumber"." $Name.Name $Name.AddressPrefix # Writes items from list to screen
-                $SubNetListNumber = $SubNetListNumber + 1 # Increments $var up by 1
-            } # End foreach ($Name in $SubNetList)
-            :GetAzureSubnetName while ($true) { # Inner loop for selecting the Subnet
-                $SubNetListNumber = 1 # Resets $SubNetListNumber
-                $SubNetListSelect = Read-Host "Please enter the number of the subnet" # Operator input for the Subnet selection
-                foreach ($Name in $SubNetList) { # For each name in $SubnetList
-                    if ($SubNetListSelect -eq $SubNetListNumber) { # If $SubnetListSelect equals current $SubnetListNumber
-                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject -Name $Name.Name # Pulls the selected object and assigns to $var
-                        Break GetAzureSubnetName # Breaks :GetAzureSubnetName
-                    } # End if ($SubNetListSelect -eq $SubNetListNumber)
-                    else { # If $SubnetListSelect does not equal the current $SubnetListNumber
-                        $SubNetListNumber = $SubNetListNumber + 1 # Increments $var up by 1
-                    } # End else (if ($SubNetListSelect -eq $SubNetListNumber))
-                } # End foreach ($Name in $SubNetList)
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End :GetAzureSubnetName while ($true)
-            Return $SubnetObject # Returns to calling function with $var
-        } # End :GetAzureSubnet while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function GetAzVNetSubnetConfig
-function GetAzNetworkInterface { # Gets a network interface
-    Begin {
-        :GetAzureNic while ($true) { # Outer loop for managing function
-            $NicList = Get-AzNetworkInterface # pulls all items into list for selection
-            $NicListNumber = 1 # $var used for selecting the NIC
-            foreach ($_ in $NicList) { # For each item in $NicList
-                $_ | Add-Member -NotePropertyName 'Number' -NotePropertyValue $NicListNumber # Adds number property to each item in list
-                $NicListNumber = $NicListNumber + 1 # Increments $NicListNumber by 1
-            } # End foreach ($_ in $NicList)
-            Write-Host "0 Exit" # Write message to screen
-            Write-Host "" # Write message to screen
-            foreach ($_ in $NicList) { # Writes all objects to screen
-                Write-Host "NIC: " $_.Number # Write message to screen
-                Write-Host "Name:"$_.Name # Write message to screen
-                Write-Host "IP:  " $_.IpConfigurations.PrivateIpAddress # Writes list to screen
-                Write-Host "RG : " $_.ResourceGroupName # Write message to screen
-                if ($_.VirtualMachine) { # $_.VirtualMachine has a value
-                    Write-Host "VM: "$_.VirtualMachine.ID.split("/")[0,-1] # Write message to screen
-                } # End if ($_.VirtualMahine) 
-                Write-Host "" # Write message to screen
-            } # End foreach ($_ in $NicList)
-            :GetAzureNicName while ($true) { # Inner loop for selecting the NIC
-                $NicListNumber = 1 # Resets $NicListNumber
-                $NicListSelect = Read-Host "Please enter the number of the network interface" # Operator input for the NIC selection
-                if ($NicListSelect -eq 0) { # IF $NicListSelect equals 0
-                    Break GetAzureNic # Breaks :GetAzureNic 
-                } # End if ($NicListSelect -eq 0)
-                foreach ($Name in $NicList) { # For each name in $NicList
-                    if ($NicListSelect -eq $Name.Number) { # If $NicListSelect equals current $NicListNumber
-                        $NicObject = Get-AzNetworkInterface | Where-Object {$_.Name -eq $Name.Name} # Pulls the selected object and assigns to $var
-                        Break GetAzureNicName # Breaks :GetAzureNicName
-                    } # End if ($NicListSelect -eq $NicListNumber)
-                    else { # If $NicListSelect does not equal the current $NicListNumber
-                        $NicListNumber = $NicListNumber + 1 # Increments $var up by 1
-                    } # End else (if ($NicListSelect -eq $NicListNumber))
-                } # End foreach ($Name in $NicList)
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End :GetAzureNicName while ($true)
-            Return $NicObject # Returns to calling function with $var
-        } # End :GetAzureNic while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function GetAzNetworkInterface
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Please enter the number of the resource group" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Return $RGObject # Returns $RGObject to calling function
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+                $VNetListNumber = $VNetListNumber + 1                                       # Increments $var up by 1
+            }                                                                               # End foreach ($Name in $VNetList)
+            :GetAzureVNetName while ($true) {                                               # Inner loop for selecting the Vnet
+                $VNetListNumber = 1                                                         # Resets $VNetListNumber
+                $VNetListSelect = Read-Host `
+                    "Please enter the number of the virtual network"                        # Operator input for the VNet selection
+                foreach ($Name in $VNetList) {                                              # For each name in $VnetList
+                    if ($VNetListSelect -eq $VNetListNumber) {                              # If $VnetListSelect equals current $VnetListNumber
+                        $VNetObject = Get-AzVirtualNetwork -Name $Name.Name                 # Pulls the selected object and assigns to $var
+                        Break GetAzureVnetName                                              # Breaks :GetAzureVnetName
+                    }                                                                       # End if ($VNetListSelect -eq $VNetListNumber)
+                    else {                                                                  # If $VnetListSelect does not equal the current $VnetListNumber
+                        $VNetListNumber = $VNetListNumber + 1                               # Increments $var up by 1
+                    }                                                                       # End else (if ($VNetListSelect -eq $VNetListNumber))
+                }                                                                           # End foreach ($Name in $VNetList)
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End :GetAzureVNetName while ($true)
+            Return $VNetObject                                                              # Returns to calling function with $var
+        }                                                                                   # End :GetAzureVnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVirtualNetwork
+function AddAzVNetSubnetConfig {                                                            # Function to add a subnet
+    begin {                                                                                 # Begin function
+        :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            if (!$VNetObject) {                                                             # If $VNetObject is $null
+                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $Var
+                if (!$VNetObject) {                                                         # If $VNetObject is $null
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if (!$VNetObject)
+            }                                                                               # End if (!$VNetObject)
+            :SetAzureSubNetName while ($true) {                                             # Inner loop for setting the subnet name
+                $SubnetName = Read-Host "Subnet name"                                       # Operator input for the subnet name
+                if ($SubnetName -eq 'exit') {                                               # If $SubnetName is 'exit'
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if ($SubnetName -eq 'exit')
+                $OperatorConfirm = Read-Host `
+                    "Set" $SubnetName "as the subnet name [Y] or [N]"                       # Operator confirmation of the name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubNetName                                                # Breaks :SetAzureSubNetName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubNetName while ($true)
+            :SetAzureSubnetAddress while ($true) {                                          # Inner loop for setting the subnet prefix
+                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)"              # Operator input for the subnet prefix
+                $OperatorConfirm = Read-Host `
+                    "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]"          # Operator confirmation of the address prefix
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubnetAddress                                             # Breaks :SetAzureSubnetAddress
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubnetAddress while ($true)
+            $SubnetObject = Add-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | `
+                Set-AzVirtualNetwork                                                        # Creates the new subnet config and adds to $VNetObject
+            $OperatorSelect = Read-Host "Add another subnet"                                # Operator input to add more subnets
+            if (!($OperatorSelect -eq 'y')) {                                               # if $OperatorSelect does not equal 'y'
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnetAgain
+            }                                                                               # End if (!($OperatorSelect -eq 'y'))
+            if ($SubnetObject) {                                                            # If $SubnetObject has a value
+                Return $SubnetObject                                                        # Returns $SubnetObject to calling function
+            }                                                                               # End if ($SubnetObject)
+            else {                                                                          # If $SubnetObject does not have a value
+                Write-Host "An error has occured"                                           # Write message to screen
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
+            }                                                                               # End else (if ($SubnetObject))
+        }                                                                                   # End :AddAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $Null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzVNetSubnetConfig
+function GetAzVNetSubnetConfig {                                                            # Function to get an existing subnet
+    Begin {                                                                                 # Begin function
+        :GetAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            if (!$VnetObject) {                                                             # If $VnetObject is $null
+                $VnetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
+                if (!$VnetObject) {                                                         # If $VnetObject is $null
+                    Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet
+                }                                                                           # End if (!$VnetObject)
+            }                                                                               # End if (!$VnetObject)
+            $SubNetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject      # pulls all items into list for selection
+            $SubNetListNumber = 1                                                           # $var used for selecting the subnet
+            foreach ($Name in $SubNetList) {                                                # For each name in $SubNetList
+                Write-Host $SubNetListNumber"." $Name.Name $Name.AddressPrefix              # Writes items from list to screen
+                $SubNetListNumber = $SubNetListNumber + 1                                   # Increments $var up by 1
+            }                                                                               # End foreach ($Name in $SubNetList)
+            :GetAzureSubnetName while ($true) {                                             # Inner loop for selecting the Subnet
+                $SubNetListNumber = 1                                                       # Resets $SubNetListNumber
+                $SubNetListSelect = Read-Host "Please enter the number of the subnet"       # Operator input for the Subnet selection
+                foreach ($Name in $SubNetList) {                                            # For each name in $SubnetList
+                    if ($SubNetListSelect -eq $SubNetListNumber) {                          # If $SubnetListSelect equals current $SubnetListNumber
+                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                            $VnetObject -Name $Name.Name                                    # Pulls the selected object and assigns to $var
+                        Break GetAzureSubnetName                                            # Breaks :GetAzureSubnetName
+                    }                                                                       # End if ($SubNetListSelect -eq $SubNetListNumber)
+                    else {                                                                  # If $SubnetListSelect does not equal the current $SubnetListNumber
+                        $SubNetListNumber = $SubNetListNumber + 1                           # Increments $var up by 1
+                    }                                                                       # End else (if ($SubNetListSelect -eq $SubNetListNumber))
+                }                                                                           # End foreach ($Name in $SubNetList)
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End :GetAzureSubnetName while ($true)
+            Return $SubnetObject                                                            # Returns to calling function with $var
+        }                                                                                   # End :GetAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVNetSubnetConfig
+function GetAzNetworkInterface {                                                            # Gets a network interface
+    Begin {                                                                                 # Begin function
+        :GetAzureNic while ($true) {                                                        # Outer loop for managing function
+            $NicList = Get-AzNetworkInterface                                               # pulls all items into list for selection
+            $NicListNumber = 1                                                              # $var used for selecting the NIC
+            foreach ($_ in $NicList) {                                                      # For each item in $NicList
+                $_ | Add-Member -NotePropertyName 'Number' -NotePropertyValue `
+                    $NicListNumber                                                          # Adds number property to each item in list
+                $NicListNumber = $NicListNumber + 1                                         # Increments $NicListNumber by 1
+            }                                                                               # End foreach ($_ in $NicList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host ""                                                                   # Write message to screen
+            foreach ($_ in $NicList) {                                                      # Writes all objects to screen
+                Write-Host "NIC: " $_.Number                                                # Write message to screen
+                Write-Host "Name:"$_.Name                                                   # Write message to screen
+                Write-Host "IP:  " $_.IpConfigurations.PrivateIpAddress                     # Writes list to screen
+                Write-Host "RG : " $_.ResourceGroupName                                     # Write message to screen
+                if ($_.VirtualMachine) {                                                    # $_.VirtualMachine has a value
+                    Write-Host "VM: "$_.VirtualMachine.ID.split("/")[0,-1]                  # Write message to screen
+                }                                                                           # End if ($_.VirtualMahine) 
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $NicList)
+            :GetAzureNicName while ($true) {                                                # Inner loop for selecting the NIC
+                $NicListNumber = 1                                                          # Resets $NicListNumber
+                $NicListSelect = Read-Host `
+                    "Please enter the number of the network interface"                      # Operator input for the NIC selection
+                if ($NicListSelect -eq 0) {                                                 # If $NicListSelect equals 0
+                    Break GetAzureNic                                                       # Breaks :GetAzureNic 
+                }                                                                           # End if ($NicListSelect -eq 0)
+                foreach ($Name in $NicList) {                                               # For each name in $NicList
+                    if ($NicListSelect -eq $Name.Number) {                                  # If $NicListSelect equals current $NicListNumber
+                        $NicObject = Get-AzNetworkInterface | Where-Object `
+                            {$_.Name -eq $Name.Name}                                        # Pulls the selected object and assigns to $var
+                        Break GetAzureNicName                                               # Breaks :GetAzureNicName
+                    }                                                                       # End if ($NicListSelect -eq $NicListNumber)
+                    else {                                                                  # If $NicListSelect does not equal the current $NicListNumber
+                        $NicListNumber = $NicListNumber + 1                                 # Increments $var up by 1
+                    }                                                                       # End else (if ($NicListSelect -eq $NicListNumber))
+                }                                                                           # End foreach ($Name in $NicList)
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End :GetAzureNicName while ($true)
+            Return $NicObject                                                               # Returns to calling function with $var
+        }                                                                                   # End :GetAzureNic while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzNetworkInterface
+function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
+            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
+            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
+            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
+                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
+                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
+            }                                                                               # End foreach ($_ in $RGListArray)
+            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureRGList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
@@ -690,8 +714,11 @@ function SetAzVMOS {                                                            
                     $SkuSelect = Read-Host "Enter the sku number"                           # Operator input for selecting the image sku
                     if ($SkuSelect -eq '0') {                                               # If $SkuSelect equals 0
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0')                                           
+                    }                                                                       # End if ($OfferSelect -eq '0') 
                     $VMSkuObject = $ImageSkuArray | Where-Object {$_.Number -eq $SkuSelect} # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
+                    $VMSkuObject = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
+                        -Location $LocationObject.DisplayName -PublisherName `
+                        $VMPublisherObject | Where-Object {$_.Skus -eq $VMSkuObject.Name}   #                                       
                     if ($VMSkuObject) {                                                     # If $VMSkuObject has a value
                         Break GetAzureImageSku                                              # Break SelectAzureImageSku
                     }                                                                       # End if ($VMOfferObject)
@@ -701,39 +728,60 @@ function SetAzVMOS {                                                            
                 }                                                                           # End :SelectAzureImage while ($true)
             }                                                                               # End :GetAzureImageSku while ($true)
             :GetAzureImageVersion while ($true) {                                           # Pulls the full $VMOfferObject
-                $ImageVersionList =  Get-AzVMImage -Location `
-                    $LocationObject.Location -PublisherName $VMPublisherObject `
-                    -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Name                     # Gets image version list and assigns to $var
-                $ImageVersionNumber = 1                                                     # Sets $ImageSkuNumber to 1
-                [System.Collections.ArrayList]$ImageVersionArray = @()                      # Creates the $ImageSkuArray     
-                foreach ($_ in $ImageVersionList) {                                         # For each Sku in $ImageSkuList
-                    $ImageVersionInput = [PSCustomObject]@{'Name' = $_.Version; `
-                        'Number' = $ImageVersionNumber}                                     # Creates the item to loaded into array
-                    $ImageVersionArray.Add($ImageVersionInput) | Out-Null                   # Loads item into array, out-null removes write to screen
-                    $ImageVersionNumber = $ImageVersionNumber + 1                           # Increments $ImageSkuNumber by 1
-                }                                                                           # End foreach ($Offer in $ImageOfferList)
-                Write-Host "0 Exit"                                                         # Write message to screen
-                foreach ($_ in $ImageVersionArray) {                                        # For each $_ in $ImageSkuArray
-                    Write-Host $_.Number $_.Name                                            # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
-                }                                                                           # End 
-                :SelectAzureImageVersion while ($true) {                                    # Inner loop for selecting the image sku
-                    $VersionSelect = Read-Host "Enter the Version number"                   # Operator input for selecting the image sku
-                    if ($VersionSelect -eq '0') {                                           # If $SkuSelect equals 0
+                :SelectAzureImageVerType while ($true) {                                    # Inner loop for chosing current or previous version of sku
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Use current version'                                    # Write message to screen
+                    Write-Host '[2] Select version'                                         # Write message to screen
+                    $ImageVersionOption = Read-Host '[0], [1], or [2]'                      # Operator input for version selection type
+                    if ($ImageVersionOption -eq '0') {                                      # If $ImageVersionOption equals 0
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0')                                           
-                    $VMVersionObject = $ImageVersionArray | `
-                        Where-Object {$_.Number -eq $VersionSelect}                         # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
-                    if ($VMVersionObject) {                                                 # If $VMSkuObject has a value
-                        $VMImageObject = Get-AzVMImage -Location `
-                        $LocationObject.Location -PublisherName $VMPublisherObject `
-                        -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Name -Version `
-                        $VMVersionObject.Name                                               # If #VMVersionObject has a value, pull the full object and assign to $var
-                        Break GetAzureImageVersion                                          # Break SelectAzureImageSku
-                    }                                                                       # End if ($VMOfferObject)
-                    else {                                                                  # If $VMSkuObject does not have a value
+                    }                                                                       # End if ($ImageVersionOption -eq '0')            
+                    elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2') {  # If $ImageVersionOption equals 1 or 2
+                        Break SelectAzureImageVerType                                       # Breaks :SelectAzureImageVerType
+                    }                                                                       # End elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2')
+                    else {                                                                  # If $ImageVersionOption is not equal to 0, 1, or 2
                         Write-Host "That was not a valid option"                            # Write message to screen
-                    }                                                                       # End else (if ($VMOfferObject))
-                }                                                                           # End :SelectAzureImageVersion while ($true)
+                    }                                                                       # End else (if ($ImageVersionOption -eq '0'))
+                }                                                                           # End :SelectAzureImageVerType while ($true)
+                if ($ImageVersionOption -eq '1') {                                          # If $ImageVersionOption equals 1
+                    $VMImageObject = $VMSkuObject                                           # VMImageObject is equal to $VMSkuObject
+                    Return $VMImageObject                                                   # Returns $VMImageObject to calling function
+                }                                                                           # End if ($ImageVersionOption -eq '1')
+                else {                                                                      # If $ImageVersionOption is not '1' (can only be '2')
+                    $ImageVersionList =  Get-AzVMImage -Location `
+                        $LocationObject.Location -PublisherName $VMPublisherObject `
+                        -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus                 # Gets image version list and assigns to $var
+                    $ImageVersionNumber = 1                                                 # Sets $ImageSkuNumber to 1
+                    [System.Collections.ArrayList]$ImageVersionArray = @()                  # Creates the $ImageSkuArray     
+                    foreach ($_ in $ImageVersionList) {                                     # For each Sku in $ImageSkuList
+                        $ImageVersionInput = [PSCustomObject]@{'Name' = $_.Version; `
+                            'Number' = $ImageVersionNumber}                                 # Creates the item to loaded into array
+                        $ImageVersionArray.Add($ImageVersionInput) | Out-Null               # Loads item into array, out-null removes write to screen
+                        $ImageVersionNumber = $ImageVersionNumber + 1                       # Increments $ImageSkuNumber by 1
+                    }                                                                       # End foreach ($Offer in $ImageOfferList)
+                    Write-Host "0 Exit"                                                     # Write message to screen
+                    foreach ($_ in $ImageVersionArray) {                                    # For each $_ in $ImageSkuArray
+                        Write-Host $_.Number $_.Name                                        # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
+                    }                                                                       # End foreach ($_ in $ImageVersionArray)
+                    :SelectAzureImageVersion while ($true) {                                # Inner loop for selecting the image sku
+                        $VersionSelect = Read-Host "Enter the Version number"               # Operator input for selecting the image sku
+                        if ($VersionSelect -eq '0') {                                       # If $SkuSelect equals 0
+                            Break GetAzureVMImage                                           # Breaks :GetAzureVMImage
+                        }                                                                   # End if ($OfferSelect -eq '0')                                           
+                        $VMVersionObject = $ImageVersionArray | `
+                            Where-Object {$_.Number -eq $VersionSelect}                     # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
+                        if ($VMVersionObject) {                                             # If $VMSkuObject has a value
+                            $VMImageObject = Get-AzVMImage -Location `
+                            $LocationObject.Location -PublisherName $VMPublisherObject `
+                            -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus -Version `
+                            $VMVersionObject.Name                                           # If #VMVersionObject has a value, pull the full object and assign to $var
+                            Break GetAzureImageVersion                                      # Break SelectAzureImageSku
+                        }                                                                   # End if ($VMOfferObject)
+                        else {                                                              # If $VMSkuObject does not have a value
+                            Write-Host "That was not a valid option"                        # Write message to screen
+                        }                                                                   # End else (if ($VMOfferObject))
+                    }                                                                       # End :SelectAzureImageVersion while ($true)
+                }                                                                           # End else(if ($ImageVersionOption -eq '1'))
             }                                                                               # End :GetAzureImageVersion while ($true)
             Return $VMImageObject                                                           # Returns #VMImageObject
         }                                                                                   # End :GetAZVMImage while ($true)
