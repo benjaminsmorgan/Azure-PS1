@@ -1,7 +1,191 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.6.0
+    New-AzVmssConfig:           https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssconfig
+    New-AzVmssIPConfig:         https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssipconfig
+    Add-AzVmssNetworkInterfaceConfiguration: https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmssnetworkinterfaceconfiguration
+    New-AzVmss:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmss
+    Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.5.0
+    Set-AzVmssOsProfile:        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmssosprofile
+    Set-AzVmssStorageProfile:   https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmssstorageprofile
+    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork
+    Add-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig
+    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.6.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup
+    Get-AzVMImageOffer:         https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimageoffer
+    Get-AzVMImageSku:           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku
+    Get-AzVMImage:              https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage
+    Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize
+    Get-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer
+    New-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer
+    New-AzLoadBalancerFrontendIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig
+    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress
+    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig
+    New-AzLoadBalancerProbeConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerprobeconfig
+    New-AzLoadBalancerInboundNatPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerinboundnatpoolconfig
+    New-AzLoadBalancerRuleConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.6.0
+} #>
+<# Required Functions Links: {
+    SetAzVmssOsProfile:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssOsProfile.ps1
+    SetAzVmssStorageProfile:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssStorageProfile.ps1
+    GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+    AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
+    GetAzVMSize:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVMSize.ps1
+    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+    NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
+    NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+    NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+    GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+    NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
+    NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
+    NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+    NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+} #>
+<# Functions Description: {
+    GetAzVMSize:                Function for setting the VM size
+    NewAzVmss:                  Function for creating a new Vmss
+    SetAzVmssOsProfile:         Function for setting Vmss username and password
+    SetAzVmssStorageProfile:    Function for setting up Vmss storage for new instances
+    GetAzVirtualNetwork:        Gets an existing virtual network
+    AddAzVNetSubnetConfig:      Adds a new subnet
+    GetAzVNetSubnetConfig:      Gets an existing subnet
+    GetAzResourceGroup:         Gets an existing resource group
+    SetAzVMOS:                  Gets an Azure OS image config
+    GetAzVMSize:                Gets an Azure VM sku
+    GetAzLoadBalancer:          Gets an existing load balancer
+    NewAzLoadBalancer:          Creates a new load balancer
+    NewAzLBFrontendIpConfig:    Creates a load balancer front end config 
+    NewAzPublicIpAddress:       Creates a new public ip sku
+    GetAzPublicIpAddress:       Gets an existing public ip sku
+    NewAzLBBackendIpConfig:     Creates a load balancer back end IP config
+    NewAzLBProbeConfig:         Creates a load balancer health probe
+    NewAzLBIBNatPoolConfig:     Creates a load balancer inbound nat pool
+    NewAzLBRuleConfig:          Creates a load balancer rule
+} #>
+<# Variables: {      
+    :NewAzureVmss               Outer loop for managing function
+    :SetAzureVmssType           Inner loop for setting the Vmss type
+    :GetAzureResourceGroup      Inner loop for getting the resource group
+    :SetAzureVmssSkuCapacity    Inner loop for setting the max number of skus
+    :SetAzureVmssSkuConfig      Inner loop for setting vmss profile configuration
+    :SetAzureVMSSSkuUpDate      Inner loop for setting the OS update settings
+    :SetVmssIPConfig            Inner loop for setting the network settings
+    :SetVmssIPConfigName        Inner loop for setting the IP config name
+    :GetAzureLoadBalancer       Inner loop for setting the load balancer
+    :GetAzureSubnet             Inner loop for setting the subnet
+    :SetVmssName                Inner loop for setting the Vmss name
+    $ImageTypeObject:           Operator input for image type
+    $RGObject:                  Resource group object
+    $CallingFunction:           Name of this function
+    $LocationObject:            Azure location object (From $RGObject)
+    $VmssSkuCapacityObject:     Max number of VMs in Vmss
+    $OperatorConfirm:           Operator confirmation of inputs
+    $VMSizeObject:              Virtual machine configuration
+    $UpdateSetting:             Vmss update setting
+    $VmssConfigObject:          Object Vmss config is loaded into
+    $VmssOSProfileObject:       Vmss username and password info
+    $VmssStorageProfileObject:  Storage of Vmss image configuration
+    $VmssIPConfigName:          Operator input for Vmss IP config name
+    $OperatorSelect:            Operator selection for getting or making new network configs
+    $LoadBalancerObject:        Load balancer object
+    $SubnetObject:              Subnet object
+    $VmssIPConfig:              Full Vmss IP configuration
+    $VmssNameObject:            Operator input for the Vmss name
+    $VmssObject:                Vmss object
+    GetAzResourceGroup{}        Gets $RGObject
+    GetAzVMSize{}               Gets $VMSizeObject
+    SetAzVmssOsProfile{}        Gets $VmssOSProfileObject
+        SetAzVMOS{}                 Gets $VMImageObject
+    SetAzVmssStorageProfile{}   Gets $VmssStorageProfileObject
+    NewAzLoadBalancer{}         Creates $LoadBalancerObject
+        GetAzResourceGroup{}        Gets $RGObject
+        NewAzLBFrontendIpConfig{}   Creates $FrontEndIPConfigObject
+            NewAzPublicIpAddress{}      Creates $PublicIPObject
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzPublicIpAddress{}      Gets $PublicIPObject
+        NewAzLBBackendIpConfig{}    Creates $BackEndIPConfigObject
+        NewAzLBProbeConfig{}        Creates $HealthProbeObject
+        NewAzLBIBNatPoolConfig{}    Creates $InboundNatPoolObject
+        NewAzLBRuleConfig{}         Creates $LoadBalanceRule
+    GetAzLoadBalancer{}         Gets $LoadBalancerObject
+    AddAzVNetSubnetConfig{}     Creates $SubnetObject
+        GetAzVirtualNetwork{}       Gets $VnetObject
+    GetAzVNetSubnetConfig{}     Gets $SubnetObject
+        GetAzVirtualNetwork{}       Gets $VnetObject
+} #>
+<# Process Flow {
+    function 
+        Call NewAzVmss > Get $VmssObject
+            Call GetAzResourceGroup > Get $RGObject
+            End GetAzResourceGroup
+                Return NewAzVmss > Send $RGObject
+            Call GetAzVMSize > Get $VMSizeObject
+            End GetAzVMSize
+                Return NewAzVmss > Send $VMSizeObject
+            Call SetAzVmssOsProfile > Get $VmssOSProfileObject
+                Call SetAzVMOS > Get $VMImageObject
+                End SetAzVMOS
+            End SetAzVmssOsProfile
+                Return NewAzVmss > Send $VmssOSProfileObject
+            Call SetAzVmssStorageProfile > Get $VmssStorageProfileObject
+            End SetAzVmssStorageProfile
+                Return NewAzVmss > Send $VmssStorageProfileObject
+            Call NewAzLoadBalancer > Get $LoadBalancerObject
+                Call GetAzResourceGroup > Get $RGObject
+                End GetAzResourceGroup
+                    Return NewAzLoadBalancer > Send $RGObject
+                Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                    Call NewAzPublicIpAddress > Get $PublicIPObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return NewAzPublicIpAddress > Send $RGObject
+                    End NewAzPublicIpAddress
+                        Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                    Call GetAzPublicIpAddress > Get $PublicIPObject
+                    End GetAzPublicIpAddress
+                        Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                End NewAzLBFrontendIpConfig
+                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject 
+                Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+                End NewAzLBBackendIpConfig
+                    Return NewAzLoadBalancer > Send $BackEndIPConfigObject
+                Call NewAzLBProbeConfig > Get $HealthProbeObject
+                End NewAzLBProbeConfig
+                    Return NewAzLoadBalancer > Send $HealthProbeObject
+                Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+                End NewAzLBIBNatPoolConfig
+                    Return NewAzLoadBalancer > Send $InboundNatPoolObject
+                Call NewAzLBRuleConfig > Get $LoadBalanceRule
+                End NewAzLBRuleConfig
+                    Return NewAzLoadBalancer > Send $LoadBalanceRule
+            End NewAzLoadBalancer
+                Return NewAzVmss > Send $LoadBalancerObject
+            Call GetAzLoadBalancer > Get $LoadBalancerObject
+            End GetAzLoadBalancer
+                Return NewAzVmss > Send $LoadBalancerObject
+            Call AddAzVNetSubnetConfig > Get $SubnetObject
+                Call GetAzVirtualNetwork > Get $VnetObject
+                End GetAzVirtualNetwork
+                    Return AddAzVNetSubnetConfig > Send $VnetObject
+            End AddAzVNetSubnetConfig
+                Return NewAzVmss > Send $SubnetObject
+            Call GetAzVNetSubnetConfig > Get $SubnetObject
+                Call GetAzVirtualNetwork > Get $VnetObject
+                End GetAzVirtualNetwork
+                    Return GetAzVNetSubnetConfig > Send $VnetObject
+            End GetAzVNetSubnetConfig
+                Return NewAzVmss > Send $SubnetObject
+        End NewAzVmss
+            Return function > Send $VmssObject
+}#>
 function NewAzVmss {                                                                        # Function to create a new virtual machine scale set
     Begin{                                                                                  # Begin function
         :NewAzureVmss while ($true) {                                                       # Outer loop for managing function
-            :SetAzureVmssType while ($true) {                                               # Inner loop for setting the VMss type
+            :SetAzureVmssType while ($true) {                                               # Inner loop for setting the Vmss type
                 Write-Host "[0] Exit"                                                       # Write message to screen
                 Write-Host "[1] Windows"                                                    # Write message to screen
                 Write-Host "[2] Linux"                                                      # Write message to screen
@@ -52,7 +236,7 @@ function NewAzVmss {                                                            
             }                                                                               # End :SetAzureVmssSkuCapacity while ($true)
             :SetAzureVmssSkuConfig while ($true) {                                          # Inner loop for setting vmss profile configuration
                 $VMSizeObject = GetAzVMSize ($LocationObject)                               # Calls function and assigns output to $var
-                if (!$VMSizeObject) {                                                       #  If $VMSizeObject has no value
+                if (!$VMSizeObject) {                                                       # If $VMSizeObject has no value
                     Break NewAzureVmss                                                      # Breaks :NewAzureVmss
                 }                                                                           # End if (!$VMSizeObject)
                 :SetAzureVMSSSkuUpDate while ($true) {                                      # Inner loop for setting the OS update settings
@@ -344,55 +528,6 @@ function SetAzVmssStorageProfile {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SetAzVmssStorageProfile
-function NewAzNetworkInterface {                                                            # Creates a new network interface
-    Begin {                                                                                 # Begin function
-        :NewAzureNIC while ($true) {                                                        # Outer loop for managing function
-            if (!$RGObject) {                                                               # If $RGObject is $null
-                $Callingfunction = 'NewAzNetworkInterFace'                                  # Adds function name to $CallingFunction
-                $RGObject = GetAzResourceGroup ($Callingfunction)                           # Calls function and assigns output to $var
-                if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break NewAzureNIC                                                       # Breaks :NewAzureNIC
-                }                                                                           # End if (!$RGObject)
-            }                                                                               # End if (!$RGObject)
-            if (!$LocationObject) {                                                         # If $LocationObject is $null
-                $LocationObject = GetAzLocation                                             # Calls function and assigns output to $var
-                if (!$LocationObject) {                                                     # If $LocationObject is $null
-                    Break NewAzureNIC                                                       # Breaks :NewAzureNIC
-                }                                                                           # End if (!$LocationObject)
-            }                                                                               # End if (!$LocationObject)
-            if (!$SubnetObject) {                                                           # If $SubnetObject is $null
-                $SubnetObject = GetAzVNetSubnetConfig                                       # Calls function and assigns output to $var
-                if (!$SubnetObject) {                                                       # If $SubnetObject is $null
-                    Break NewAzureNic                                                       # Breaks :NewAzureNic
-                }                                                                           # End if (!$SubnetObject)
-            }                                                                               # End if (!$SubnetObject)
-            :SetAzureNicName while ($true) {                                                # Inner loop for setting the nic name
-                $NicName = Read-Host "Nic name"                                             # Operator input for the nic name
-                if ($NicName -eq 'exit') {                                                  # If $NicName is 'exit'
-                    Break NewAzureNic                                                       # Breaks :NewAzureNic
-                }                                                                           # End if ($NicName -eq 'exit')
-                $OperatorConfirm = Read-Host "Set" $NicName "as the Nic name [Y] or [N]"    # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
-                    Break SetAzureNicName                                                   # Breaks :SetAzureNicName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-            }                                                                               # End :SetAzureNicName while ($true)
-            Try {                                                                           # Try the following
-                $NICObject = New-AzNetworkInterface -Name $NicName -ResourceGroupName `
-                    $RGObject.ResourceGroupName -Location $LocationObject.DisplayName `
-                    -SubnetId $SubnetObject.ID                                              # Creates the object and assigns to $var
-            }                                                                               # End Try
-            Catch {                                                                         # If try fails
-                Write-Host "An error has occured"                                           # Write mesage to screen
-                Write-Host "You may not have permissions to create this object"             # Write mesage to screen
-                Write-Host "The resource group maybe locked"                                # Write mesage to screen
-                Write-Host "The name provided may not be valid"                             # Write mesage to screen
-                Break NewAzureNIC                                                           # Breaks :NewAzureNIC
-            }                                                                               # End Catch
-            Return $NICObject                                                               # Returns NicObject to calling function
-        }                                                                                   # End :NewAzureNIC while ($true)
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End funciton NewAzNetworkInterface
 function GetAzVirtualNetwork {                                                              # Function to get an existing virutal network
     Begin {                                                                                 # Begin function
         :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
@@ -503,52 +638,6 @@ function GetAzVNetSubnetConfig {                                                
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzVNetSubnetConfig
-function GetAzNetworkInterface {                                                            # Gets a network interface
-    Begin {                                                                                 # Begin function
-        :GetAzureNic while ($true) {                                                        # Outer loop for managing function
-            $NicList = Get-AzNetworkInterface                                               # pulls all items into list for selection
-            $NicListNumber = 1                                                              # $var used for selecting the NIC
-            foreach ($_ in $NicList) {                                                      # For each item in $NicList
-                $_ | Add-Member -NotePropertyName 'Number' -NotePropertyValue `
-                    $NicListNumber                                                          # Adds number property to each item in list
-                $NicListNumber = $NicListNumber + 1                                         # Increments $NicListNumber by 1
-            }                                                                               # End foreach ($_ in $NicList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            Write-Host ""                                                                   # Write message to screen
-            foreach ($_ in $NicList) {                                                      # Writes all objects to screen
-                Write-Host "NIC: " $_.Number                                                # Write message to screen
-                Write-Host "Name:"$_.Name                                                   # Write message to screen
-                Write-Host "IP:  " $_.IpConfigurations.PrivateIpAddress                     # Writes list to screen
-                Write-Host "RG : " $_.ResourceGroupName                                     # Write message to screen
-                if ($_.VirtualMachine) {                                                    # $_.VirtualMachine has a value
-                    Write-Host "VM: "$_.VirtualMachine.ID.split("/")[0,-1]                  # Write message to screen
-                }                                                                           # End if ($_.VirtualMahine) 
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $NicList)
-            :GetAzureNicName while ($true) {                                                # Inner loop for selecting the NIC
-                $NicListNumber = 1                                                          # Resets $NicListNumber
-                $NicListSelect = Read-Host `
-                    "Please enter the number of the network interface"                      # Operator input for the NIC selection
-                if ($NicListSelect -eq 0) {                                                 # If $NicListSelect equals 0
-                    Break GetAzureNic                                                       # Breaks :GetAzureNic 
-                }                                                                           # End if ($NicListSelect -eq 0)
-                foreach ($Name in $NicList) {                                               # For each name in $NicList
-                    if ($NicListSelect -eq $Name.Number) {                                  # If $NicListSelect equals current $NicListNumber
-                        $NicObject = Get-AzNetworkInterface | Where-Object `
-                            {$_.Name -eq $Name.Name}                                        # Pulls the selected object and assigns to $var
-                        Break GetAzureNicName                                               # Breaks :GetAzureNicName
-                    }                                                                       # End if ($NicListSelect -eq $NicListNumber)
-                    else {                                                                  # If $NicListSelect does not equal the current $NicListNumber
-                        $NicListNumber = $NicListNumber + 1                                 # Increments $var up by 1
-                    }                                                                       # End else (if ($NicListSelect -eq $NicListNumber))
-                }                                                                           # End foreach ($Name in $NicList)
-                Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End :GetAzureNicName while ($true)
-            Return $NicObject                                                               # Returns to calling function with $var
-        }                                                                                   # End :GetAzureNic while ($true)
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzNetworkInterface
 function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
     Begin {                                                                                 # Begin function
         $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
