@@ -841,140 +841,152 @@ function SearchAzResourceGroupTag { # Searchs for resource group using tag match
                     } # End :GetAzureRSObject while ($True)
                 } # End :SearchAzureRSTag loop
             } # End else if statment for $OperatorSearchOption -eq '1'
-            elseif ($OperatorSearchOption -eq '2') {  # Elseif statement for search by resource group name
-                :SearchAzureRGTag while ($true) { # :SearchAzureRGTag loop finds resource group off Tag
-                    Write-Host "Search by resource group Tag" # Write message to screen
-                    $TagNameInput = $null # Clears $var from previous use
-                    $TagValueInput = $null # Clears $var from previous use
-                    $RGObject = $null # Clears $var from previous use
-                    :SetTagName while ($true) { # Loop for getting and verifing $TagNameInput
-                        $TagNameInput = Read-Host "Resource Tag" # Operator input for the Tag
-                        if ($TagNameInput -eq 'exit') { # If statement to end this function
-                            Break SearchAzureRSTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                        } # End if ($TagNameInput -eq 'exit')
-                        elseif ($TagNameInput -iin $ValidTagName.Name) { # Validates $TagNameInput against $ValidTagName
-                            Break SetTagName # End :SetTagName while ($true) 
-                        } # End elseif statment
-                        else { # Else statement for $TagNameInput not matching anything in $ValidTagName
-                            Write-Host "The tag name provided is not valid, please chose from the following" # Error reporting to the screen
-                            Write-Host $ValidTagName.Name -Separator `n # Outputs the valid Tag lists
-                        } # End else statement
-                    } # End :SetTagName while ($true)
-                    $OperatorSearchOption = Read-Host "Include a tag value in search" # Operator input for searching just by tag name, or adding a tag value
-                    if ($OperatorSearchOption -eq 'y' -or $OperatorSearchOption -eq 'yes') { # If statement for adding a tag value
-                        :SetTagValue while ($true) { # :SetTagValue while loop, used to verify that the value is an available option on the tag name
-                            $ValidTagValue = (Get-AzTag -Name $TagNameInput).values # Gets all tag values under the tag name $TagNameInput
-                            $TagValueInput = Read-Host "Tag value (Case sensitive)" # Operator input for the tag value
-                            if ($TagValueInput -eq 'exit') { # If statement to end this function
-                                Break SearchAzureRSTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                            } # End if ($TagValueInput -eq 'exit')
-                            elseif ($TagValueInput -cin $ValidTagValue.Name) { # elseif statement if $TagValueInput is in the list of $ValidTagValue
-                                Break SetTagValue # Breaks out of :SetTagValue loop
-                            } # End elseif ($TagValueInput -iin $ValidTagValue.Name)
-                            else { # Else statement for $TagValueInput not matching anything in $ValidTagValue
-                                Write-Host "The tag value provided is not valid, please chose from the following" # Error reporting to the screen
-                                Write-Host $ValidTagValue.Name -Separator `n # Outputs the valid Tag lists
-                            } # End else statement
-                        } # End :SetTagValue while ($true) 
-                    } # End if ($OperatorSearchOption -eq 'y' -or $OperatorSearchOption -eq 'yes') 
-                    if ($TagValueInput) { # If statement for $TagValueInput having a value
-                        $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=$TagValueInput} # Collects all resource group objects where tag name and value matches $TagNameInput and TagValueInput
-                    } # End if ($TagValueInput)
-                    else {  # Else statement for $TagValueInput not having a value
-                        $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=""} # Collects all resource objects where tag name matches $TagNameInput
-                    } # End else if (($TagValueInput))
-                    if (!$RGObject) { # If statement if no resources match the resource group tag name
+            elseif ($OperatorSearchOption -eq '2') {                                # Elseif statement for search by resource group name
+                :SearchAzureRGTag while ($true) {                                           # :SearchAzureRGTag loop finds resource group off Tag
+                    Write-Host "Search by resource group Tag"                               # Write message to screen
+                    $TagNameInput = $null                                                   # Clears $var from previous use
+                    $TagValueInput = $null                                                  # Clears $var from previous use
+                    $RGObject = $null                                                       # Clears $var from previous use
+                    :SetTagName while ($true) {                                             # Loop for getting and verifing $TagNameInput
+                        $TagNameInput = Read-Host "Resource Tag"                            # Operator input for the Tag
+                        if ($TagNameInput -eq 'exit') {                                     # If statement to end this function
+                            Break SearchAzureRSTag                                          # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                        }                                                                   # End if ($TagNameInput -eq 'exit')
+                        elseif ($TagNameInput -iin $ValidTagName.Name) {                    # Validates $TagNameInput against $ValidTagName
+                            Break SetTagName                                                # End :SetTagName while ($true) 
+                        }                                                                   # End elseif statment
+                        else {                                                              # Else statement for $TagNameInput not matching anything in $ValidTagName
+                            Write-Host "The tag name provided is not valid,"
+                            Write-Host "please chose from the following"                    # Error reporting to the screen
+                            Write-Host $ValidTagName.Name -Separator `n                     # Outputs the valid Tag lists
+                        }                                                                   # End else statement
+                    }                                                                       # End :SetTagName while ($true)
+                    $OperatorSearchOption = Read-Host "Include a tag value in search"       # Operator input for searching just by tag name, or adding a tag value
+                    if ($OperatorSearchOption -eq 'y' -or $OperatorSearchOption `
+                        -eq 'yes') {                                                        # If statement for adding a tag value
+                        :SetTagValue while ($true) {                                        # :SetTagValue while loop, used to verify that the value is an available option on the tag name
+                            $ValidTagValue = (Get-AzTag -Name $TagNameInput).values         # Gets all tag values under the tag name $TagNameInput
+                            $TagValueInput = Read-Host "Tag value (Case sensitive)"         # Operator input for the tag value
+                            if ($TagValueInput -eq 'exit') {                                # If statement to end this function
+                                Break SearchAzureRSTag                                      # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                            }                                                               # End if ($TagValueInput -eq 'exit')
+                            elseif ($TagValueInput -cin $ValidTagValue.Name) {              # elseif statement if $TagValueInput is in the list of $ValidTagValue
+                                Break SetTagValue                                           # Breaks out of :SetTagValue loop
+                            }                                                               # End elseif ($TagValueInput -iin $ValidTagValue.Name)
+                            else {                                                          # Else statement for $TagValueInput not matching anything in $ValidTagValue
+                                Write-Host "The tag value provided is not valid,"           # Error reporting to the screen
+                                Write-Host "please chose from the following"                # Error reporting to the screen
+                                Write-Host $ValidTagValue.Name -Separator `n                # Outputs the valid Tag lists
+                            }                                                               # End else statement
+                        }                                                                   # End :SetTagValue while ($true) 
+                    }                                                                       # End if ($OperatorSearchOption -eq 'y' -or $OperatorSearchOption -eq 'yes') 
+                    if ($TagValueInput) {                                                   # If statement for $TagValueInput having a value
+                        $RGObject = Get-AzResourceGroup `
+                            -Tag @{$TagNameInput=$TagValueInput}                            # Collects all resource group objects where tag name and value matches $TagNameInput and TagValueInput
+                    }                                                                       # End if ($TagValueInput)
+                    else {                                                                  # Else statement for $TagValueInput not having a value
+                        $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=""}            # Collects all resource objects where tag name matches $TagNameInput
+                    }                                                                       # End else if (($TagValueInput))
+                    if (!$RGObject) {                                                       # If statement if no resources match the resource group tag name
                         Write-Host "No resource groups found for the Tag name"$TagNameInput # Write message to screen
-                        Break SearchAzureRGTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                    } # End if (!$RGObject)
-                    :GetAzureRGObject while ($true) { # :GetAzureRGObject loop for narrowing down matching resource groups
-                        if ($RGObject.count -gt 1) { # If statement if more than 1 resource groups matche the resource group tag
-                            if ($TagValueInput) { # If statement removes the option to narrow search using tag value if a tag value input has already been provided
-                                Write-Host "Multiple resource groups found" # Write message to screen
-                                Write-Host $RGObject.ResourceGroupName -Separator `n # Writes list of all resource group names to screen
-                                $OperatorSearchOption  = '2' # Sets follow up search option to use the resource name
-                            } # End if ($TagValueInput) 
-                            else { # else statement for $TagValueInput not having a value
-                                Write-Host "Multiple resources found" # Write message to screen
-                                Write-Host $RGObject.ResourceGroupName -Separator `n # Writes list of all resource names to screen
-                                Write-Host "1 Narrow search using tag value" # Write message to screen
-                                Write-Host "2 Narrow Search using resource group name" # Write message to screen
-                                $OperatorSearchOption = Read-Host "Option?" # Operator input for $OperatorSearchOption
-                            } # End else if ($TagValueInput)
-                            if ($OperatorSearchOption -eq 'exit') { # If statement for exiting :SearchAzureRSTag
-                                Break SearchAzureRGTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                            } # End if ($OperatorSearchOption -eq 'exit')
-                            elseif ($OperatorSearchOption -eq '1') { # Elseif statement for narrowing search by adding a tag value
-                                :SetTagValue while ($true) { # :SetTagValue while loop, used to verify that the value is an available option on the tag name
+                        Break SearchAzureRGTag                                              # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                    }                                                                       # End if (!$RGObject)
+                    :GetAzureRGObject while ($true) {                                       # :GetAzureRGObject loop for narrowing down matching resource groups
+                        if ($RGObject.count -gt 1) {                                        # If statement if more than 1 resource groups matche the resource group tag
+                            if ($TagValueInput) {                                           # If statement removes the option to narrow search using tag value if a tag value input has already been provided
+                                Write-Host "Multiple resource groups found"                 # Write message to screen
+                                Write-Host $RGObject.ResourceGroupName -Separator `n        # Writes list of all resource group names to screen
+                                $OperatorSearchOption  = '2'                                # Sets follow up search option to use the resource name
+                            }                                                               # End if ($TagValueInput) 
+                            else {                                                          # else statement for $TagValueInput not having a value
+                                Write-Host "Multiple resources found"                       # Write message to screen
+                                Write-Host $RGObject.ResourceGroupName -Separator `n        # Writes list of all resource names to screen
+                                Write-Host "1 Narrow search using tag value"                # Write message to screen
+                                Write-Host "2 Narrow Search using resource group name"      # Write message to screen
+                                $OperatorSearchOption = Read-Host "Option?"                 # Operator input for $OperatorSearchOption
+                            }                                                               # End else if ($TagValueInput)
+                            if ($OperatorSearchOption -eq 'exit') {                         # If statement for exiting :SearchAzureRSTag
+                                Break SearchAzureRGTag                                      # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                            }                                                               # End if ($OperatorSearchOption -eq 'exit')
+                            elseif ($OperatorSearchOption -eq '1') {                        # Elseif statement for narrowing search by adding a tag value
+                                :SetTagValue while ($true) {                                # :SetTagValue while loop, used to verify that the value is an available option on the tag name
                                     $ValidTagValue = (Get-AzTag -Name $TagNameInput).values # Gets all tag values under the tag name $TagNameInput
                                     $TagValueInput = Read-Host "Tag value (Case sensitive)" # Operator input for the tag value
-                                    if ($TagValueInput -eq 'exit') { # If statement to end this function
-                                        Break SearchAzureRSTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                                    } # End if ($TagValueInput -eq 'exit')
-                                    elseif ($TagValueInput -cin $ValidTagValue.Name) { # elseif statement if $TagValueInput is in the list of $ValidTagValue
-                                        Break SetTagValue # Breaks out of :SetTagValue loop
-                                    } # End elseif ($TagValueInput -iin $ValidTagValue.Name)
-                                    else { # Else statement for $TagValueInput not matching anything in $ValidTagValue
-                                        Write-Host "The tag value provided is not valid, please chose from the following" # Error reporting to the screen
-                                        Write-Host $ValidTagValue.Name -Separator `n # Outputs the valid Tag lists
-                                    } # End else statement
-                                } # End :SetTagValue while ($true) 
-                                $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=$TagValueInput} # Collects $RGObject with additional search values
-                            } # End elseif ($OperatorSearchOption -eq '1')
-                            elseif ($OperatorSearchOption -eq '2') { # Elseif statement for narrowing search by adding a resource group name
-                                $RGObjectInput = Read-Host "Resource group name" # Operator input for the resource group name
-                                if ($RGObjectInput -eq 'exit') { # If statement for exiting :SearchAzureRGTag
-                                    Break SearchAzureRGTag # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
-                                } # End if ($RGObjectInput -eq 'exit')
-                                $RGObjectInput = "*"+$RGObjectInput+"*" # Adds wildcards to $RGObjectInput
-                                $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=""}  | Where-Object {$_.ResourceGroupName -like $RGObjectInput} # Collects $RGObject again using the narrower search options
-                            } # End elseif ($OperatorSearchOption -eq '2')
-                        } # End if ($RGObject.count -gt 1)
-                        elseif ($RGObject.count -eq 1) { # elseif statement for a single matching resource group object
-                            Write-Host "Returning with RGObject" # Write message to screen
-                            Return $RGObject # Returns $RGObject to calling function # Returns $RGObject to calling function
-                        } # End if ($RSObject.count -eq 1) 
-                    } # End :GetAzureRSObject while ($True)
-                } # End :SearchAzureRGTag loop
-            } # End else if statment for $OperatorSearchOption -eq '2'
-        } # End :SearchAzureByTag while statement 
-        Return # Returns to calling function empty if operator has used 'exit' options
-    } # End begin statement
-} # End SearchAzResourceGroupTag
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Enter the option number" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Break GetAzureResourceGroup # Breaks :GetAzureResourceGroup
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+                                    if ($TagValueInput -eq 'exit') {                        # If statement to end this function
+                                        Break SearchAzureRSTag                              # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                                    }                                                       # End if ($TagValueInput -eq 'exit')
+                                    elseif ($TagValueInput -cin $ValidTagValue.Name) {      # elseif statement if $TagValueInput is in the list of $ValidTagValue
+                                        Break SetTagValue                                   # Breaks out of :SetTagValue loop
+                                    }                                                       # End elseif ($TagValueInput -iin $ValidTagValue.Name)
+                                    else {                                                  # Else statement for $TagValueInput not matching anything in $ValidTagValue
+                                        Write-Host "The tag value provided is not valid,"   # Error reporting to the screen
+                                        Write-host "please chose from the following"        # Error reporting to the screen
+                                        Write-Host $ValidTagValue.Name -Separator `n        # Outputs the valid Tag lists
+                                    }                                                       # End else statement
+                                }                                                           # End :SetTagValue while ($true) 
+                                $RGObject = Get-AzResourceGroup `
+                                    -Tag @{$TagNameInput=$TagValueInput}                    # Collects $RGObject with additional search values
+                            }                                                               # End elseif ($OperatorSearchOption -eq '1')
+                            elseif ($OperatorSearchOption -eq '2') {                        # Elseif statement for narrowing search by adding a resource group name
+                                $RGObjectInput = Read-Host "Resource group name"            # Operator input for the resource group name
+                                if ($RGObjectInput -eq 'exit') {                            # If statement for exiting :SearchAzureRGTag
+                                    Break SearchAzureRGTag                                  # Ends :SearchAzureRGTag loop, returns to :SearchAzureRGByTag loop
+                                }                                                           # End if ($RGObjectInput -eq 'exit')
+                                $RGObjectInput = "*"+$RGObjectInput+"*"                     # Adds wildcards to $RGObjectInput
+                                $RGObject = Get-AzResourceGroup -Tag @{$TagNameInput=""}  `
+                                    | Where-Object {$_.ResourceGroupName -like `
+                                    $RGObjectInput}                                         # Collects $RGObject again using the narrower search options
+                            }                                                               # End elseif ($OperatorSearchOption -eq '2')
+                        }                                                                   # End if ($RGObject.count -gt 1)
+                        elseif ($RGObject.count -eq 1) {                                    # elseif statement for a single matching resource group object
+                            Write-Host "Returning with RGObject"                            # Write message to screen
+                            Return $RGObject                                                # Returns $RGObject to calling function # Returns $RGObject to calling function
+                        }                                                                   # End if ($RSObject.count -eq 1) 
+                    }                                                                       # End :GetAzureRSObject while ($True)
+                }                                                                           # End :SearchAzureRGTag loop
+            }                                                                               # End else if statment for $OperatorSearchOption -eq '2'
+        }                                                                                   # End :SearchAzureByTag while statement 
+        Return                                                                              # Returns to calling function empty if operator has used 'exit' options
+    }                                                                                       # End begin statement
+}                                                                                           # End SearchAzResourceGroupTag
+function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
+            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
+            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
+            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
+                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
+                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
+            }                                                                               # End foreach ($_ in $RGListArray)
+            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureRGList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
 function GetAzResource { # Function to get a resource, can pipe $RSObject to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -1424,13 +1436,12 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
     Begin {
         :NewAzureRGObject while ($true) {
             $ErrorActionPreference='silentlyContinue' # Disables Errors
-            $ValidLocation = Get-AzLocation # Collects the list of all valid Azure locations
             $Tag = $null # Clears all previous use
             $RGObject = $null # Clears all previous use
-            :SetTag while ($true) { # Loop for creating and verifing $Tag
+            :SetAzureTag while ($true) { # Loop for creating and verifing $Tag
                 $TagNameInput = Read-Host "Enter the name of the tag (Enter 'skip' to leave untagged)" # Operator input for a tag name
                 if ($TagNameInput -eq 'skip') {
-                    Break SetTag # Breaks :SetTagLoop, allowing this step to be skipped
+                    Break SetAzureTag # Breaks :SetAzureTagLoop, allowing this step to be skipped
                 } # End if ($TagNameInput -eq 'skip')
                 if ($TagNameInput -eq 'exit') {
                     Break NewAzureRGObject # Breaks :NewAzrueRGObject
@@ -1440,44 +1451,34 @@ function NewAzResourceGroup { # Function to create a resource group, can pipe $R
                 Write-Host "Tag { Name:"$TagNameInput "| Value:"$TagValueInput" }" # Writes tag to screen
                 $OperatorConfirm = Read-Host "This is the tag to be applied to the new resource group" # Operator confirmation that tag info is correct
                 if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If statement for $Tag being correct
-                    break SetTag # Ends :SetTag while loop
+                    break SetAzureTag # Ends :SetAzureTag while loop
                 } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
                 elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
                     Break NewAzureRGObject # Breaks :NewAzrueRGObject
                 } # End elseif ($OperatorConfirm -eq 'exit')
-            } # End :SetTag while ($true)
-            :SetName while ($true) { # Loop for creating and verifying $RGObject
+            } # End :SetAzureTag while ($true)
+            :SetAzureName while ($true) { # Loop for creating and verifying $RGObject
                 $RGObjectInput = Read-Host "New resource group name" # Operator input for the resource group name
                 $OperatorConfirm = Read-Host "The new resource group will be called" $RGObjectInput # Operator confirmation that the name is correct
                 if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If statement for $RGObject being correct
-                    Break SetName # Ends :SetName while loop
+                    Break SetAzureName # Ends :SetAzureName while loop
                 } # End  if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
                 elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
                     Break NewAzureRGObject # Breaks :NewAzrueRGObject
                 } # End elseif ($OperatorConfirm -eq 'exit')    
             } # End while statement
-            :SetLocation while ($true) { # Loop for creating and verifing $LocationInput
-                $LocationInput = Read-Host "New resource group location" # Operator input for the location
-                if ($LocationInput -eq 'exit') { # elseif statement to end this function
-                    Break NewAzureRGObject # Breaks :NewAzrueRGObject
-                } # End if ($LocationInput -eq 'exit')
-                if ($LocationInput -iin $ValidLocation.Location) { # Validates $LocationInput against $ValidLocation
-                    $OperatorConfirm = Read-Host "The new resource group will be located in" $LocationInput # Operator confirmation that the location is correct
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If statement for $LocationInput being correct
-                        Break SetLocation # Ends :SetLocation while loop
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    elseif ($OperatorConfirm -eq 'exit') { # elseif statement to end this function
-                        Break NewAzureRGObject # Breaks :NewAzrueRGObject
-                    } # End elseif ($OperatorConfirm -eq 'exit')
-                } # End if ($LocationInput -iin $ValidLocation.Location) 
-                else { # Else statement for $LocationInput not matching anything in $ValidLocation
-                    Write-Host "The location provided is not valid, please chose from the following" # Error reporting to the screen
-                    Write-Host $ValidLocation.Location -Separator `n # Outputs the valid location lists
-                } # End else (if ($LocationInput -iin $ValidLocation.Location)) 
-            } # End :SetLocation while ($true)
+            if (!$LocationObject) { # If $LocationObject is $null
+                :SetAzureLocation while ($true) { # Loop for creating and verifing $LocationInput
+                    $LocationObject = GetAzLocation # Calls function and assigns output to $Var
+                    if (!$LocationObject) { # If $LocationObject is $null
+                        Break NewAzureRGObject # Breaks :NewAzureRGObject
+                    } # End if (!$LocationObject)
+                    Break SetAzureLocation # Breaks :SetAzureLocation
+                } # End :SetAzureLocation while ($true)
+            } # End if (!$LocationObject) 
             $ErrorActionPreference='Continue' # Turns back on error reporting, used if policy denies creation of a resource group
             if ($Tag) { # If statement for creating a resource group with the assigned tag
-                $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location $LocationInput -Tag $Tag # Creates the resouce group and assigns to $RGObject
+                $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location $LocationObject.Location -Tag $Tag # Creates the resouce group and assigns to $RGObject
             } # End if ($Tag)
             else { # Create a resource group without a tag
                 $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location $LocationInput # Creates the resouce group and assigns to $RGObject
