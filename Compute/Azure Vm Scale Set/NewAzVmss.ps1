@@ -1,6 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.6.0
     New-AzVmssConfig:           https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssconfig
     New-AzVmssIPConfig:         https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssipconfig
     Add-AzVmssNetworkInterfaceConfiguration: https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmssnetworkinterfaceconfiguration
