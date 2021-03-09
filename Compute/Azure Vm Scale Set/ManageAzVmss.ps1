@@ -577,7 +577,7 @@ function SetAzVmssStorageProfile {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SetAzVmssStorageProfile
-function GetAzVmSS {                                                                        # Function to get a Vmss
+function GetAzVmss {                                                                        # Function to get a Vmss
     Begin {                                                                                 # Begin function
         :GetAzureVmss while ($true) {                                                       # Outer loop for managing function
             $VmssList = Get-AzVmss                                                          # Gets a list of all Vmss's
@@ -632,7 +632,7 @@ function GetAzVmSS {                                                            
         }                                                                                   # End :GetAzureVmss while ($true)
     Return                                                                                  # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzVmSS
+}                                                                                           # End function GetAzVmss
 function RemoveAzVmss {
     Begin {
         :RemoveAzureVmss while ($true) {                                                    # Outer loop for managing function
