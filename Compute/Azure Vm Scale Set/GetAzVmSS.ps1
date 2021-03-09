@@ -1,9 +1,40 @@
-function GetAzVmSS {                                                                        # Function to get a Vmss
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Get-AzVmss:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-5.6.0
+} #>
+<# Required Functions Links: {
+    None
+} #>
+<# Functions Description: {
+    GetAzVmss:                  Gets a Vmss
+} #>
+<# Variables: {
+    :GetAzureVmss               Outer loop for managing function
+    :SelectAzureVmss            Inner loop for selecting the Vmss
+    $VmssList:                  List of all Vmss(s)
+    $VmssListNumber:            $VmssArray ID number
+    $VmssArray:                 Array of the Vmss info
+    $ArrayInput:                Object used to load items into $VmssArray
+    $VmssSelect:                Operator input to select the Vmss
+    $VmssObject:                Virtual machine scale set object
+} #>
+<# Process Flow {
+    Function
+        Call GetAzVmss > Get $VmssObject
+        End GetAzVmss
+            Return function > Send $VmssObject
+}#>
+function GetAzVmss {                                                                        # Function to get a Vmss
     Begin {                                                                                 # Begin function
         :GetAzureVmss while ($true) {                                                       # Outer loop for managing function
             $VmssList = Get-AzVmss                                                          # Gets a list of all Vmss's
+            if (!$VmssList) {                                                               # If $VmssList is $null
+                Write-Host '***No Vmss(s) exist***'                                         # Write message to screen
+                Write-Host '***Returning to previous menu***'                               # Write message to screen
+                Break GetAzureVmss                                                          # Breaks :GetAzureVmss
+            }                                                                               # End if (!$VmssList)
             $VmssListNumber = 1                                                             # Creates the array selection number
-            [System.Collections.ArrayList]$VmssArray = @()                                   # Creates the array used for selection
+            [System.Collections.ArrayList]$VmssArray = @()                                  # Creates the array used for selection
             foreach ($_ in $VmssList) {                                                     # For each item in $VmssList
                 $ArrayInput = [PSCustomObject]@{                                            # Creates the array input
                     'Number' = $VmssListNumber; 'Name' = $_.Name; 'RG' = `
@@ -48,33 +79,4 @@ function GetAzVmSS {                                                            
         }                                                                                   # End :GetAzureVmss while ($true)
     Return                                                                                  # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzVmSS
-function RemoveAzVmss {
-    Begin {
-        :RemoveAzureVmss while ($true) {
-            if (!$VmssObject) {
-                $VmssObject = GetAzVmSS
-                if (!$VmssObject) {
-                    Break RemoveAzureVmss                                                   # Breaks :RemoveAzureVmss
-                }                                                                           # End if (!$VmssObject)
-            }                                                                               # End if (!$VmssObject)
-            Write-Host 'Remove' $VmssObject.name                                            # Write message to screen
-            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation for deletion
-            if (!($OperatorConfirm -eq 'y')) {                                              # If $OperatorConfirm does not equal 'y'
-                Break RemoveAzureVmss                                                       # Breaks :RemoveAzureVmss
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
-            else {
-                Try {                                                                       # Try the following
-                    Remove-AzVmss -ResourceGroupName $VmssObject.ResourceGroupName `
-                        -VMScaleSetName $VmssObject.name -Force                             # Removes the VMSS
-                }                                                                           # End Try
-                catch {                                                                     # If Try fails
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host 'You may not have the required permissions'                  # Write message to screen
-                }                                                                           # End catch
-                Break RemoveAzureVmss                                                       # Breaks :RemoveAzureVmss
-            }                                                                               # End else (if (!($OperatorConfirm -eq 'y')))
-        }                                                                                   # End :RemoveAzureVmss while ($true)
-    Return                                                                                  # Returns to calling function with $null 
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzVmss
+}                                                                                           # End function GetAzVmss
