@@ -215,7 +215,7 @@ function NewAzVmss {                                                            
                 else {                                                                      # If $LocationObject does not have a value
                     Write-Host "An error has occured"                                       # Write message to screen
                     Break NewAzureVmss                                                      # Breaks :NewAzureVmss
-                }
+                }                                                                           # End else (if ($LocationObject))
             }                                                                               # End :GetAzureResourceGroup while ($true)    
             :SetAzureVmssSkuCapacity while ($true) {                                        # Inner loop for setting the max skus (VMs)
                 Try {                                                                       # Try the following
