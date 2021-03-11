@@ -46,7 +46,7 @@ function GetAzVmss {                                                            
             }                                                                               # End foreach ($_ in $VmssList)
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Foreach ($_ in $VmssArray) {
+            Foreach ($_ in $VmssArray) {                                                    # For each item in $VmssArray
                 Write-Host "["$_.Number']'                                                  # Write message to screen
                 Write-Host 'Name: '$_.Name                                                  # Write message to screen
                 Write-Host 'RG:   '$_.RG                                                    # Write message to screen
