@@ -56,6 +56,7 @@
     StopAzVmss:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/StopAzVmss.ps1
 } #>
 <# Functions Description: {
+    ManageAzVmss:               Management function for Vmss(s)
     GetAzVMSize:                Function for setting the VM size
     NewAzVmss:                  Function for creating a new Vmss
     SetAzVmssOsProfile:         Function for setting Vmss username and password
