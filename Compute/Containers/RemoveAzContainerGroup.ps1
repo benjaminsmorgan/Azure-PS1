@@ -39,11 +39,13 @@ function RemoveAzContainerGroup {                                               
             $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input to confirm removal
             if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
                 Remove-AzContainerGroup -ResourceGroupName `
-                    $ContainerObject.ResourceGroupName -Name $ContainerObject.Name          # Removes $ContainerObject 
+                    $ContainerObject.ResourceGroupName -Name $ContainerObject.Name          # Removes $ContainerObject
+                Break RemoveAzureContainerGroup                                             # Breaks :RemoveAzureContainerGroup     
             }                                                                               # End if ($OperatorConfirm equals 'y')
             else {                                                                          # If $OperatorConfirm does not equal 'y'
-                Break RemoveAzContainerGroup                                                # Breaks :RemoveAzContainerGroup
+                Break RemoveAzureContainerGroup                                             # Breaks :RemoveAzureContainerGroup
             }                                                                               # End else (if ($OperatorConfirm equals 'y'))
         }                                                                                   # End :RemoveAzContainerGroup while ($true)
+        Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzContainerGroup
