@@ -14,7 +14,6 @@
     :StartAzureVM               Outer loop for managing function
     $VMObject:                  Virtual machine object
     $OperatorConfirm:           Operator confirmation to Start the VM
-    
 } #>
 <# Process Flow {
     Function
@@ -25,24 +24,24 @@
         End StartAzVM
             Return function > Send $null
 }#>
-function StartAzVM { # Function to start a VM
-    Begin {
-        :StartAzureVM while ($true) { # Outer loop for managing function
-            if (!$VMObject) { # If $VMObject is $null
-                $VMObject = GetAzVM # Calls function and assigns output to $var
-                if (!$VMObject) { # If $VMObject is $null
-                    Break StartAzureVM # Breaks :StartAzureVM
-                } # End if (!$VMVM)
-            } # End if (!$VMVM)
-            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"
-            if (!($OperatorConfirm -eq 'y')) { # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break StartAzureVM # Breaks :StartAzureVM
-            } # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to power on" $VMObject.Name # Write message to screen
-            Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName # Starts the selected VM
-            Break StartAzureVM # Breaks :StartAzureVM
-        } # End :StartAzureVM while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function StartAzVM
+function StartAzVM {                                                                        # Function to start a VM
+    Begin {                                                                                 # Begin function
+        :StartAzureVM while ($true) {                                                       # Outer loop for managing function
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
+                if (!$VMObject) {                                                           # If $VMObject is $null
+                    Break StartAzureVM                                                      # Breaks :StartAzureVM
+                }                                                                           # End if (!$VMObject)
+            }                                                                               # End if (!$VMObject)
+            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"             # Operator confirmation to turn on the VM
+            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+                Write-Host "No action taken"                                                # Write message to screen
+                Break StartAzureVM                                                          # Breaks :StartAzureVM
+            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            Write-Host "Attempting to power on" $VMObject.Name                              # Write message to screen
+            Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName      # Starts the selected VM
+            Break StartAzureVM                                                              # Breaks :StartAzureVM
+        }                                                                                   # End :StartAzureVM while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function StartAzVM
