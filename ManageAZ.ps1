@@ -55,7 +55,7 @@ function ManageAz {
                 ManageAzStorage ($RGObject, $RSOBject)
             } # End elseif statement
             elseif ($ManAzure -eq '3') {
-                Functionnamegohere
+                ManageAzCompute
             } # End elseif statement
             elseif ($ManAzure -eq '4') {
                 Functionnamegohere
@@ -1013,40 +1013,44 @@ function SearchAzResourceGroupTag { # Searchs for resource group using tag match
         Return # Returns to calling function empty if operator has used 'exit' options
     } # End begin statement
 } # End SearchAzResourceGroupTag
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Enter the option number" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Break GetAzureResourceGroup # Breaks :GetAzureResourceGroup
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
+            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
+            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
+            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
+                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
+                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
+            }                                                                               # End foreach ($_ in $RGListArray)
+            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureRGList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+    }                                                                                       # End begin statement
+}   
 function GetAzResource { # Function to get a resource, can pipe $RSObject to another function
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -5068,412 +5072,388 @@ function RemoveAzDisk { # Removes a disk object
 } # End function RemoveAzDisk
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageaccount?view=azps-5.2.0
-    Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
-    Remove-AzStorageAccount:    https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageaccount?view=azps-5.2.0
-    New-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstoragecontainer?view=azps-5.2.0
-    Get-AzStorageContainer:     https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragecontainer?view=azps-5.2.0
-    Remove-AzStorageContainer:  https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstoragecontainer?view=azps-5.2.0
-    Set-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/set-azstorageblobcontent?view=azps-5.3.0
-    Get-AzStorageBlob:          https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblob?view=azps-5.3.0
-    Get-AzStorageBlobContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageblobcontent?view=azps-5.3.0
-    Remove-AzStorageBlob:       https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageblob?view=azps-5.3.0
-    New-AzStorageShare:         https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageshare?view=azps-5.3.0
-    Get-AzStorageShare:         https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageshare?view=azps-5.3.0
-    Remove-AzStorageShare:      https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageshare?view=azps-5.3.0
-    New-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/new-azkeyvault?view=azps-5.3.0
-    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
-    Remove-AzKeyVault:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvault?view=azps-5.3.0
-    Get-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultkey?view=azps-5.4.0
-    Add-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/add-azkeyvaultkey?view=azps-5.4.0
-    Remove-AzKeyVaultKey:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultkey?view=azps-5.4.0
-    Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
-    Set-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-5.1.0
-    Remove-AzKeyVaultSecret:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultsecret?view=azps-5.1.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
-    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
+New-Object:                 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-object?view=powershell-7.1
+Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.4.0
+New-AzVMConfig:             https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmconfig?view=azps-5.4.0
+Set-AzVMOperatingSystem:    https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmoperatingsystem?view=azps-5.4.0
+Add-AzVMNetworkInterface:   https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmnetworkinterface?view=azps-5.4.0
+Set-AzVMSourceImage:        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmsourceimage?view=azps-5.4.0
+New-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-5.4.0     
+Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.4.0
+Start-AzVM:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/Start-azvm?view=azps-5.4.0
+Stop-AzVM:                  https://docs.microsoft.com/en-us/powershell/module/az.compute/stop-azvm?view=azps-5.4.0
+Invoke-AzVMReimage:         https://docs.microsoft.com/en-us/powershell/module/az.compute/Invoke-AzVMReimage?view=azps-5.4.0
+Remove-AzVM:                https://docs.microsoft.com/en-us/powershell/module/az.compute/Remove-azvm?view=azps-5.4.0
+New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.4.0
+New-AzVmssConfig:           https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssconfig
+New-AzVmssIPConfig:         https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssipconfig
+Add-AzVmssNetworkInterfaceConfiguration: https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmssnetworkinterfaceconfiguration
+New-AzVmss:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmss
+Set-AzVmssOsProfile:        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmssosprofile
+Set-AzVmssStorageProfile:   https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmssstorageprofile
+Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork
+Add-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig
+Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.6.0
+Get-AzVMImageOffer:         https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimageoffer
+Get-AzVMImageSku:           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku
+Get-AzVMImage:              https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage
+Get-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer
+New-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer
+New-AzLoadBalancerFrontendIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig
+New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress
+Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress
+New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig
+New-AzLoadBalancerProbeConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerprobeconfig
+New-AzLoadBalancerInboundNatPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerinboundnatpoolconfig
+New-AzLoadBalancerRuleConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.6.0
+Get-AzVmss:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-5.6.0
+Remove-AzVmss:              https://docs.microsoft.com/en-us/powershell/module/az.compute/remove-azvmss?view=azps-5.6.0
+Get-AzVmssVM:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmssvm?view=azps-5.6.0
+Start-AzVmss:               https://docs.microsoft.com/en-us/powershell/module/az.compute/start-azvmss?view=azps-5.6.0
+Stop-AzVmss:                https://docs.microsoft.com/en-us/powershell/module/az.compute/Stop-azvmss?view=azps-5.6.0
+New-AzContainerGroup :      https://docs.microsoft.com/en-us/powershell/module/az.containerinstance/new-azcontainergroup?view=azps-5.6.0
+Get-AzContainerGroup:       https://docs.microsoft.com/en-us/powershell/module/az.containerinstance/get-azcontainergroup?view=azps-5.6.0
+Remove-AzContainerGroup:    https://docs.microsoft.com/en-us/powershell/module/az.containerinstance/remove-azcontainergroup?view=azps-5.6.0
+Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
-    ManageAzComputeAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/ManageAzComputeAccount.ps1
-        NewAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/NewAzStorageAccount.ps1
-        GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
-        RemoveAzStorageAccount:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/RemoveAzStorageAccount.ps1
-    ManageAzComputeContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/ManageAzComputeContainer.ps1
-        NewAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/NewAzStorageContainer.ps1
-        ListAzStorageContainer:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/ListAzStorageContainer.ps1
-        GetAzStorageContainer:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/GetAzStorageContainer.ps1
-        RemoveAzStorageContainer:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/RemoveAzStorageContainer.ps1
-    ManageAzComputeBlobs:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/Blob/ManageAzComputeBlob.ps1
-        SetAzStorageBlobContent:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/Blob/SetAzStorageBlobContent.ps1
-        ListAzStorageBlobs:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/Blob/ListAzStorageBlobs.ps1
-        GetAzStorageBlobContent:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/Blob/GetAzStorageBlobContent.ps1
-        RemoveAzStorageBlob:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Containers/Blob/RemoveAzStorageBlob.ps1
-    ManageAzComputeShares:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/ManageAzComputeShare.ps1
-        NewAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NewAzStorageShare.ps1
-        GetAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShare.ps1
-        GetAzStorageShareAll:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShareAll.ps1
-        RemoveAzStorageShare:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/RemoveAzStorageShare.ps1
-        ManageAzComputeShareItems:  TBD
-    ManageAzKeyVault:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/ManageAzKeyVault.ps1
-        NewAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/NewAzKeyVault.ps1
-        ListAzKeyVault:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/ListAzKeyVault.ps1
-        GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-        RemoveAzKeyVault:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/RemoveAzKeyVault.ps1
-        ManageAzKeyVaultKey:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/ManageAzKeyVaultKey.ps1
-            NewAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/NewAzKeyVaultKey.ps1
-            AddAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/AddAzKeyVaultKey.ps1
-            ListAzKeyVaultKey:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/ListAzKeyVaultKey.ps1
-            GetAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/GetAzKeyVaultKey.ps1
-            DownloadAzKeyVaultKey:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/DownloadAzKeyVaultKey.ps1
-            RemoveAzKeyVaultKey:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/RemoveAzKeyVaultKey.ps1
-        ManageAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/ManageAzKeyVaultSecret.ps1
-            NewAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/NewAzKeyVaultSecret.ps1
-            ListAzKeyVaultSecret:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/ListAzKeyVaultSecret.ps1
-            GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
-            GetAzKeyVaultSecretValue:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecretValue.ps1
-            UpdateAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/UpdateAzKeyVaultSecret.ps1
-            RemoveAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/RemoveAzKeyVaultSecret.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocksAll.ps1
-    RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1 
+    ManageAzVM:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/ManageAzVM.ps1
+        NewAzVM:                    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/NewAzVM.ps1
+        GetAzVM:                    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVM.ps1                    
+        StartAzVM:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/StartAzVM.ps1
+        StopAzVM:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/StopAzVM.ps1
+        ReImageAzVM:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/ReimageAzVM.ps1
+        RemoveAzVM:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/RemoveAzVM.ps1
+        SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
+        GetAzVMSize:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVMSize.ps1
+        NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
+        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+        GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1 
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    ManageAzVmss:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/ManageAzVmss.ps1
+            SetAzVmssOsProfile:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssOsProfile.ps1
+        SetAzVmssStorageProfile:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssStorageProfile.ps1
+        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+        AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+        SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
+        GetAzVMSize:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVMSize.ps1
+        GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+        NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
+        NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+        NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
+        NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
+        NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+        NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+        GetAzVmss:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/GetAzVmSS.ps1
+        RemoveAzVmss:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/RemoveAzVmss.ps1
+        GetAzVmssVM:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/GetAzVmssVM.ps1
+        StartAzVmss:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/StartAzVmss.ps1
+        StopAzVmss:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/StopAzVmss.ps1
+    ManageAzContainerGroup:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/ManageAzContainerGroup.ps1
+        NewAzContainerGroup:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/NewAzContainerGroup.ps1
+        GetAzContainerGroup:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/GetAzContainerGroup.ps1
+        RemoveAzContainerGroup:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/RemoveAzContainerGroup.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
-    ManageAzCompute:            Manage function for storage
-        GetAzResourceGroup:         Collects resource group object
-        RemoveAzResourceLocks:      Removes locks
-        GetAzResourceLocksAll:      Collects all locks on a resource
+    ManageAzCompute:            Management function for computer object
+    ManageAzVM:                 Management function for VMs
+        NewAzVM:                    Creates a new virtual machine
+        GetAzVM:                    Gets an existing VM                    
+        StartAzVM:                  Starts a selected VM
+        StopAzVM:                   Stops a selected VM
+        ReImageAzVM:                Reimages a selected VM
+        RemoveAzVM:                 hRemoves a selected VM
+        SetAzVMOS:                  Selects a market place image
+        GetAzVMSize:                Gets a VM size
+        NewAzNetworkInterface:      Creates a new network interface
+        GetAzVNetSubnetConfig:      Gets a vnet subnet
+        GetAzVirtualNetwork:        Gets a virtual network
+        GetAzNetworkInterface:      Gets a network interface
+        GetAzResourceGroup:         Gets a resource group
+    ManageAzVmss:               Management function for Vmss(s)
+        GetAzVMSize:                Function for setting the VM size
+        NewAzVmss:                  Function for creating a new Vmss
+        SetAzVmssOsProfile:         Function for setting Vmss username and password
+        SetAzVmssStorageProfile:    Function for setting up Vmss storage for new instances
+        GetAzVirtualNetwork:        Gets an existing virtual network
+        AddAzVNetSubnetConfig:      Adds a new subnet
+        GetAzVNetSubnetConfig:      Gets an existing subnet
+        GetAzResourceGroup:         Gets an existing resource group
+        SetAzVMOS:                  Gets an Azure OS image config
+        GetAzVMSize:                Gets an Azure VM sku
+        GetAzLoadBalancer:          Gets an existing load balancer
+        NewAzLoadBalancer:          Creates a new load balancer
+        NewAzLBFrontendIpConfig:    Creates a load balancer front end config 
+        NewAzPublicIpAddress:       Creates a new public ip sku
+        GetAzPublicIpAddress:       Gets an existing public ip sku
+        NewAzLBBackendIpConfig:     Creates a load balancer back end IP config
+        NewAzLBProbeConfig:         Creates a load balancer health probe
+        NewAzLBIBNatPoolConfig:     Creates a load balancer inbound nat pool
+        NewAzLBRuleConfig:          Creates a load balancer rule
+        RemoveAzVmss:               Removes a Vmss
+        GetAzVmss:                  Gets a Vmss
+        GetAzVmssVM:                Gets a Vmss instance
+        StartAzVmss:                Starts instances of a Vmss
+        StopAzVmss:                 Stops instances of a Vmss
+    ManageAzContainerGroup:     Management function for container groups
+        NewAzContainerGroup:        Creates a container group
+        GetAzContainerGroup:        Gets a container group
+        RemoveAzContainerGroup:     Removes a container group
+        GetAzResourceGroup:         Gets a resource group
 } #>
 <# Variables: {
     :ManageAzureCompute         Outer loop for managing function
-    ManageAzCompute:            Operator input for function selection
-    $RGObject:                  Resource group object
-    ManageAzComputeAccount{}    Function for managing storage accounts
-        NewAzStorageAccount{}       Function for creating new storage accounts
+    ManageAzVM{}                Manages $VMObject
+        NewAzVM{}                   Creates $VMObject
             GetAzResourceGroup{}        Gets $RGObject
-        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzVMSize{}               Gets $VMSizeObject
+            NewAzNetworkInterface{}     Gets $NicObject
+                GetAzVNetSubnetConfig{} Gets $SubnetObject
+                    GetAzVirtualNetwork{}       Gets $VnetObject
+            GetAzNetworkInterface{}     Gets $NicObject 
+                GetAzVNetSubnetConfig{} Gets $SubnetObject
+                    GetAzVirtualNetwork{}       Gets $VnetObject
+            SetAzVMOS{}                 Gets $VMImageObject
+        GetAzVM{}                   Gets $VMObject
+        StartAzVM{}                 Starts $VMObject
+            GetAzVM{}                   Gets $VMObject
+        StopAzVM{}                  Stopss $VMObject
+            GetAzVM{}                   Gets $VMObject
+        ReimageAzVM{}               Reimages $VMObject
+            GetAzVM{}                   Gets $VMObject
+        RemoveAzVM{}                Removes $VMObject
+            GetAzVM{}                   Gets $VMObject
+    ManageAzVmss{}              Manages $VmssObject
+        NewAzVmss{}                 Creates $VmssObject    
             GetAzResourceGroup{}        Gets $RGObject
-        RemoveAzStorageAccount{}    Removes $StorageAccObject
-            GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceLocksAll{}     Gets $Locks
-            RemoveAzResourceLocks{}     Removes $Locks
-    ManageAzComputeContainer{}  Function for managing storage containers
-        NewAzStorageContainer{}     Function for creating new storage containers
-            GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzVMSize{}               Gets $VMSizeObject
+            SetAzVmssOsProfile{}        Gets $VmssOSProfileObject
+                SetAzVMOS{}                 Gets $VMImageObject
+            SetAzVmssStorageProfile{}   Gets $VmssStorageProfileObject
+            NewAzLoadBalancer{}         Creates $LoadBalancerObject
                 GetAzResourceGroup{}        Gets $RGObject
-        ListAzStorageContainer{}    Lists all storage containers
-        GetAzStorageContainer{}     Gets $StorageConObject
-            GetAzStorageAccount{}       Gets $StorageAccObject
-                GetAzResourceGroup{}        Gets $RGObject
-        RemoveAzStorageContainer{}  Removes $StorageConObject
-            GetAzStorageContainer{}     Gets $StorageConObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-    ManageAzComputeBlob{}       Function for managing storage container blobs
-        SetAzStorageBlobContent{}   Uploads new blob object
-            GetAzStorageContainer{}     Gets $StorageConObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-        ListAzStorageBlob{}         Lists all storage blobs
-            GetAzStorageContainer{}     Gets $StorageConObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-        GetAzStorageBlobContent{}   Downloads blob object
-            GetAzStorageContainer{}     Gets $StorageConObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-        RemoveAzStorageBlob{}       Deletes blob object
-            GetAzStorageContainer{}     Gets $StorageConObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-    ManageAzComputeShare{}      Function for managing storage shares
-        NewAzStorageShare{}         Function to create new storage share
-            GetAzStorageAccount{}       Gets $StorageAccObject
-                GetAzResourceGroup{}        Gets $RGObject
-        GetAzStorageShare{}         Gets $StorageShareObject               
-            GetAzStorageAccount{}       Gets $StorageAccObject
-                GetAzResourceGroup {}        Gets $RGObject
-        GetAzStorageShareAll{}      Gets all storage shares
-        RemoveAzStorageShare{}      Removes $StorageShareObject
-            GetAzStorageShare{}         Gets $StorageShareObject
-                GetAzStorageAccount{}       Gets $StorageAccObject
-                    GetAzResourceGroup{}        Gets $RGObject
-    ManageAzKeyVault{}          Manages $KeyVaultObject  
-        NewAzKeyvault{}             Creates $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject
-        ListAzKeyVault{}            Lists all key vaults in subscription
-        GetAzKeyVault{}             Gets $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject
-        RemoveAzKeyVault{}          Removes $KeyVaultObject
-            GetAzKeyVault{}             Gets $KeyVaultObject
-                GetAzResourceGroup{}        Gets $RGObject
-        ManageAzKeyVaultKey{}       Manages $KeyVaultKeyObject
-            NewAzKeyVaultKey{}          Creates $KeyVaultKeyObject
-                GetAzKeyVault{}             Gets $KeyVaultObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            AddAzKeyVaultKey{}          Uploads $KeyVaultKeyObject
-                GetAzKeyVault{}             Gets $KeyVaultObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            ListAzKeyVaultKey{}         Lists all key vault keys in vault
-                GetAzKeyVault{}             Gets $KeyVaultObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            GetAzKeyVaultKey{}          Gets $KeyVaultKeyObject
-                GetAzKeyVault{}             Gets $KeyVaultObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzKeyVaultKey{}       Removes $KeyVaultKeyObject
-                GetAzKeyVaultKey{}          Gets $KeyVaultKeyObject
-                    GetAzKeyVault{}             Gets $KeyVaultObject
+                NewAzLBFrontendIpConfig{}   Creates $FrontEndIPConfigObject
+                    NewAzPublicIpAddress{}      Creates $PublicIPObject
                         GetAzResourceGroup{}        Gets $RGObject
-        ManageAzKeyVaultSecret{}    Manages $KeyVaultSecretObject
-            NewAzKeyVaultSecret{}       Creates $KeyVaultSecretObject
-                GetAzKeyVault{}             Gets $KeyVaultSecret
-                    GetAzResourceGroup{}        Gets $RGObject
-            ListAzKeyVaultSecret{}      Lists all secrets in subscription
-            GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
-                GetAzKeyVault{}             Gets $KeyVaultObject
-                    GetAzResourceGroup{}        Gets $RGObject 
-            GetAzKeyVaultSecretValue{}  Lists value of $KeyVaultSecretObject
-                GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
-                    GetAzKeyVault{}             Gets $KeyVaultObject
-                        GetAzResourceGroup{}        Gets $RGObject
-            UpdateAzKeyVaultSecret{}    Updates $KeyVaultSecretObject
-                GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
-                    GetAzKeyVault{}             Gets $KeyVaultObject
-                        GetAzResourceGroup{}        Gets $RGObject   
-            RemoveAzKeyVaultSecret{}    Removes $KeyVaultSecretObject
-                GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
-                    GetAzKeyVault{}             Gets $KeyVaultObject
-                        GetAzResourceGroup{}        Gets $RGObject  
+                    GetAzPublicIpAddress{}      Gets $PublicIPObject
+                NewAzLBBackendIpConfig{}    Creates $BackEndIPConfigObject
+                NewAzLBProbeConfig{}        Creates $HealthProbeObject
+                NewAzLBIBNatPoolConfig{}    Creates $InboundNatPoolObject
+                NewAzLBRuleConfig{}         Creates $LoadBalanceRule
+            GetAzLoadBalancer{}         Gets $LoadBalancerObject
+            AddAzVNetSubnetConfig{}     Creates $SubnetObject
+                GetAzVirtualNetwork{}       Gets $VnetObject
+            GetAzVNetSubnetConfig{}     Gets $SubnetObject
+                GetAzVirtualNetwork{}       Gets $VnetObject
+        GetAzVmssObject{}           Gets $VmssObject
+        RemoveAzVmssObject{}        Removes $VmssObject
+            GetAzVmssObject{}           Gets $VmssObject
+        GetAzVmssVMObject{}         Gets $VmssVMObject
+            GetAzVmmsObject{}           Gets $VmssObject
+        StartAzVmss{}               Starts $VmssVMObject(s)
+            GetAzVmssVMObject{}         Gets $VmssVMObject
+                GetAzVmmsObject{}           Gets $VmssObject
+            GetAzVmmsObject{}           Gets $VmssObject
+        StopAzVmss{}                Stops $VmssVMObject(s)
+            GetAzVmssVMObject{}         Gets $VmssVMObject
+                GetAzVmmsObject{}           Gets $VmssObject
+            GetAzVmmsObject{}           Gets $VmssObject
+    ManageAzContainerGroup{}    Manages $ContainerObject
+        NewAzContainerGroup{}       Creates $ContainerGroup
+        GetAzContainerGroup{}       Gets $ContainerGroup
+        RemoveAzContainerGroup{}    Removes $ContainerGroup
+            GetAzContainerGroup{}       Gets $ContainerGroup
 } #>
 <# Process Flow {
     function
         Call ManageAzCompute > Get $null
-            Call ManageAzComputeAccount > Get $null
-                Call NewAzStorageAccount > Get $StorageAccObject
+            Call ManageAzVM > Get $null
+                Call NewAzVMWin > Get $WinVMObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGoup
+                        Return NewAzVMWin > Send $RGObject
+                    Call GetAzVMSize > Get $VMSizeObject
+                    End GetAzVMSize
+                        Return NewAzVMWin > Send $VMSizeObject
+                    Call NewAzNetworkInterface > Get $NicObject
+                        Call GetAzVNetSubnetConfig > Get $SubnetObject
+                            Call GetAzVirtualNetwork > Get $Vnet
+                            End GetAzVirtualNetwork
+                                Return GetAzVNetSubnetConfig > Send $Vnet
+                        End GetAzVNetSubnetConfig
+                            Return NewAzNetworkInterface > Send $SubnetObject
+                    End NewAzNetworkInterface
+                        Return NewAzVMWin > Send $ NicObject
+                    Call GetAzNetworkInterface > Get $NicObject
+                        Call GetAzVNetSubnetConfig > Get $SubnetObject
+                            Call GetAzVirtualNetwork > Get $Vnet
+                            End GetAzVirtualNetwork
+                                Return GetAzVNetSubnetConfig > Send $Vnet
+                        End GetAzVNetSubnetConfig
+                            Return NewAzNetworkInterface > Send $SubnetObject
+                    End GetAzNetworkInterface
+                        Return NewAzVMWin > Send $NicObject
+                    Call GetAzVMSize > Get $VMImageObject
+                    End GetAzVMSize
+                        Return NewAzVMWin > Send $VMImageObject
+                End NewAzVMWin
+                    Return ManageAzVM > Send $VMObject
+                Call GetAzVM > Get $VMObject
+                End GetAzVM
+                    Return ManageAzVM > Send $VMObject
+                Call StartAzVM > Get $null
+                    Call GetAzVM > Get $VMObject
+                    End GetAzVM
+                        Return StartAzVM > Send $VMObject
+                End StartAzVM
+                    Return ManageAzVM > Send $null
+                Call StopAzVM > Get $null
+                    Call GetAzVM > Get $VMObject
+                    End GetAzVM
+                        Return StopAzVM > Send $VMObject
+                End StopAzVM
+                    Return ManageAzVM > Send $null
+                Call ReimageAzVM > Get $null
+                    Call GetAzVM > Get $VMObject
+                    End GetAzVM
+                        Return ReimageAzVM > Send $VMObject
+                End ReimageAzVM
+                    Return ManageAzVM > Send $null
+                Call RemoveAzVM > Get $null
+                    Call GetAzVM > Get $VMObject
+                    End GetAzVM
+                        Return RemoveAzVM > Send $VMObject
+                End RemoveAzVM
+                    Return ManageAzVM > Send $null
+            End ManageAzVM
+                Return ManageAzCompute > Send $null
+            Call ManageAzVmss > Get $null
+                Call NewAzVmss > Get $VmssObject
                     Call GetAzResourceGroup > Get $RGObject
                     End GetAzResourceGroup
-                        Return NewAzStorageAccount > Send $RGObject
-                End NewAzStorageAccount 
-                    Return Function > Send $StorageAccObject
-                Call GetAzStorageAccount > Get $StorageAccObject
+                        Return NewAzVmss > Send $RGObject
+                    Call GetAzVMSize > Get $VMSizeObject
+                    End GetAzVMSize
+                        Return NewAzVmss > Send $VMSizeObject
+                    Call SetAzVmssOsProfile > Get $VmssOSProfileObject
+                        Call SetAzVMOS > Get $VMImageObject
+                        End SetAzVMOS
+                    End SetAzVmssOsProfile
+                        Return NewAzVmss > Send $VmssOSProfileObject
+                    Call SetAzVmssStorageProfile > Get $VmssStorageProfileObject
+                    End SetAzVmssStorageProfile
+                        Return NewAzVmss > Send $VmssStorageProfileObject
+                    Call NewAzLoadBalancer > Get $LoadBalancerObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return NewAzLoadBalancer > Send $RGObject
+                        Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                            Call NewAzPublicIpAddress > Get $PublicIPObject
+                                Call GetAzResourceGroup > Get $RGObject
+                                End GetAzResourceGroup
+                                    Return NewAzPublicIpAddress > Send $RGObject
+                            End NewAzPublicIpAddress
+                                Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                            Call GetAzPublicIpAddress > Get $PublicIPObject
+                            End GetAzPublicIpAddress
+                                Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                        End NewAzLBFrontendIpConfig
+                            Return NewAzLoadBalancer > Send $FrontEndIPConfigObject 
+                        Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+                        End NewAzLBBackendIpConfig
+                            Return NewAzLoadBalancer > Send $BackEndIPConfigObject
+                        Call NewAzLBProbeConfig > Get $HealthProbeObject
+                        End NewAzLBProbeConfig
+                            Return NewAzLoadBalancer > Send $HealthProbeObject
+                        Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+                        End NewAzLBIBNatPoolConfig
+                            Return NewAzLoadBalancer > Send $InboundNatPoolObject
+                        Call NewAzLBRuleConfig > Get $LoadBalanceRule
+                        End NewAzLBRuleConfig
+                            Return NewAzLoadBalancer > Send $LoadBalanceRule
+                    End NewAzLoadBalancer
+                        Return NewAzVmss > Send $LoadBalancerObject
+                    Call GetAzLoadBalancer > Get $LoadBalancerObject
+                    End GetAzLoadBalancer
+                        Return NewAzVmss > Send $LoadBalancerObject
+                    Call AddAzVNetSubnetConfig > Get $SubnetObject
+                        Call GetAzVirtualNetwork > Get $VnetObject
+                        End GetAzVirtualNetwork
+                            Return AddAzVNetSubnetConfig > Send $VnetObject
+                    End AddAzVNetSubnetConfig
+                        Return NewAzVmss > Send $SubnetObject
+                    Call GetAzVNetSubnetConfig > Get $SubnetObject
+                        Call GetAzVirtualNetwork > Get $VnetObject
+                        End GetAzVirtualNetwork
+                            Return GetAzVNetSubnetConfig > Send $VnetObject
+                    End GetAzVNetSubnetConfig
+                        Return NewAzVmss > Send $SubnetObject
+                End NewAzVmss
+                    Return ManageAzVmss > Send $VmssObject
+                Call GetAzVmss > Get $VmssObject
+                End GetAzVmss
+                    Return ManageAzVmss > Send $VmssObject
+                Call RemoveAzVmss > Get $null
+                    Call GetAzVmss > Get $VmssObject
+                    End GetAzVmss
+                        Return RemoveAzVmss > Send $VmssObject
+                End RemoveAzVmss
+                    Return ManageAzVmss > Send $null
+                Call GetAzVmssVM > Get $VmssVMObject, $VmssObject
+                    Call GetAzVmss > Get $VmssObject
+                    End GetAzVmss
+                        Return GetAzVmssVM > Send $VmssObject
+                End GetAzVmssVM
+                    Return ManageAzVmss > Send $VmssVMObject, $VmssObject
+                Call StartAzVmss > Get $null
+                    Call GetAzVmss > Get $VmssObject
+                    End GetAzVmss
+                        Return StartAzVmss > Send $VmssObject   
+                    Call GetAzVmssVM > Get $VmssVMObject, $VmssObject
+                        Call GetAzVmss > Get $VmssObject
+                        End GetAzVmss
+                            Return GetAzVmssVM > Send $VmssObject
+                    End GetAzVmssVM
+                        Return StartAzVmss > Send $VmssVMObject, $VmssObject
+                End StartAzVmss
+                    Return ManageAzVmss > Send $null
+                Call StopAzVmss > Get $null
+                    Call GetAzVmss > Get $VmssObject
+                    End GetAzVmss
+                        Return StopAzVmss > Send $VmssObject   
+                    Call GetAzVmssVM > Get $VmssVMObject, $VmssObject
+                        Call GetAzVmss > Get $VmssObject
+                        End GetAzVmss
+                            Return GetAzVmssVM > Send $VmssObject
+                    End GetAzVmssVM
+                        Return StopAzVmss > Send $VmssVMObject, $VmssObject
+                End StopAzVmss
+                    Return ManageAzVmss > Send $null
+            End ManageAzVmss
+                Return ManageAzCompute > Send $null
+            Call ManageAzContainerGroup > Get $null
+                Call NewAzContainerGroup > Get $ContainerObject
                     Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGroup
-                        Return GetAzStorageAccount > Send $RGObject
-                End GetAzStorageAccount 
-                    Return ManagageAzStorageAccount > Send $StorageAccObject
-                Call RemoveAzStorageAccount > Get $null
-                    Call GetAzStorageAccount > Get $StorageAccObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return GetAzStorageAccount > Send $RGObject
-                    End GetAzStorageAccount 
-                        Return RemoveAzStorageAccount > Send $StorageAccObject
-                End RemoveAzStorageAccount
-                    Return ManageAzComputeAccount > Send $Null
-            End ManageAzComputeAccount
-                Return ManageAzCompute > Send $null
-            Call ManageAzComputeContainer > Get $null
-                Call NewAzStorageContainer > Get $null
-                    Call GetAzStorageAccount > Get $StorageAccObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return GetAzStorageAccount > Send $RGObject
-                    End GetAzStorageAccount 
-                        Return NewAzStorageContainer > Send $StorageAccObject
-                    End NewAzStorageContainer 
-                        Return ManageStorageContainer > Send $null
-                Call ListAzStorageContainer > Get $null
-                End ListAzStorageContainer
-                    Return ManageStorageContainer > Send $null
-                Call GetAzStorageContainer > Get $StorageConObject
-                    Call GetAzStorageAccount > Get $StorageAccObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return GetAzStorageAccount > Send $RGObject
-                        End GetAzStorageAccount 
-                            Return GetAzStorageContainer > Send $StorageAccObject
-                    End GetAzStorageContainer 
-                        Return ManageAzComputeContainer > Send $StorageConObject, $StorageAccObject
-                Call RemoveAzStorageContainer > Get $null
-                    Call GetAzStorageContainer > Get $StorageConObject
-                        Call GetAzStorageAccount > Get $StorageAccObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzStorageAccount > Send $RGObject
-                    End RemoveAzStorageContainer      
-                        Return ManageAzComputeContainer > Send $null
-            End ManageAzComputeContainer
-                Return ManageAzCompute > Send $null
-            Call ManageAzComputeBlob
-                Call SetAzStorageBlobContent > Get $StorageBlobObject
-                    Call GetAzStorageContainer > Get $StorageConObject
-                        Call GetAzStorageAccount > Get $StorageAccObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzStorageAccount > Send $RGObject
-                        End GetAzStorageAccount 
-                            Return GetAzStorageContainer > Send $StorageAccObject
-                    End GetAzStorageContainer 
-                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
-                End SetAzStorageBlobContent
-                    Return ManageAzComputeBlob > Send $StorageBlobObject
-                Call ListAzStorageBlob > Get $StorageBlobObject
-                    Call GetAzStorageContainer > Get $StorageConObject
-                        Call GetAzStorageAccount > Get $StorageAccObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzStorageAccount > Send $RGObject
-                        End GetAzStorageAccount 
-                            Return GetAzStorageContainer > Send $StorageAccObject
-                    End GetAzStorageContainer 
-                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
-                End ListAzStorageBlob
-                    Return ManageAzComputeBlob > Send $StorageBlobObject
-                Call GetAzStorageBlobContent > Get $StorageBlobObject
-                    Call GetAzStorageContainer > Get $StorageConObject
-                        Call GetAzStorageAccount > Get $StorageAccObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzStorageAccount > Send $RGObject
-                        End GetAzStorageAccount 
-                            Return GetAzStorageContainer > Send $StorageAccObject
-                    End GetAzStorageContainer 
-                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
-                End GetAzStorageBlobContent
-                    Return ManageAzComputeBlob > Send $StorageBlobObject 
-                Call RemoveAzStorageBlob > Get $null
-                    Call GetAzStorageContainer > Get $StorageConObject
-                        Call GetAzStorageAccount > Get $StorageAccObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzStorageAccount > Send $RGObject
-                        End GetAzStorageAccount 
-                            Return GetAzStorageContainer > Send $StorageAccObject
-                    End GetAzStorageContainer 
-                        Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
-                End RemoveAzStorageBlob
-                    Return ManageAzComputeBlob > Send $null
-            End ManageAzComputeBlob
-                Return ManageAzCompute > Send $null 
-            Call ManageAzKeyVault > Get $null
-                Call NewAzKeyvault
-                    Call GetAzResource Group > Get $RGObject
-                    End GetAzResourceGroup
-                        Return NewAzKeyVault > Send $RGObject
-                End NewAzKeyvault
-                    Return ManageAzKeyVault > Send $KeyVaultObject
-                Call ListAzKeyVault
-                End ListAzKeyVault
-                    Return ManageAzKeyVault > Send $null
-                Call GetAzKeyVault
-                    Call GetAzResource Group > Get $RGObject
-                    End GetAzResourceGroup
-                        Return GetAzKeyVault > Send $RGObject
-                End GetAzKeyVault
-                    Return ManageAzKeyVault > Send $KeyVaultObject
-                Call RemoveAzKeyVault
-                    Call GetAzKeyVault
-                        Call GetAzResource Group > Get $RGObject
-                        End GetAzResourceGroup
-                        Return GetAzKeyVault > Send $RGObject
-                    End GetAzKeyVault
-                    Return RemoveAzKeyVault > Send $KeyVaultObject
-                End RemoveAzKeyVault
-                    Return ManageAzKeyVault > Send $null
-                Call ManageAzKeyVaultKey                
-                    Call NewAzKeyVaultKey > Get $KeyVaultKeyObject
-                        Call GetAzKeyVault > Get $KeyVaultObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzKeyVault > Send $RGObject
-                        End GetAzKeyVault
-                            Return NewAzKeyVaultKey > Send $KeyVaultObject  
-                    End NewAzKeyVaultKey
-                        Return ManageAzKeyVaultKey > Send $KeyVaultKeyObject
-                    Call AddAzKeyVaultKey > Get $KeyVaultKeyObject
-                        Call GetAzKeyVault > Get $KeyVaultObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzKeyVault > Send $RGObject
-                        End GetAzKeyVault
-                            Return AddAzKeyVaultKey > Send $KeyVaultObject  
-                    End AddAzKeyVaultKey
-                        Return ManageAzKeyVaultKey > Send $KeyVaultKeyObject
-                    Call ListAzKeyVaultKey > Get $null
-                    End ListAzKeyVaultKey
-                        Return ManageAzKeyVaultKey > Send $null          
-                    Call GetAzKeyVaultKey > Get $KeyVaultKeyObject
-                        Call GetAzKeyVault > Get $KeyVaultObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzKeyVault > Send $RGObject
-                        End GetAzKeyVault
-                            Return GetAzKeyVaultKey > Send $KeyVaultObject
-                    End GetAzKeyVaultKey 
-                        Return ManageAzKeyVaultKey> Send $KeyVaultKeyObject            
-                    Call RemoveAzKeyVaultKey > Get $null
-                        Call GetAzKeyVaultKey > Get $KeyVaultKeyObject
-                            Call GetAzKeyVault > Get $KeyVaultObject
-                                Call GetAzResourceGroup > Get $RGObject
-                                End GetAzResourceGroup
-                                    Return GetAzKeyVault > Send $RGObject
-                            End GetAzKeyVault
-                                Return GetAzKeyVaultKey > Send $KeyVaultObject
-                        End GetAzKeyVaultKey
-                            Return RemoveAzKeyVaultKey > Send $KeyVaultKeyObject  
-                    End RemoveAzKeyVaultKey
-                        Return ManageAzKeyVaultKey > Send $null  
-                End ManageAzKeyVaultKey
-                    Return ManageAzKeyVault > Send $null
-                Call ManageAzKeyVaultSecret > Get $KeyVaultSecretObject
-                    Call NewAzKeyVaultSecret > Get $KeyVaultSecretObject
-                        Call GetAzKeyVault > Get $KeyVaultObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzKeyVault > Send $RGObject
-                        End GetAzKeyVault
-                            Return NewAzKeyVaultSecret > Send $KeyVaultObject  
-                    End NewAzKeyVaultSecret
-                        Return ManageAzKeyVaultSecret > Send $KeyVaultSecretObject
-                    Call ListAzKeyVaultSecret > Get $null
-                    End ListAzKeyVaultSecret
-                        Return ManageAzKeyVaultSecret > Send $null          
-                    Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
-                        Call GetAzKeyVault > Get $KeyVaultObject
-                            Call GetAzResourceGroup > Get $RGObject
-                            End GetAzResourceGroup
-                                Return GetAzKeyVault > Send $RGObject
-                        End GetAzKeyVault
-                            Return GetAzKeyVaultSecret > Send $KeyVaultObject
-                    End GetAzKeyVaultSecret 
-                        Return ManageAzKeyVaultSecret> Send $KeyVaultSecretObject            
-                    Call GetAzKeyVaultSecretValue > Get $null
-                        Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
-                            Call GetAzKeyVault > Get $KeyVaultObject
-                                Call GetAzResourceGroup > Get $RGObject
-                                End GetAzResourceGroup
-                                    Return GetAzKeyVault > Send $RGObject
-                            End GetAzKeyVault
-                                Return GetAzKeyVaultSecret > Send $KeyVaultObject
-                        End GetAzKeyVaultSecret
-                            Return GetAzKeyVaultSecretValue > Send $KeyVaultSecretObject  
-                    End GetAzKeyVaultSecretValue
-                        Return ManageAzKeyVaultSecret > Send $null                   
-                    Call RemoveAzKeyVaultSecret > Get $null
-                        Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
-                            Call GetAzKeyVault > Get $KeyVaultObject
-                                Call GetAzResourceGroup > Get $RGObject
-                                End GetAzResourceGroup
-                                    Return GetAzKeyVault > Send $RGObject
-                            End GetAzKeyVault
-                                Return GetAzKeyVaultSecret > Send $KeyVaultObject
-                        End GetAzKeyVaultSecret
-                            Return RemoveAzKeyVaultSecret > Send $KeyVaultSecretObject  
-                    End RemoveAzKeyVaultSecret
-                        Return ManageAzKeyVaultSecret > Send $null   
-                End ManageAzKeyVaultSecret
-                    Return ManageAzKeyVault > Send $null
-            End ManageAzKeyVault
+                    End GetAzResourceGroup 
+                    Return NewAzContainerGroup > Send $RGObject
+                End NewAzContainerGroup
+                    Return ManageAzContainerGroup > Send $ContainerObject
+                Call GetAzContainerGroup > Get $ContainerObject
+                End GetAzContainerGroup
+                        Return ManageAzContainerGroup > Send $ContainerObject
+                Call RemoveAzContainerGroup > Get $null
+                    Call GetAzContainerGroup > Get $ContainerObject
+                    End GetAzContainerGroup
+                        Return RemoveAzContainerGroup > Send $ContainerObject
+                End RemoveAzContainerGroup
+                    Return ManageAzContainerGroup > Send $null
+            End ManageAzContainerGroup
                 Return ManageAzCompute > Send $null
         End ManageAzCompute
             Return Function > Send $null
@@ -5481,27 +5461,28 @@ function RemoveAzDisk { # Removes a disk object
 function ManageAzCompute {                                                                  # Function to manage azure compute
     Begin {                                                                                 # Begin function
         :ManageAzureCompute while ($true) {                                                 # Outer loop for managing function
-            Write-Host "Azure Compute Management"                                           # Write message to screen
-            Write-Host "1 Manage VMs"                                                       # Write message to screen
-            Write-Host "2 Manage Vmss"                                                      # Write message to screen
-            Write-Host "3 Manage compute containers (In Dev)"                               # Write message to screen
-            Write-Host "4 Manage Kuberneties (In Dev)"                                      # Write message to screen
-            Write-Host "5 Manage Disks (In Dev)"                                            # Write message to screen
-            Write-Host "'Exit to return'"                                                   # Write message to screen
+            Write-Host 'Azure Compute Management'                                           # Write message to screen
+            Write-Host '1 Manage VMs'                                                       # Write message to screen
+            Write-Host '2 Manage Vmss'                                                      # Write message to screen
+            Write-Host '3 Manage compute containers'                                        # Write message to screen
+            Write-Host '4 Manage Kuberneties (In Dev)'                                      # Write message to screen
+            Write-Host '5 Manage Disks (In Dev)'                                            # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
             $ManageAzCompute = Read-Host "Option?"                                          # Collects operator input on $ManageAzCompute option
             if ($ManageAzCompute -eq 'exit') {                                              # If $ManageAzCompute equals 'exit'
                 Break ManageAzureCompute                                                    # Breaks :ManageAzureComputer
             }                                                                               # End if ($ManageAzCompute -eq 'exit')
             elseif ($ManageAzCompute -eq '1') {                                             # Elseif $ManageAzCompute equals 1
-                Write-Host "Manage VMs"                                                     # Write message to screen
+                Write-Host 'Manage VMs'                                                     # Write message to screen
                 ManageAzVM ($RGObject, $RSObject)                                           # Calls function
             }                                                                               # End elseif ($ManageAzCompute -eq '1')
             elseif ($ManageAzCompute -eq '2') {                                             # Elseif $ManageAzCompute equals 2
-                Write-Host "Manage Vmss"                                                    # Write message to screen
+                Write-Host 'Manage Vmss'                                                    # Write message to screen
                 ManageAzVmss                                                                # Calls function
             }                                                                               # End elseif ($ManageAzCompute -eq '2')
             elseif ($ManageAzCompute -eq '3') {                                             # Elseif $ManageAzCompute equals 3
-                Write-Host "Manage compute containers (In Dev)"                             # Write message to screen
+                Write-Host 'Manage compute containers'                                      # Write message to screen
+                ManageAzContainerGroup                                                      # Calls function
             }                                                                               # End elseif ($ManageAzCompute -eq '3')
             elseif ($ManageAzCompute -eq '4') {                                             # Elseif $ManageAzCompute equals 4
                 Write-Host "Manage Kuberneties (In Dev)"                                    # Write message to screen
@@ -5516,8 +5497,9 @@ function ManageAzCompute {                                                      
         Return                                                                              # Returns to calling function if no search option is used
     }                                                                                       # End begin
 }                                                                                           # End function ManageAzCompute
-function ManageAzVM {
-    Begin {
+# Functions for ManageAzVM
+function ManageAzVM {                                                                       # Function to manage VMs
+    Begin {                                                                                 # Begin function
         :ManageAzureVM while ($true) {                                                      # Outer loop for managing function
             if ($RGObject) {                                                                # If $var has a value
                 Write-Host "Current RG: "$RGObject.ResourceGroupName                        # Write message to screen
@@ -5529,6 +5511,7 @@ function ManageAzVM {
                 Write-Host "Current VM:  "$VMObject.Name                                    # Write message to screen
             }                                                                               # End if ($VMObject)
             Write-Host "Azure VM Management"                                                # Write message to screen
+            Write-Host '0 Clear varibles'                                                   # Write message to screen
             Write-Host "1 Create New VM"                                                    # Write message to screen
             Write-Host "2 Get existing VM"                                                  # Write message to screen
             Write-Host "3 Start VM"                                                         # Write message to screen
@@ -5593,7 +5576,8 @@ function NewAzVM {                                                              
                 }                                                                           # End else (if ($VMType -eq 'exit') )
             }                                                                               # End :SetAzureVMType while ($true)
             if (!$RGObject) {                                                               # If $RGObject is $null
-                $RGObject = GetAzResourceGroup                                              # Calls (Function) GetAzResourceGroup to get $RGObject
+                $CallingFunction = 'NewAzVM'                                                # Sets $Calling function to 'NewAzVM'
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls (Function) GetAzResourceGroup to get $RGObject
                 if (!$RGObject) {                                                           # If $RGObject is $null
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
                 }                                                                           # End if (!$RGObject) 
@@ -5693,148 +5677,190 @@ function NewAzVM {                                                              
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
                 }                                                                           # End if (!$VMImageObject)
             }                                                                               # End if (!$VMImageObject)
-            $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
+            if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version has a value
+                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
                 $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
-                $VMImageObject.Skus  -Version $VMImageObject.Version                        # Adds image setting to $VMBuildObject
+                $VMImageObject.Skus -Version $VMImageObject.Version                         # Adds image setting to $VMBuildObject
+            }                                                                               # End if ($VMImageObject.Version)
+            else {                                                                          # If $VMImageObject.Version does not have a value
+                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
+                $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
+                $VMImageObject.Skus -Version 'latest'                                       # Adds image setting to $VMBuildObject
+            }                                                                               # End else (if ($VMImageObject.Version))
+            Try {                                                                           # Try the following
             $VMObject = New-AzVM -ResourceGroupName $RGObject.ResourceGroupName `
                 -Location $LocationObject.DisplayName -VM $VMBuildObject -Verbose           # Builds the new VM object
+            }                                                                               # End Try
+            Catch {                                                                         # If catch fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'The VM was not created'
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
+            }                                                                               # End catch
+            $VMObject = Get-AzVM -ResourceGroupName $RGObject.ResourceGroupName `
+                -Name $VMNameObject                                                         # Pulls the VM Object prior to returning to calling function
             Return $VMObject                                                                # Returns to calling function with $VMObject
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzVM                                                                                       # End function GetAzVMSize 
-function GetAzVM { # Gets $VMObject from list
-    Begin {
-        :GetAzureVM while ($true) { # Outer loop for managing function
-            $VMList = Get-AzVM -status # Gets a list
-            $VMListNumber = 1 # $Var for setting $VMList.Number
-            foreach ($_ in $VMList) { # For each item in $VMList
-                $_ | Add-Member -NotePropertyName 'Number' -NotePropertyValue $VMListNumber # Adds number property to each item in list
-                $VMListNumber = $VMListNumber + 1 # Increments $VMListNumber by 1
-            } # End foreach ($_ in $VMList)
-            Write-Host "Exit:    0" # Write message to screen
-            Write-Host "" # Write message to screen 
-            foreach ($_ in $VMList) { # Writes all VMs to screen
-                Write-Host "Number: "$_.Number # Write message to screen 
-                Write-Host "Name:   "$_.Name # Write message to screen 
-                Write-Host "RG:     "$_.ResourceGroupName # Write message to screen
-                Write-Host "Status: "$_.PowerState # Write message to screen
-                Write-Host "" # Write message to screen
-            } # End foreach ($_ in $VMList)
-            :GetAzureVMName while ($true) { # Inner loop for selecting VM from list
-                $VMSelect = Read-Host "Please enter the number of the VM" # Operator input for the selection
-                if ($VMSelect -eq '0') { # If $VMSelect is 0
-                    Break GetAzureVM # Breaks :GetAzureVM
-                } # End if ($_Select -eq '0')
-                $VMListSelect = $VMList | Where-Object {$_.Number -eq $VMSelect} # Isolates selected VM 
-                if ($VMListSelect) { # If $VMListSelect has a valud
-                    Break GetAzureVMName # Breaks :GetAzureVMName
-                } # End if ($VMListSelect)
-                Write-Host "That was not a valid selection" # Write message to screen 
-            } # End :GetAzureVMName while ($true)
-            $VMObject = Get-AzVM -Name $_.Name -ResourceGroup $_.ResourceGroupName # Collects the full object after selection
-            Return $VMObject # Returns $VMObject to calling function
-        } # End :GetAzureVM while ($true)
-        Return # Returns with $null 
-    } # End Begin
-} # End function GetAzureVMName
-function StartAzVM { # Function to start a VM
-    Begin {
-        :StartAzureVM while ($true) { # Outer loop for managing function
-            if (!$VMObject) { # If $VMObject is $null
-                $VMObject = GetAzVM # Calls function and assigns output to $var
-                if (!$VMObject) { # If $VMObject is $null
-                    Break StartAzureVM # Breaks :StartAzureVM
-                } # End if (!$VMVM)
-            } # End if (!$VMVM)
-            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"
-            if (!($OperatorConfirm -eq 'y')) { # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break StartAzureVM # Breaks :StartAzureVM
-            } # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to power on" $VMObject.Name # Write message to screen
-            Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName # Starts the selected VM
-            Break StartAzureVM # Breaks :StartAzureVM
-        } # End :StartAzureVM while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function StartAzVM
-function StopAzVM { # Function to deallocate a VM
-    Begin {
-        :StopAzureVM while ($true) { # Outer loop for managing function
-            if (!$VMObject) { # If $VMObject is $null
-                $VMObject = GetAzVM # Calls function and assigns output to $var
-                if (!$VMObject) { # If $VMObject is $null
-                    Break StopAzureVM # Breaks :StopAzureVM
-                } # End if (!$VMVM)
-            } # End if (!$VMVM)
-            $OperatorConfirm = Read-Host "Shutdown"$VMObject.Name "[Y] or [N]"
-            if (!($OperatorConfirm -eq 'y')) { # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break StopAzureVM # Breaks :StopAzureVM
-            } # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to shut off" $VMObject.Name # Write message to screen
-            Stop-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName -force # Stops the selected VM
-            Break StopAzureVM # Breaks :StopAzureVM
-        } # End :StopAzureVM while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function StopAzVM
-function ReimageAzVM { # Function to remove a VM
-    Begin {
-        $ErrorActionPreference='silentlyContinue'
-        :ReimageAzVM while ($true) { # Outer loop for managing function
-            if (!$VMObject) { # If $VMObject is $null
-                $VMObject = GetAzVM # Calls function and assigns output to $var
-                if (!$VMObject) { # If $VMObject is $null
-                    Break ReimageAzVM # Breaks :ReimageAzVM
-                } # End if (!$VMVM)
-            } # End if (!$VMVM)
-            $OperatorConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"
-            if (!($OperatorConfirm -eq 'y')) { # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break ReimageAzVM # Breaks :ReimageAzVM
-            } # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to reimage" $VMObject.Name # Write message to screen
-            try { # Try the following
-                Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName -ErrorAction 'stop' # Reimages the selected VM
-            } # End Try
-            catch { # If try fails
-                Write-Host "" # Write message to screen
-                Write-Host "***An Error Has Occured***" # Write message to screen
-                Write-Host "Un-able to reimage the selected VM" # Write message to screen
-                Write-Host "Auto OS upgrades may not be enabled" # Write message to screen
-                Write-Host "You may not have permission to this VM" # Write message to screen
-                Write-Host "The VM or group may be locked" # Write message to screen
-                Write-Host "" # Write message to screen
-                Break ReimageAzVM # Breaks :ReimageAzVM
-            } # End Catch
-            Break ReimageAzVM # Breaks :ReimageAzVM
-        } # End :ReimageAzVM while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function ReimageAzVM
-function RemoveAzVM { # Function to remove a VM
-    Begin {
-        :RemoveAzureVM while ($true) { # Outer loop for managing function
-            if (!$VMObject) { # If $VMObject is $null
-                $VMObject = GetAzVM # Calls function and assigns output to $var
-                if (!$VMObject) { # If $VMObject is $null
-                    Break RemoveAzureVM # Breaks :RemoveAzureVM
-                } # End if (!$VMVM)
-            } # End if (!$VMVM)
-            $OperatorConfirm = Read-Host "Remove"$VMObject.Name "[Y] or [N]"
-            if (!($OperatorConfirm -eq 'y')) { # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break RemoveAzureVM # Breaks :RemoveAzureVM
-            } # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to remove" $VMObject.Name # Write message to screen
-            Remove-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName -force # Removes the selected VM
-            Break RemoveAzureVM # Breaks :RemoveAzureVM
-        } # End :RemoveAzureVM while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function RemoveAzVM
+}                                                                                           # End function NewAzVM                                                                                   # End function GetAzVMSize 
+function GetAzVM {                                                                          # Gets $VMObject from list
+    Begin {                                                                                 # Begin function
+        :GetAzureVM while ($true) {                                                         # Outer loop for managing function
+            $VMList = Get-AzVM -status                                                      # Gets a list
+            $ListNumber = 1                                                                 # $Var for selecting the VM
+            [System.Collections.ArrayList]$VMArray = @()                                    # $VMArray creation
+            foreach ($_ in $VMList) {                                                       # For each item in $var
+                $ArrayInput = [PSCustomObject]@{                                            # Creates the PS custom object used to load info into array
+                    'Number' = $ListNumber; 'Name' = $_.Name; `
+                    'RG' =  $_.ResourceGroupName; 'Status' = $_.PowerState                  # Attributes and their values to load into the array
+                }                                                                           # End creating $ArrayInput
+                $VMArray.Add($ArrayInput) | Out-Null                                        # Loads items into the array
+                $ListNumber = $ListNumber + 1                                               # Increments $listNumber up by 1
+            }                                                                               # End foreach ($_ in $VMList)
+            Write-Host "Exit:    0"                                                         # Write message to screen
+            Write-Host ""                                                                   # Write message to screen 
+            foreach ($_ in $VMArray) {                                                      # Writes all VMs to screen
+                Write-Host "Number: "$_.Number                                              # Write message to screen 
+                Write-Host "Name:   "$_.Name                                                # Write message to screen 
+                Write-Host "RG:     "$_.RG                                                  # Write message to screen
+                Write-Host "Status: "$_.Status                                              # Write message to screen
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $VMList)
+            :GetAzureVMName while ($true) {                                                 # Inner loop for selecting VM from list
+                $VMSelect = Read-Host "Please enter the number of the VM"                   # Operator input for the selection
+                if ($VMSelect -eq '0') {                                                    # If $VMSelect is 0
+                    Break GetAzureVM                                                        # Breaks :GetAzureVM
+                }                                                                           # End if ($_Select -eq '0')
+                $VMListSelect = $VMArray | Where-Object {$_.Number -eq $VMSelect}           # Isolates selected VM 
+                if ($VMListSelect) {                                                        # If $VMListSelect has a valud
+                    $VMObject = Get-AzVM -ResourceGroupName $VMListSelect.RG `
+                        -Name $VMListSelect.Name                                            # Pulls full $VMObject
+                    if ($VMObject) {                                                        # If $VMObject has a value
+                        Return $VMObject                                                    # Returns to calling function with $VMObject
+                    }                                                                       # End if ($VMObject)
+                    else {                                                                  # If $VMObject does not have a value
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Break GetAzureVM                                                    # Breaks :GetAzureVM
+                    }                                                                       # End else (if ($VMObject))
+                }                                                                           # End if ($VMListSelect)
+                Write-Host "That was not a valid selection"                                 # Write message to screen 
+            }                                                                               # End :GetAzureVMName while ($true)
+        }                                                                                   # End :GetAzureVM while ($true)
+        Return                                                                              # Returns to calling function with $null 
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzureVMName
+function StartAzVM {                                                                        # Function to start a VM
+    Begin {                                                                                 # Begin function
+        :StartAzureVM while ($true) {                                                       # Outer loop for managing function
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
+                if (!$VMObject) {                                                           # If $VMObject is $null
+                    Break StartAzureVM                                                      # Breaks :StartAzureVM
+                }                                                                           # End if (!$VMObject)
+            }                                                                               # End if (!$VMObject)
+            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"             # Operator confirmation to turn on the VM
+            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+                Write-Host "No action taken"                                                # Write message to screen
+                Break StartAzureVM                                                          # Breaks :StartAzureVM
+            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            Write-Host "Attempting to power on" $VMObject.Name                              # Write message to screen
+            Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName      # Starts the selected VM
+            Break StartAzureVM                                                              # Breaks :StartAzureVM
+        }                                                                                   # End :StartAzureVM while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function StartAzVM
+function StopAzVM {                                                                         # Function to deallocate a VM
+    Begin {                                                                                 # Begin function
+        :StopAzureVM while ($true) {                                                        # Outer loop for managing function
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
+                if (!$VMObject) {                                                           # If $VMObject is $null
+                    Break StopAzureVM                                                       # Breaks :StopAzureVM
+                }                                                                           # End if (!$VMObject)
+            }                                                                               # End if (!$VMObject)
+            $OperatorConfirm = Read-Host "Shutdown"$VMObject.Name "[Y] or [N]"              # Operator input to shutdown the VM
+            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+                Write-Host "No action taken"                                                # Write message to screen
+                Break StopAzureVM                                                           # Breaks :StopAzureVM
+            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            Write-Host "Attempting to shut off" $VMObject.Name                              # Write message to screen
+            Stop-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
+                -force                                                                      # Stops the selected VM
+            Break StopAzureVM                                                               # Breaks :StopAzureVM
+        }                                                                                   # End :StopAzureVM while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function StopAzVM
+function ReimageAzVM {                                                                      # Function to remove a VM
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables powershell error reporting
+        :ReimageAzVM while ($true) {                                                        # Outer loop for managing function
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
+                if (!$VMObject) {                                                           # If $VMObject is $null
+                    Break ReimageAzVM                                                       # Breaks :ReimageAzVM
+                }                                                                           # End if (!$VMObject)
+            }                                                                               # End if (!$VMObject)
+            $OperatorConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"               # Operator confirmation to reimage the VM
+            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+                Write-Host "No action taken"                                                # Write message to screen
+                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
+            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
+            try {                                                                           # Try the following
+                Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
+                    $VMObject.ResourceGroupName -ErrorAction 'stop'                         # Reimages the selected VM
+            }                                                                               # End Try
+            catch {                                                                         # If try fails
+                Write-Host ""                                                               # Write message to screen
+                Write-Host "***An Error Has Occured***"                                     # Write message to screen
+                Write-Host "Un-able to reimage the selected VM"                             # Write message to screen
+                Write-Host "Auto OS upgrades may not be enabled"                            # Write message to screen
+                Write-Host "You may not have permission to this VM"                         # Write message to screen
+                Write-Host "The VM or group may be locked"                                  # Write message to screen
+                Write-Host ""                                                               # Write message to screen
+                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
+            }                                                                               # End Catch
+            Break ReimageAzVM                                                               # Breaks :ReimageAzVM
+        }                                                                                   # End :ReimageAzVM while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ReimageAzVM
+function RemoveAzVM {                                                                       # Function to remove a VM
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables powershell reporting
+        :RemoveAzureVM while ($true) {                                                      # Outer loop for managing function
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
+                if (!$VMObject) {                                                           # If $VMObject is $null
+                    Break RemoveAzureVM                                                     # Breaks :RemoveAzureVM
+                }                                                                           # End if (!$VMObject)
+            }                                                                               # End if (!$VMObject)
+            $OperatorConfirm = Read-Host "Remove"$VMObject.Name "[Y] or [N]"                # Operator confirmation to remove the VM
+            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+                Write-Host "No action taken"                                                # Write message to screen
+                Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
+            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            Write-Host "Attempting to remove" $VMObject.Name                                # Write message to screen
+            Try {                                                                           # Try the following
+            Remove-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
+                -force -ErrorAction 'Stop'                                                  # Removes the selected VM
+            }                                                                               # End Try
+            Catch {                                                                         # If try fails
+                Write-host ''                                                               # Write message to screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'The VM was not removed'                                         # Write message to screen
+                Write-Host 'You may not have the permissions'                               # Write message to screen
+                Write-host ''                                                               # Write message to screen
+                Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
+            }                                                                               # End catch
+            Break RemoveAzureVM                                                             # Breaks :RemoveAzureVM
+        }                                                                                   # End :RemoveAzureVM while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzVM
+# Functions for ManageAzVmss
 function ManageAzVmss {                                                                     # Function to manage Vmss
     Begin {                                                                                 # Begin function
         :ManageAzureVmss while ($true) {                                                    # Outer loop for managing function
@@ -6472,154 +6498,216 @@ function StopAzVmss {                                                           
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function StopAzVmss
-function GetAzVirtualNetwork {                                                              # Function to get an existing virutal network
+# Functions for ManageAzContainerGroup
+function ManageAzContainerGroup {                                                           # Function to manage container groups
     Begin {                                                                                 # Begin function
-        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
-            $VNetList = Get-AzVirtualNetwork                                                # pulls all items into list for selection
-            $VNetListNumber = 1                                                             # $var used for selecting the virtual network
-            foreach ($Name in $VNetList) {                                                  # For each name in $VNetList
-                Write-Host $VNetListNumber"." $Name.Name $Name.AddressSpace.AddressPrefixes # Writes items from list to screen
-                $VNetListNumber = $VNetListNumber + 1                                       # Increments $var up by 1
-            }                                                                               # End foreach ($Name in $VNetList)
-            :GetAzureVNetName while ($true) {                                               # Inner loop for selecting the Vnet
-                $VNetListNumber = 1                                                         # Resets $VNetListNumber
-                $VNetListSelect = Read-Host `
-                    "Please enter the number of the virtual network"                        # Operator input for the VNet selection
-                foreach ($Name in $VNetList) {                                              # For each name in $VnetList
-                    if ($VNetListSelect -eq $VNetListNumber) {                              # If $VnetListSelect equals current $VnetListNumber
-                        $VNetObject = Get-AzVirtualNetwork -Name $Name.Name                 # Pulls the selected object and assigns to $var
-                        Break GetAzureVnetName                                              # Breaks :GetAzureVnetName
-                    }                                                                       # End if ($VNetListSelect -eq $VNetListNumber)
-                    else {                                                                  # If $VnetListSelect does not equal the current $VnetListNumber
-                        $VNetListNumber = $VNetListNumber + 1                               # Increments $var up by 1
-                    }                                                                       # End else (if ($VNetListSelect -eq $VNetListNumber))
-                }                                                                           # End foreach ($Name in $VNetList)
+        :ManageAzureContainerGroup while ($true) {                                          # Outer loop for managing function
+            if ($ContainerObject) {                                                         # If $ContainerObject has a value
+                Write-Host 'The currently selected container object is' `
+                    $ContainerObject.name                                                   # Write message to screen
+            }                                                                               # End if ($ContainerObject)
+            Write-Host "Azure Container Group Management"                                   # Write message to screen
+            Write-Host '0 Clear "$ContainerObject"'                                         # Write message to screen
+            Write-Host '1 New container group'                                              # Write message to screen
+            Write-Host '2 Get container group'                                              # Write message to screen
+            Write-Host '3 Remove container group'                                           # Write message to screen
+            Write-Host "'Exit to return'"                                                   # Write message to screen
+            $ManageAzContainerGroup = Read-Host "Option?"                                   # Collects operator input on $ManageAzContainerGroup option
+            if ($ManageAzContainerGroup -eq 'exit') {                                       # If $ManageAzContainerGroup equals 'exit'
+                Break ManageAzureContainerGroup                                             # Breaks :ManageAzureContainerGroupr
+            }                                                                               # End if ($ManageAzContainerGroup -eq 'exit')
+            elseif ($ManageAzContainerGroup -eq '0') {                                      # Elseif $ManageAzContainerGroup equals 0
+                if ($ContainerObject) {                                                     # If $ContainerObject has a value
+                    Write-Host 'Clearing "$ContainerObject'                                 # Write message to screen
+                    $ContainerObject = $null                                                # Clears $ContainerObject
+                }                                                                           # End if ($ContainerObject)
+                else {                                                                      # If $ContainerObject does not have a value
+                    Write-Host '$ContainerObject is already clear'                          # Write message to screen
+                }                                                                           # End else (if ($ContainerObject))
+            }                                                                               # End elseif ($ManageAzContainerGroup -eq '0')
+            elseif ($ManageAzContainerGroup -eq '1') {                                      # Elseif $ManageAzContainerGroup equals 1
+                Write-Host 'New container group'                                            # Write message to screen
+                $ContainerObject = NewAzContainerGroup ($RGObject)                          # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzContainerGroup -eq '1')
+            elseif ($ManageAzContainerGroup -eq '2') {                                      # Elseif $ManageAzContainerGroup equals 2
+                Write-Host 'Get container group'                                            # Write message to screen
+                $ContainerObject = GetAzContainerGroup                                      # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzContainerGroup -eq '2')
+            elseif ($ManageAzContainerGroup -eq '3') {                                      # Elseif $ManageAzContainerGroup equals 3
+                Write-Host 'Remove container group'                                         # Write message to screen
+                RemoveAzContainerGroup ($ContainerObject)                                   # Calls function
+            }                                                                               # End elseif ($ManageAzContainerGroup -eq '3')
+            else {                                                                          # If $ManageAzContainerGroup do not match any if or elseif     
                 Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End :GetAzureVNetName while ($true)
-            Return $VNetObject                                                              # Returns to calling function with $var
-        }                                                                                   # End :GetAzureVnet while ($true)
+            }                                                                               # End else (if ($ManageAzContainerGroup -eq 'exit'))
+        }                                                                                   # End :ManageAzureContainerGroup while ($true)
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzContainerGroup
+function NewAzContainerGroup {                                                              # Function to create a new container
+    Begin {                                                                                 # Begin function
+        :NewAzureContainerGroup while ($true) {                                             # Outer loop for managing functions
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                $CallingFunction = 'NewAzContainerGroup'                                    # Sets $CallingFunction
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break NewAzureContainerGroup                                            # Breaks :NewAzureContainerGroup
+                }                                                                           # End if (!$RGObject)
+            }                                                                               # End if (!$RGObject)
+            :SetContainerName while ($true) {                                               # Inner loop for setting the container name
+                $ContainerNameObject = Read-Host 'Container name'                           # Operator input for the container name
+                if ($ContainerNameObject -eq 'exit') {                                      # If $ContainerName equals exit
+                    Break NewAzureContainerGroup                                            # Breaks :NewAzureContainerGroup
+                }                                                                           # End if ($ContainerNameObject -eq 'exit')
+                $ContainerNameObject = $ContainerNameObject.ToLower()
+                Write-Host 'Use' $ContainerNameObject 'as the container name'               # Write message to screen
+                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation of the container name
+                if ($OperatorConfirm -eq 'y') {                                             # If OperatorConfirm equals 'y'
+                    Break SetContainerName                                                  # Breaks :SetContainerName    
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetContainerName while ($true)  
+            :SetAzureContainerType while ($true) {                                          # Inner loop for setting the container type
+                Write-Host "[0] Exit"                                                       # Write message to screen
+                Write-Host "[1] Windows"                                                    # Write message to screen
+                Write-Host "[2] Linux"                                                      # Write message to screen
+                $ImageTypeObject = Read-Host "[0], [1], or [2]"                             # Operator input for the container type
+                if ($ImageTypeObject -eq '0') {                                             # If $ImageTypeObject equals 0
+                    Break NewAzureContainerGroup                                            # Breaks :NewAzureContainerGroup
+                }                                                                           # End if ($ImageType -eq 'exit')
+                if ($ImageTypeObject -eq '1' -or $ImageTypeObject -eq '2') {                # If $ImageTypeObject equals 1 or 2
+                    if ($ImageTypeObject -eq '1') {                                         # If $ImageTypeObject equals '1'
+                        $ImageTypeObject = 'Windows'                                        # Sets $ImageTypeObject to 'Windows'
+                    }                                                                       # End if ($ImageTypeObject -eq '1')
+                    if ($ImageTypeObject -eq '2') {                                         # If $ImageTypeObject equals '2'
+                    $ImageTypeObject = 'Linux'                                              # Sets $ImageTypeObject to 'Linux'
+                    }                                                                       # End if ($ImageTypeObject -eq '2')
+                    Break SetAzureContainerType                                             # Breaks :SetAzureContainerType
+                }                                                                           # End if ($ImageTypeObject -eq '1' -or $ImageTypeObject -eq '2')
+                else {                                                                      # All other input
+                    Write-Host "That was not a valid selection"                             # Write message to screen
+                }                                                                           # End else (if ($ImageTypeObject -eq 'exit') )
+            }                                                                               # End :SetAzureVMType while ($true)    
+            :SetAzureContainerImage while ($true) {                                         # Inner loop for setting the container image
+                Write-Host 'Enter the URL of the container image'                           # Write message to screen
+                Write-Host 'Short names of images on the '                                  # Write message to screen
+                Write-Host 'azure marketplace may also be used'                             # Write message to screen
+                Write-Host 'Type "Exit" to leave this function'                             # Write message to screen
+                $ContainerImage = Read-Host 'Image info'                                    # Operator input for the image info
+                Write-Host $ContainerImage                                                  # Write message to screen
+                $OperatorConfirm = Read-Host 'Please confirm the image info [Y] or [N]'     # Operator confirmation of the image info
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureContainerImage                                            # Breaks :SetAzureContainerImagr
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                else {                                                                      # If $OperatorConfirm does not equal 'y'
+                    Write-Host ''                                                           # Writes message to screen
+                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
+            }                                                                               # End :SetAzureContainerImage while ($true)
+            :SetAzureContainerDNS while ($true) {                                           # Inner loop to set the container DNS
+                $ContainerDNS = Read-Host 'Please create a DNS entry'                       # Operator input for the container DNS
+                if ($ContainerDNS -eq 'exit') {                                             # If $ContainerDNS equals exit
+                    Break NewAzureContainerGroup                                            # Breaks :NewAzureContainerGroup
+                }                                                                           # End if ($ContainerDNS -eq 'exit')
+                Write-Host 'Use' $ContainerDNS 'as the container DNS'                       # Write message to screen
+                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation of the DNS
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureContainerDNS                                              # Breaks :SetAzureContainerDNS
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                else {                                                                      # If $OperatorConfirm not equal 'y'
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
+            }                                                                               # End :SetAzureContainerDNS while ($true)
+            Try {                                                                           # Try the following
+                $ContainerObject = New-AzContainerGroup -ResourceGroupName `
+                    $RGObject.ResourceGroupName -Name $ContainerNameObject -Image `
+                    $ContainerImage -OsType $ImageTypeObject -DnsNameLabel $ContainerDNS    # Creates the new container group and assigns to $ContainerObject
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'The defult resource may not be available at this time'          # Write message to screen
+                Write-Host 'You may not have the permissions complete this action'          # Write message to screen
+                Break NewAzureContainerGroup                                                # Breaks :NewAzureContainerGroup
+            }                                                                               # End catch
+            Return $ContainerObject                                                         # Returns to calling function with $ContainerObject
+        }                                                                                   # End :NewAzureContainerGroup while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzVirtualNetwork
-function AddAzVNetSubnetConfig {                                                            # Function to add a subnet
-    begin {                                                                                 # Begin function
-        :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
-            if (!$VNetObject) {                                                             # If $VNetObject is $null
-                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $Var
-                if (!$VNetObject) {                                                         # If $VNetObject is $null
-                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
-                }                                                                           # End if (!$VNetObject)
-            }                                                                               # End if (!$VNetObject)
-            :SetAzureSubNetName while ($true) {                                             # Inner loop for setting the subnet name
-                $SubnetName = Read-Host "Subnet name"                                       # Operator input for the subnet name
-                if ($SubnetName -eq 'exit') {                                               # If $SubnetName is 'exit'
-                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
-                }                                                                           # End if ($SubnetName -eq 'exit')
-                $OperatorConfirm = Read-Host `
-                    "Set" $SubnetName "as the subnet name [Y] or [N]"                       # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubNetName                                                # Breaks :SetAzureSubNetName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-            }                                                                               # End :SetAzureSubNetName while ($true)
-            :SetAzureSubnetAddress while ($true) {                                          # Inner loop for setting the subnet prefix
-                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)"              # Operator input for the subnet prefix
-                $OperatorConfirm = Read-Host `
-                    "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]"          # Operator confirmation of the address prefix
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubnetAddress                                             # Breaks :SetAzureSubnetAddress
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-            }                                                                               # End :SetAzureSubnetAddress while ($true)
-            $SubnetObject = Add-AzVirtualNetworkSubnetConfig -Name $SubnetName `
-                -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | `
-                Set-AzVirtualNetwork                                                        # Creates the new subnet config and adds to $VNetObject
-            $OperatorSelect = Read-Host "Add another subnet"                                # Operator input to add more subnets
-            if (!($OperatorSelect -eq 'y')) {                                               # if $OperatorSelect does not equal 'y'
-                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnetAgain
-            }                                                                               # End if (!($OperatorSelect -eq 'y'))
-            if ($SubnetObject) {                                                            # If $SubnetObject has a value
-                Return $SubnetObject                                                        # Returns $SubnetObject to calling function
-            }                                                                               # End if ($SubnetObject)
-            else {                                                                          # If $SubnetObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
-                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
-            }                                                                               # End else (if ($SubnetObject))
-        }                                                                                   # End :AddAzureSubnet while ($true)
-        Return                                                                              # Returns to calling function with $Null
-    }                                                                                       # End Begin
-}                                                                                           # End function AddAzVNetSubnetConfig
-function GetAzVNetSubnetConfig {                                                            # Function to get an existing subnet
+}                                                                                           # End function NewAzContainerGroup
+function GetAzContainerGroup {                                                              # Function to get a container
     Begin {                                                                                 # Begin function
-        :GetAzureSubnet while ($true) {                                                     # Outer loop for managing function
-            if (!$VnetObject) {                                                             # If $VnetObject is $null
-                $VnetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
-                if (!$VnetObject) {                                                         # If $VnetObject is $null
-                    Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet
-                }                                                                           # End if (!$VnetObject)
-            }                                                                               # End if (!$VnetObject)
-            $SubNetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject      # pulls all items into list for selection
-            $SubNetListNumber = 1                                                           # $var used for selecting the subnet
-            foreach ($Name in $SubNetList) {                                                # For each name in $SubNetList
-                Write-Host $SubNetListNumber"." $Name.Name $Name.AddressPrefix              # Writes items from list to screen
-                $SubNetListNumber = $SubNetListNumber + 1                                   # Increments $var up by 1
-            }                                                                               # End foreach ($Name in $SubNetList)
-            :GetAzureSubnetName while ($true) {                                             # Inner loop for selecting the Subnet
-                $SubNetListNumber = 1                                                       # Resets $SubNetListNumber
-                $SubNetListSelect = Read-Host "Please enter the number of the subnet"       # Operator input for the Subnet selection
-                foreach ($Name in $SubNetList) {                                            # For each name in $SubnetList
-                    if ($SubNetListSelect -eq $SubNetListNumber) {                          # If $SubnetListSelect equals current $SubnetListNumber
-                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
-                            $VnetObject -Name $Name.Name                                    # Pulls the selected object and assigns to $var
-                        Break GetAzureSubnetName                                            # Breaks :GetAzureSubnetName
-                    }                                                                       # End if ($SubNetListSelect -eq $SubNetListNumber)
-                    else {                                                                  # If $SubnetListSelect does not equal the current $SubnetListNumber
-                        $SubNetListNumber = $SubNetListNumber + 1                           # Increments $var up by 1
-                    }                                                                       # End else (if ($SubNetListSelect -eq $SubNetListNumber))
-                }                                                                           # End foreach ($Name in $SubNetList)
-                Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End :GetAzureSubnetName while ($true)
-            Return $SubnetObject                                                            # Returns to calling function with $var
-        }                                                                                   # End :GetAzureSubnet while ($true)
+        :GetAzureContainerGroup while ($true) {                                             # Outer loop to manage function
+            $ContainerList = Get-AzContainerGroup                                           # Gets a list of all containers
+            if (!$ContainerList) {                                                          # If $ContainerList has no value
+                Write-Host 'No container groups found'                                      # Write message to screen
+                Write-Host 'Returning to previous function'                                 # Write message to screen
+                Break GetAzureContainerGroup                                                # Breaks :GetAzureContainerGroup
+            }                                                                               # End if (!$ContainerList)
+            $ContainerListNumber = 1                                                        # List number used for container selection
+            [System.Collections.ArrayList]$ContainerArray = @()                             # Creates the array used for selection
+            foreach ($_ in $ContainerList) {                                                # For each item in $ContainerList
+                $ArrayInput = [PSCustomObject]@{                                            # Creates the array input
+                    'Number' = $ContainerListNumber; 'Name' = $_.Name; 'RG' = `
+                        $_.ResourceGroupName                                                # Adds items to the array input
+                }                                                                           # End $ArrayInput = [PSCustomObject]
+                $ContainerArray.Add($ArrayInput) | Out-Null                                 # Adds the array input to array
+                $ContainerListNumber = $ContainerListNumber + 1                             # Increments $ContainerListNumber by 1
+            }                                                                               # End foreach ($_ in $ContainerList)
+            Write-Host '[ 0 ] Exit'                                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ContainerArray) {                                               # For each item in $ContainerArray
+                Write-Host '['$_.Number']'                                                  # Write message to screen
+                Write-Host 'Container Name:'$_.name                                         # Write message to screen
+                Write-Host 'Resource Group:'$_.RG                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ContainerArray)
+            :SelectAzureContainer while ($true) {                                           # Inner loop for selecting the Container
+                $ContainerSelect = Read-Host 'Container selection number'                   # Operator input for the Container selection
+                if ($ContainerSelect -eq '0') {                                             # If $ContainerSelect equals 0
+                    Break GetAzureContainerGroup                                            # Breaks :GetAzureContainer
+                }                                                                           # End if ($ContainerSelect -eq '0')
+                elseif ($ContainerSelect -in $ContainerArray.Number) {                      # If $ContainerSelect is in $ContainerArray.Number
+                    $ContainerSelect = $ContainerArray | Where-Object `
+                        {$_.Number -eq $ContainerSelect}                                    # $ContainerSelect is equal to the array item where $ContainerSelect equals the array number
+                    $ContainerObject = Get-AzContainerGroup -ResourceGroupName `
+                        $ContainerSelect.RG -Name $ContainerSelect.name                     # Pulls the full ContainerObject
+                    if ($ContainerObject) {                                                 # If the Container object is pulled
+                        Return $ContainerObject                                             # Return to calling function with $ContainerObject
+                    }                                                                       # End if ($ContainerObject)
+                    else {                                                                  # If the Container object not pulled
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Break GetAzureContainer                                             # Breaks :GetAzureContainer
+                    }                                                                       # End else (if ($ContainerObject))
+                }                                                                           # End elseif ($ContainerSelect -in $ContainerArray.Number)
+                else {                                                                      # If $ContainerSelect is not 0 or in the array
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($ContainerSelect -eq '0') )
+            }                                                                               # End :SelectAzureContainer while ($true)
+        }                                                                                   # End :GetAzureContainerGroup
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzContainerGroup
+function RemoveAzContainerGroup {                                                           # Function to remove a container
+    Begin{                                                                                  # Begin function
+        :RemoveAzureContainerGroup while ($true) {                                          # Outer loop to manage function
+            if (!$ContainerObject) {                                                        # If $ContainerObject is $null
+                $ContainerObject = GetAzContainerGroup                                      # Calls function and assigns output to $var 
+                if (!$ContainerObject) {                                                    # If $ContainerObject is $null
+                    Break RemoveAzureContainerGroup                                         # Breaks :RemoveAzureContainerGroup
+                }                                                                           # End if (!$ContainerObject)
+            }                                                                               # End if (!$ContainerObject)
+            Write-Host 'Remove container ' $ContainerObject.name                            # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input to confirm removal
+            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
+                Remove-AzContainerGroup -ResourceGroupName `
+                    $ContainerObject.ResourceGroupName -Name $ContainerObject.Name          # Removes $ContainerObject 
+                Break RemoveAzureContainerGroup                                             # Breaks :RemoveAzureContainerGroup
+            }                                                                               # End if ($OperatorConfirm equals 'y')
+            else {                                                                          # If $OperatorConfirm does not equal 'y'
+                Break RemoveAzureContainerGroup                                             # Breaks :RemoveAzureContainerGroup
+            }                                                                               # End else (if ($OperatorConfirm equals 'y'))
+        }                                                                                   # End :RemoveAzContainerGroup while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzVNetSubnetConfig
-function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
-    Begin {                                                                                 # Begin function
-        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
-        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
-            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
-            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
-            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
-            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
-                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
-                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
-                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
-                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
-            }                                                                               # End foreach ($_ in $RGList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
-                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
-            }                                                                               # End foreach ($_ in $RGListArray)
-            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
-                if ($CallingFunction) {                                                     # If $CallingFunction exists
-                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
-                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
-                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
-                }                                                                           # End if ($RGSelect -eq '0')
-                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
-                $RGObject = Get-AzResourceGroup | Where-Object `
-                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
-                if ($RGObject) {                                                            # If $RGObject has a value
-                    Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End if ($RGObject)
-                else {                                                                      # If $RGObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($RGObject))
-            }                                                                               # End :SelectAzureRGList while ($true)
-        }                                                                                   # End :GetAzureResourceGroup while ($true)
-    }                                                                                       # End begin statement
-}                                                                                           # End function GetAzResourceGroup
+}                                                                                           # End function RemoveAzContainerGroup
+# Additional required functions specific to ManageAzCompute
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
@@ -6751,7 +6839,7 @@ function SetAzVMOS {                                                            
                     $VMSkuObject = $ImageSkuArray | Where-Object {$_.Number -eq $SkuSelect} # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
                     $VMSkuObject = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
                         -Location $LocationObject.DisplayName -PublisherName `
-                        $VMPublisherObject | Where-Object {$_.Skus -eq $VMSkuObject.Name}   #                                       
+                        $VMPublisherObject | Where-Object {$_.Skus -eq $VMSkuObject.Name}   # Gets the Sku object                                      
                     if ($VMSkuObject) {                                                     # If $VMSkuObject has a value
                         Break GetAzureImageSku                                              # Break SelectAzureImageSku
                     }                                                                       # End if ($VMOfferObject)
@@ -6958,6 +7046,116 @@ function GetAzVMSize {                                                          
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }
+function GetAzVirtualNetwork {                                                              # Function to get an existing virutal network
+    Begin {                                                                                 # Begin function
+        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # pulls all items into list for selection
+            $VNetListNumber = 1                                                             # $var used for selecting the virtual network
+            foreach ($Name in $VNetList) {                                                  # For each name in $VNetList
+                Write-Host $VNetListNumber"." $Name.Name $Name.AddressSpace.AddressPrefixes # Writes items from list to screen
+                $VNetListNumber = $VNetListNumber + 1                                       # Increments $var up by 1
+            }                                                                               # End foreach ($Name in $VNetList)
+            :GetAzureVNetName while ($true) {                                               # Inner loop for selecting the Vnet
+                $VNetListNumber = 1                                                         # Resets $VNetListNumber
+                $VNetListSelect = Read-Host `
+                    "Please enter the number of the virtual network"                        # Operator input for the VNet selection
+                foreach ($Name in $VNetList) {                                              # For each name in $VnetList
+                    if ($VNetListSelect -eq $VNetListNumber) {                              # If $VnetListSelect equals current $VnetListNumber
+                        $VNetObject = Get-AzVirtualNetwork -Name $Name.Name                 # Pulls the selected object and assigns to $var
+                        Break GetAzureVnetName                                              # Breaks :GetAzureVnetName
+                    }                                                                       # End if ($VNetListSelect -eq $VNetListNumber)
+                    else {                                                                  # If $VnetListSelect does not equal the current $VnetListNumber
+                        $VNetListNumber = $VNetListNumber + 1                               # Increments $var up by 1
+                    }                                                                       # End else (if ($VNetListSelect -eq $VNetListNumber))
+                }                                                                           # End foreach ($Name in $VNetList)
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End :GetAzureVNetName while ($true)
+            Return $VNetObject                                                              # Returns to calling function with $var
+        }                                                                                   # End :GetAzureVnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVirtualNetwork
+function AddAzVNetSubnetConfig {                                                            # Function to add a subnet
+    begin {                                                                                 # Begin function
+        :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            if (!$VNetObject) {                                                             # If $VNetObject is $null
+                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $Var
+                if (!$VNetObject) {                                                         # If $VNetObject is $null
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if (!$VNetObject)
+            }                                                                               # End if (!$VNetObject)
+            :SetAzureSubNetName while ($true) {                                             # Inner loop for setting the subnet name
+                $SubnetName = Read-Host "Subnet name"                                       # Operator input for the subnet name
+                if ($SubnetName -eq 'exit') {                                               # If $SubnetName is 'exit'
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if ($SubnetName -eq 'exit')
+                $OperatorConfirm = Read-Host `
+                    "Set" $SubnetName "as the subnet name [Y] or [N]"                       # Operator confirmation of the name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubNetName                                                # Breaks :SetAzureSubNetName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubNetName while ($true)
+            :SetAzureSubnetAddress while ($true) {                                          # Inner loop for setting the subnet prefix
+                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)"              # Operator input for the subnet prefix
+                $OperatorConfirm = Read-Host `
+                    "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]"          # Operator confirmation of the address prefix
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubnetAddress                                             # Breaks :SetAzureSubnetAddress
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubnetAddress while ($true)
+            $SubnetObject = Add-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | `
+                Set-AzVirtualNetwork                                                        # Creates the new subnet config and adds to $VNetObject
+            $OperatorSelect = Read-Host "Add another subnet"                                # Operator input to add more subnets
+            if (!($OperatorSelect -eq 'y')) {                                               # if $OperatorSelect does not equal 'y'
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnetAgain
+            }                                                                               # End if (!($OperatorSelect -eq 'y'))
+            if ($SubnetObject) {                                                            # If $SubnetObject has a value
+                Return $SubnetObject                                                        # Returns $SubnetObject to calling function
+            }                                                                               # End if ($SubnetObject)
+            else {                                                                          # If $SubnetObject does not have a value
+                Write-Host "An error has occured"                                           # Write message to screen
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
+            }                                                                               # End else (if ($SubnetObject))
+        }                                                                                   # End :AddAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $Null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzVNetSubnetConfig
+function GetAzVNetSubnetConfig {                                                            # Function to get an existing subnet
+    Begin {                                                                                 # Begin function
+        :GetAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            if (!$VnetObject) {                                                             # If $VnetObject is $null
+                $VnetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
+                if (!$VnetObject) {                                                         # If $VnetObject is $null
+                    Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet
+                }                                                                           # End if (!$VnetObject)
+            }                                                                               # End if (!$VnetObject)
+            $SubNetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject      # pulls all items into list for selection
+            $SubNetListNumber = 1                                                           # $var used for selecting the subnet
+            foreach ($Name in $SubNetList) {                                                # For each name in $SubNetList
+                Write-Host $SubNetListNumber"." $Name.Name $Name.AddressPrefix              # Writes items from list to screen
+                $SubNetListNumber = $SubNetListNumber + 1                                   # Increments $var up by 1
+            }                                                                               # End foreach ($Name in $SubNetList)
+            :GetAzureSubnetName while ($true) {                                             # Inner loop for selecting the Subnet
+                $SubNetListNumber = 1                                                       # Resets $SubNetListNumber
+                $SubNetListSelect = Read-Host "Please enter the number of the subnet"       # Operator input for the Subnet selection
+                foreach ($Name in $SubNetList) {                                            # For each name in $SubnetList
+                    if ($SubNetListSelect -eq $SubNetListNumber) {                          # If $SubnetListSelect equals current $SubnetListNumber
+                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                            $VnetObject -Name $Name.Name                                    # Pulls the selected object and assigns to $var
+                        Break GetAzureSubnetName                                            # Breaks :GetAzureSubnetName
+                    }                                                                       # End if ($SubNetListSelect -eq $SubNetListNumber)
+                    else {                                                                  # If $SubnetListSelect does not equal the current $SubnetListNumber
+                        $SubNetListNumber = $SubNetListNumber + 1                           # Increments $var up by 1
+                    }                                                                       # End else (if ($SubNetListSelect -eq $SubNetListNumber))
+                }                                                                           # End foreach ($Name in $SubNetList)
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End :GetAzureSubnetName while ($true)
+            Return $SubnetObject                                                            # Returns to calling function with $var
+        }                                                                                   # End :GetAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVNetSubnetConfig                                                                                        # End function GetAzResourceGroup
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
         :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
