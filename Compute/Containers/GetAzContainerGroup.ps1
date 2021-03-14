@@ -1,7 +1,6 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
     Get-AzContainerGroup :      https://docs.microsoft.com/en-us/powershell/module/az.containerinstance/get-azcontainergroup?view=azps-5.6.0
-    
 } #>
 <# Required Functions Links: {
     None    
@@ -47,9 +46,10 @@ function GetAzContainerGroup {                                                  
             Write-Host '[ 0 ] Exit'                                                         # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $ContainerArray) {                                               # For each item in $ContainerArray
-                Write-Host $_.Number                                                        # Write message to screen
-                Write-Host $_.name                                                          # Write message to screen
-                Write-Host $_.RG                                                            # Write message to screen
+                Write-Host '['$_.Number']'                                                  # Write message to screen
+                Write-Host 'Container Name:'$_.name                                         # Write message to screen
+                Write-Host 'Resource Group:'$_.RG                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ContainerArray)
             :SelectAzureContainer while ($true) {                                           # Inner loop for selecting the Container
                 $ContainerSelect = Read-Host 'Container selection number'                   # Operator input for the Container selection
