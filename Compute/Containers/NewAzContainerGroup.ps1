@@ -1,5 +1,40 @@
-
-
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    New-AzContainerGroup :      https://docs.microsoft.com/en-us/powershell/module/az.containerinstance/new-azcontainergroup?view=azps-5.6.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+} #>
+<# Required Functions Links: {
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1   
+} #>
+<# Functions Description: {
+    NewAzContainerGroup:        Creates a container group
+    GetAzResourceGroup:         Gets a resource group
+} #>
+<# Variables: {
+    :NewAzureContainerGroup     Outer loop for managing function
+    :SetContainerName           Inner loop for setting the container name
+    :SetAzureContainerType      Inner loop for setting the container image type
+    :SetAzureContainerImage     Inner loop for setting the container image
+    :SetAzureContainerDNS       Inner loop for setting the container dns
+    $RGObject:                  Resource group object
+    $CallingFunction:           Passed the current function name to GetAzResourceGroup
+    $ContainerNameObject:       Operator input for the name of the container group
+    $ImageTypeObject:           Operator input for the image type of the container group
+    $ContainerImage:            Operator input for the image name or location of the container group
+    $ContainerDNS:              Operator input for the DNS of the container group
+    $OperatorConfirm:           Operator confirmation of the container group $vars
+    $ContainerObject:           Container object
+    GetAzResourceGroup{}        Gets $RGObject
+} #>
+<# Process Flow {
+    Function
+        Call NewAzContainerGroup > Get $ContainerObject
+            Call GetAzResourceGroup > Get $RGObject
+            End GetAzResourceGroup 
+            Return NewAzContainerGroup > Send $RGObject
+        End NewAzContainerGroup
+            Return function > Send $ContainerObject
+}#>
 function NewAzContainerGroup {                                                              # Function to create a new container
     Begin {                                                                                 # Begin function
         :NewAzureContainerGroup while ($true) {                                             # Outer loop for managing functions
@@ -43,15 +78,47 @@ function NewAzContainerGroup {                                                  
                     Write-Host "That was not a valid selection"                             # Write message to screen
                 }                                                                           # End else (if ($ImageTypeObject -eq 'exit') )
             }                                                                               # End :SetAzureVMType while ($true)    
-            :SetAzureContainerImage while ($true) {
-                Write-Host 'Enter the URL of the container image'
-                $ContainerImage = Read-Host 'Image info'
-                Break SetAzureContainerImage 
+            :SetAzureContainerImage while ($true) {                                         # Inner loop for setting the container image
+                Write-Host 'Enter the URL of the container image'                           # Write message to screen
+                Write-Host 'Short names of images on the '                                  # Write message to screen
+                Write-Host 'azure marketplace may also be used'                             # Write message to screen
+                Write-Host 'Type "Exit" to leave this function'                             # Write message to screen
+                $ContainerImage = Read-Host 'Image info'                                    # Operator input for the image info
+                Write-Host $ContainerImage                                                  # Write message to screen
+                $OperatorConfirm = Read-Host 'Please confirm the image info [Y] or [N]'     # Operator confirmation of the image info
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureContainerImage                                            # Breaks :SetAzureContainerImagr
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                else {                                                                      # If $OperatorConfirm does not equal 'y'
+                    Write-Host ''                                                           # Writes message to screen
+                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
             }                                                                               # End :SetAzureContainerImage while ($true)
-            $ContainerObject = New-AzContainerGroup -ResourceGroupName `
-                $RGObject.ResourceGroupName -Name $ContainerNameObject -Image `
-                $ContainerImage -OsType $ImageTypeObject -DnsNameLabel aci-taco-test
-            Return $ContainerObject
+            :SetAzureContainerDNS while ($true) {                                           # Inner loop to set the container DNS
+                $ContainerDNS = Read-Host 'Please create a DNS entry'                       # Operator input for the container DNS
+                if ($ContainerDNS -eq 'exit') {                                             # If $ContainerDNS equals exit
+                    Break NewAzureContainerGroup                                            # Breaks :NewAzureContainerGroup
+                }                                                                           # End if ($ContainerDNS -eq 'exit')
+                Write-Host 'Use' $ContainerDNS 'as the container DNS'                       # Write message to screen
+                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation of the DNS
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureContainerDNS                                              # Breaks :SetAzureContainerDNS
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                else {                                                                      # If $OperatorConfirm not equal 'y'
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
+            }                                                                               # End :SetAzureContainerDNS while ($true)
+            Try {                                                                           # Try the following
+                $ContainerObject = New-AzContainerGroup -ResourceGroupName `
+                    $RGObject.ResourceGroupName -Name $ContainerNameObject -Image `
+                    $ContainerImage -OsType $ImageTypeObject -DnsNameLabel $ContainerDNS    # Creates the new container group and assigns to $ContainerObject
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'The defult resource may not be available at this time'          # Write message to screen
+                Write-Host 'You may not have the permissions complete this action'          # Write message to screen
+                Break NewAzureContainerGroup                                                # Breaks :NewAzureContainerGroup
+            }                                                                               # End catch
+            Return $ContainerObject                                                         # Returns to calling function with $ContainerObject
         }                                                                                   # End :NewAzureContainerGroup while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
