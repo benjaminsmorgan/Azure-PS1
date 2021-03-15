@@ -40,7 +40,7 @@ function GetAzResourceGroup {                                                   
             }                                                                               # End foreach ($_ in $RGList)
             Write-Host "0 Exit"                                                             # Write message to screen
             foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
-                Write-Host $_.Number $_.Name "|" $_.Location                                    # Writes RG number, name, and location to screen
+                Write-Host $_.Number $_.Name "|" $_.Location                                # Writes RG number, name, and location to screen
             }                                                                               # End foreach ($_ in $RGListArray)
             :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
                 if ($CallingFunction) {                                                     # If $CallingFunction exists
