@@ -98,16 +98,19 @@ function NewAzAksCluster {                                                      
             }                                                                               # End :SetAzureTag while ($true)
             :SetAzureAksNodeCount while ($true) {                                           # Loop for setting the node count
                 Write-Host '[0] to exit'                                                    # Write message to screen
-                $AksNodeObject = Read-Host [int] 'Enter the number of nodes'                # Operator input for the node count
+                [int]$AksNodeObject = Read-Host 'Enter the number of nodes'                 # Operator input for the node count
                 if ($AksNodeObject -eq '0') {                                               # If $AksNodeObject equals 0
                     Break NewAzureAksCluster                                                # Breaks :NewAzureAksCluster
                 }                                                                           # End if ($AksNodeObject -eq '0')
                 elseif (!$AksNodeObject) {                                                  # Else if $AksNodeObject is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen   
                 }                                                                           # End elseif (!$AksNodeObject)
+                elseif ($AksNodeObject -lt 0) {
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }
                 else {                                                                      # If $AksNodeObject has value
                     $OperatorConfirm = Read-Host 'This Aks cluster will have' `
-                    $AksNodeObject 'nodes? [Y] or [N]'                                      # Operator confirmation of the node count
+                    $AksNodeObject 'node(s)? [Y] or [N]'                                    # Operator confirmation of the node count
                     if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
                         Break SetAzureAksNodeCount                                          # Breaks :SetAzureAksNodeCount
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
@@ -157,17 +160,21 @@ function NewAzAksCluster {                                                      
                         Break SetAzureAksPassword                                           # Breaks :SetAzureAksPassword
                     }                                                                       # End if ($OperatorConfirm -eq 'y')
                 }                                                                           # End :SetAzureAksPassword while ($true)
-                #Try {                                                                       # Try the following
+                Try {                                                                       # Try the following
                     $AksObject = New-AzAksCluster -ResourceGroupName `
                         $RGObject.ResourceGroupName -Name $AksClusterNameObject `
                         -WindowsProfileAdminUserName $AksUserNameObject `
                         -WindowsProfileAdminUserPassword $AksPasswordObject `
                         -NetworkPlugin azure -NodeVmSetType VirtualMachineScaleSets `
                         -Tag $Tag -NodeCount $AksNodeObject -ErrorAction 'Stop'              # Creates the Aks cluster
-                #}                                                                           # End try
-                #Catch {                                                                     # If Try fails
-                #    Write-Host 'An error has occured'                                       # Write message to screen
-                #}                                                                           # End catch
+                    $AksNodeName = 'Nnamet'
+                    New-AzAksNodePool -ResourceGroupName $RGObject.ResourceGroupName `
+                        -ClusterName $AksClusterNameObject -Name $AksNodeName -OsType `
+                        Windows -VmSetType VirtualMachineScaleSets                          # Adds additional windows parameters 
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                }                                                                           # End catch
                 if ($AksObject) {                                                           # If $AksObject has a value
                     Return $AksObject                                                       # Returns $AksObject to calling function 
                 }                                                                           # End if ($AksObject)
