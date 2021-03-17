@@ -23,28 +23,42 @@
 }#>
 function GetAzVirtualNetwork {
     Begin {
-        :GetAzureVnet while ($true) { # Outer loop for managing function
-            $VNetList = Get-AzVirtualNetwork # pulls all items into list for selection
-            $VNetListNumber = 1 # $var used for selecting the virtual network
-            foreach ($Name in $VNetList) { # For each name in $VNetList
-                Write-Host $VNetListNumber"." $Name.Name $Name.AddressSpace.AddressPrefixes # Writes items from list to screen
-                $VNetListNumber = $VNetListNumber + 1 # Increments $var up by 1
-            } # End foreach ($Name in $VNetList)
+        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # pulls all items into list for selection
+            $VNetListNumber = 1                                                             # $var used for selecting the virtual network
+            [System.Collections.ArrayList]$VNetArray = @()                                  # Creates the RG list array
+            foreach ($_ in $VNetList) {                                                     # For each $_ in $RGListList
+                $ArrayInput = [PSCustomObject]@{'Number' = $VNetListNumber; `
+                'Name' = $_.Name; 'RG' = $_.ResourceGroupName; 'Location' = $_.Location; `
+                'ASpace' = $_.AddressSpace.AddressPrefixes}                                 # Creates the item to loaded into array
+                $VNetArray.Add($ArrayInput) | Out-Null                                      # Loads item into array, out-null removes write to screen
+                $VNetListNumber = $VNetListNumber + 1                                       # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $VNetArray) {                                                    # For each name in $VNetList
+                Write-Host '['$_.Number']'                                                  # Write message to screen
+                Write-Host 'Name:    '$_.Name                                               # Write message to screen
+                Write-Host 'RG:      '$_.RG                                                 # Write message to screen
+                Write-Host 'Loc:     '$_.Location                                           # Write message to screen
+                Write-Host 'A Space: '$_.ASpace                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($Name in $Array)
             :GetAzureVNetName while ($true) { # Inner loop for selecting the Vnet
-                $VNetListNumber = 1 # Resets $VNetListNumber
                 $VNetListSelect = Read-Host "Please enter the number of the virtual network" # Operator input for the VNet selection
-                foreach ($Name in $VNetList) { # For each name in $VnetList
-                    if ($VNetListSelect -eq $VNetListNumber) { # If $VnetListSelect equals current $VnetListNumber
-                        $VNetObject = Get-AzVirtualNetwork -Name $Name.Name # Pulls the selected object and assigns to $var
-                        Break GetAzureVnetName # Breaks :GetAzureVnetName
-                    } # End if ($VNetListSelect -eq $VNetListNumber)
-                    else { # If $VnetListSelect does not equal the current $VnetListNumber
-                        $VNetListNumber = $VNetListNumber + 1 # Increments $var up by 1
-                    } # End else (if ($VNetListSelect -eq $VNetListNumber))
-                } # End foreach ($Name in $VNetList)
-                Write-Host "That was not a valid option" # Write message to screen
+                if ($VNetListSelect -eq '0') {
+                    Break GetAzureVNet
+                }
+                elseif ($VNetListSelect -in $VNetArray.Number) {
+                    $VNetListSelect = $VNetArray | Where-Object {$_.Number -eq `
+                        $VNetListSelect}
+                    $VNetObject = Get-AzVirtualNetwork -Name $VNetListSelect.Name `
+                        -ResourceGroupName $VNetListSelect.RG
+                        Return $VNetObject # Returns to calling function with $var
+                }
+                else {
+                    Write-Host 'That was not a valid option'
+                }
             } # End :GetAzureVNetName while ($true)
-            Return $VNetObject # Returns to calling function with $var
         } # End :GetAzureVnet while ($true)
         Return # Returns to calling function with $null
     } # End Begin
