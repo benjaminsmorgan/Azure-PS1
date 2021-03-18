@@ -1,3 +1,74 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    New-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Remove-AzVirtualNetwork:    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetwork?view=azps-5.4.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
+} #>
+<# Required Functions Links: {
+    NewAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/NewAzVirtualNetwork.ps1
+    ListAzVirtualNetwork:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/ListAzVirtualNetwork.ps1
+    GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+    RemoveAzVirtualNetwork:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/RemoveAzVirtualNetwork.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
+    AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+} #>
+<# Functions Description: {
+    ManageAzVirtualNetwork:     Management function for azure virtual networks
+    NewAzVirtualNetwork:        Creates a new azure virtual network
+    ListAzVirtualNetwork:       Lists all existing azure virtual networks
+    GetAzVirtualNetwork:        Gets an existing azure virtual network
+    RemoveAzVirtualNetwork:     Removes an azure virtual network
+    NewAzSubnet:                Creates a new subnet in an Azure virtual network
+    GetAzResourceGroup:         Gets a resource group object
+    GetAzLocation:              Gets an Azure location
+} #>
+<# Variables: {
+    :ManageAzureVirtualNetwork  Outer loop for managing function
+    $RGObject:                  Resource group object
+    $VNetObject:                Virtual network object
+    $ManageAzVirtualNetwork:    Operator input to select management function
+    NewAzVirtualNetwork{}       Creates $VNetObject
+        GetAzResourceGroup{}        Gets $RGObject
+        GetAzLocation{}             Gets $LocationObject
+        AddAzVNetSubnetConfig{}     Adds subnets to $VNetObject
+    ListAzVirtualNetwork{}      Lists Vnets
+    GetAzVirtualNetwork{}       Gets $VNetObject
+    RemoveAzVirtualNetwork{}   Removes $VnetObject
+        GetAzVirtualNetwork{}       Gets $VNetObject
+} #>
+<# Process Flow {
+    Function
+        Call ManageAzVirtualNetwork > Get $VNetObject
+            Call NewAzVirtualNetwork > Get $VNetObject
+                Call GetAzResourceGroup > Get $RGObject
+                End GetAzResourceGoup
+                    Return NewAzVirtualNetwork > Send $RGObject
+                Call GetAzLocation > Get $LocationObject
+                End GetAzLocation
+                    Return NewAzVirtualNetwork > Send $LocationObject
+                Call AddAzVNetSubnetConfig > Get $VNetObject
+                End AddAzVNetSubnetConfig
+                    Return NewAzVirtualNetwork > Send $VNetObject 
+            End NewAzVirtualNetwork
+                Return Function > Send $VNetObject
+            Call ListAzVirtualNetwork > Get $null 
+            End ListAzVirtualNetwork
+                Return ManageAzVirtualNetwork > Send $null
+            Call GetAzVirtualNetwork > Get $VNetObject
+            End GetAzVirtualNetwork
+                Return ManageAzVirtualNetwork > Send $VNetObject
+            Call RemoveAzVirtualNetwork > Get $null
+                Call GetAzVirtualNetwork > Get $VNetObject
+                End GetAzVirtualNetwork
+                    Return RemoveAzVirtualNetwork > Send $VNetObject
+            End RemoveAzVirtualNetwork
+                Return ManageAzVirtualNetwork > Send $null
+        End ManageAzVirtualNetwork
+            Return function > Send $VNetObject
+}#>
 function ManageAzVirtualNetwork {                                                           # Function for managing azure virtual networks
     Begin {                                                                                 # Begin function
         :ManageAzureVirtualNetwork while($true) {                                           # Outer loop for managing function
@@ -119,7 +190,84 @@ function ListAzVirtualNetwork {                                                 
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzVirtualNetwork
-
+function GetAzVirtualNetwork {                                                              # Function for getting an Azure virtual network
+    Begin {                                                                                 # Begin function
+        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
+            $ObjectList = Get-AzVirtualNetwork                                              # pulls all items into list for selection
+            $ListNumber = 1                                                                 # $var used for selecting the virtual network
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $RGListList
+                $ArrayInput = [PSCustomObject]@{'Number' = $ListNumber; 'Name' = $_.Name; `
+                    'RG' = $_.ResourceGroupName; 'Location' = $_.Location; 'ASpace' = `
+                    $_.AddressSpace.AddressPrefixes}                                        # Creates the item to loaded into array
+                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host '[ 0  ]    Exit'                                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each name in $ObjectList
+                Write-Host '['$_.Number']'                                                  # Write message to screen
+                Write-Host 'Name:    '$_.Name                                               # Write message to screen
+                Write-Host 'RG:      '$_.RG                                                 # Write message to screen
+                Write-Host 'Loc:     '$_.Location                                           # Write message to screen
+                Write-Host 'A Space: '$_.ASpace                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($Name in $Array)
+            :SelectAzureVNet while ($true) {                                                # Inner loop for selecting the Vnet
+                $VNetSelect = Read-Host `
+                    "Please enter the number of the virtual network"                        # Operator input for the VNet selection
+                if ($VNetSelect -eq '0') {                                                  # If $VNetSelect equals 0
+                    Break GetAzureVNet                                                      # Breaks :GetAzureVNet
+                }                                                                           # End if ($VNetSelect -eq '0')
+                elseif ($VNetSelect -in $ObjectArray.Number) {                              # Else if $VNetSelect is in $ObjectArray.Number
+                    $VNetSelect = $ObjectArray | Where-Object {$_.Number -eq $VNetSelect}   # $VNetSelect is equal to $ObjectArray where $VNetSelect equals $ObjectArray.Number
+                    $VNetObject = Get-AzVirtualNetwork -Name $VNetSelect.Name `
+                        -ResourceGroupName $VNetSelect.RG                                   # Pulls the full object and assigns to $var
+                        Return $VNetObject                                                  # Returns to calling function with $var
+                }                                                                           # End elseif ($VNetSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $VNetSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($VNetSelect -eq '0'))
+            }                                                                               # End :SelectAzureVNet while ($true)
+        }                                                                                   # End :GetAzureVnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVirtualNetwork
+function RemoveAzVirtualNetwork {                                                           # Function to remove an Azure virtual network
+    Begin {                                                                                 # Being function
+        :RemoveAzureVnet while ($true) {                                                    # Outer loop for managing function
+            if (!$VNetObject) {                                                             # If $VNetObject is $null
+                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
+                if (!$VNetObject) {                                                         # If $VNetObject is $null
+                    Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
+                }                                                                           # End if (!$VNetObject)
+            }                                                                               # End if (!$VNetObject)
+            Write-Host 'Remove the virtual network named'$VNetObject.Name                   # Write message to screen
+            Write-Host 'from the resource group'$VNetObject.ResourceGroupName               # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the selected VNet
+            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzVirtualNetwork -Name $VNetObject.Name -ResourceGroupName `
+                        $VNetObject.ResourceGroupName -Force -ErrorAction 'Stop'            # Removes the virtual network
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the'                                       # Write message to screen 
+                    Write-Host 'required permissions'                                       # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
+                }                                                                           # End catch
+                Write-Host 'The selected virtual network has been removed'                  # Write message to screen
+                Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
+            }                                                                               # End if ($OperatorConfirm -eq 'y')
+            else {                                                                          # If $OperatorConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
+            }                                                                               # End else (if ($OperatorConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureVnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzVirtualNetwork
 # Additional functions required for ManageAzVirtualNetwork
 function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
     Begin {                                                                                 # Begin function
