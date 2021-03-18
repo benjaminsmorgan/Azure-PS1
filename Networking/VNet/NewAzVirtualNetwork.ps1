@@ -10,7 +10,7 @@
     AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
 } #>
 <# Functions Description: {
-    NewAzVnet:                  Creates a new azure virtual network
+    NewAzVirtualNetwork:        Creates a new azure virtual network
     NewAzSubnet:                Creates a new subnet in an Azure virtual network
     GetAzResourceGroup:         Gets a resource group object
     GetAzLocation:              Gets an Azure location
@@ -32,18 +32,18 @@
 } #>
 <# Process Flow {
     Function
-        Call NewAzVnet > Get $VNetObject
+        Call NewAzVirtualNetwork tObject
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGoup
-                Return NewAzVnet > Send $RGObject
+                Return NewAzVirtualNetwork Object
             Call GetAzLocation > Get $LocationObject
             End GetAzLocation
-                Return NewAzVnet > Send $LocationObject
+                Return NewAzVirtualNetwork cationObject
             Call AddAzVNetSubnetConfig > Get $VNetObject
             End AddAzVNetSubnetConfig
-                Return NewAzVnet > Send $VNetObject 
-        End NewAzVnet
-            Return Function > Send $VNetObject
+                Return NewAzVirtualNetwork etObject 
+        End NewAzVirtualNetwork
+  Return Function > Send $VNetObject
 }#>
 function NewAzVirtualNetwork { # Creates a new Vnet
     Begin {
