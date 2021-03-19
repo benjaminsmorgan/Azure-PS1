@@ -327,6 +327,162 @@ function RemoveAzVirtualNetwork {                                               
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVirtualNetwork
+# Functions for ManageAzVNetSubnetConfig
+function ManageAzVNetSubnetConfig {                                                         # Function for managing azure Subnet resources
+    Begin {                                                                                 # Begin function   
+        :ManageAzureSubnet while ($true) {                                                  # Outer loop for managing function
+            if ($VNetObject) {                                                              # If $VnetObject has a value
+                Write-Host 'The currently selected Vnet is:'$VNetObject.name                # Write message to screen
+            }                                                                               # End if ($VNetObject)
+            if ($SubnetObject) {                                                            # If $VnetObject has a value
+                Write-Host 'The currently selected Subnet is:'$SubnetObject.name            # Write message to screen
+            }                                                                               # End if ($SubnetObject)
+            Write-Host "Azure Subnet Management"                                            # Write message to screen
+            Write-Host '0 Clear "$vars"'                                                    # Write message to screen
+            Write-Host '1 Add subnet'                                                       # Write message to screen
+            Write-Host '2 Get subnet'                                                       # Write message to screen
+            Write-Host '3 Remove subnet'                                                    # Write message to screen
+            Write-Host "'Exit to return'"                                                   # Write message to screen
+            $ManageAzSubnet = Read-Host "Option?"                                           # Collects operator input on $ManageAzSubnet option
+            if ($ManageAzSubnet -eq 'exit') {                                               # If $ManageAzSubnet equals 'exit'
+                Break ManageAzureSubnet                                                     # Breaks :ManageAzureSubnet
+            }                                                                               # End if ($ManageAzSubnet -eq 'exit')
+            elseif ($ManageAzSubnet -eq '0') {                                              # Elseif $ManageAzSubnet equals 0
+                if ($VNetObject) {                                                          # If $VNetObject has a value
+                    Write-Host 'Clearing "$VNetObject'                                      # Write message to screen
+                    $VNetObject = $null                                                     # Clears $VNetObject
+                }                                                                           # End if ($VNetObject)
+                else {                                                                      # If $VNetObject does not have a value
+                    Write-Host '$VNetObject is already clear'                               # Write message to screen
+                }                                                                           # End else (if ($VnetObject))
+                if ($SubnetObject) {                                                        # If $SubnetObject has a value
+                    Write-Host 'Clearing "$SubnetObject'                                    # Write message to screen
+                    $SubnetObject = $null                                                   # Clears $SubnetObject
+                }                                                                           # End if ($SubnetObject)
+                else {                                                                      # If $SubnetObject does not have a value
+                    Write-Host '$Subnet is already clear'                                   # Write message to screen
+                }                                                                           # End else (if ($VnetObject))
+            }                                                                               # End elseif ($ManageAzSubnet -eq '0')
+            elseif ($ManageAzSubnet -eq '1') {                                              # Elseif $ManageAzSubnet equals 1
+                Write-Host 'Add subnet'                                                     # Write message to screen
+                $SubnetObject = AddAzVNetSubnetConfig ($VNetObject)                         # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzSubnet -eq '1')
+            elseif ($ManageAzSubnet -eq '2') {                                              # Elseif $ManageAzSubnet equals 2
+                Write-Host 'Get subnet'                                                     # Write message to screen
+                $SubnetObject, $VNetObject = GetAzVNetSubnetConfig                          # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzSubnet -eq '2')
+            elseif ($ManageAzSubnet -eq '3') {                                              # Elseif $ManageAzSubnet equals 3
+                Write-Host 'Remove subnet'                                                  # Write message to screen
+                RemoveAzVNetSubnetConfig ($SubnetObject, $VNetObject)                       # Calls function
+            }                                                                               # End elseif ($ManageAzSubnet -eq '3')
+            else {                                                                          # If $ManageAzSubnet do not match any if or elseif     
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End else (if ($ManageAzSubnet -eq 'exit'))
+        }                                                                                   # End :ManageAzureSubnet while ($true)
+        Return $VNetObject, $SubnetObject                                                   # Returns $vars to calling function
+    } # End Begin
+} # End function ManageAzVNetSubnetConfig
+function AddAzVNetSubnetConfig {                                                            # Function to create a subnet
+    begin {                                                                                 # Begin function
+        :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            if (!$VNetObject) {                                                             # if $VNetObject is $null
+                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $Var
+                if (!$VNetObject) {                                                         # if $VNetObject is $null
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if (!$VNetObject)
+            }                                                                               # End if (!$VNetObject)
+            :SetAzureSubNetName while ($true) {                                             # Inner loop for setting the subnet name
+                $SubnetName = Read-Host "Subnet name"                                       # Operator input for the subnet name
+                if ($SubnetName -eq 'exit') {                                               # If $SubnetName is 'exit'
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if ($SubnetName -eq 'exit')
+                $OperatorConfirm = Read-Host `
+                    "Set" $SubnetName "as the subnet name [Y] or [N]"                       # Operator confirmation of the name
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubNetName                                                # Breaks :SetAzureSubNetName
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubNetName while ($true)
+            :SetAzureSubnetAddress while ($true) {                                          # Inner loop for setting the subnet prefix
+                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.1.0/24)"              # Operator input for the subnet prefix
+                if ($AddressPrefix -eq 'exit') {                                            # If $AddressPrefix equals 'exit'
+                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
+                }                                                                           # End if ($AddressPrefix -eq 'exit')
+                $OperatorConfirm = Read-Host `
+                    "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]"          # Operator confirmation of the address prefix
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Break SetAzureSubnetAddress                                             # Breaks :SetAzureSubnetAddress
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+            }                                                                               # End :SetAzureSubnetAddress while ($true)
+            try {                                                                           # Try the following
+                $SubnetObject = Add-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                    -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | `
+                    Set-AzVirtualNetwork -ErrorAction 'Stop'                                # Creates the new subnet config and adds to $VNetObject
+            }                                                                               # End Try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Break AddAzVNetSubnetConfig                                                 # Breaks :AddAzVNetSubnetConfig
+            }                                                                               # End catch
+            Return $SubnetObject                                                            # Returns to calling function with $var
+        }                                                                                   # End :AddAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $Null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzVNetSubnetConfig
+function GetAzVNetSubnetConfig {                                                            # Function to get a subnet
+    Begin{                                                                                  # Begin function
+        :GetAzureSubnet while ($true) {                                                     # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # Gets a list of all virtual networks
+            $ListNumber = 1                                                                 # List number used for subnet selection
+            [System.Collections.ArrayList]$ListArray = @()                                  # Array that all info is loaded into
+            foreach ($_ in $VNetList) {                                                     # For each object in $VnetList
+                $VNet = $_.Name                                                             # Sets $Vnet as the current object Vnet name
+                $VnetPFX = $_.AddressSpace.AddressPrefixes                                  # Sets $VnetPFX as the current object Vnet prefix
+                $VNetRG = $_.ResourceGroupName                                              # Sets $VnetRG as the current object Vnet resource group
+                $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $_           # Creates a list of subnets on the current object vnet
+                foreach ($_ in $SubnetList) {                                               # For each $_ in $RGListList
+                        $ListInput = [PSCustomObject]@{'Name' = $_.Name; `
+                            'Number' = $ListNumber; 'Vnet' = $VNet; 'PFX' = `
+                            $_.AddressPrefix; 'VnetPFX' = $VnetPFX; 'RG' = $VNetRG}         # Creates the item to loaded into array
+                        $ListArray.Add($ListInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                        $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                }                                                                           # End foreach ($_ in $SubnetList)                                        
+            }                                                                               # End foreach ($_ in $VNetList)
+            Write-Host '[ 0 ] Exit'                                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
+                Write-Host '['$_.Number']'                                                  # Write message to screen
+                Write-Host 'Sub Name:   '$_.name                                            # Write message to screen
+                Write-Host 'Add Prefix: '$_.PFX                                             # Write message to screen
+                Write-Host 'VNet Name:  '$_.Vnet                                            # Write message to screen
+                Write-Host 'Vnet Prefix:'$_.VnetPFX                                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ListArray)
+            :SelectAzureSubNet while ($true) {                                              # Inner loop for selecting the subnet
+                $SubnetSelect = Read-Host 'Enter [#] of the subnet'                         # Operator input for the subnet selection
+                if ($SubnetSelect -eq '0') {                                                # If $SubnetSelect equals '0'
+                    Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet   
+                }                                                                           # End if ($SubnetSelect -eq '0')
+                elseif ($SubnetSelect -in $ListArray.Number) {                              # If $SubnetSelect is in $ListArray.Number
+                    $SubnetSelect = $ListArray | Where-Object {$_.Number -eq $SubnetSelect} # $Subnet select is equal to object in $ListArray
+                    Try {                                                                   # Try the following
+                        $VNetObject = Get-AzVirtualNetwork -Name $SubnetSelect.Vnet `
+                            -ResourceGroupName $SubnetSelect.RG                             # Pulls the $VnetObject
+                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                            $VNetObject -Name $SubnetSelect.Name                            # Pulls the $SubnetObject
+                    }                                                                       # End Try
+                    catch {                                                                 # If Try fails
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Break GetAzureSubnet                                                # Breaks :GetAzureSubnet
+                    }                                                                       # End catch   
+                    Return $SubnetObject, $VNetObject                                       # Returns to calling function with $SubnetObject and $VNetObject
+                }                                                                           # End elseif ($SubnetSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $SubnetSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($SubnetSelect -eq '0'))
+            }                                                                               # End :SelectAzureSubNet while ($true)
+        }                                                                                   # End :GetAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVNetSubnetConfig
 # Additional functions required for ManageAzVirtualNetwork
 function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
     Begin {                                                                                 # Begin function
@@ -398,87 +554,6 @@ function GetAzLocation { # Gets azure location
         Return # Returns with $null 
     } # End Begin
 } # End function GetAzLocation
-function AddAzVNetSubnetConfig {                                                            # Function to add a subnet
-    begin {                                                                                 # Begin function
-        :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
-            if (!$VNetObject) {                                                             # If $VNetObject is $null
-                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $Var
-                if (!$VNetObject) {                                                         # If $VNetObject is $null
-                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
-                }                                                                           # End if (!$VNetObject)
-            }                                                                               # End if (!$VNetObject)
-            :SetAzureSubNetName while ($true) {                                             # Inner loop for setting the subnet name
-                $SubnetName = Read-Host "Subnet name"                                       # Operator input for the subnet name
-                if ($SubnetName -eq 'exit') {                                               # If $SubnetName is 'exit'
-                    Break AddAzureSubnet                                                    # Breaks :AddAzureSubnet
-                }                                                                           # End if ($SubnetName -eq 'exit')
-                $OperatorConfirm = Read-Host `
-                    "Set" $SubnetName "as the subnet name [Y] or [N]"                       # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubNetName                                                # Breaks :SetAzureSubNetName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-            }                                                                               # End :SetAzureSubNetName while ($true)
-            :SetAzureSubnetAddress while ($true) {                                          # Inner loop for setting the subnet prefix
-                $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)"              # Operator input for the subnet prefix
-                $OperatorConfirm = Read-Host `
-                    "Use" $AddressPrefix "as the subnet address prefix [Y] or [N]"          # Operator confirmation of the address prefix
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
-                    Break SetAzureSubnetAddress                                             # Breaks :SetAzureSubnetAddress
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-            }                                                                               # End :SetAzureSubnetAddress while ($true)
-            $SubnetObject = Add-AzVirtualNetworkSubnetConfig -Name $SubnetName `
-                -VirtualNetwork $VNetObject -AddressPrefix $AddressPrefix | `
-                Set-AzVirtualNetwork                                                        # Creates the new subnet config and adds to $VNetObject
-            $OperatorSelect = Read-Host "Add another subnet"                                # Operator input to add more subnets
-            if (!($OperatorSelect -eq 'y')) {                                               # if $OperatorSelect does not equal 'y'
-                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnetAgain
-            }                                                                               # End if (!($OperatorSelect -eq 'y'))
-            if ($SubnetObject) {                                                            # If $SubnetObject has a value
-                Return $SubnetObject                                                        # Returns $SubnetObject to calling function
-            }                                                                               # End if ($SubnetObject)
-            else {                                                                          # If $SubnetObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
-                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
-            }                                                                               # End else (if ($SubnetObject))
-        }                                                                                   # End :AddAzureSubnet while ($true)
-        Return                                                                              # Returns to calling function with $Null
-    }                                                                                       # End Begin
-}                                                                                           # End function AddAzVNetSubnetConfig
-function GetAzVNetSubnetConfig {                                                            # Function to get an existing subnet
-    Begin {                                                                                 # Begin function
-        :GetAzureSubnet while ($true) {                                                     # Outer loop for managing function
-            if (!$VnetObject) {                                                             # If $VnetObject is $null
-                $VnetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
-                if (!$VnetObject) {                                                         # If $VnetObject is $null
-                    Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet
-                }                                                                           # End if (!$VnetObject)
-            }                                                                               # End if (!$VnetObject)
-            $SubNetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VnetObject      # pulls all items into list for selection
-            $SubNetListNumber = 1                                                           # $var used for selecting the subnet
-            foreach ($Name in $SubNetList) {                                                # For each name in $SubNetList
-                Write-Host $SubNetListNumber"." $Name.Name $Name.AddressPrefix              # Writes items from list to screen
-                $SubNetListNumber = $SubNetListNumber + 1                                   # Increments $var up by 1
-            }                                                                               # End foreach ($Name in $SubNetList)
-            :GetAzureSubnetName while ($true) {                                             # Inner loop for selecting the Subnet
-                $SubNetListNumber = 1                                                       # Resets $SubNetListNumber
-                $SubNetListSelect = Read-Host "Please enter the number of the subnet"       # Operator input for the Subnet selection
-                foreach ($Name in $SubNetList) {                                            # For each name in $SubnetList
-                    if ($SubNetListSelect -eq $SubNetListNumber) {                          # If $SubnetListSelect equals current $SubnetListNumber
-                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
-                            $VnetObject -Name $Name.Name                                    # Pulls the selected object and assigns to $var
-                        Break GetAzureSubnetName                                            # Breaks :GetAzureSubnetName
-                    }                                                                       # End if ($SubNetListSelect -eq $SubNetListNumber)
-                    else {                                                                  # If $SubnetListSelect does not equal the current $SubnetListNumber
-                        $SubNetListNumber = $SubNetListNumber + 1                           # Increments $var up by 1
-                    }                                                                       # End else (if ($SubNetListSelect -eq $SubNetListNumber))
-                }                                                                           # End foreach ($Name in $SubNetList)
-                Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End :GetAzureSubnetName while ($true)
-            Return $SubnetObject                                                            # Returns to calling function with $var
-        }                                                                                   # End :GetAzureSubnet while ($true)
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzVNetSubnetConfig
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
         :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
