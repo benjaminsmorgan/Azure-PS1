@@ -1,3 +1,55 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Add-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Remove-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworksubnetconfig?view=azps-5.6.0
+    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+} #>
+<# Required Functions Links: {
+    AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+    RemoveAzVNetSubnetConfig:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/RemoveAzVNetSubnetConfig.ps1
+    GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+} #>
+<# Functions Description: {
+    ManageAzVNetSubnetConfig:   Management function for subnets    
+    AddAzVNetSubnetConfig:      Adds an azure virtual network subnet
+    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
+    RemoveAzVNetSubnetConfig:   Removes an azure virtual network subnet
+    GetAzVirtualNetwork:        Gets an azure virtual network
+} #>
+<# Variables: {
+    :ManageAzureSubnet          Outer loop for managing function
+    $VNetObject:                Virtual network object
+    $SubnetObject:              Subnet object
+    $ManageAzSubnet:            Operator input for selecting function
+    AddAzVNetSubnetConfig{}     Creates $SubnetObject
+        GetAzVirtualNetwork{}       Gets $VnetObject
+    GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
+    RemoveAzVNetSubnetConfig{}  Removes $SubnetObject
+        GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
+} #>
+<# Process Flow {
+    Function
+        Call ManageAzVnetSubnetConfig > Get $SubnetObject
+            Call AddAzVNetSubnetConfig > Get $SubnetObject
+                Call GetAzVirtualNetwork > Get $VNetObject
+                End GetAzVirtualNetwork
+                    Return AddAzVNetSubnetConfig > Send $VNetObject
+            End AddAzVNetSubnetConfig
+                Return ManageAzVnetSubnetConfig > Send $SubnetObject
+            Call GetAzVNetSubnetConfig > Get $SubnetObject
+            End GetAzVNetSubnetConfig
+                Return ManageAzVnetSubnetConfig > Send $SubnetObject
+            Call RemoveAzVNetSubnetConfig > Get $null
+                Call GetAzVNetSubnetConfig > Get $SubnetObject
+                End GetAzVNetSubnetConfig
+                    Return RemoveAzVNetSubnetConfig > Send $SubnetObject
+            End RemoveAzVNetSubnetConfig
+                Return ManageAzVnetSubnetConfig > Send $null
+        End ManageAzVnetSubnetConfig
+            Return function > Send $SubnetObject
+}#>
 function ManageAzVNetSubnetConfig {                                                         # Function for managing azure Subnet resources
     Begin {                                                                                 # Begin function   
         :ManageAzureSubnet while ($true) {                                                  # Outer loop for managing function
@@ -153,7 +205,38 @@ function GetAzVNetSubnetConfig {                                                
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzVNetSubnetConfig
-
+function RemoveAzVNetSubnetConfig {                                                         # Function to remove a subnet
+    Begin {                                                                                 # Begin function
+        :RemoveAzureSubnet while ($true) {                                                  # Outer loop for managing function
+            if (!$SubnetObject) {                                                           # If $SubnetObject is $null
+                $SubnetObject, $VNetObject = GetAzVNetSubnetConfig                          # Call function and assign output to $var
+                if (!$SubnetObject) {                                                       # If $SubnetObject is $null
+                    Break RemoveAzureSubnet                                                 # Breaks :RemoveAzureSubnet
+                }                                                                           # End if (!$SubnetObject)
+            }                                                                               # End if (!$SubnetObject)
+            Write-Host 'Remove the subnet'$SubnetObject.Name                                # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation for removing the subnet
+            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzVirtualNetworkSubnetConfig -Name $SubnetObject.Name `
+                        -VirtualNetwork $VNetObject | Set-AzVirtualNetwork `
+                        -ErrorAction 'Stop'                                                 # Removes the subnet
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Break RemoveAzureSubnet                                                 # Breaks :RemoveAzureSubnet
+                }                                                                           # End catch
+                Write-Host 'The subnet has been removed'                                    # Write message to screen
+                Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
+            }                                                                               # End if ($OperatorConfirm -eq 'y') 
+            else {                                                                          # If $OperatorConfirm does not equal 'y'
+                Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
+            }                                                                               # End else (if ($OperatorConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureSubnet while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzVNetSubnetConfig
 # Additional functions required for Manage
 function GetAzVirtualNetwork {                                                              # Function for getting an Azure virtual network
     Begin {                                                                                 # Begin function
