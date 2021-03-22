@@ -60,6 +60,9 @@ function GetAzVNetSubnetConfig {                                                
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ListArray)
             :SelectAzureSubNet while ($true) {                                              # Inner loop for selecting the subnet
+                if ($CallingFunction) {                                                     # If $Calling function exists
+                    Write-Host 'You are selecting the subnet for'$CallingFunction           # Write message to screen
+                }                                                                           # End if ($CallingFunction)
                 $SubnetSelect = Read-Host 'Enter [#] of the subnet'                         # Operator input for the subnet selection
                 if ($SubnetSelect -eq '0') {                                                # If $SubnetSelect equals '0'
                     Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet   
