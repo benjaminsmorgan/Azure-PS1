@@ -63,7 +63,7 @@ function NewAzNetworkInterface {                                                
                 }                                                                           # End if (!$LocationObject)
             }                                                                               # End if (!$LocationObject)
             if (!$SubnetObject) {                                                           # If $SubnetObject is $null
-                $SubnetObject, $VNetObject = GetAzVNetSubnetConfig ($CallingFunction)                    # Calls function and assigns output to $var
+                $SubnetObject, $VNetObject = GetAzVNetSubnetConfig ($CallingFunction)       # Calls function and assigns output to $var
                 if (!$SubnetObject) {                                                       # If $SubnetObject is $null
                     Break NewAzureNic                                                       # Breaks :NewAzureNic
                 }                                                                           # End if (!$SubnetObject)
