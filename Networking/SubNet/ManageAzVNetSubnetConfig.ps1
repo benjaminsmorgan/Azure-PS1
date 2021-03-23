@@ -56,7 +56,7 @@ function ManageAzVNetSubnetConfig {                                             
             if ($VNetObject) {                                                              # If $VnetObject has a value
                 Write-Host 'The currently selected Vnet is:'$VNetObject.name                # Write message to screen
             }                                                                               # End if ($VNetObject)
-            if ($SubnetObject) {                                                            # If $VnetObject has a value
+            if ($SubnetObject) {                                                            # If $subnetObject has a value
                 Write-Host 'The currently selected Subnet is:'$SubnetObject.name            # Write message to screen
             }                                                                               # End if ($SubnetObject)
             Write-Host "Azure Subnet Management"                                            # Write message to screen
@@ -82,8 +82,8 @@ function ManageAzVNetSubnetConfig {                                             
                     $SubnetObject = $null                                                   # Clears $SubnetObject
                 }                                                                           # End if ($SubnetObject)
                 else {                                                                      # If $SubnetObject does not have a value
-                    Write-Host '$Subnet is already clear'                                   # Write message to screen
-                }                                                                           # End else (if ($VnetObject))
+                    Write-Host '$SubnetObject is already clear'                             # Write message to screen
+                }                                                                           # End else (if ($SubnetObject))
             }                                                                               # End elseif ($ManageAzSubnet -eq '0')
             elseif ($ManageAzSubnet -eq '1') {                                              # Elseif $ManageAzSubnet equals 1
                 Write-Host 'Add subnet'                                                     # Write message to screen
@@ -102,8 +102,8 @@ function ManageAzVNetSubnetConfig {                                             
             }                                                                               # End else (if ($ManageAzSubnet -eq 'exit'))
         }                                                                                   # End :ManageAzureSubnet while ($true)
         Return $VNetObject, $SubnetObject                                                   # Returns $vars to calling function
-    } # End Begin
-} # End function ManageAzVNetSubnetConfig
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzVNetSubnetConfig
 function AddAzVNetSubnetConfig {                                                            # Function to create a subnet
     begin {                                                                                 # Begin function
         :AddAzureSubnet while ($true) {                                                     # Outer loop for managing function
