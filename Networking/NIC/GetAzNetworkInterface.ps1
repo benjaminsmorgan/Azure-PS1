@@ -16,17 +16,19 @@
     $VNetList:                  List of all Vnets
     $ListNumber:                $var used to list and select the nic
     $ListArray:                 Array used to hold info for nic identification
-    $Vnet:                      The current Vnet name (GetAzureNic) | Vnet object (SelectAzureNic)
+    $Vnet:                      The current Vnet name (GetAzureNic)
     $VnetPFX:                   The current Vnet prefix
     $VnetRG:                    The current Vnet resource group
     $SubnetList:                List of all subnets under the current Vnet
-    $Subnet:                    The current subnet ID (GetAzureNic) | subnet object (SelectAzureNic)
+    $Subnet:                    The current subnet ID
     $SubnetName:                The current subnet name 
     $SubnetPFX:                 The current subnet prefix
     $NicList:                   List of all nics under the current subnet
     $ListInput:                 $var used to load info into $ListArray
     $CallingFunction:           Name of the function that called this function
     $OperatorSelect:            Operator input to select the nic
+    $VnetObject:                Virtual network object
+    $SubnetObject:              SubnetObject
     $NicObject:                 Network interface object
 } #>
 <# Process Flow {
@@ -87,18 +89,19 @@ function GetAzNetworkInterface {                                                
                     $OperatorSelect = $ListArray | Where-Object {$_.Number -eq `
                         $OperatorSelect}                                                    # $OperatorSelect equals $ListArray where $OperatorSelect is equal to $ListArray.Number
                     Try {                                                                   # Try the following
-                        $VNet = Get-AzVirtualNetwork -Name $OperatorSelect.VnetName `
+                        $VNetObject = Get-AzVirtualNetwork -Name $OperatorSelect.VnetName `
                             -ResourceGroupName $OperatorSelect.VNetRG                       # Pulls the $Subnet Vnet
-                        $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet `
-                            -Name $OperatorSelect.Subname                                   # Pulls the $NicObject subnet
+                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                            $VNetObject -Name $OperatorSelect.Subname                       # Pulls the $NicObject subnet
                         $NicObject = Get-AzNetworkInterface -Name $OperatorSelect.NicName |`
-                            Where-Object {$_.IpConfigurations.Subnet.ID -eq $Subnet.ID}     # Pulls the full $NicObject
+                            Where-Object {$_.IpConfigurations.Subnet.ID -eq `
+                            $SubnetObject.ID}                                               # Pulls the full $NicObject
                     }                                                                       # End try
                     Catch {                                                                 # If try fails
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Break GetAzureNic                                                   # Breaks :GetAzureNic
                     }                                                                       # End Catch
-                    Return $NicObject                                                       # Returns $NicObject to calling function
+                    Return $NicObject, $SubnetObject, $VnetObject                           # Returns $vars to calling function
                 }                                                                           # End elseif ($OperatorSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OperatorSelect
                     Write-Host 'That was not a valid option'                                # Write message to screen
