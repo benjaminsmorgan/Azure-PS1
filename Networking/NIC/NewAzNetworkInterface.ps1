@@ -49,7 +49,9 @@
 function NewAzNetworkInterface {                                                            # Creates a new network interface
     Begin {                                                                                 # Begin function
         :NewAzureNIC while ($true) {                                                        # Outer loop for managing function
-            $CallingFunction = 'NewAzNetworkInterface'                                      # Creates $CallingFunction
+            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
+                $CallingFunction = 'NewAzNetworkInterface'                                  # Creates $CallingFunction
+            }                                                                               # End if (!$CallingFunction)
             if (!$RGObject) {                                                               # If $RGObject is $null
                 $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
                 if (!$RGObject) {                                                           # If $RGObject is $null
@@ -90,7 +92,7 @@ function NewAzNetworkInterface {                                                
                 Write-Host "The name provided may not be valid"                             # Write mesage to screen
                 Break NewAzureNIC                                                           # Breaks :NewAzureNIC
             }                                                                               # End Catch
-            Return $NICObject                                                               # Returns NicObject to calling function
+            Return $NICObject, $SubnetObject, $VNetObject                                   # Returns $vars to calling function
         }                                                                                   # End :NewAzureNIC while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
