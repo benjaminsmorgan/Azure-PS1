@@ -139,7 +139,7 @@ function SetAzNICIpConfig {                                                     
                     $ListArray.Add($ListInput) | Out-Null                                   # Loads content of $ListInput into $ListArray
                     $ListNumber = $ListNumber + 1                                           # Increments $ListNumber up by one
                 }                                                                           # End foreach ($_ in $NicIPList)
-                Write-Host '[ 0 ] Exit'                                                     # Write message to screen
+                Write-Host '[ 00 ] Exit'                                                    # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ListArray) {                                                # For each item in $ListArray
                     Write-Host '['$_.Number']'                                              # Write message to screen
@@ -151,7 +151,7 @@ function SetAzNICIpConfig {                                                     
                 }                                                                           # End foreach ($_ in $ListArray)
                 :SelectAzureNicIPConfig while ($true) {                                     # Inner loop for selecting the IP configuration
                     $OperatorSelect = Read-Host 'Select [#] of Nic IP config'               # Operator input for selecting the IP config
-                    if ($OperatorSelect -eq '0') {                                          # If $OperatorSelect equals '0'
+                    if ($OperatorSelect -eq '00') {                                         # If $OperatorSelect equals '0'
                         Break SetAzureNICIpConfig                                           # Breaks :SetAzureNICIpConfig
                     }                                                                       # End if ($OperatorSelect -eq '0')
                     elseif ($OperatorSelect -in $ListArray.Number) {                        # Else if $OperatorSelect in $ListArray.Number
