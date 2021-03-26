@@ -94,7 +94,7 @@ function SetAzNICIpConfig {                                                     
     Begin {                                                                                 # Begin function
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
             if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'NewAzNetworkInterface'                                  # Creates $CallingFunction
+                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
             }                                                                               # End if (!$CallingFunction)
             :SelectAzureNic while ($true) {                                                 # Inner loop for selecting a NIC
                 Write-Host '[0] Exit'                                                       # Write message to screen
