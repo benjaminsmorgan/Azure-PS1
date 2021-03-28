@@ -15,6 +15,8 @@
     $PublicIPArray:             Array used to select the public IP
     $PublicIPNumber:            List number used for selection
     $PublicIPInput:             $var used to load items into array
+    $CallingFunction:           Name of the function that called this function
+    $Number:                    Current item .Number, used for formatting output
     $SelectPublicIP:            Operator input for IP selection
     $PublicIPObject:            Public IP object
 } #>
@@ -24,30 +26,45 @@
         End GetAzPublicIpAddress
             Return function > Send $PublicIPObject
 }#>
-function GetAzPublicIpAddress {                                                             # Function for 
+function GetAzPublicIpAddress {                                                             # Function for getting a public IP sku
     Begin {                                                                                 # Begin function
         :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
             $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
             [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
             $PublicIPNumber = 1                                                             # Creates #var used for list selection
-            Write-Host "[ 0 ] to exit"                                                      # Write message to screen
             foreach ($_ in $PublicIPList) {                                                 # For each item in list
-                $PublicIPInput = [PSCustomObject]@{'Name' = $_.Name;'Number' `
-                    = $PublicIPNumber;'RG' = $_.ResourceGroupName;'Sku'=$_.Sku.Name `
-                ;'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress}           # Creates the item to loaded into array
+                if ($_.IpConfiguration.Id) {                                                # If current item .IpConfiguration.Id has a value
+                    $AttachedNIC = ($_.IpConfiguration.Id).Split('/')[-3]                   # Gets the attached NIC name
+                    $AttachedNICIPConfig = ($_.IpConfiguration.Id).Split('/')[-1]           # Gets the attached NIC IP config name
+                }                                                                           # End if ($_.IpConfiguration.Id) 
+                $PublicIPInput = [PSCustomObject]@{'Number'=$PublicIPNumber;`
+                    'Name' = $_.Name;'RG'=$_.ResourceGroupName;'Sku'=$_.Sku.Name;`
+                    'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress;'NIC'=`
+                    $AttachedNIC;'IPconfig'=$AttachedNICIPConfig}                           # Creates the item to loaded into array
                 $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
                 $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
+                $AttachedNIC = $null                                                        # Clears $var
+                $AttachedNICIPConfig = $null                                                # Clears $var
             }                                                                               # End foreach ($_ in $PublicIPArray)
+            Write-Host "[0] to exit"                                                        # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $PublicIPArray) {                                                # For each item in list
-                Write-Host "["$_.Number"]"                                                  # Write message to screen
-                Write-Host "Name "$_.Name                                                   # Write message to screen
-                Write-Host "RG:  "$_.RG                                                     # Write message to screen
-                Write-Host "Type:"$_.Allocation                                             # Write message to screen
-                Write-Host "Add: "$_.address                                                # Write message to screen
-                Write-Host "Sku: "$_.Sku                                                    # Write message to screen                            
+                $Number = $_.Number                                                         # Creats $Number (Used for formating)
+                Write-Host "[$Number]         "$_.Name                                      # Write message to screen
+                Write-Host "RG Name:    "$_.RG                                              # Write message to screen
+                Write-Host "Allocation: "$_.Allocation                                      # Write message to screen
+                Write-Host "IP Address: "$_.address                                         # Write message to screen
+                Write-Host "SKU Type:   "$_.Sku                                             # Write message to screen
+                if ($_.Nic) {                                                               # If current item .Nic has a value
+                    Write-Host "NIC Name:   "$_.Nic                                         # Write message to screen
+                    Write-Host "NIC Config: "$_.IPConfig                                    # Write message to screen
+                }                                                                           # End if ($_.Nic)                                 
                 Write-Host ""                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $PublicIPArray) 
             :SelectAzurePublicIP while ($true) {                                            # Inner loop for selecting the public IP
+                if ($CallingFunction) {                                                     # If $Calling function has a value
+                    Write-Host 'You are selecting the Public IP Sku for:'$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
                 $SelectPublicIP = Read-Host "Enter the list number for public IP"           # Operator input for the public IP selection
                 if ($SelectPublicIP -eq '0') {                                              # If $var equals 0
                     Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
