@@ -101,7 +101,7 @@ function GetAzNetworkInterface {                                                
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Break GetAzureNic                                                   # Breaks :GetAzureNic
                     }                                                                       # End Catch
-                    Return $NicObject, $SubnetObject, $VnetObject                           # Returns $vars to calling function
+                    Return $NicObject,$VnetObject,$SubnetObject                             # Returns $vars to calling function
                 }                                                                           # End elseif ($OperatorSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OperatorSelect
                     Write-Host 'That was not a valid option'                                # Write message to screen
