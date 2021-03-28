@@ -7413,12 +7413,16 @@ function GetAzVMSize {                                                          
     New-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
     Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Remove-AzVirtualNetwork:    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetwork?view=azps-5.4.0
-    Add-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Remove-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworksubnetconfig?view=azps-5.6.0
     New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
     Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Remove-AzNetworkInterface:  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworkinterface?view=azps-5.6.0
+    Add-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterface?view=azps-5.6.0
+    Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Get-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Remove-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/Remove-aznetworkinterfaceipconfig?view=azps-5.6.0
+    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    Remove-AzPublicIpAddress:   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
 } #>
@@ -7440,9 +7444,20 @@ function GetAzVMSize {                                                          
         NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
         GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
         RemoveAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNetworkInterface.ps1   
+        AddAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/AddAzNICIpConfig.ps1
+        ListAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNICIpConfig.ps1
+        SetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfig.ps1
+        RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
+        NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
         GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
         GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+    ManageAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ManageAzPublicIpAddress.ps1
+        NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1    
+        ListAzPublicIPAddress:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ListAzPublicIpAddress.ps1
+        GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        RemoveAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/RemoveAzPublicIpAddress.ps1
 } #>
 <# Functions Description: {
     ManageAzNetwork:            Management function for azure networking
@@ -7459,6 +7474,14 @@ function GetAzVMSize {                                                          
         NewAzNetworkInterface:      Creates new network interfaces
         GetAzNetworkInterface:      Gets an existing network interface
         RemoveAzNetworkInterface:   Removes a network interface   
+        AddAzNICIpConfig:           Creates a new empty IP config
+        SetAzNICIpConfig:           Applies settings to existing IP config
+        RemoveAzNICIpConfig:        Removes a NIC IP configuration 
+    ManageAzPublicIPAddress:    Function for managing public IP address Skus    
+        NewAzPublicIpAddress:       Creates a new public IP address    
+        ListAzPublicIPAddress:      Lists all existing public IP addresses
+        GetAzPublicIPAddress:       Gets an existing public IP address
+        RemoveAzPublicIPAddress:    Removes an existing public IP address
     GetAzResourceGroup:         Gets a resource group object
     GetAzLocation:              Gets an Azure location
 } #>
@@ -7490,6 +7513,31 @@ function GetAzVMSize {                                                          
         GetAzNetworkInterface{}     Get $NicObject
         RemoveAzNetworkInterface{}  Removes $NicObject
             GetAzNetworkInterface{}     Get $NicObject
+        AddAzNICIpConfig{}          Sets $NicObject
+            NewAzNetworkInterface{}     Creates $NicObject
+                GetAzResourceGroup{}        Gets $RGObject
+                GetAzLocation{}             Gets $LocationObject
+                GetAzVNetSubnetConfig{}     Gets $SubnetObject
+            GetAzNetworkInterface{}     Gets $NicObject
+        ListAzNICIpConfig{}         Lists $NicObject
+        SetAzNICIpConfig{}          Sets $NicObject
+            NewAzNetworkInterface{}     Creates $NicObject
+                GetAzResourceGroup{}        Gets $RGObject
+                GetAzLocation{}             Gets $LocationObject
+                GetAzVNetSubnetConfig{}     Gets $SubnetObject
+            GetAzNetworkInterface{}     Gets $NicObject
+            NewAzPublicIpAddress{}      Creates $PublicIPObject
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzPublicIpAddress{}      Gets $PublicIPObject
+        RemoveAzNICIpConfig{}       Sets $NicObject
+            GetAzNetworkInterface{}     Gets $NicObject
+    ManageAzPublicIPAddress{}   Gets $PublicIPObject
+        NewAzPublicIPAddress{}      Creates $PublicIPObject
+            GetAzResourceGroup{}        Gets $RGObject
+        ListAzPublicIPAddress{}     Lists $PublicIPObject
+        GetAzPublicIPAddress{}      Gets $PublicIPObject
+        RemoveAzPublicIPAddress{}   Removes $PublicIPObject
+            GetAzPublicIPAddress{}      Gets $PublicIPObject         
 } #>
 <# Process Flow {
     Function
@@ -7561,14 +7609,109 @@ function GetAzVMSize {                                                          
                         Return RemoveAzNetworkInterface > Send $NicObject
                 End RemoveAzNetworkInterface
                     Return ManageAzNetworkInterface > Send $null
-            End ManageAzNetworkInterface
+                Call AddAzNICIpConfig > Get $NicObject
+                    Call NewAzNetworkInterface > Get $NicObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return NewAzNetworkInterface > Send $RGObject
+                        Call GetAzLocation > Get $LocationObject
+                        End GetAzLocation
+                            Return NewAzNetworkInterface > Send $LocationObject
+                        Call GetAzVNetSubnetConfig > Get $SubnetObject
+                        End GetAzVNetSubnetConfig
+                            Return NewAzNetworkInterface > Send $SubnetObject
+                    End NewAzNetworkInterface
+                        Return AddAzNICIpConfig > Send $NicObject
+                    Call GetAzNetworkInterface > Get $NicObject
+                    End GetAzNetworkInterface
+                        Return AddAzNICIpConfig > $NicObject
+                End AddAzNICIpConfig
+                    Return ManageAzNetworkInterface > Send $NicObject
+                Call ListAzNICIpConfig > Get $null
+                End ListAzNICIpConfig
+                    Return ManageAzNetworkInterface > Send $Null
+                Call SetAzNICIpConfig > Get $NicObject
+                    Call NewAzNetworkInterface > Get $NicObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return NewAzNetworkInterface > Send $RGObject
+                        Call GetAzLocation > Get $LocationObject
+                        End GetAzLocation
+                            Return NewAzNetworkInterface > Send $LocationObject
+                        Call GetAzVNetSubnetConfig > Get $SubnetObject
+                        End GetAzVNetSubnetConfig
+                            Return NewAzNetworkInterface > Send $SubnetObject
+                    End NewAzNetworkInterface
+                        Return SetAzNICIpConfig > Send $NicObject
+                    Call GetAzNetworkInterface > Get $NicObject
+                    End GetAzNetworkInterface
+                        Return SetAzNICIpConfig > $NicObject
+                    Call NewAzPublicIpAddress > Get $PublicIPObject
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return NewAzPublicIpAddress > Send $RGObject
+                    End NewAzPublicIpAddress
+                        Return SetAzNICIpConfig > Send $PublicIPObject
+                    Call GetAzPublicIpAddress{}      Gets $PublicIPObject
+                    End NewAzPublicIpAddress
+                        Return SetAzNICIpConfig > Send $PublicIPObject
+                End SetAzNICIpConfig
+                    Return function > Send $NicObject
+                Call RemoveAzNICIpConfig > Get $NicObject
+                    Call GetAzNetworkInterface > Get $NicObject
+                    End GetAzNetworkInterface
+                        Return RemoveAzNICIpConfig > $NicObject
+                End RemoveAzNICIpConfig
+                    Return ManageAzNetworkInterface > Send $NicObject
+            End ManageAzNetworkInterface   
                 Return ManageAzNetwork > Send $NicObject
+            Call ManageAzPublicIPAddress > Get $PublicIPObject
+                Call NewAzPublicIpAddress > Get $PublicIPObject
+                    Call GetAzResourceGroup > Get RGObject
+                    End GetAzResourceGroup
+                        Return NewAzPublicIpAddress > Send RGObject
+                End NewAzPublicIpAddress
+                    Return ManageAzPublicIPAddress > Send $PublicIPObject
+                Call ListAzPublicIpAddress > Get $null
+                End ListAzPublicIpAddress
+                    Return ManageAzPublicIPAddress > Send $null
+                Call GetAzPublicIpAddress > Get $PublicIPObject
+                End GetAzPublicIpAddress
+                    Return ManageAzPublicIPAddress > Send $PublicIPObject
+                Call RemoveAzPublicIPAddres > Get $null
+                    Call GetAzPublicIpAddress > Get $PublicIPObject
+                    End GetAzPublicIpAddress
+                        Return RemoveAzPublicIPAddress > Send $PublicIPObject
+                End RemoveAzPublicIPAddress
+                    Return ManageAzPublicIPAddress > Send $null
+            End ManageAzPublicIPAddress
+                Return ManageAzNetwork > Send $PublicIPObject
         End ManageAzNetwork
             Return function > Send $Null
 }#>
 function ManageAzNetwork {                                                                  # Function for managing azure network resources
     Begin {                                                                                 # Begin function   
         :ManageAzureNetwork while ($true) {                                                 # Outer loop for managing function
+            if ($RGObject) {                                                                # If $RGObject has a value
+                Write-Host 'The currently selected resource group is:'`
+                    $RGObject.ResourceGroupName                                             # Write message to screen
+            }                                                                               # End if ($RGObject)
+            if ($VnetObject) {                                                              # If $VnetObject has a value
+                Write-Host 'The currently selected virtual network is:'`
+                    $VnetObject.Name                                                        # Write message to screen
+            }                                                                               # End if ($VnetObject)
+            if ($SubnetObject) {                                                            # If $SubnetObject has a value
+                Write-Host 'The currently selected subnet is:'`
+                    $SubnetObject.Name                                                      # Write message to screen
+            }                                                                               # End if ($SubnetObject)
+            if ($NicObject) {                                                               # If $NicObject has a value
+                Write-Host 'The currently selected network interface is:'`
+                    $NicObject.Name                                                         # Write message to screen
+            }                                                                               # End if ($NicObject)
+            if ($PublicIPObject) {                                                          # If $PublicIPObject has a value
+                Write-Host 'The currently selected public IP is:'`
+                    $PublicIPObject.Name                                                    # Write message to screen
+            }                                                                               # End if ($PublicIPObject)
             Write-Host "Azure Network Management"                                           # Write message to screen
             Write-Host '0 Clear "$vars"'                                                    # Write message to screen
             Write-Host '1 Manage virtual network'                                           # Write message to screen
@@ -7596,11 +7739,17 @@ function ManageAzNetwork {                                                      
             }                                                                               # End elseif ($ManageAzNetwork -eq '1')
             elseif ($ManageAzNetwork -eq '2') {                                             # Elseif $ManageAzNetwork equals 2
                 Write-Host 'Manage subnets'                                                 # Write message to screen
-                $SubnetObject = ManageAzVNetSubnetConfig ($RGObject, $VnetObject)           # Calls function and assigns output to $var
+                $SubnetObject, $VnetObject = `
+                    ManageAzVNetSubnetConfig ($RGObject, $VnetObject)                       # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNetwork -eq '2')
             elseif ($ManageAzNetwork -eq '3') {                                             # Elseif $ManageAzNetwork equals 3
-                Write-Host 'Remove Aks cluster'                                             # Write message to screen
-                RemoveAzAksCluster ($AksObject)                                             # Calls function
+                Write-Host 'Manage network interfaces'                                      # Write message to screen
+                $NicObject, $VnetObject, $SubnetObject = ManageAzNetworkInterface `
+                    ($RGObject, $SubnetObject)                                              # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzNetwork -eq '3')
+            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 3
+                Write-Host 'Manage public IPs'                                              # Write message to screen
+                $PublicIPObject = ManageAzPublicIPAddress                                   # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNetwork -eq '3')
             else {                                                                          # If $ManageAzNetwork do not match any if or elseif     
                 Write-Host "That was not a valid option"                                    # Write message to screen
@@ -7846,7 +7995,7 @@ function ManageAzVNetSubnetConfig {                                             
             }                                                                               # End elseif ($ManageAzSubnet -eq '0')
             elseif ($ManageAzSubnet -eq '1') {                                              # Elseif $ManageAzSubnet equals 1
                 Write-Host 'Add subnet'                                                     # Write message to screen
-                $SubnetObject = AddAzVNetSubnetConfig ($VNetObject)                         # Calls function and assigns output to $var
+                $SubnetObject, $VnetObject = AddAzVNetSubnetConfig ($VNetObject)            # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzSubnet -eq '1')
             elseif ($ManageAzSubnet -eq '2') {                                              # Elseif $ManageAzSubnet equals 2
                 Write-Host 'Get subnet'                                                     # Write message to screen
@@ -7860,7 +8009,7 @@ function ManageAzVNetSubnetConfig {                                             
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($ManageAzSubnet -eq 'exit'))
         }                                                                                   # End :ManageAzureSubnet while ($true)
-        Return $VNetObject, $SubnetObject                                                   # Returns $vars to calling function
+        Return $SubnetObject,$VNetObject                                                    # Returns $vars to calling function
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVNetSubnetConfig
 function AddAzVNetSubnetConfig {                                                            # Function to create a subnet
@@ -7901,9 +8050,11 @@ function AddAzVNetSubnetConfig {                                                
             }                                                                               # End Try
             catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
-                Break AddAzVNetSubnetConfig                                                 # Breaks :AddAzVNetSubnetConfig
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
             }                                                                               # End catch
-            Return $SubnetObject                                                            # Returns to calling function with $var
+            $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                -VirtualNetwork $VnetObject                                                 # Pulls the newly created subnet object
+            Return $SubnetObject, $VnetObject                                               # Returns to calling function with $vars
         }                                                                                   # End :AddAzureSubnet while ($true)
         Return                                                                              # Returns to calling function with $Null
     }                                                                                       # End Begin
@@ -7927,12 +8078,12 @@ function GetAzVNetSubnetConfig {                                                
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
                 }                                                                           # End foreach ($_ in $SubnetList)                                        
             }                                                                               # End foreach ($_ in $VNetList)
-            Write-Host '[ 0 ] Exit'                                                         # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
-                Write-Host '['$_.Number']'                                                  # Write message to screen
-                Write-Host 'Sub Name:   '$_.name                                            # Write message to screen
-                Write-Host 'Add Prefix: '$_.PFX                                             # Write message to screen
+                $Number = $_.Number                                                         # Creates $number from $_.Number
+                Write-Host "[$Number]"   $_.name                                            # Write message to screen
+                Write-Host 'Sub Prefix: '$_.PFX                                             # Write message to screen
                 Write-Host 'VNet Name:  '$_.Vnet                                            # Write message to screen
                 Write-Host 'Vnet Prefix:'$_.VnetPFX                                         # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -8006,6 +8157,9 @@ function ManageAzNetworkInterface {                                             
             if ($RGObject) {                                                                # If $RGObject has a value
                 Write-Host 'The currently selected RG is:'$RGObject.ResourceGroupName       # Write message to screen
             }                                                                               # End if ($RGObject)
+            if ($VNetObject) {                                                              # If $VnetObject has a value
+                Write-Host 'The currently selected Vnet is:'$VNetObject.name                # Write message to screen
+            }                                                                               # End if ($VNetObject)
             if ($SubnetObject) {                                                            # If $SubnetObject has a value
                 Write-Host 'The currently selected Subnet is:'$SubnetObject.name            # Write message to screen
             }                                                                               # End if ($SubnetObject)
@@ -8017,6 +8171,10 @@ function ManageAzNetworkInterface {                                             
             Write-Host '1 Add Nic'                                                          # Write message to screen
             Write-Host '2 Get Nic'                                                          # Write message to screen
             Write-Host '3 Remove Nic'                                                       # Write message to screen
+            Write-Host '4 Add NIC IP config'                                                # Write message to screen
+            Write-Host '5 List NIC IP config'                                               # Write message to screen
+            Write-Host '6 Set NIC IP config'                                                # Write message to screen
+            Write-Host '7 Remove NIC IP config'                                             # Write message to screen
             Write-Host "'Exit to return'"                                                   # Write message to screen
             $ManageAzNic = Read-Host "Option?"                                              # Collects operator input on $ManageAzNic option
             if ($ManageAzNic -eq 'exit') {                                                  # If $ManageAzNic equals 'exit'
@@ -8030,6 +8188,13 @@ function ManageAzNetworkInterface {                                             
                 else {                                                                      # If $RGObject does not have a value
                     Write-Host '$RGObject is already clear'                                 # Write message to screen
                 }                                                                           # End else (if ($RGObject))
+                if ($NicObject) {                                                           # If $NicObject has a value
+                    Write-Host 'Clearing "$NicObject'                                       # Write message to screen
+                    $NicObject = $null                                                      # Clears $NicObject
+                }                                                                           # End if ($NicObject)
+                else {                                                                      # If $NicObject does not have a value
+                    Write-Host '$NicObject is already clear'                                # Write message to screen
+                }                                                                           # End else (if ($NicObject))
                 if ($SubnetObject) {                                                        # If $SubnetObject has a value
                     Write-Host 'Clearing "$SubnetObject'                                    # Write message to screen
                     $SubnetObject = $null                                                   # Clears $SubnetObject
@@ -8047,27 +8212,46 @@ function ManageAzNetworkInterface {                                             
             }                                                                               # End elseif ($ManageAzNic -eq '0')
             elseif ($ManageAzNic -eq '1') {                                                 # Elseif $ManageAzNic equals 1
                 Write-Host 'Add Nic'                                                        # Write message to screen
-                $NicObject = NewAzNetworkInterface ($SubnetObject, $RGobject)               # Calls function and assigns output to $var
+                $NICObject, $SubnetObject, $VNetObject = `
+                    NewAzNetworkInterface ($SubnetObject, $RGObject)                        # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNic -eq '1')
             elseif ($ManageAzNic -eq '2') {                                                 # Elseif $ManageAzNic equals 2
                 Write-Host 'Get Nic'                                                        # Write message to screen
-                $NicObject = GetAzNetworkInterface                                          # Calls function and assigns output to $var
+                $NicObject, $VnetObject, $SubnetObject = GetAzNetworkInterface              # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNic -eq '2')
             elseif ($ManageAzNic -eq '3') {                                                 # Elseif $ManageAzNic equals 3
                 Write-Host 'Remove Nic'                                                     # Write message to screen
                 RemoveAzNetworkInterface ($NicObject)                                       # Calls function
             }                                                                               # End elseif ($ManageAzNic -eq '3')
+            elseif ($ManageAzNic -eq '4') {                                                 # Elseif $ManageAzNic equals 4
+                Write-Host 'Add NIC IP config'                                              # Write message to screen
+                $NicObject = AddAzNICIpConfig                                               # Calls function
+            }                                                                               # End elseif ($ManageAzNic -eq '4')
+            elseif ($ManageAzNic -eq '5') {                                                 # Elseif $ManageAzNic equals 5
+                Write-Host 'List NIC IP config'                                             # Write message to screen
+                ListAzNICIpConfig                                                           # Calls function
+            }                                                                               # End elseif ($ManageAzNic -eq '5')
+            elseif ($ManageAzNic -eq '6') {                                                 # Elseif $ManageAzNic equals 6
+                Write-Host 'Set NIC IP config'                                              # Write message to screen
+                $NicObject = SetAzNICIpConfig                                               # Calls function
+            }                                                                               # End elseif ($ManageAzNic -eq '6')
+            elseif ($ManageAzNic -eq '7') {                                                 # Elseif $ManageAzNic equals 7
+                Write-Host 'Remove NIC IP config'                                           # Write message to screen
+                $NicObject = RemoveAzNICIpConfig                                            # Calls function
+            }                                                                               # End elseif ($ManageAzNic -eq '7')
             else {                                                                          # If $ManageAzNic do not match any if or elseif     
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($ManageAzNic -eq 'exit'))
         }                                                                                   # End :ManageAzureNic while ($true)
-        Return $NicObject                                                                   # Returns $var to calling function
+        Return $NicObject, $VnetObject, $SubnetObject                                       # Returns $var to calling function
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzNetworkInterface
 function NewAzNetworkInterface {                                                            # Creates a new network interface
     Begin {                                                                                 # Begin function
         :NewAzureNIC while ($true) {                                                        # Outer loop for managing function
-            $CallingFunction = 'NewAzNetworkInterface'                                      # Creates $CallingFunction
+            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
+                $CallingFunction = 'NewAzNetworkInterface'                                  # Creates $CallingFunction
+            }                                                                               # End if (!$CallingFunction)
             if (!$RGObject) {                                                               # If $RGObject is $null
                 $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
                 if (!$RGObject) {                                                           # If $RGObject is $null
@@ -8108,7 +8292,7 @@ function NewAzNetworkInterface {                                                
                 Write-Host "The name provided may not be valid"                             # Write mesage to screen
                 Break NewAzureNIC                                                           # Breaks :NewAzureNIC
             }                                                                               # End Catch
-            Return $NICObject                                                               # Returns NicObject to calling function
+            Return $NICObject, $SubnetObject, $VNetObject                                   # Returns $vars to calling function
         }                                                                                   # End :NewAzureNIC while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
@@ -8165,18 +8349,19 @@ function GetAzNetworkInterface {                                                
                     $OperatorSelect = $ListArray | Where-Object {$_.Number -eq `
                         $OperatorSelect}                                                    # $OperatorSelect equals $ListArray where $OperatorSelect is equal to $ListArray.Number
                     Try {                                                                   # Try the following
-                        $VNet = Get-AzVirtualNetwork -Name $OperatorSelect.VnetName `
+                        $VNetObject = Get-AzVirtualNetwork -Name $OperatorSelect.VnetName `
                             -ResourceGroupName $OperatorSelect.VNetRG                       # Pulls the $Subnet Vnet
-                        $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet `
-                            -Name $OperatorSelect.Subname                                   # Pulls the $NicObject subnet
+                        $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                            $VNetObject -Name $OperatorSelect.Subname                       # Pulls the $NicObject subnet
                         $NicObject = Get-AzNetworkInterface -Name $OperatorSelect.NicName |`
-                            Where-Object {$_.IpConfigurations.Subnet.ID -eq $Subnet.ID}     # Pulls the full $NicObject
+                            Where-Object {$_.IpConfigurations.Subnet.ID -eq `
+                            $SubnetObject.ID}                                               # Pulls the full $NicObject
                     }                                                                       # End try
                     Catch {                                                                 # If try fails
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Break GetAzureNic                                                   # Breaks :GetAzureNic
                     }                                                                       # End Catch
-                    Return $NicObject                                                       # Returns $NicObject to calling function
+                    Return $NicObject,$VnetObject,$SubnetObject                             # Returns $vars to calling function
                 }                                                                           # End elseif ($OperatorSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OperatorSelect
                     Write-Host 'That was not a valid option'                                # Write message to screen
@@ -8191,7 +8376,8 @@ function RemoveAzNetworkInterface {                                             
         :RemoveAzureNic while ($true) {                                                     # Outer loop for managing function
             if (!$NicObject) {                                                              # If $NicObject does not have a value
                 $CallingFunction = 'RemoveAzNetworkInterface'                               # Sets $CallingFunction
-                $NicObject = GetAzNetworkInterface ($CallingFunction)                       # Calls function and assigns output to $var
+                $NicObject,$VnetObject,$SubnetObject = `
+                    GetAzNetworkInterface ($CallingFunction)                                # Calls function and assigns output to $var
                 if (!$NicObject) {                                                          # If $NicObject does not have a value
                     Break RemoveAzureNic                                                    # Breaks :RemoveAzureNic
                 }                                                                           # End if (!$NicObject)
@@ -8282,11 +8468,60 @@ function AddAzNICIpConfig {                                                     
         return                                                                              # Returns to calling function with $null 
     }                                                                                       # End Begin
 }                                                                                           # End function AddAzNICIpConfig
+function ListAzNICIpConfig {                                                                # Function to list NIC IP configs
+    Begin {                                                                                 # Begin function
+        :ListAzureNICIpConfig while($true) {                                                # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # Gets lists of all Vnets
+            foreach ($_ in $VNetList) {                                                     # For each item in $var
+                $CurrentVNet = $_                                                           # Pulls current object into $var
+                Write-Host 'Vnet Name:     '$CurrentVNet.Name                               # Write message to screen
+                Write-Host 'Vnet Prefix:   '$CurrentVnet.AddressSpace.AddressPrefixes       # Write message to screen
+                $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
+                    $CurrentVNet                                                            # Gets a list of all subnets in Vnet
+                foreach ($_ in $SubnetList) {                                               # For each item in $var
+                    $CurrentSubnet = $_                                                     # Pulls current object into $var
+                    Write-Host ' Sub Name:      '$CurrentSubnet.name                        # Write message to screen
+                    Write-Host ' Sub Prefix:    '$CurrentSubnet.AddressPrefix               # Write message to screen
+                    $NicList = Get-AzNetworkInterface | Where-Object `
+                        {$_.IpConfigurations.Subnet.ID -eq $CurrentSubnet.ID}               # Gets a list of all nics attached to subnet
+                    foreach ($_ in $NicList) {                                              # For each item in $var
+                        $CurrentNic = $_                                                    # Pulls current object into $var
+                        Write-Host '   Nic Name:      '$CurrentNic.Name                     # Write message to screen
+                        $NicIPList = $CurrentNic.IPConfigurations                           # Gets a list of all IP configs on Nic
+                        foreach ($_ in $NicIPList) {                                        # For each item in $var
+                            $CurrentNicIPConfig = $_                                        # Pulls current object into $var
+                            if ($CurrentNicIPConfig.PublicIPaddress.ID) {                   # If a public IP sku is attached
+                                $CurrentPubIP = Get-AzPublicIpAddress | Where-Object `
+                                    {$_.ID -eq $CurrentNicIPConfig.PublicIPaddress.ID}      # Pulls the public IP sku info
+                            }                                                               # End if ($CurrentNicIPConfig.PublicIPaddress.ID)
+                            Write-Host '    Config Name:   '$CurrentNicIPConfig.Name        # Write message to screen
+                            Write-Host '    Is Primary:    '$CurrentNicIPConfig.Primary     # Write message to screen
+                            Write-Host '    PrivIPAddress: '`
+                                $CurrentNicIPConfig.PrivateIPAddress                        # Write message to screen
+                            Write-Host '    PrivAllocation:'`
+                                $CurrentNicIPConfig.PrivateIpAllocationMethod               # Write message to screen
+                            if ($CurrentPubIP) {
+                                Write-Host '    PubIPName:     '$CurrentPubIP.Name          # Write message to screen
+                                Write-Host '    PubIPAddress:  '$CurrentPubIP.IpAddress     # Write message to screen
+                                Write-Host '    PubAllocation: '`
+                                    $CurrentPubIP.PublicIpAllocationMethod                  # Write message to screen
+                            }                                                               # End if ($CurrentPubIP) 
+                            $CurrentPubIP = $null                                           # Clears $var
+                        }                                                                   # End foreach ($_ in $NicIPList)
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End foreach ($_ in $SubnetList)
+                Write-Host ''                                                               # Write message to screen (Splits the text by Vnets)
+            }                                                                               # End foreach ($_ in $VNetList)
+            Break ListAzureNICIpConfig                                                      # Breaks :ListAzureNICIpConfig
+        }                                                                                   # End :ListAzureNICIpConfig while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzNICIpConfig
 function SetAzNICIpConfig {                                                                 # Function to add a NIC IP config
     Begin {                                                                                 # Begin function
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
             if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'NewAzNetworkInterface'                                  # Creates $CallingFunction
+                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
             }                                                                               # End if (!$CallingFunction)
             :SelectAzureNic while ($true) {                                                 # Inner loop for selecting a NIC
                 Write-Host '[0] Exit'                                                       # Write message to screen
@@ -8322,16 +8557,23 @@ function SetAzNICIpConfig {                                                     
             }                                                                               # Inner loop for selecting a new or existing nic
             :GetAzureNicIPConfig while ($true) {                                            # Inner loop for selecting the nic IP config
                 $NicIPList = $NicObject.IPConfigurations                                    # Gets list of all existing IP configs
-                $ListNumber = 0                                                             # Sets list number for $ListArray
+                $ListNumber = 1                                                             # Sets list number for $ListArray
                 [System.Collections.ArrayList]$ListArray = @()                              # Array used to present information
                 foreach ($_ in $NicIPList) {                                                # For each item in $NicIPList
+                    if ($_.PublicIPaddress.ID) {                                            # If a public IP sku is attached
+                        $CurrentPubIPId = $_.PublicIPaddress.ID                             # Assigns current item .PublicIPaddress.ID to $CurrentPubIPId
+                        $CurrentPubIP = Get-AzPublicIpAddress | Where-Object `
+                            {$_.Id -eq $CurrentPubIPId}                                     # Pulls the public IP sku info
+                    }                                                                       # End if ($CurrentNicIPConfig.PublicIPaddress.ID)
                     $ListInput = [PSCustomObject]@{'Number'=$ListNumber;'Primary' `
                         =$_.Primary;'name'=$_.Name;'PrivIP'=$_.PrivateIPAddress; `
-                        'PrivAllo'=$_.PrivateIpAllocationMethod}                            # Adds info to $ListInput   
+                        'PrivAllo'=$_.PrivateIpAllocationMethod;'pubinfo'=$CurrentPubIP}    # Adds info to $ListInput   
                     $ListArray.Add($ListInput) | Out-Null                                   # Loads content of $ListInput into $ListArray
                     $ListNumber = $ListNumber + 1                                           # Increments $ListNumber up by one
+                    $CurrentPubIPId = $null                                                 # Clears $var
+                    $CurrentPubIP = $null                                                   # Clears $var
                 }                                                                           # End foreach ($_ in $NicIPList)
-                Write-Host '[ 00 ] Exit'                                                    # Write message to screen
+                Write-Host '[ 0 ] Exit'                                                    # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ListArray) {                                                # For each item in $ListArray
                     Write-Host '['$_.Number']'                                              # Write message to screen
@@ -8339,15 +8581,21 @@ function SetAzNICIpConfig {                                                     
                     Write-Host 'Primary: '$_.Primary                                        # Write message to screen
                     Write-Host 'PrivIP:  '$_.PrivIP                                         # Write message to screen
                     Write-Host 'PrivAllo:'$_.PrivAllo                                       # Write message to screen
+                    if ($_.Pubinfo) {                                                       # If $_.Pubinfo has a value 
+                        Write-Host 'PubIP:   '$_.Pubinfo.name                               # Write message to screen
+                        Write-Host 'PubIP:   '$_.Pubinfo.IPaddress                          # Write message to screen
+                        Write-Host 'PubAllo: '$_.Pubinfo.PublicIpAllocationMethod           # Write message to screen
+                    }                                                                       # End if ($_.Pubinfo) 
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ListArray)
                 :SelectAzureNicIPConfig while ($true) {                                     # Inner loop for selecting the IP configuration
                     $OperatorSelect = Read-Host 'Select [#] of Nic IP config'               # Operator input for selecting the IP config
-                    if ($OperatorSelect -eq '00') {                                         # If $OperatorSelect equals '0'
+                    if ($OperatorSelect -eq '0') {                                         # If $OperatorSelect equals '0'
                         Break SetAzureNICIpConfig                                           # Breaks :SetAzureNICIpConfig
                     }                                                                       # End if ($OperatorSelect -eq '0')
+                    
                     elseif ($OperatorSelect -in $ListArray.Number) {                        # Else if $OperatorSelect in $ListArray.Number
-                        $NicIPCon = $OperatorSelect                                         # Sets $NicIPCon
+                        $NicIPCon = $OperatorSelect - 1                                     # Sets $NicIPCon
                         Break GetAzureNicIPConfig                                           # Breaks :GetAzureNicIPConfig
                     }                                                                       # End elseif ($OperatorSelect -in $ListArray.Number)
                     else {                                                                  # All other inputs for $OperatorSelect
@@ -8405,6 +8653,7 @@ function SetAzNICIpConfig {                                                     
                         Write-Host '[0] Exit'                                               # Write message to screen
                         Write-Host '[1] New public IP'                                      # Write message to screen
                         Write-Host '[2] Existing public IP'                                 # Write message to screen
+                        Write-Host '[3] Remove the existing public IP'                      # Write message to screen
                         $OperatorSelect = Read-Host 'Select [#] option'                     # Operator input for selecting a new or existing public IP
                         if ($OperatorSelect -eq '0') {                                      # If $OperatorSelect equals 0
                             Break SelectAzurePublicIP                                       # Breaks :SelectAzurePublicIP
@@ -8420,7 +8669,7 @@ function SetAzNICIpConfig {                                                     
                                 Break SelectAzureIPType                                     # Breaks :SelectAzureIPType
                             }                                                               # End else (if (!$PublicIPObject))
                         }                                                                   # End elseif ($OperatorSelect -eq '1')
-                        elseif ($OperatorSelect -eq '2') {                                  # Else if $OperatorSelect equals 1
+                        elseif ($OperatorSelect -eq '2') {                                  # Else if $OperatorSelect equals 2
                             $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)       # Calls function and assigns output to $var
                             if (!$PublicIPObject) {                                         # If $PublicIPObject is $null
                                 Break SelectAzurePublicIP                                   # Breaks :SelectAzurePublicIP
@@ -8431,6 +8680,10 @@ function SetAzNICIpConfig {                                                     
                                 Break SelectAzureIPType                                     # Breaks :SelectAzureIPType
                             }                                                               # End else (if (!$PublicIPObject))
                         }                                                                   # End elseif ($OperatorSelect -eq '2')
+                        elseif ($OperatorSelect -eq '3') {                                  # Else if $OperatorSelect equals 3
+                            $NicObject.IpConfigurations[$NicIPCon].PublicIPAddress = $null  # Clears the public IP to the IP configuration
+                            Break SelectAzureIPType                                         # Breaks :SelectAzureIPType
+                        }                                                                   # End elseif ($OperatorSelect -eq '3')
                         else {                                                              # All other inputs for $OperatorSelect
                             Write-Host 'That was not a valid option'                        # Write message to screen
                         }                                                                   # End else (if ($OperatorSelect -eq '0'))
@@ -8441,7 +8694,7 @@ function SetAzNICIpConfig {                                                     
                 }                                                                           # End else (if ($OperatorSelect -eq '0'))
             }                                                                               # End :SelectAzureIPType while ($true)
             Try {                                                                           # Try the following
-                $NicObject | Set-AzNetworkInterface # -ErrorAction 'Stop'                   # Saves the settings
+                $NicObject | Set-AzNetworkInterface  -ErrorAction 'Stop' | Out-Null         # Saves the settings
             }                                                                               # End try
             Catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
@@ -8453,6 +8706,320 @@ function SetAzNICIpConfig {                                                     
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzNICIpConfig
+function RemoveAzNICIpConfig {                                                              # Function to Remove a NIC IP config
+    Begin {                                                                                 # Begin function
+        :RemoveAzureNICIpConfig while($true) {                                              # Outer loop for managing function
+            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
+                $CallingFunction = 'RemoveAzNICIpConfig'                                    # Creates $CallingFunction
+            }                                                                               # End if (!$CallingFunction)
+            if (!$NicObject) {                                                              # If $NicObject is $null
+                $NicObject, $SubnetObject, $VnetObject = GetAzNetworkInterface `
+                        ($CallingFunction)                                                  # Calls function and assigns output to $var
+                if (!$NicObject) {                                                          # If $NicObject is $null
+                    Break RemoveAzureNICIpConfig                                            # Breaks :RemoveAzureNICIpConfig
+                }                                                                           # End if (!$NicObject)    
+            }                                                                               # End if (!$NicObject)
+            :GetAzureNicIPConfig while ($true) {                                            # Inner loop for selecting the nic IP config
+                $NicIPList = $NicObject.IPConfigurations                                    # Gets list of all existing IP configs
+                $ListNumber = 1                                                             # Sets list number for $ListArray
+                [System.Collections.ArrayList]$ListArray = @()                              # Array used to present information
+                foreach ($_ in $NicIPList) {                                                # For each item in $NicIPList
+                    $ListInput = [PSCustomObject]@{'Number'=$ListNumber;'Primary' `
+                        =$_.Primary;'name'=$_.Name;'PrivIP'=$_.PrivateIPAddress; `
+                        'PrivAllo'=$_.PrivateIpAllocationMethod}                            # Adds info to $ListInput   
+                    $ListArray.Add($ListInput) | Out-Null                                   # Loads content of $ListInput into $ListArray
+                    $ListNumber = $ListNumber + 1                                           # Increments $ListNumber up by one
+                }                                                                           # End foreach ($_ in $NicIPList)
+                Write-Host '[ 0 ] Exit'                                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ListArray) {                                                # For each item in $ListArray
+                    Write-Host '['$_.Number']'                                              # Write message to screen
+                    Write-Host 'Name:    '$_.Name                                           # Write message to screen
+                    Write-Host 'Primary: '$_.Primary                                        # Write message to screen
+                    Write-Host 'PrivIP:  '$_.PrivIP                                         # Write message to screen
+                    Write-Host 'PrivAllo:'$_.PrivAllo                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ListArray)
+                :SelectAzureNicIPConfig while ($true) {                                     # Inner loop for selecting the IP configuration
+                    $OperatorSelect = Read-Host 'Select [#] of Nic IP config'               # Operator input for selecting the IP config
+                    if ($OperatorSelect -eq '0') {                                          # If $OperatorSelect equals '0'
+                        Break RemoveAzureNICIpConfig                                        # Breaks :RemoveAzureNICIpConfig
+                    }                                                                       # End if ($OperatorSelect -eq '0')
+                    elseif ($OperatorSelect -in $ListArray.Number) {                        # Else if $OperatorSelect in $ListArray.Number
+                        $NicIPCon = $ListArray | Where-Object {$_.Number -eq `
+                            $OperatorSelect}                                                # Sets $NicIPCon
+                        Break GetAzureNicIPConfig                                           # Breaks :GetAzureNicIPConfig
+                    }                                                                       # End elseif ($OperatorSelect -in $ListArray.Number)
+                    else {                                                                  # All other inputs for $OperatorSelect
+                        Write-Host 'That was not a valid selection'                         # Write message to screen
+                    }                                                                       # End else (if ($OperatorSelect -eq '0'))
+                }                                                                           # End :SelectAzureNicIPConfig while ($true)
+            }                                                                               # End :GetAzureNicIPConfig while ($true)
+            Try {                                                                           # Try the following
+                $NicObject = Remove-AzNetworkInterfaceIpConfig -Name $NicIPCon.Name `
+                    -NetworkInterface $NicObject                                            # Removes the selected configuration
+                $NicObject | Set-AzNetworkInterface  -ErrorAction 'Stop' | Out-Null         # Saves the settings
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Break RemoveAzureNICIpConfig                                                # Breaks RemoveAzureNICIpConfig
+            }                                                                               # End catch                                                                      
+            Write-Host 'The IP has been set'                                                # Write message to screen
+            Return $NicObject                                                               # Returns to calling function with $Var
+        }                                                                                   # End :RemoveAzureNICIpConfig while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzNICIpConfig
+# Functions for ManageAzPublicIPAddress
+function ManageAzPublicIPAddress {                                                          # Function to manage public IP address Skus
+    Begin {                                                                                 # Begin function
+        :ManageAzurePublicIPAddress while ($true) {                                         # Outer loop for managing function
+            if ($PublicIPObject) {                                                          # If $PublicIPObject has a value
+                Write-Host 'The current public address is'$PublicIPObject.Name              # Write message to screen
+            }                                                                               # End if ($PublicIPObject)
+            Write-Host '[0] Clear "$PublicIPObject"'                                        # Write message to screen
+            Write-Host '[1] New public IP sku'                                              # Write message to screen
+            Write-Host '[2] List all public IP skus'                                        # Write message to screen
+            Write-Host '[3] Get a public IP sku'                                            # Write message to screen
+            Write-Host '[4] Remove a public IP sku'                                         # Write message to screen
+            $OperatorSelect = Read-Host 'Enter the option [#]'                              # Operator input for the function selection
+            if ($OperatorSelect -eq 'exit') {                                               # $OperatorSelect equals 'exit'    
+                Break ManageAzurePublicIPAddress                                            # Breaks :ManageAzurePublicIPAddress
+            }                                                                               # End if ($OperatorSelect -eq 'exit')
+            elseif ($OperatorSelect -eq '0') {                                              # $OperatorSelect equals '0'
+                $PublicIPObject = $null                                                     # Clears $PublicIPObject
+            }                                                                               # elseif ($OperatorSelect -eq '0')
+            elseif ($OperatorSelect -eq '1') {                                              # $OperatorSelect equals '1'
+                $PublicIPObject = NewAzPublicIpAddress                                      # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '1')
+            elseif ($OperatorSelect -eq '2') {                                              # $OperatorSelect equals '2'
+                ListAzPublicIpAddress                                                       # Calls function
+            }                                                                               # elseif ($OperatorSelect -eq '2')
+            elseif ($OperatorSelect -eq '3') {                                              # $OperatorSelect equals '3'
+                $PublicIPObject = GetAzPublicIpAddress                                      # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '3')
+            elseif ($OperatorSelect -eq '4') {                                              # $OperatorSelect equals '4'
+                RemoveAzPublicIpAddress ($PublicIPObject)                                   # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '4')
+            else {                                                                          # All other inputs for $OperatorSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSelect -eq 'exit'))
+        }                                                                                   # End :ManageAzurePublicIPAddress while ($true)
+        return $PublicIPObject                                                              # Returns to calling function with $PublicIPObject
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzPublicIPAddress
+function NewAzPublicIpAddress {                                                             # Creates a new public IP address
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Turns off error reporting
+        :NewAzurePublicIP while ($true) {                                                   # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
+                }                                                                           # End if (!$RGObject)
+            }                                                                               # End if (!$RGObject)
+            :SetAzurePublicIPName while ($true) {                                           # Inner loop for setting the public IP name
+                Try {                                                                       # Try the following
+                    [ValidatePattern('^[a-z][a-z0-9-]{1,61}[a-z0-9]$')]$PublicIPNameObject `
+                    = [string](Read-Host "Enter the public IP name").ToLower()              # Operator input for the public IP name
+                }                                                                           # End try
+                catch {                                                                     # Error reporting for try statement
+                    Write-Host "! That enty was not valid"                                  # Write message to screen
+                    Write-Host "! Valid entries are 1-61 characters"                        # Write message to screen
+                    Write-Host "! The name must start with a letter"                        # Write message to screen
+                    Write-Host "! Special charaters are not allowed"                        # Write message to screen
+                    Write-Host ""                                                           # Write message to screen
+                }                                                                           # End catch
+                if ($PublicIPNameObject) {
+                    if ($PublicIPNameObject -eq 'exit') {                                   # IF $PublicIPNameObject equals 'exit'
+                        Break NewAzurePublicIP                                              # Breaks :NewAzurePublicIP
+                    }                                                                       # End if ($PublicIPNameObject -eq 'exit')
+                    Write-Host $PublicIPNameObject                                          # Write message to screen
+                    $OperatorConfirm = Read-Host "Use this name [Y] or [N]"                 # Operator confirmation of the name
+                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
+                        Break SetAzurePublicIPName                                          # Breaks :SetAzurePublicIPName
+                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                    else {                                                                  # If $OperatorConfirm does not equal 'y'
+                        Remove-Variable PublicIPNameObject                                  # Removes $PublicIPNameObject
+                    }                                                                       # End else if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($PublicIPNameObject) 
+            }                                                                               # End :SetAzurePublicIPName while ($true)
+            :SetAzurePublicIPAlloc while ($true) {                                          # Inner loop for setting the public IP allocation method
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Dynamic'                                                    # Write message to screen
+                Write-Host '[2] Static'                                                     # Write message to screen
+                $PublicIPAllocationObject = Read-Host "[0], [1], or [2]"                    # Operator input for the allocation method
+                if ($PublicIPAllocationObject -eq '0') {                                    # If $PublicIPAllocationObject equals '0'
+                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
+                }                                                                           # End if ($PublicIPAllocationObject -eq '0')
+                elseif ($PublicIPAllocationObject -eq '1') {                                # Elseif $PublicIPAllocationObject equals 1
+                    $PublicIPAllocationObject = 'dynamic'                                   # Reassigns value of $PublicIPAllocationObject
+                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc    
+                }                                                                           # End elseif ($PublicIPAllocationObject -eq '1')
+                elseif ($PublicIPAllocationObject -eq '2') {                                # Elseif $PublicIPAllocationObject equals 2
+                    $PublicIPAllocationObject = 'static'                                    # Reassigns value of $PublicIPAllocationObject
+                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc
+                }                                                                           # End elseif ($PublicIPAllocationObject -eq '2')
+                else {                                                                      # All other inputs
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (($PublicIPAllocationObject -eq '0'))
+            }                                                                               # End :SetAzurePublicIPAlloc while ($true)
+            $PublicIPObject = New-AzPublicIpAddress -Name $PublicIPNameObject `
+                -ResourceGroupName $RGObject.ResourceGroupName -Location `
+                $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
+                -DomainNameLabel $PublicIPNameObject -Force                                 # Creates the new public IP address
+            if ($PublicIPObject) {                                                          # If $PublicIPObject is not $null
+                Return $PublicIPObject                                                      # Returns to calling function with $PublicIPObject
+            }                                                                               # End if ($PublicIPObject)
+            else {                                                                          # If $PublicIPObject is $null 
+                Write-Host "An error has occured"                                           # Write message to screen
+                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
+            }                                                                               # End else (if ($PublicIPObject))
+        }                                                                                   # End :NewAzurePublicIP while ($true)
+        Return                                                                              # Returns to calling function with # null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzPublicIpAddress
+function ListAzPublicIpAddress {                                                            # Function for listing all public IP address skus
+    Begin {                                                                                 # Begin function
+        :ListAzurePublicIP while ($true) {                                                  # Outer loop for managing function
+            $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
+            [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
+            foreach ($_ in $PublicIPList) {                                                 # For each item in list
+                if ($_.IpConfiguration.Id) {                                                # If current item .IpConfiguration.Id has a value
+                    $AttachedNIC = ($_.IpConfiguration.Id).Split('/')[-3]                   # Gets the attached NIC name
+                    $AttachedNICIPConfig = ($_.IpConfiguration.Id).Split('/')[-1]           # Gets the attached NIC IP config name
+                }                                                                           # End if ($_.IpConfiguration.Id) 
+                $PublicIPInput = [PSCustomObject]@{'Name' = $_.Name; 'RG' = `
+                    $_.ResourceGroupName;'Sku'=$_.Sku.Name;'Allocation'=`
+                    $_.PublicIpAllocationMethod;'Address'=$_.IPAddress;'NIC'=`
+                    $AttachedNIC;'IPconfig'=$AttachedNICIPConfig}                           # Creates the item to loaded into array
+                $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
+                $AttachedNIC = $null                                                        # Clears $var
+                $AttachedNICIPConfig = $null                                                # Clears $var
+            }                                                                               # End foreach ($_ in $PublicIPArray)
+            foreach ($_ in $PublicIPArray) {                                                # For each item in list
+                Write-Host "IP SKU Name "$_.Name                                            # Write message to screen
+                Write-Host "RG Name:    "$_.RG                                              # Write message to screen
+                Write-Host "Allocation: "$_.Allocation                                      # Write message to screen
+                Write-Host "IP Address: "$_.address                                         # Write message to screen
+                Write-Host "SKU Type:   "$_.Sku                                             # Write message to screen
+                if ($_.Nic) {                                                               # If current item .Nic has a value
+                    Write-Host "NIC Name:   "$_.Nic                                         # Write message to screen
+                    Write-Host "NIC Config: "$_.IPConfig                                    # Write message to screen
+                }                                                                           # End if ($_.Nic)                  
+                else {                                                                      # If current item .Nic does not have a value
+                    Write-Host "NIC Name:    N/A"                                           # Write message to screen
+                    Write-Host "NIC Config:  N/A"                                           # Write message to screen
+                }                                                                           # End else (if ($_.Nic))
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $PublicIPArray) 
+            Break ListAzurePublicIP                                                         # Breaks :ListAzurePublicIP
+        }                                                                                   # End :ListAzurePublicIP while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ListAzPublicIpAddress
+function GetAzPublicIpAddress {                                                             # Function for getting a public IP sku
+    Begin {                                                                                 # Begin function
+        :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
+            $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
+            [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
+            $PublicIPNumber = 1                                                             # Creates #var used for list selection
+            foreach ($_ in $PublicIPList) {                                                 # For each item in list
+                if ($_.IpConfiguration.Id) {                                                # If current item .IpConfiguration.Id has a value
+                    $AttachedNIC = ($_.IpConfiguration.Id).Split('/')[-3]                   # Gets the attached NIC name
+                    $AttachedNICIPConfig = ($_.IpConfiguration.Id).Split('/')[-1]           # Gets the attached NIC IP config name
+                }                                                                           # End if ($_.IpConfiguration.Id) 
+                $PublicIPInput = [PSCustomObject]@{'Number'=$PublicIPNumber;`
+                    'Name' = $_.Name;'RG'=$_.ResourceGroupName;'Sku'=$_.Sku.Name;`
+                    'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress;'NIC'=`
+                    $AttachedNIC;'IPconfig'=$AttachedNICIPConfig}                           # Creates the item to loaded into array
+                $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
+                $AttachedNIC = $null                                                        # Clears $var
+                $AttachedNICIPConfig = $null                                                # Clears $var
+            }                                                                               # End foreach ($_ in $PublicIPArray)
+            Write-Host "[0] to exit"                                                        # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $PublicIPArray) {                                                # For each item in list
+                $Number = $_.Number                                                         # Creats $Number (Used for formating)
+                Write-Host "[$Number]         "$_.Name                                      # Write message to screen
+                Write-Host "RG Name:    "$_.RG                                              # Write message to screen
+                Write-Host "Allocation: "$_.Allocation                                      # Write message to screen
+                Write-Host "IP Address: "$_.address                                         # Write message to screen
+                Write-Host "SKU Type:   "$_.Sku                                             # Write message to screen
+                if ($_.Nic) {                                                               # If current item .Nic has a value
+                    Write-Host "NIC Name:   "$_.Nic                                         # Write message to screen
+                    Write-Host "NIC Config: "$_.IPConfig                                    # Write message to screen
+                }                                                                           # End if ($_.Nic)                                 
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $PublicIPArray) 
+            :SelectAzurePublicIP while ($true) {                                            # Inner loop for selecting the public IP
+                if ($CallingFunction) {                                                     # If $Calling function has a value
+                    Write-Host 'You are selecting the Public IP Sku for:'$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $SelectPublicIP = Read-Host "Enter the list number for public IP"           # Operator input for the public IP selection
+                if ($SelectPublicIP -eq '0') {                                              # If $var equals 0
+                    Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
+                }                                                                           # End if ($SelectPublicIP -eq '0')
+                elseif ($SelectPublicIP -in $PublicIPArray.Number) {                        # If $SelectPublicIP in $PublicIPArray.Number list
+                    $SelectPublicIP = $PublicIPArray | Where-Object `
+                        {$_.Number -eq $SelectPublicIP}                                     # SelectPublicIP is equal to $PublicIPArray where $PublicIPArray.Number equals $SelectPublicIP
+                    $PublicIPObject = Get-AzPublicIpAddress -Name $SelectPublicIP.Name `
+                        -ResourceGroupName $SelectPublicIP.RG                               # Pulls $PublicIPObject
+                    if ($PublicIPObject) {                                                  # If $PublicIPObject has a value
+                        Return $PublicIPObject                                              # Returns to calling function with $PublicIPObject
+                    }                                                                       # End if ($PublicIPObject)
+                    else {                                                                  # If $PublicIPObject is $null
+                        Write-Host "An error has occured"                                   # Write message to screen
+                        Break GetAzurePublicIP                                              # Breaks :GetAzurePublicIP
+                    }                                                                       # End else (if ($PublicIPObject))
+                }                                                                           # End elseif ($SelectPublicIP -in $PublicIPArray.Number)
+                else {                                                                      # All other values
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($SelectPublicIP -eq '0'))
+            }                                                                               # End :SelectAzurePublicIP while ($true)
+        }                                                                                   # End :GetAzurePublicIP while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function GetAzPublicIpAddress
+function RemoveAzPublicIPAddress {                                                          # Function for removing a public IP Sku
+    Begin {                                                                                 # Begin function
+        :RemoveAzurePublicIP while ($true) {                                                # Outer loop for managing function
+            $CallingFunction = 'RemoveAzPublicIPAddress'                                    # Sets $CallingFunction
+            if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
+                $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                   # Calls function and assigns output to $var
+                if (!$PublicIPObject) {                                                     # If $PublicIPObject is $null
+                    Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
+                }                                                                           # End if (!$PublicIPObject)
+            }                                                                               # End if (!$PublicIPObject)
+            if ($PublicIPObject.IpConfiguration.Id) {                                       # If PublicIPObject.IpConfiguration.Id has a value
+                $AttachedNIC = ($PublicIPObject.IpConfiguration.Id).Split('/')[-3]          # Gets the attached NIC name
+                $AttachedNICIPConfig = ($PublicIPObject.IpConfiguration.Id).Split('/')[-1]  # Gets the attached NIC IP config name
+                Write-Host 'The selecting IP sku cannot be deleted'                         # Write message to screen
+                Write-Host 'Please detach this sku from the following'                      # Write message to screen
+                Write-Host 'Attached NIC:   '$AttachedNIC                                   # Write message to screen
+                Write-Host 'Nic config name:'$AttachedNICIPConfig                           # Write message to screen
+                Break RemoveAzurePublicIP                                                   # Breaks :RemoveAzurePublicIP
+            }                                                                               # End if ($PublicIPObject.IpConfiguration.Id)
+            else {                                                                          # If PublicIPObject.IpConfiguration.Id does not have a value
+                Try {                                                                       # Try the following
+                    Remove-AzPublicIpAddress -Name $PublicIPObject.Name -ResourceGroupName `
+                        $PublicIPObject.ResourceGroupName -Force -ErrorAction 'Stop'        # Removes the selected IP sku
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have to the permissions'                        # Write message to screen
+                    Write-Host 'The resource or group maybe locked'                         # Write message to screen
+                    Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
+                }                                                                           # End catch
+                Write-Host 'The selected public IP sku has been removed'                    # Write message to screen
+                Break RemoveAzurePublicIP                                                   # Breaks :RemoveAzurePublicIP
+            }                                                                               # End else (if ($PublicIPObject.IpConfiguration.Id))
+        }                                                                                   # End :RemoveAzurePublicIP while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzPublicIPAddress
 # Additional functions required for ManageAzVirtualNetwork
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
@@ -8605,126 +9172,6 @@ function NewAzLBFrontendIpConfig {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBFrontendIpConfig
-function NewAzPublicIpAddress {                                                             # Creates a new public IP address
-    Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Turns off error reporting
-        :NewAzurePublicIP while ($true) {                                                   # Outer loop for managing function
-            if (!$RGObject) {                                                               # If $RGObject is $null
-                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
-                if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if (!$RGObject)
-            }                                                                               # End if (!$RGObject)
-            :SetAzurePublicIPName while ($true) {                                           # Inner loop for setting the public IP name
-                Try {                                                                       # Try the following
-                    [ValidatePattern('^[a-z][a-z0-9-]{1,61}[a-z0-9]$')]$PublicIPNameObject `
-                    = [string](Read-Host "Enter the public IP name").ToLower()              # Operator input for the public IP name
-                }                                                                           # End try
-                catch {                                                                     # Error reporting for try statement
-                    Write-Host "! That enty was not valid"                                  # Write message to screen
-                    Write-Host "! Valid entries are 1-61 characters"                        # Write message to screen
-                    Write-Host "! The name must start with a letter"                        # Write message to screen
-                    Write-Host "! Special charaters are not allowed"                        # Write message to screen
-                    Write-Host ""                                                           # Write message to screen
-                }                                                                           # End catch
-                if ($PublicIPNameObject) {
-                    if ($PublicIPNameObject -eq 'exit') {                                   # IF $PublicIPNameObject equals 'exit'
-                        Break NewAzurePublicIP                                              # Breaks :NewAzurePublicIP
-                    }                                                                       # End if ($PublicIPNameObject -eq 'exit')
-                    Write-Host $PublicIPNameObject                                          # Write message to screen
-                    $OperatorConfirm = Read-Host "Use this name [Y] or [N]"                 # Operator confirmation of the name
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
-                        Break SetAzurePublicIPName                                          # Breaks :SetAzurePublicIPName
-                    }                                                                       # End if ($OperatorConfirm -eq 'y')
-                    else {                                                                  # If $OperatorConfirm does not equal 'y'
-                        Remove-Variable PublicIPNameObject                                  # Removes $PublicIPNameObject
-                    }                                                                       # End else if ($OperatorConfirm -eq 'y')
-                }                                                                           # End if ($PublicIPNameObject) 
-            }                                                                               # End :SetAzurePublicIPName while ($true)
-            :SetAzurePublicIPAlloc while ($true) {                                          # Inner loop for setting the public IP allocation method
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Dynamic'                                                    # Write message to screen
-                Write-Host '[2] Static'                                                     # Write message to screen
-                $PublicIPAllocationObject = Read-Host "[0], [1], or [2]"                    # Operator input for the allocation method
-                if ($PublicIPAllocationObject -eq '0') {                                    # If $PublicIPAllocationObject equals '0'
-                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if ($PublicIPAllocationObject -eq '0')
-                elseif ($PublicIPAllocationObject -eq '1') {                                # Elseif $PublicIPAllocationObject equals 1
-                    $PublicIPAllocationObject = 'dynamic'                                   # Reassigns value of $PublicIPAllocationObject
-                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc    
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '1')
-                elseif ($PublicIPAllocationObject -eq '2') {                                # Elseif $PublicIPAllocationObject equals 2
-                    $PublicIPAllocationObject = 'static'                                    # Reassigns value of $PublicIPAllocationObject
-                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '2')
-                else {                                                                      # All other inputs
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (($PublicIPAllocationObject -eq '0'))
-            }                                                                               # End :SetAzurePublicIPAlloc while ($true)
-            $PublicIPObject = New-AzPublicIpAddress -Name $PublicIPNameObject `
-                -ResourceGroupName $RGObject.ResourceGroupName -Location `
-                $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
-                -DomainNameLabel $PublicIPNameObject -Force                                 # Creates the new public IP address
-            if ($PublicIPObject) {                                                          # If $PublicIPObject is not $null
-                Return $PublicIPObject                                                      # Returns to calling function with $PublicIPObject
-            }                                                                               # End if ($PublicIPObject)
-            else {                                                                          # If $PublicIPObject is $null 
-                Write-Host "An error has occured"                                           # Write message to screen
-                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
-            }                                                                               # End else (if ($PublicIPObject))
-        }                                                                                   # End :NewAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with # null
-    }                                                                                       # End Begin
-}                                                                                           # End function NewAzPublicIpAddress
-function GetAzPublicIpAddress {                                                             # Function for getting an existing public IP address
-    Begin {                                                                                 # Begin function
-        :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
-            $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
-            [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
-            $PublicIPNumber = 1                                                             # Creates #var used for list selection
-            Write-Host "[ 0 ] to exit"                                                      # Write message to screen
-            foreach ($_ in $PublicIPList) {                                                 # For each item in list
-                $PublicIPInput = [PSCustomObject]@{'Name' = $_.Name;'Number' `
-                    = $PublicIPNumber;'RG' = $_.ResourceGroupName;'Sku'=$_.Sku.Name `
-                ;'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress}           # Creates the item to loaded into array
-                $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
-            }                                                                               # End foreach ($_ in $PublicIPArray)
-            foreach ($_ in $PublicIPArray) {                                                # For each item in list
-                Write-Host "["$_.Number"]"                                                  # Write message to screen
-                Write-Host "Name "$_.Name                                                   # Write message to screen
-                Write-Host "RG:  "$_.RG                                                     # Write message to screen
-                Write-Host "Type:"$_.Allocation                                             # Write message to screen
-                Write-Host "Add: "$_.address                                                # Write message to screen
-                Write-Host "Sku: "$_.Sku                                                    # Write message to screen                            
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $PublicIPArray) 
-            :SelectAzurePublicIP while ($true) {                                            # Inner loop for selecting the public IP
-                $SelectPublicIP = Read-Host "Enter the list number for public IP"           # Operator input for the public IP selection
-                if ($SelectPublicIP -eq '0') {                                              # If $var equals 0
-                    Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
-                }                                                                           # End if ($SelectPublicIP -eq '0')
-                elseif ($SelectPublicIP -in $PublicIPArray.Number) {                        # If $SelectPublicIP in $PublicIPArray.Number list
-                    $SelectPublicIP = $PublicIPArray | Where-Object `
-                        {$_.Number -eq $SelectPublicIP}                                     # SelectPublicIP is equal to $PublicIPArray where $PublicIPArray.Number equals $SelectPublicIP
-                    $PublicIPObject = Get-AzPublicIpAddress -Name $SelectPublicIP.Name `
-                        -ResourceGroupName $SelectPublicIP.RG                               # Pulls $PublicIPObject
-                    if ($PublicIPObject) {                                                  # If $PublicIPObject has a value
-                        Return $PublicIPObject                                              # Returns to calling function with $PublicIPObject
-                    }                                                                       # End if ($PublicIPObject)
-                    else {                                                                  # If $PublicIPObject is $null
-                        Write-Host "An error has occured"                                   # Write message to screen
-                        Break GetAzurePublicIP                                              # Breaks :GetAzurePublicIP
-                    }                                                                       # End else (if ($PublicIPObject))
-                }                                                                           # End elseif ($SelectPublicIP -in $PublicIPArray.Number)
-                else {                                                                      # All other values
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($SelectPublicIP -eq '0'))
-            }                                                                               # End :SelectAzurePublicIP while ($true)
-        }                                                                                   # End :GetAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End begin
-}                                                                                           # End function GetAzPublicIpAddress
 function NewAzLBBackendIpConfig {                                                           # Function to set up the Back end IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBBEIpConfig while ($true) {                                               # Outer loop for managing the function
@@ -9053,125 +9500,5 @@ function NewAzLBRuleConfig {                                                    
         }                                                                                   # End :NewAzureLBRuleConfig while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzLBRuleConfig
-function NewAzPublicIpAddress {                                                             # Creates a new public IP address
-    Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Turns off error reporting
-        :NewAzurePublicIP while ($true) {                                                   # Outer loop for managing function
-            if (!$RGObject) {                                                               # If $RGObject is $null
-                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
-                if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if (!$RGObject)
-            }                                                                               # End if (!$RGObject)
-            :SetAzurePublicIPName while ($true) {                                           # Inner loop for setting the public IP name
-                Try {                                                                       # Try the following
-                    [ValidatePattern('^[a-z][a-z0-9-]{1,61}[a-z0-9]$')]$PublicIPNameObject `
-                    = [string](Read-Host "Enter the public IP name").ToLower()              # Operator input for the public IP name
-                }                                                                           # End try
-                catch {                                                                     # Error reporting for try statement
-                    Write-Host "! That enty was not valid"                                  # Write message to screen
-                    Write-Host "! Valid entries are 1-61 characters"                        # Write message to screen
-                    Write-Host "! The name must start with a letter"                        # Write message to screen
-                    Write-Host "! Special charaters are not allowed"                        # Write message to screen
-                    Write-Host ""                                                           # Write message to screen
-                }                                                                           # End catch
-                if ($PublicIPNameObject) {
-                    if ($PublicIPNameObject -eq 'exit') {                                   # IF $PublicIPNameObject equals 'exit'
-                        Break NewAzurePublicIP                                              # Breaks :NewAzurePublicIP
-                    }                                                                       # End if ($PublicIPNameObject -eq 'exit')
-                    Write-Host $PublicIPNameObject                                          # Write message to screen
-                    $OperatorConfirm = Read-Host "Use this name [Y] or [N]"                 # Operator confirmation of the name
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
-                        Break SetAzurePublicIPName                                          # Breaks :SetAzurePublicIPName
-                    }                                                                       # End if ($OperatorConfirm -eq 'y')
-                    else {                                                                  # If $OperatorConfirm does not equal 'y'
-                        Remove-Variable PublicIPNameObject                                  # Removes $PublicIPNameObject
-                    }                                                                       # End else if ($OperatorConfirm -eq 'y')
-                }                                                                           # End if ($PublicIPNameObject) 
-            }                                                                               # End :SetAzurePublicIPName while ($true)
-            :SetAzurePublicIPAlloc while ($true) {                                          # Inner loop for setting the public IP allocation method
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Dynamic'                                                    # Write message to screen
-                Write-Host '[2] Static'                                                     # Write message to screen
-                $PublicIPAllocationObject = Read-Host "[0], [1], or [2]"                    # Operator input for the allocation method
-                if ($PublicIPAllocationObject -eq '0') {                                    # If $PublicIPAllocationObject equals '0'
-                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if ($PublicIPAllocationObject -eq '0')
-                elseif ($PublicIPAllocationObject -eq '1') {                                # Elseif $PublicIPAllocationObject equals 1
-                    $PublicIPAllocationObject = 'dynamic'                                   # Reassigns value of $PublicIPAllocationObject
-                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc    
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '1')
-                elseif ($PublicIPAllocationObject -eq '2') {                                # Elseif $PublicIPAllocationObject equals 2
-                    $PublicIPAllocationObject = 'static'                                    # Reassigns value of $PublicIPAllocationObject
-                    Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '2')
-                else {                                                                      # All other inputs
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (($PublicIPAllocationObject -eq '0'))
-            }                                                                               # End :SetAzurePublicIPAlloc while ($true)
-            $PublicIPObject = New-AzPublicIpAddress -Name $PublicIPNameObject `
-                -ResourceGroupName $RGObject.ResourceGroupName -Location `
-                $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
-                -DomainNameLabel $PublicIPNameObject -Force                                 # Creates the new public IP address
-            if ($PublicIPObject) {                                                          # If $PublicIPObject is not $null
-                Return $PublicIPObject                                                      # Returns to calling function with $PublicIPObject
-            }                                                                               # End if ($PublicIPObject)
-            else {                                                                          # If $PublicIPObject is $null 
-                Write-Host "An error has occured"                                           # Write message to screen
-                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
-            }                                                                               # End else (if ($PublicIPObject))
-        }                                                                                   # End :NewAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with # null
-    }                                                                                       # End Begin
-}                                                                                           # End function NewAzPublicIpAddress
-function GetAzPublicIpAddress {                                                             # Function for 
-    Begin {                                                                                 # Begin function
-        :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
-            $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
-            [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
-            $PublicIPNumber = 1                                                             # Creates #var used for list selection
-            Write-Host "[ 0 ] to exit"                                                      # Write message to screen
-            foreach ($_ in $PublicIPList) {                                                 # For each item in list
-                $PublicIPInput = [PSCustomObject]@{'Name' = $_.Name;'Number' `
-                    = $PublicIPNumber;'RG' = $_.ResourceGroupName;'Sku'=$_.Sku.Name `
-                ;'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress}           # Creates the item to loaded into array
-                $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
-            }                                                                               # End foreach ($_ in $PublicIPArray)
-            foreach ($_ in $PublicIPArray) {                                                # For each item in list
-                Write-Host "["$_.Number"]"                                                  # Write message to screen
-                Write-Host "Name "$_.Name                                                   # Write message to screen
-                Write-Host "RG:  "$_.RG                                                     # Write message to screen
-                Write-Host "Type:"$_.Allocation                                             # Write message to screen
-                Write-Host "Add: "$_.address                                                # Write message to screen
-                Write-Host "Sku: "$_.Sku                                                    # Write message to screen                            
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $PublicIPArray) 
-            :SelectAzurePublicIP while ($true) {                                            # Inner loop for selecting the public IP
-                $SelectPublicIP = Read-Host "Enter the list number for public IP"           # Operator input for the public IP selection
-                if ($SelectPublicIP -eq '0') {                                              # If $var equals 0
-                    Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
-                }                                                                           # End if ($SelectPublicIP -eq '0')
-                elseif ($SelectPublicIP -in $PublicIPArray.Number) {                        # If $SelectPublicIP in $PublicIPArray.Number list
-                    $SelectPublicIP = $PublicIPArray | Where-Object `
-                        {$_.Number -eq $SelectPublicIP}                                     # SelectPublicIP is equal to $PublicIPArray where $PublicIPArray.Number equals $SelectPublicIP
-                    $PublicIPObject = Get-AzPublicIpAddress -Name $SelectPublicIP.Name `
-                        -ResourceGroupName $SelectPublicIP.RG                               # Pulls $PublicIPObject
-                    if ($PublicIPObject) {                                                  # If $PublicIPObject has a value
-                        Return $PublicIPObject                                              # Returns to calling function with $PublicIPObject
-                    }                                                                       # End if ($PublicIPObject)
-                    else {                                                                  # If $PublicIPObject is $null
-                        Write-Host "An error has occured"                                   # Write message to screen
-                        Break GetAzurePublicIP                                              # Breaks :GetAzurePublicIP
-                    }                                                                       # End else (if ($PublicIPObject))
-                }                                                                           # End elseif ($SelectPublicIP -in $PublicIPArray.Number)
-                else {                                                                      # All other values
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($SelectPublicIP -eq '0'))
-            }                                                                               # End :SelectAzurePublicIP while ($true)
-        }                                                                                   # End :GetAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End begin
-}                                                                                           # End function GetAzPublicIpAddress
+}                                                                                           # End function NewAzLBRuleConfig                                                                                    # End function GetAzPublicIpAddress
 # End Manage Network
