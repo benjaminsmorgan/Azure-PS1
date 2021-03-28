@@ -20,6 +20,7 @@
     $VNetRG:                    $Var holding the current Vnet resource group name
     $SubnetList:                List of subnets in the current vnet
     $ListInput:                 $Var used to load items into $ListArray
+    $Number:                    The current item .number, used for formating
     $SubnetSelect:              Operator input to select the subnet
     $VNetObject:                The Vnet holding the selected subnet
     $SubnetObject:              The subnet object
@@ -49,12 +50,12 @@ function GetAzVNetSubnetConfig {                                                
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
                 }                                                                           # End foreach ($_ in $SubnetList)                                        
             }                                                                               # End foreach ($_ in $VNetList)
-            Write-Host '[ 0 ] Exit'                                                         # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
-                Write-Host '['$_.Number']'                                                  # Write message to screen
-                Write-Host 'Sub Name:   '$_.name                                            # Write message to screen
-                Write-Host 'Add Prefix: '$_.PFX                                             # Write message to screen
+                $Number = $_.Number                                                         # Creates $number from $_.Number
+                Write-Host "[$Number]"   $_.name                                            # Write message to screen
+                Write-Host 'Sub Prefix: '$_.PFX                                             # Write message to screen
                 Write-Host 'VNet Name:  '$_.Vnet                                            # Write message to screen
                 Write-Host 'Vnet Prefix:'$_.VnetPFX                                         # Write message to screen
                 Write-Host ''                                                               # Write message to screen
