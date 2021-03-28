@@ -68,9 +68,11 @@ function AddAzVNetSubnetConfig {                                                
             }                                                                               # End Try
             catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
-                Break AddAzVNetSubnetConfig                                                 # Breaks :AddAzVNetSubnetConfig
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
             }                                                                               # End catch
-            Return $SubnetObject                                                            # Returns to calling function with $var
+            $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                -VirtualNetwork $VnetObject                                                 # Pulls the newly created subnet object
+            Return $SubnetObject, $VnetObject                                               # Returns to calling function with $vars
         }                                                                                   # End :AddAzureSubnet while ($true)
         Return                                                                              # Returns to calling function with $Null
     }                                                                                       # End Begin
