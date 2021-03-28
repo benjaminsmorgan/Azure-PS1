@@ -56,7 +56,7 @@ function ManageAzVNetSubnetConfig {                                             
             if ($VNetObject) {                                                              # If $VnetObject has a value
                 Write-Host 'The currently selected Vnet is:'$VNetObject.name                # Write message to screen
             }                                                                               # End if ($VNetObject)
-            if ($SubnetObject) {                                                            # If $subnetObject has a value
+            if ($SubnetObject) {                                                            # If $SubnetObject has a value
                 Write-Host 'The currently selected Subnet is:'$SubnetObject.name            # Write message to screen
             }                                                                               # End if ($SubnetObject)
             Write-Host "Azure Subnet Management"                                            # Write message to screen
@@ -87,7 +87,7 @@ function ManageAzVNetSubnetConfig {                                             
             }                                                                               # End elseif ($ManageAzSubnet -eq '0')
             elseif ($ManageAzSubnet -eq '1') {                                              # Elseif $ManageAzSubnet equals 1
                 Write-Host 'Add subnet'                                                     # Write message to screen
-                $SubnetObject = AddAzVNetSubnetConfig ($VNetObject)                         # Calls function and assigns output to $var
+                $SubnetObject, $VnetObject = AddAzVNetSubnetConfig ($VNetObject)            # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzSubnet -eq '1')
             elseif ($ManageAzSubnet -eq '2') {                                              # Elseif $ManageAzSubnet equals 2
                 Write-Host 'Get subnet'                                                     # Write message to screen
@@ -101,7 +101,7 @@ function ManageAzVNetSubnetConfig {                                             
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($ManageAzSubnet -eq 'exit'))
         }                                                                                   # End :ManageAzureSubnet while ($true)
-        Return $VNetObject, $SubnetObject                                                   # Returns $vars to calling function
+        Return $SubnetObject,$VNetObject                                                    # Returns $vars to calling function
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVNetSubnetConfig
 function AddAzVNetSubnetConfig {                                                            # Function to create a subnet
@@ -142,9 +142,11 @@ function AddAzVNetSubnetConfig {                                                
             }                                                                               # End Try
             catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
-                Break AddAzVNetSubnetConfig                                                 # Breaks :AddAzVNetSubnetConfig
+                Break AddAzureSubnet                                                        # Breaks :AddAzureSubnet
             }                                                                               # End catch
-            Return $SubnetObject                                                            # Returns to calling function with $var
+            $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name $SubnetName `
+                -VirtualNetwork $VnetObject                                                 # Pulls the newly created subnet object
+            Return $SubnetObject, $VnetObject                                               # Returns to calling function with $vars
         }                                                                                   # End :AddAzureSubnet while ($true)
         Return                                                                              # Returns to calling function with $Null
     }                                                                                       # End Begin
@@ -168,17 +170,20 @@ function GetAzVNetSubnetConfig {                                                
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
                 }                                                                           # End foreach ($_ in $SubnetList)                                        
             }                                                                               # End foreach ($_ in $VNetList)
-            Write-Host '[ 0 ] Exit'                                                         # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
-                Write-Host '['$_.Number']'                                                  # Write message to screen
-                Write-Host 'Sub Name:   '$_.name                                            # Write message to screen
-                Write-Host 'Add Prefix: '$_.PFX                                             # Write message to screen
+                $Number = $_.Number                                                         # Creates $number from $_.Number
+                Write-Host "[$Number]"   $_.name                                            # Write message to screen
+                Write-Host 'Sub Prefix: '$_.PFX                                             # Write message to screen
                 Write-Host 'VNet Name:  '$_.Vnet                                            # Write message to screen
                 Write-Host 'Vnet Prefix:'$_.VnetPFX                                         # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ListArray)
             :SelectAzureSubNet while ($true) {                                              # Inner loop for selecting the subnet
+                if ($CallingFunction) {                                                     # If $Calling function exists
+                    Write-Host 'You are selecting the subnet for'$CallingFunction           # Write message to screen
+                }                                                                           # End if ($CallingFunction)
                 $SubnetSelect = Read-Host 'Enter [#] of the subnet'                         # Operator input for the subnet selection
                 if ($SubnetSelect -eq '0') {                                                # If $SubnetSelect equals '0'
                     Break GetAzureSubnet                                                    # Breaks :GetAzureSubnet   
