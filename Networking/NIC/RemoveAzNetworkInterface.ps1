@@ -31,7 +31,8 @@ function RemoveAzNetworkInterface {                                             
         :RemoveAzureNic while ($true) {                                                     # Outer loop for managing function
             if (!$NicObject) {                                                              # If $NicObject does not have a value
                 $CallingFunction = 'RemoveAzNetworkInterface'                               # Sets $CallingFunction
-                $NicObject = GetAzNetworkInterface ($CallingFunction)                       # Calls function and assigns output to $var
+                $NicObject,$VnetObject,$SubnetObject = `
+                    GetAzNetworkInterface ($CallingFunction)                                # Calls function and assigns output to $var
                 if (!$NicObject) {                                                          # If $NicObject does not have a value
                     Break RemoveAzureNic                                                    # Breaks :RemoveAzureNic
                 }                                                                           # End if (!$NicObject)
