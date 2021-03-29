@@ -287,18 +287,26 @@ function RemoveAzPublicIPAddress {                                              
                 Break RemoveAzurePublicIP                                                   # Breaks :RemoveAzurePublicIP
             }                                                                               # End if ($PublicIPObject.IpConfiguration.Id)
             else {                                                                          # If PublicIPObject.IpConfiguration.Id does not have a value
-                Try {                                                                       # Try the following
-                    Remove-AzPublicIpAddress -Name $PublicIPObject.Name -ResourceGroupName `
-                        $PublicIPObject.ResourceGroupName -Force -ErrorAction 'Stop'        # Removes the selected IP sku
-                }                                                                           # End try
-                catch {                                                                     # If try fails
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host 'You may not have to the permissions'                        # Write message to screen
-                    Write-Host 'The resource or group maybe locked'                         # Write message to screen
+                Write-Host 'Remove the public IP'$PublicIPObject.name                       # Write message to screen
+                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation to remove the public IP
+                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                    Try {                                                                   # Try the following
+                        Remove-AzPublicIpAddress -Name $PublicIPObject.Name `
+                            -ResourceGroupName $PublicIPObject.ResourceGroupName `
+                            -Force -ErrorAction 'Stop'                                      # Removes the selected IP sku
+                    }                                                                       # End try
+                    catch {                                                                 # If try fails
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Write-Host 'You may not have to the permissions'                    # Write message to screen
+                        Write-Host 'The resource or group maybe locked'                     # Write message to screen
+                        Break RemoveAzurePublicIP                                           # Breaks :RemoveAzurePublicIP
+                    }                                                                       # End catch
+                    Write-Host 'The selected public IP sku has been removed'                # Write message to screen
                     Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
-                }                                                                           # End catch
-                Write-Host 'The selected public IP sku has been removed'                    # Write message to screen
-                Break RemoveAzurePublicIP                                                   # Breaks :RemoveAzurePublicIP
+                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                else {                                                                      # If $OperatorConfirm does not equal 'y'
+                    Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
+                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
             }                                                                               # End else (if ($PublicIPObject.IpConfiguration.Id))
         }                                                                                   # End :RemoveAzurePublicIP while ($true)
         Return                                                                              # Returns to calling function with $null
