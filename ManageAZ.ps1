@@ -1,77 +1,81 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    None:                       https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    None:                       See each area management function for details
 } #>
 <# Required Functions Links: {
-    ManageAzResourceGroups:     TBD
-    ManageAzStorage:            TBD
-    ManageAzCompute:            TBD
-    ManageAzNetwork:            TBD
+    ManageAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/ManageAzResourceGroup.ps1
+    ManageAzStorage:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/ManageAzStorage.ps1
+    ManageAzCompute:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/ManageAzCompute.ps1
+    ManageAzNetwork:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/ManageAzNetwork.ps1
     ManageAzMonitoringBackup:   TBD
     ManageAzureADRBAC:          TBD
 } #>
 <# Functions Description: {
-    ManageAzResourceGroups:     TBD
-    ManageAzStorage:            TBD
-    ManageAzCompute:            TBD
-    ManageAzNetwork:            TBD
-    ManageAzMonitoringBackup:   TBD
-    ManageAzureADRBAC:          TBD
+    ManageAzResourceGroup:      Function for managing resource groups
+    ManageAzStorage:            Function for managing storage
+    ManageAzCompute:            Function for managing compute objects
+    ManageAzNetwork:            Function for managing networks
+    ManageAzMonitoringBackup:   Function for managing monitoring and back up
+    ManageAzureADRBAC:          Function for managing Azure AD and RBAC
 } #>
 <# Variables: {
-   ManageAz{
-       :TBD                         TBD
-       TBD:                         TBD
-   }
+    :ManageAzure                Outer loop for managing function
+    $ManAzure:                  Operator input for selecting management function
 } #>
 <# Process Flow {
     ManageAZ
-        Call ManageAzResourceGroups
+        Call ManageAzResourceGroup
         Call ManageAzStorage
         Call ManageAzCompute
         Call ManageAzNetwork
         Call ManageAzMonitoringBackup
         Call ManageAzureADRBAC
 }#>
-function ManageAz {
-    Begin {
-        :ManageAzure while($true) {
-            Write-Host "Azure Management"
-            Write-Host "1 Resource Groups"
-            Write-Host "2 Storage"
-            Write-Host "3 Compute"
-            Write-Host "4 Network"
-            Write-Host "5 Monitoring and Backups"
-            Write-Host "6 Azure AD and RBAC"
-            Write-Host "'Exit'"
-            $ManAzure = Read-Host "Option?"
-            if ($ManAzure -eq 'exit') {
-                Break ManageAZ
-            } # End if statement
-            elseif ($ManAzure -eq '1') {
-                $RGObject, $RSOBject = ManageAzResourceGroup
-            } # End elseif statement
-            elseif ($ManAzure -eq '2') {
-                ManageAzStorage ($RGObject, $RSOBject)
-            } # End elseif statement
-            elseif ($ManAzure -eq '3') {
-                ManageAzCompute
-            } # End elseif statement
-            elseif ($ManAzure -eq '4') {
-                Functionnamegohere
-            } # End elseif statement
-            elseif ($ManAzure -eq '5') {
-                Functionnamegohere
-            } # End elseif statement
-            elseif ($ManAzure -eq '6') {
-                Functionnamegohere
-            } # End elseif statement
-            elseif ($ManAzure -eq '7') {
-                Functionnamegohere
-            } # End elseif statement
-        }# End :ManageAzure while loop
-    } # End begin statement
-} # End function
+function ManageAz {                                                                         # Function for managing azure resources
+    Begin {                                                                                 # Begin function
+        :ManageAzure while($true) {                                                         # Outer loop for managing function
+            Write-Host "Azure Management"                                                   # Write message to screen 
+            Write-Host "[1] Resource Groups"                                                # Write message to screen 
+            Write-Host "[2] Storage"                                                        # Write message to screen 
+            Write-Host "[3] Compute"                                                        # Write message to screen 
+            Write-Host "[4] Network"                                                        # Write message to screen 
+            Write-Host "[5] Monitoring and Backups"                                         # Write message to screen 
+            Write-Host "[6] Azure AD and RBAC"                                              # Write message to screen 
+            Write-Host "'Exit'"                                                             # Write message to screen 
+            $ManAzure = Read-Host 'Enter [#] option?'                                       # Operator input for selecting management function
+            if ($ManAzure -eq 'exit') {                                                     # If $ManAzure is equal to 'exit' 
+                Break ManageAZure                                                           # Breaks :ManageAZure
+            }                                                                               # End if ($ManAzure -eq 'exit')
+            elseif ($ManAzure -eq '1') {                                                    # Else if $ManAzure is equal to '1'
+                Write-Host 'Manage resource groups'                                         # Write message to screen 
+                $RGObject, $RSOBject = ManageAzResourceGroup                                # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManAzure -eq '1')
+            elseif ($ManAzure -eq '2') {                                                    # Else if $ManAzure is equal to '2'
+            Write-Host 'Manage storage'                                                     # Write message to screen 
+                ManageAzStorage ($RGObject, $RSOBject)                                      # Calls function
+            }                                                                               # End elseif ($ManAzure -eq '2')
+            elseif ($ManAzure -eq '3') {                                                    # Else if $ManAzure is equal to '3'
+                Write-Host 'Manage compute'                                                 # Write message to screen 
+                ManageAzCompute                                                             # Calls function
+            }                                                                               # End elseif ($ManAzure -eq '3')
+            elseif ($ManAzure -eq '4') {                                                    # Else if $ManAzure is equal to '4'
+            Write-Host 'Manage network'                                                     # Write message to screen 
+                ManageAzNetwork                                                             # Calls function
+            }                                                                               # End elseif ($ManAzure -eq '4')
+            elseif ($ManAzure -eq '5') {                                                    # Else if $ManAzure is equal to '5'
+            Write-Host 'Manage monitoring and backup'                                       # Write message to screen 
+                #Functionnamegohere                                                          
+            }                                                                               # End elseif ($ManAzure -eq '5')
+            elseif ($ManAzure -eq '6') {                                                    # Else if $ManAzure is equal to '6'
+            Write-Host 'Manage Azure AD and RBAC'                                           # Write message to screen 
+                #Functionnamegohere
+            }                                                                               # End elseif ($ManAzure -eq '6')                                                                           # End elseif ($ManAzure -eq '7')
+            else {                                                                          # All other inputs for $ManAzure
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($ManAzure -eq 'exit'))
+        }                                                                                   # End :ManageAzure while loop
+    }                                                                                       # End begin statement
+}                                                                                           # End function ManageAz
 # ManageAzResourceGroup
 <# Ref: { Mircosoft docs links
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
@@ -89,21 +93,21 @@ function ManageAz {
     Remove-AzTag:               https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-aztag?view=azps-5.2.0
 } #>
 <# Required Functions Links: {
-    SearchAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroup.ps1
-        SearchAzResourceGroupName:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupName.ps1
-        SearchAzResourceGroupType:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupType.ps1
-        SearchAzResourceGroupLoc:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupLoc.ps1
-        SearchAzResourceGroupTag:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupTag.ps1    
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    NewAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/NewAzResourceGroup.ps1 
-    RemoveAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/RemoveAzResourceGroup.ps1
-    RemoveAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/RemoveAzResource.ps1
-    GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResource.ps1
-    SearchAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResource.ps1
-        SearchAzResourceName:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceName.ps1
-        SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceType.ps1
-        SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceLoc.ps1
-        SearchAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceTag.ps1
+    SearchAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroup.ps1
+        SearchAzResourceGroupName:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupName.ps1
+        SearchAzResourceGroupType:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupType.ps1
+        SearchAzResourceGroupLoc:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupLoc.ps1
+        SearchAzResourceGroupTag:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupTag.ps1    
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+    NewAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/NewAzResourceGroup.ps1 
+    RemoveAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/RemoveAzResourceGroup.ps1
+    RemoveAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/RemoveAzResource.ps1
+    GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/GetAzResource.ps1
+    SearchAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResource.ps1
+        SearchAzResourceName:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResourceName.ps1
+        SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResourceType.ps1
+        SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResourceLoc.ps1
+        SearchAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResourceTag.ps1
     ManageAzResourceGroupLocks: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/ManageAzResourceGroupLocks.ps1
         NewAzResourceGroupLock:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/NewAzResourceGroupLock.ps1
         NewAzResourceLock:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/NewAzResourceLock.ps1
@@ -120,6 +124,7 @@ function ManageAz {
         RemoveAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTag.ps1
         RemoveAzResourceGroupTags:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceGroupTags.ps1
         RemoveAzResourceTags:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/RemoveAzResourceTags.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
 } #>
 <# Functions Description: {
     ManageAzResourceGroup:      Manages all functions related to Resource Group objects
@@ -156,75 +161,76 @@ function ManageAz {
             RemoveAzResourceTags:       Remove all tags from a resource   
 } #>
 <# Variables: {
-    ManageAzResourceGroup {
-        $OperatorSearchOption:      Operator input for search option
-        :ManageAzureRG              Named loop for selecting the management option
-        SearchAzResourceGroup{}     Gets $RGObject
-            SearchAzResourceGroupName{} Gets $RGObject
-            SearchAzResourceGroupType{} Gets $RGObject
-            SearchAzResourceGroupName{} Gets $RGObject
-            SearchAzResourceGroupTag{}  Gets $RGObject
+    :ManageAzureRG          Outer loop for managing function
+    $RGObject:              Resource group object
+    $RSObject:              Resource object
+    $ManageAzRG:            Operator input for search option
+    SearchAzResourceGroup{}     Gets $RGObject
+        SearchAzResourceGroupName{} Gets $RGObject
+        SearchAzResourceGroupType{} Gets $RGObject
+        SearchAzResourceGroupName{} Gets $RGObject
+        SearchAzResourceGroupTag{}  Gets $RGObject
+    GetAzResourceGroup{}        Gets $RGObject
+    NewAzResourceGroup{}        Creates $RGObject
+    RemoveAzResourceGroup{}     Removes $RGObject
         GetAzResourceGroup{}        Gets $RGObject
-        NewAzResourceGroup{}        Creates $RGObject
-        RemoveAzResourceGroup{}     Removes $RGObject
-            GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceGroupLocksAll{}Gets $Locks
-            RemoveAzResourceLocks{}     Removes $Locks
-        Remove-AzResource{}         Removes $RSObject
-            SearchAzResource{}          Gets $RSObject
-                SearchAzResourceName{}      Gets $RSObject
-                SearchAzResourceType{}      Gets $RSObject
-                SearchAzResourceLoc{}       Gets $RSObject
-                SearchAzResourceTag{}       Gets $RSObject
-            GetAzResourceLocksAll{}     Gets $Locks
-            RemoveAzResourceLocks{}     Removes $Locks
-        GetAzResource{}             Gets Gets $RSObject
+        GetAzResourceGroupLocksAll{}Gets $Locks
+        RemoveAzResourceLocks{}     Removes $Locks
+    Remove-AzResource{}         Removes $RSObject
         SearchAzResource{}          Gets $RSObject
             SearchAzResourceName{}      Gets $RSObject
             SearchAzResourceType{}      Gets $RSObject
             SearchAzResourceLoc{}       Gets $RSObject
             SearchAzResourceTag{}       Gets $RSObject
-        ManageAzResourceGroupLocks{}Gets $Locks
-            NewAzResourceGroupLock{}    Creates $Locks
+        GetAzResourceLocksAll{}     Gets $Locks
+        RemoveAzResourceLocks{}     Removes $Locks
+    GetAzResource{}             Gets Gets $RSObject
+    SearchAzResource{}          Gets $RSObject
+        SearchAzResourceName{}      Gets $RSObject
+        SearchAzResourceType{}      Gets $RSObject
+        SearchAzResourceLoc{}       Gets $RSObject
+        SearchAzResourceTag{}       Gets $RSObject
+    ManageAzResourceGroupLocks{}Gets $Locks
+        NewAzResourceGroupLock{}    Creates $Locks
+            GetAzResourceGroup{}        Gets $RGObject
+        NewAzResourceLock{}         Creates $Locks
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            NewAzResourceLock{}         Creates $Locks
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceGroupLocksAll{}Gets $Locks
-                GetAzResourceGroup{}        Gets $RGObject            
-            GetAzResourceGroupLockNamed{}Gets $Locks
+        GetAzResourceGroupLocksAll{}Gets $Locks
+            GetAzResourceGroup{}        Gets $RGObject            
+        GetAzResourceGroupLockNamed{}Gets $Locks
+            GetAzResourceGroup{}        Gets $RGObject
+        GetAzResourceLocksAll{}     Gets $Locks
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceLocksAll{}     Gets $Locks
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceLockNamed{}    Gets $Locks
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzResourceLocks{}     Removes $Locks
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-        ManageAzResourceGroupTags{} Gets $TagArray
-            SetAzTagPair{}              Creates $TagArray
-            AddAzResourceGroupTag{}     Creates $TagArray
+        GetAzResourceLockNamed{}    Gets $Locks
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            AddAzResourceTag{}          Creates $TagArray
-                GetAzResource{} 
-                    GetAzResourceGroup{} 
-            GetAzResourceGroupTags{}    Gets $TagArray
+        RemoveAzResourceLocks{}     Removes $Locks
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            GetAzResourceTags{}         Gets $TagArray
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzResourceGroupTag{}  Removes $TagArray
+    ManageAzResourceGroupTags{} Gets $TagArray
+        SetAzTagPair{}              Creates $TagArray
+        AddAzResourceGroupTag{}     Creates $TagArray
+            GetAzResourceGroup{}        Gets $RGObject
+        AddAzResourceTag{}          Creates $TagArray
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzResourceTag{}       Removes $TagArray
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzResourceGroupTags{} Removes $TagArray
+        GetAzResourceGroupTags{}    Gets $TagArray
+            GetAzResourceGroup{}        Gets $RGObject
+        GetAzResourceTags{}         Gets $TagArray
+            GetAzResource{}             Gets $RSObject
                 GetAzResourceGroup{}        Gets $RGObject
-            RemoveAzResourceTags{}      Removes $TagArray
-                GetAzResource{}             Gets $RSObject
-                    GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzResourceGroupTag{}  Removes $TagArray
+            GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzResourceTag{}       Removes $TagArray
+            GetAzResource{}             Gets $RSObject
+                GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzResourceGroupTags{} Removes $TagArray
+            GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzResourceTags{}      Removes $TagArray
+            GetAzResource{}             Gets $RSObject
+                GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     Function
@@ -381,194 +387,208 @@ function ManageAz {
                     Return ManageAzResourceGroups > Send $null
             End Function ManageAzResourceGroups
                 Return Function > Send $null                                    
-}#>  
-function ManageAzResourceGroup {
-    Begin {
-        :ManageAzureRG while($true) {
-            Write-Host "Resource Group Management"
-            Write-Host "1 Search For Resource Group"
-            Write-Host "2 Get Resource Group"
-            Write-Host "3 New Resource Group"
-            Write-Host "4 Remove Resource Group"
-            Write-Host "5 Remove Resource from Group"
-            Write-Host "6 Search For Resource"
-            Write-Host "7 Manage Locks"
-            Write-Host "8 Manage Tags"
-            Write-Host "'Exit to return'"
-            $OperatorSearchOption = Read-Host "Option?"
-            if ($OperatorSearchOption -eq 'exit') {
-                Break ManageAzureRG
-            } # End if statement
-            elseif ($OperatorSearchOption -eq '1') {
-                Write-Host " Search for resource group"
-                $RGObject = SearchAzResourceGroup
-                $RGObject
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '2') {
-                Write-Host "Get resource group"
-                $RGObject = GetAzResourceGroup
-                $RGObject
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '3') {
-                Write-Host "New resource group"
-                $RGObject = NewAzResourceGroup
-                $RGObject
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '4') {
-                Write-Host "Remove resource group"
-                RemoveAzResourceGroup ($RGObject)
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '5') {
-                Write-Host "Remove resource from group"
-                Write-Host "Additional settings may need to be" 
-                Write-Host "changed prior to removing a resource"
-                RemoveAzResource ($RSObject)
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '6') {
-                $RSObject = SearchAzResource
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '7') {
-                ManageAzResourceGroupLocks ($RGObject, $RSObject)
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '8') {
-                ManageAzResourceGroupTags ($RGObject, $RSObject)
-                Write-Host "Returned to ManageAzResourceGroup"
-            } # End elseif statement
-            elseif ($OperatorSearchOption -eq '0') {
-                $RGObject = $null
-                $RSObject = $null
-                Write-Host '$RGObject has been cleared'
-                Write-Host '$RSObject has been cleared'
-            }
-            if ($RGOBject) {
-            Write-Host $RGObject.ResourceGroupName "is the currently selected resource group"
-            Write-Host 'Use option "0" to clear $RGObject'
-            }
-            if ($RSObject) {
-                Write-Host $RSObject.Name "is the currently selected resource"
-                Write-Host 'Use option "0" to clear $RSObject'
-            }
-            $OperatorSearchOption = $null
-        }# End :ManageAzResourceGroup while loop
-    } # End begin statement
-} # End function
-function SearchAzResourceGroup { # Search for resource group management function
-    Begin {
-        :SearchAzureRG while($true) { # :SearchAzureRG named loop to select search function
-            Write-Host "Azure Resource Group Search" # Write message to screen
-            Write-Host "1 Search by partial name lookup" # Write message to screen
-            Write-Host "2 Search by contained resource type" # Write message to screen
-            Write-Host "3 Search by resource group location" # Write message to screen
-            Write-Host "4 Search by tags" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $SearchAzRG = Read-Host "Option?" # Collects operator input on $SearchAzRG option
-            if ($SearchAzRG -eq 'exit') { # Exit if statement for this function
-                Break SearchAzureRG # Ends :SearchAzureRG loop, leading to return statement
-            } # End if ($SearchAzRG -eq 'exit')
-            elseif ($SearchAzRG -eq '1') { # Elseif statement for searching by name
-                Write-Host "Search by name" # Write message to screen
-                $RGObject = SearchAzResourceGroupName # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '1')
-            elseif ($SearchAzRG -eq '2') { # Elseif statement for searching by resource provider and type
-                Write-Host "Search by type" # Write message to screen
-                $RGObject = SearchAzResourceGroupType # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '2')
-            elseif ($SearchAzRG -eq '3') { # Elseif statement for searching by location
-                Write-Host "Search by location" # Write message to screen
-                $RGObject = SearchAzResourceGroupLoc # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '3')
-            elseif ($SearchAzRG -eq '4') { # Elseif statement for searching by tag
-                Write-Host "Search by tag" # Write message to screen
-                $RGObject = SearchAzResourceGroupTag
-            } # End elseif ($SearchAzRG -eq '4')
-            <# elseif ($SearchAzRG -eq '5') { # Unused elseif statement
-                Write-Host "Option 5" # Write message to screen
-            } # End elseif ($SearchAzRG -eq '5') #>
-            Return $RGObject # Returns to calling function if search option is used
-        } # End $SearchAzRG while statement
-        Return # Returns to calling function if no search option is used
-    } # End begin statement
-} # End SearchAzResourceGroup function
-function SearchAzResourceGroupName { # Searchs for resource group using partial name matches on the group name, or a contained resource name
-    Begin {
-        :SearchAzureRGByName while($true) { # :SearchAzureRGByName loop finds a resource group off partial name inputs
-            Write-Host "Resource Group Search By Name" # Write message to screen
-            Write-Host "1 Search by resource name" # Write message to screen
-            Write-Host "2 Search by group name" # Write message to screen
-            $OperatorSearchOption = Read-Host "Option?" # Operator input for $OperatorSearchOption
-            if ($OperatorSearchOption -eq 'exit') { # Ends SearchAzureRGByName loop if operator types exit
-                Break SearchAzureRGByName # Breaks the SearchAzureRGByName loop
-            } # End exit if statement
-            elseif ($OperatorSearchOption -eq '1') { # Elseif statement for search by resource name
-                :SearchAzureRSName while ($true) { # :SearchAzureRSName loop finds resource group off partial resource name inputs
-                    Write-Host "Search by resource name" # Write message to screen
-                    $RSObjectInput = Read-Host "Parital resource name" # Operator input for $RSObjectInput
-                    if ($RSObjectInput -eq 'exit') { # Ends SearchAzureRSName loop if operator types exit
-                        Break SearchAzureRSName # Breaks the SearchAzureRSName loop
-                    } # End exit if statement
-                    $RSObjectInput = "*"+$RSObjectInput+"*" # Adds wildcards to $RSObjectInput
-                    $RSObject = Get-AzResource | Where-Object {$_.Name -Like $RSObjectInput} # Performs search and assigns any matching resources to $RSObject
-                    if ($RSObject) { # If statement if $RSObject value is found
-                        if ($RSObject.count -gt 1) { # If statement if more than one $RSObject value found
-                            Write-Host "More than one value found" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-host $RSObject.name -Separator `n # Write message to screen
-                            Write-Host " " # Write message to screen
-                            $RSObject = $null # Clears $RSObject, restarting :SearchAzureRSName loop
-                        } # End multiple $RSObject if statement
-                        else { # If statement for single $RSObject value
-                            $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName # Gets $RGObject using $RSObject.ResourceGroupName
-                            $RSObject = $null # Sets $RSObject as $null
-                            Return $RGObject # Returns $RGObject to calling function
-                        } # End else statement for single $RSObject value
-                    } # End if statement for $RSObject value is found
-                    else { # Else statment for no $RSObject value found
-                        Write-Host " " # Write message to screen
-                        Write-Host "No resource found that matches" # Write message to screen
-                        Write-Host "Please try again" # Write message to screen
-                        Write-Host " " # Write message to screen
-                    } # End else statment for no $RSObject value found
-                } # End :SearchAzureRSName loop
-            } # End else if statment for $OperatorSearchOption -eq '1'
-            elseif ($OperatorSearchOption -eq '2') {  # Elseif statement for search by resource group name
-                :SearchAzureRGName while ($true) { # :SearchAzureRGName loop finds resource group off partial resource group name inputs
-                    Write-Host "Search by resource group name" # Write message to screen
-                    $RGObjectInput = Read-Host "Parital resource group name" # Operator input for $RGObjectInput
-                    if ($RGObjectInput -eq 'exit') { # Ends SearchAzureRGName loop if operator types exit
-                        Break SearchAzureRGName # Breaks the SearchAzureRGName loop
-                    } # End exit if statement
-                    $RGObjectInput = "*"+$RGObjectInput+"*"
-                    $RGObject = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -Like $RGObjectInput}
-                    if ($RGObject) { # If statement if $RGObject value is found
-                        if ($RGObject.count -gt 1) { # If statement if more than one $RGObject value found
-                            Write-Host "More than one value found" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-host $RGObject.ResourceGroupName -Separator `n # Write message to screen
-                            Write-Host " " # Write message to screen
-                            $RGObject = $null # Clears $RGObject, restarting :SearchAzureRGName loop
-                        } # End multiple $RGObject if statement
-                        else { # If statement for single $RGObject value
-                            Return $RGObject # Returns $RGObject to calling function
-                        } # End else statement for single $RGObject value
-                    } # End if statement for $RGObject value is found
-                    else { # Else statment for no $RGObject value found
-                        Write-Host " " # Write message to screen
-                        Write-Host "No resource groups found that matches" # Write message to screen
-                        Write-Host "Please try again" # Write message to screen
-                        Write-Host " " # Write message to screen
-                    } # End else statment for no $RGObject value found
-                } # End :SearchAzureRGName loop
-            } # End else if statment for $OperatorSearchOption -eq '2'
-        } # End $SearchAzRGName while statement 
-        Return # Returns to calling function empty if operator has used 'exit' options
-    } # End begin statement
-} # End SearchAzResourceGroupName
+}#> 
+function ManageAzResourceGroup {                                                            # Function to manage resource groups
+    Begin {                                                                                 # Begin function
+        :ManageAzureRG while($true) {                                                       # Outer loop for managing function
+            if ($RGObject) {                                                                # If $RGObject has a value
+                Write-Host 'The currently selected resource group is:' `
+                    $RGObject.ResourceGroupName                                             # Write message to screen
+            }                                                                               # End if ($RGObject)
+            if ($RSObject) {                                                                # If $RSObject has a value
+                Write-Host 'The currently selected resource is:' $RGObject.Name             # Write message to screen
+            }                                                                               # End if ($RSObject)
+            Write-Host "Resource Group Management"                                          # Write message to screen
+            Write-Host "[1] Search For Resource Group"                                      # Write message to screen
+            Write-Host "[2] Get Resource Group"                                             # Write message to screen
+            Write-Host "[3] New Resource Group"                                             # Write message to screen
+            Write-Host "[4] Remove Resource Group"                                          # Write message to screen
+            Write-Host "[5] Remove Resource From Group"                                     # Write message to screen
+            Write-Host "[6] Search For Resource"                                            # Write message to screen
+            Write-Host "[7] Manage Locks"                                                   # Write message to screen
+            Write-Host "[8] Manage Tags"                                                    # Write message to screen
+            Write-Host "'Exit to return'"                                                   # Write message to screen
+            $ManageAzRG = Read-Host 'Enter [#] option?'                                     # Operator input for selecting management function
+            if ($ManageAzRG -eq 'exit') {                                                   # If $ManageAzRG equals 'exit'
+                Break ManageAzureRG                                                         # Breaks :ManageAzureRG
+            }                                                                               # End if ($ManageAzRG -eq 'exit')
+            elseif ($ManageAzRG -eq '1') {                                                  # else if $ManageAzRG equals '1'
+                Write-Host "Search For Resource Group"                                      # Write message to screen
+                $RGObject = SearchAzResourceGroup                                           # Calls function and assigns ouput to $var
+            }                                                                               # End elseif ($ManageAzRG -eq '1')
+            elseif ($ManageAzRG -eq '2') {                                                  # else if $ManageAzRG equals '2'
+                Write-Host "Get Resource Group"                                             # Write message to screen
+                $RGObject = GetAzResourceGroup                                              # Calls function and assigns ouput to $var
+            }                                                                               # End elseif ($ManageAzRG -eq '2')
+            elseif ($ManageAzRG -eq '3') {                                                  # else if $ManageAzRG equals '3'
+                Write-Host "New Resource Group"                                             # Write message to screen
+                $RGObject = NewAzResourceGroup                                              # Calls function and assigns ouput to $var
+            }                                                                               # End elseif ($ManageAzRG -eq '3')
+            elseif ($ManageAzRG -eq '4') {                                                  # else if $ManageAzRG equals '4'
+                Write-Host "Remove Resource Group"                                          # Write message to screen
+                RemoveAzResourceGroup ($RGObject)                                           # Calls function 
+            }                                                                               # End elseif ($ManageAzRG -eq '4')
+            elseif ($ManageAzRG -eq '5') {                                                  # else if $ManageAzRG equals '5'
+                Write-Host "Remove Resource From Group"                                     # Write message to screen
+                RemoveAzResource ($RSObject)                                                # Calls function 
+            }                                                                               # End elseif ($ManageAzRG -eq '5')
+            elseif ($ManageAzRG -eq '6') {                                                  # else if $ManageAzRG equals '6'
+                Write-Host "Search For Resource"                                            # Write message to screen
+                $RSObject = SearchAzResource                                                # Calls function 
+            }                                                                               # End elseif ($ManageAzRG -eq '6')
+            elseif ($ManageAzRG -eq '7') {                                                  # else if $ManageAzRG equals '7'
+                Write-Host 'Manage Locks'                                                   # Write message to screen
+                ManageAzResourceGroupLocks ($RGObject, $RSObject)                           # Calls function 
+            }                                                                               # End elseif ($ManageAzRG -eq '7')
+            elseif ($ManageAzRG -eq '8') {                                                  # else if $ManageAzRG equals '8'
+                Write-Host 'Manage Tags'                                                    # Write message to screen
+                ManageAzResourceGroupTags ($RGObject, $RSObject)                            # Calls function 
+            }                                                                               # End elseif ($ManageAzRG -eq '8')
+            elseif ($ManageAzRG -eq '0') {                                                  # else if $ManageAzRG equals '0'
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    $RGObject = $null                                                       # Clears $RGObject
+                    Write-Host '$RGObject has been cleared'                                 # Write message to screen
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host '$RGObject was already clear'                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+                if ($RSObject) {                                                            # If $RSObject has a value
+                    $RSObject = $null                                                       # Clears $RSObject
+                    Write-Host '$RSObject has been cleared'                                 # Write message to screen
+                }                                                                           # End if ($RSObject)
+                else {                                                                      # If $RSObject does not have a value
+                    Write-Host '$RSObject was already clear'                                # Write message to screen
+                }                                                                           # End else (if ($RSObject))
+            }                                                                               # End elseif ($ManageAzRG -eq '0')
+            else {                                                                          # All other inputs for ManageAzRG
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($ManageAzRG -eq 'exit'))
+        }                                                                                   # End :ManageAzResourceGroup while ($true)
+        Return $RGObject, $RSOBject                                                         # Returns $vars to calling function
+    }                                                                                       # End begin statement
+}                                                                                           # End function ManageAzResourceGroup
+function SearchAzResourceGroup {                                                            # Function to manage search for resource group functions
+    Begin {                                                                                 # Begin function
+        :SearchAzureRG while($true) {                                                       # Outer loop for managing function
+            Write-Host "Azure Resource Group Search"                                        # Write message to screen
+            Write-Host "[1] Search by partial name lookup"                                  # Write message to screen
+            Write-Host "[2] Search by contained resource type"                              # Write message to screen
+            Write-Host "[3] Search by resource group location"                              # Write message to screen
+            Write-Host "[4] Search by tags"                                                 # Write message to screen
+            Write-Host "'Exit to return'"                                                   # Write message to screen
+            $SearchAzRG = Read-Host "Option?"                                               # Operator input on $SearchAzRG option
+            if ($SearchAzRG -eq 'exit') {                                                   # If $SearchAzRG equals 'exit'
+                Break SearchAzureRG                                                         # Breaks :SearchAzureRG
+            }                                                                               # End if ($SearchAzRG -eq 'exit')
+            elseif ($SearchAzRG -eq '1') {                                                  # Else if $SearchAzRG equals '1'
+                Write-Host "Search by name"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupName                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '1')
+            elseif ($SearchAzRG -eq '2') {                                                  # Else if $SearchAzRG equals '2'
+                Write-Host "Search by type"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupType                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '2')
+            elseif ($SearchAzRG -eq '3') {                                                  # Else if $SearchAzRG equals '3'
+                Write-Host "Search by location"                                             # Write message to screen
+                $RGObject = SearchAzResourceGroupLoc                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '3')
+            elseif ($SearchAzRG -eq '4') {                                                  # Else if $SearchAzRG equals '4'
+                Write-Host "Search by tag"                                                  # Write message to screen
+                $RGObject = SearchAzResourceGroupTag                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '4')
+            else {                                                                          # All other inputs for $SearchAzRG
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if($SearchAzRG -eq 'exit'))
+            if ($RGObject) {                                                                # If $RGObject has a value
+                Return $RGObject                                                            # Returns to calling function with $RGObject
+            }                                                                               # End if ($RGObject)
+            else {                                                                          # If $RGObject does not have a value
+                Write-Host 'No resource group selected'                                     # Write message to screen
+            }                                                                               # End else (if ($RGObject))
+        }                                                                                   # End :SearchAzureRG while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function SearchAzResourceGroup
+function SearchAzResourceGroupName {                                                        # Function to search for resource group by name
+    Begin {                                                                                 # Begin function
+        :SearchAzureRGByName while($true) {                                                 # Outer loop for managing function
+            Write-Host "Resource Group Search By Name"                                      # Write message to screen
+            Write-Host "[1] Search by resource name"                                        # Write message to screen
+            Write-Host "[2] Search by group name"                                           # Write message to screen
+            $OperatorSearchOption = Read-Host "Option?"                                     # Operator input for search method
+            if ($OperatorSearchOption -eq 'exit') {                                         # If $OperatorSearchOption equals 'exit'
+                Break SearchAzureRGByName                                                   # Breaks :SearchAzureRGByName
+            }                                                                               # End if ($OperatorSearchOption -eq 'exit')
+            elseif ($OperatorSearchOption -eq '1') {                                        # Else if $OperatorSearchOption equals '1' 
+                :SearchAzureRSName while ($true) {                                          # Inner loop for finding resource group off partial resource name inputs
+                    Write-Host "Search by resource name"                                    # Write message to screen
+                    $RSObjectInput = Read-Host "Parital resource name"                      # Operator input for $RSObjectInput
+                    if ($RSObjectInput -eq 'exit') {                                        # If $RSObjectInput equals 'exit'
+                        Break SearchAzureRSName                                             # Breaks :SearchAzureRSName
+                    }                                                                       # End if ($RSObjectInput -eq 'exit')
+                    $RSObjectInput = "*"+$RSObjectInput+"*"                                 # Adds wildcards to $RSObjectInput
+                    $RSObject = Get-AzResource | Where-Object `
+                        {$_.Name -Like $RSObjectInput}                                      # Performs search and assigns any matching resources to $RSObject
+                    if ($RSObject) {                                                        # If statement if $RSObject value is found
+                        if ($RSObject.count -gt 1) {                                        # If statement if more than one $RSObject value found
+                            Write-Host "More than one value found"                          # Write message to screen
+                            Write-Host " "                                                  # Write message to screen
+                            Write-host $RSObject.name -Separator `n                         # Write message to screen
+                            Write-Host " "                                                  # Write message to screen
+                            $RSObject = $null                                               # Clears $RSObject, restarting :SearchAzureRSName loop
+                        }                                                                   # End if ($RSObject.count -gt 1)
+                        else {                                                              # If statement for single $RSObject value
+                            $RGObject = Get-AzResourceGroup -Name `
+                                $RSObject.ResourceGroupName                                 # Gets $RGObject using $RSObject.ResourceGroupName
+                            $RSObject = $null                                               # Sets $RSObject as $null
+                            Return $RGObject                                                # Returns $RGObject to calling function
+                        }                                                                   # End else (if ($RSObject.count -gt 1))
+                    }                                                                       # End if ($RSObject)
+                    else {                                                                  # Else statment for no $RSObject value found
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host "No resource found that matches"                         # Write message to screen
+                        Write-Host "Please try again"                                       # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                    }                                                                       # End else (if ($RSObject))
+                }                                                                           # End :SearchAzureRSName while ($true)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals '2' 
+                :SearchAzureRGName while ($true) {                                          # Inner loop for finding a resource group of partial group name match
+                    Write-Host "Search by resource group name"                              # Write message to screen
+                    $RGObjectInput = Read-Host "Parital resource group name"                # Operator input for $RGObjectInput
+                    if ($RGObjectInput -eq 'exit') {                                        # If $RGObjectInput equals 'exit'
+                        Break SearchAzureRGName                                             # Breaks :SearchAzureRGName 
+                    }                                                                       # End if ($RGObjectInput -eq 'exit')
+                    $RGObjectInput = "*"+$RGObjectInput+"*"                                 # Adds wildcards to $RGObjectInput
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -Like $RGObjectInput}                         # Pulls a list of all resources groups with a name like $RGObjectInput
+                    if ($RGObject) {                                                        # If statement if $RGObject value is found
+                        if ($RGObject.count -gt 1) {                                        # If statement if more than one $RGObject value found
+                            Write-Host "More than one value found"                          # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-host $RGObject.ResourceGroupName -Separator `n            # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            $RGObject = $null                                               # Clears $RGObject, restarting :SearchAzureRGName loop
+                        }                                                                   # End if ($RGObject.count -gt 1)
+                        else {                                                              # If statement for single $RGObject value
+                            Return $RGObject                                                # Returns $RGObject to calling function
+                        }                                                                   # else (if ($RGObject.count -gt 1))
+                    }                                                                       # End if ($RGObject)
+                    else {                                                                  # Else statment for no $RGObject value found
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host "No resource groups found that matches"                  # Write message to screen
+                        Write-Host "Please try again"                                       # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                    }                                                                       # End else (if ($RGObject))
+                }                                                                           # End :SearchAzureRGName while ($true)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            else {                                                                          # All other inputs for $OperatorSearchOption
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSearchOption -eq 'exit'))
+        }                                                                                   # End :SearchAzureRGByName while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SearchAzResourceGroupName
 function SearchAzResourceGroupType { # Searchs for resource group resource provider or type on a resource or resource group
     Begin {
         $ProviderList = Get-AzResourceProvider | select-object ProviderNamespace # Collects all current Azure resource provider names
@@ -2560,14 +2580,14 @@ function RemoveAzResourceTags {
             GetAzKeyVaultSecretValue:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecretValue.ps1
             UpdateAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/UpdateAzKeyVaultSecret.ps1
             RemoveAzKeyVaultSecret:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/RemoveAzKeyVaultSecret.ps1
-    ManageAzDisk:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main//Storage/Disks/ManageAzDisk.ps1
-        NewAzDisk:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main//Storage/Disks/NewAzDisk.ps1
-        ListAzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/ListAzDisk.ps1
-        Get-AzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/GetAzDisk.ps1
-        RemoveAzDisk:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/RemoveAzDisk.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzResourceLocksAll:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/GetAzResourceLocksAll.ps1
-    RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Locks/RemoveAzResourceLocks.ps1 
+    ManageAzDisk:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/Disks/ManageAzDisk.ps1
+        NewAzDisk:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/Disks/NewAzDisk.ps1
+        ListAzDisk:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/isks/ListAzDisk.ps1
+        Get-AzDisk:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/isks/GetAzDisk.ps1
+        RemoveAzDisk:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups//RemoveAzDisk.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzResourceLocksAll: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/sourceLocksAll.ps1
+    RemoveAzResourceLocks: https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/zResourceLocks.ps1 
 } #>
 <# Functions Description: {
     ManageAzStorage:            Manage function for storage
@@ -5175,21 +5195,21 @@ function RemoveAzDisk { # Removes a disk object
         ReImageAzVM:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/ReimageAzVM.ps1
         RemoveAzVM:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/RemoveAzVM.ps1
         SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
-        GetAzVMSize:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVMSize.ps1
-        NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
-        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
-        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
-        GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1 
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    ManageAzVmss:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/ManageAzVmss.ps1
-        SetAzVmssOsProfile:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssOsProfile.ps1
-        SetAzVmssStorageProfile:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/SetAzVmssStorageProfile.ps1
-        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
-        AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
-        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        SetAzVMOS:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/SetAzVMOS.ps1
-        GetAzVMSize:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/GetAzVMSize.ps1
+        GetAzVMSize:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/e%20VM/GetAzVMSize.ps1
+        NewAzNetworkInterface:      htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/etworkInterface.ps1
+        GetAzVNetSubnetConfig:      htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/AzVNetSubnetConfig.ps1
+        GetAzVirtualNetwork:        htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/VirtualNetwork.ps1
+        GetAzNetworkInterface:      httphttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/tworkInterface.ps1 
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+    ManageAzVmss:               httphttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/cale%20Set/ManageAzVmss.ps1
+        SetAzVmssOsProfile:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ups/Resource%20Groups/%20Scale%20Set/SetAzVmssOsProfile.ps1
+        SetAzVmssStorageProfile:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/%20Scale%20Set/SetAzVmssStorageProfile.ps1
+        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/tAzVirtualNetwork.ps1
+        AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/AddAzVNetSubnetConfig.ps1
+        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzVNetSubnetConfig.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+        SetAzVMOS:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/20VM/SetAzVMOS.ps1
+        GetAzVMSize:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/20VM/GetAzVMSize.ps1
         GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
         NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
         NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
@@ -5203,17 +5223,17 @@ function RemoveAzDisk { # Removes a disk object
         RemoveAzVmss:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/RemoveAzVmss.ps1
         GetAzVmssVM:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/GetAzVmssVM.ps1
         StartAzVmss:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/StartAzVmss.ps1
-        StopAzVmss:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20Vm%20Scale%20Set/StopAzVmss.ps1
-    ManageAzContainerGroup:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/ManageAzContainerGroup.ps1
-        NewAzContainerGroup:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/NewAzContainerGroup.ps1
-        GetAzContainerGroup:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/GetAzContainerGroup.ps1
-        RemoveAzContainerGroup:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Containers/RemoveAzContainerGroup.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    ManageAzAksCluster:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Kubernetes/ManageAzAksCluster.ps1
-        GetAzAksCluster:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Kubernetes/NewAzAksCluster.ps1 
+        StopAzVmss:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/%20Scale%20Set/StopAzVmss.ps1
+    ManageAzContainerGroup:     https://https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/zContainerGroup.ps1
+        NewAzContainerGroup:        httphttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/AzContainerGroup.ps1
+        GetAzContainerGroup:        httphttps://githttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/Groups/AzContainerGroup.ps1
+        RemoveAzContainerGroup:     httphttps://github.https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ps/oveAzContainerGroup.ps1
+        GetAzResourceGroup:         https://github.com/https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/etAzResourceGroup.ps1
+    ManageAzAksCluster:         httphttps://github.com/https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/geAzAksCluster.ps1
+        GetAzAksCluster:            https://github.com/benjamhttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ksCluster.ps1 
         GetAzAksCluster:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Kubernetes/GetAzAksCluster.ps1 
         RemoveAzAksCluster:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Kubernetes/RemoveAzAksCluster.ps1 
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1 
+        GetAzResourceGroup:         https://github.com/benjaminshttps://github.comhttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/rceGroup.ps1 
 } #>
 <# Functions Description: {
     ManageAzCompute:            Management function for computer object
@@ -7423,18 +7443,25 @@ function GetAzVMSize {                                                          
     New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
     Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
     Remove-AzPublicIpAddress:   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
+    New-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
+    New-AzLoadBalancerFrontendIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
+    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerProbeConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
-    ManageAzVirtualNetwork:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/ManageAzVirtualNetwork.ps1       
-        NewAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/NewAzVirtualNetwork.ps1
-        ListAzVirtualNetwork:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/ListAzVirtualNetwork.ps1
-        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
-        RemoveAzVirtualNetwork:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/RemoveAzVirtualNetwork.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
-        AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+    ManageAzVirtualNetwork:     htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/eAzVirtualNetwork.ps1       
+        NewAzVirtualNetwork:        htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/VirtualNetwork.ps1
+        ListAzVirtualNetwork:       htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/zVirtualNetwork.ps1
+        GetAzVirtualNetwork:        htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/VirtualNetwork.ps1
+        RemoveAzVirtualNetwork:     htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/eAzVirtualNetwork.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzLocation:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups//GetAzLocation.ps1
+        AddAzVNetSubnetConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups//AddAzVNetSubnetConfig.ps1
     ManageAzVNetSubnetConfig:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/ManageAzVNetSubnetConfig.ps1
         AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
         GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
@@ -7445,19 +7472,32 @@ function GetAzVMSize {                                                          
         GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
         RemoveAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNetworkInterface.ps1   
         AddAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/AddAzNICIpConfig.ps1
-        ListAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNICIpConfig.ps1
-        SetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfig.ps1
-        RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
-        NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
-        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
-        GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+        ListAzNICIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/C/ListAzNICIpConfig.ps1
+        SetAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/tAzNICIpConfig.ps1
+        RemoveAzNICIpConfig:        hthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/eAzNICIpConfig.ps1
+        NewAzPublicIPAddress:       htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/P/NewAzPublicIpAddress.ps1
+        GetAzPublicIpAddress:       htthttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/P/GetAzPublicIpAddress.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzLocation:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups//GetAzLocation.ps1
+        GetAzVNetSubnetConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups//GetAzVNetSubnetConfig.ps1
     ManageAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ManageAzPublicIpAddress.ps1
         NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1    
         ListAzPublicIPAddress:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ListAzPublicIpAddress.ps1
         GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
         RemoveAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/RemoveAzPublicIpAddress.ps1
+    ManageAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ManageAzLoadBalancer.ps1
+        NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
+        ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
+        GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+        RemoveAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/RemoveAzLoadBalancer.ps1
+        NewAzLBFrontendIpConfig:    https:/https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/r/NewAzLBFrontendIpConfig.ps1
+        NewAzPublicIpAddress:       https://githttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ublicIpAddress.ps1
+        GetAzPublicIpAddress:       https://githttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ublicIpAddress.ps1
+        NewAzLBBackendIpConfig:     https://github.cohttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ackendIpConfig.ps1
+        NewAzLBProbeConfig:         https://github.cohttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/robeConfig.ps1
+        NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+        NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+        GetAzResourceGroup:         https://github.com/benjaminhttps://github.comhttps://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/urceGroup.ps1
 } #>
 <# Functions Description: {
     ManageAzNetwork:            Management function for azure networking
@@ -7482,6 +7522,18 @@ function GetAzVMSize {                                                          
         ListAzPublicIPAddress:      Lists all existing public IP addresses
         GetAzPublicIPAddress:       Gets an existing public IP address
         RemoveAzPublicIPAddress:    Removes an existing public IP address
+    ManageAzLoadBalancer:       Function for managing load balancers
+        NewAzLoadBalancer:          Creates a new load balancer    
+        ListAzLoadBalancer:         Lists all existing load balancers
+        GetAzLoadBalancer:          Gets an existing load balancer
+        RemoveAzLoadBalancer:       Removes an existing load balancer
+        NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+        NewAzPublicIpAddress:       Creates a new public IP addres
+        GetAzPublicIpAddress:       Gets an existing IP address
+        NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
+        NewAzLBProbeConfig:         Creates a load balancer probe configuration
+        NewAzLBIBNatPoolConfig:     Creates inbound pool configuration for load balancer
+        NewAzLBRuleConfig:          Creates a new load balancer rule
     GetAzResourceGroup:         Gets a resource group object
     GetAzLocation:              Gets an Azure location
 } #>
@@ -7489,6 +7541,9 @@ function GetAzVMSize {                                                          
     :ManageAzureNetwork         Outer loop for managing function
     $RGObject:                  Resource group object
     $VNetObject:                Virtual network object
+    $SubnetObject:              Subnet object
+    $NicObject:                 Network interface object
+    $LoadBalancerObject:        Load balancer object
     $ManageAzNetwork:           Operator input to select management function
     ManageAzVirtualNetwork{}    Gets $VnetObject
         NewAzVirtualNetwork{}       Creates $VNetObject
@@ -7537,7 +7592,21 @@ function GetAzVMSize {                                                          
         ListAzPublicIPAddress{}     Lists $PublicIPObject
         GetAzPublicIPAddress{}      Gets $PublicIPObject
         RemoveAzPublicIPAddress{}   Removes $PublicIPObject
-            GetAzPublicIPAddress{}      Gets $PublicIPObject         
+            GetAzPublicIPAddress{}      Gets $PublicIPObject      
+    ManageAzLoadBalancer{}      Gets $LoadBalancerObject
+        NewAzLoadBalancer{}         Creates $LoadBalancerObject
+            NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+            NewAzPublicIpAddress{}      Creates $PublicIPObject
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzPublicIpAddress{}      Gets $PublicIPObject
+            NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
+            NewAzLBProbeConfig{}        Gets $HealthProbeObject
+            NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
+            NewAzLBRuleConfig{}         Gets $LoadBalanceRule 
+        ListAzLoadBalancer{}        Lists $LoadBalancerObject
+        GetAzLoadBalancer{}         Gets $LoadBalancerObject
+        RemoveAzLoadBalancer{}      Removes $LoadBalancerObject
+            GetAzLoadBalancer{}         Gets $LoadBalancerObject        
 } #>
 <# Process Flow {
     Function
@@ -7686,6 +7755,51 @@ function GetAzVMSize {                                                          
                     Return ManageAzPublicIPAddress > Send $null
             End ManageAzPublicIPAddress
                 Return ManageAzNetwork > Send $PublicIPObject
+            Call ManageAzLoadBalancer > Get $LoadBalancerObject
+                Call NewAzLoadBalancer > Get $LoadBalancerObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return NewAzLoadBalancer > Send $RGObject          
+                    Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                        Call NewAzPublicIpAddress > Get $PublicIPObject
+                            Call GetAzResourceGroup > Get RGObject
+                            End GetAzResourceGroup
+                                Return NewAzPublicIpAddress > Send RGObject
+                        End NewAzPublicIpAddress
+                            Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                        Call GetAzPublicIpAddress > Get $PublicIPObject
+                        End GetAzPublicIpAddress
+                            Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
+                    End NewAzLBFrontendIpConfig
+                        Return NewAzLoadBalancer > Send $FrontEndIPConfigObject    
+                    Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+                    End NewAzLBBackendIpConfig
+                        Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
+                    Call NewAzLBProbeConfig > Get $HealthProbeObject
+                    End NewAzLBProbeConfig
+                        Return NewAzLoadBalancer > Send $HealthProbeObject           
+                    Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+                    End NewAzLBIBNatPoolConfig
+                        Return NewAzLoadBalancer > Send $InboundNatPoolObject
+                    Call NewAzLBRuleConfig > Get $LoadBalanceRule
+                    End NewAzLBRuleConfig
+                        Return NewAzLoadBalancer > Send $LoadBalanceRule
+                End NewAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
+                Call ListAzLoadBalancer > Get $null
+                End ListAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $null
+                Call GetAzLoadBalancer > Get $LoadBalancerObject
+                End GetAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
+                Call RemoveAzPublicIPAddres > Get $null
+                    Call GetAzLoadBalancer > Get $LoadBalancerObject
+                    End GetAzLoadBalancer
+                        Return RemoveAzLoadBalancer > Send $LoadBalancerObject
+                End RemoveAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $null
+            End ManageAzLoadBalancer
+                Return ManageAzNetwork > Send $LoadBalancerObject
         End ManageAzNetwork
             Return function > Send $Null
 }#>
@@ -7712,6 +7826,10 @@ function ManageAzNetwork {                                                      
                 Write-Host 'The currently selected public IP is:'`
                     $PublicIPObject.Name                                                    # Write message to screen
             }                                                                               # End if ($PublicIPObject)
+            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
+                Write-Host 'The currently selected load balancer is:'`
+                    $LoadBalancerObject.Name                                                # Write message to screen
+            }                                                                               # End if ($LoadBalancerObject)
             Write-Host "Azure Network Management"                                           # Write message to screen
             Write-Host '0 Clear "$vars"'                                                    # Write message to screen
             Write-Host '1 Manage virtual network'                                           # Write message to screen
@@ -7724,14 +7842,42 @@ function ManageAzNetwork {                                                      
             if ($ManageAzNetwork -eq 'exit') {                                              # If $ManageAzNetwork equals 'exit'
                 Break ManageAzureAksCluster                                                 # Breaks :ManageAzureAksCluster
             }                                                                               # End if ($ManageAzNetwork -eq 'exit')
-            elseif ($ManageAzNetwork -eq '0') {  #fix this                                           # Elseif $ManageAzNetwork equals 0
-                if ($) {                                                           # If $ has a value
-                    Write-Host 'Clearing "$'                                       # Write message to screen
-                    $ = $null                                                      # Clears $
-                }                                                                           # End if ($)
-                else {                                                                      # If $ does not have a value
-                    Write-Host '$ is already clear'                                         # Write message to screen
-                }                                                                           # End else (if ($AksObject))
+            elseif ($ManageAzNetwork -eq '0') {                                             # Elseif $ManageAzNetwork equals 0
+                if ($RGObject) {                                                            # If $var has a value
+                    Write-Host 'Clearing $RGObject'                                         # Write message to screen
+                    $RGObject = $null                                                       # Clears $var
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host '$RGObject is already clear'                                 # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+                if ($VnetObject) {                                                          # If $VnetObject has a value
+                    Write-Host 'Clearing $VnetObject'                                       # Write message to screen
+                    $VnetObject = $null                                                     # Clears $VnetObject
+                }                                                                           # End if ($VnetObject)
+                else {                                                                      # If $VnetObject does not have a value
+                    Write-Host '$VnetObject is already clear'                               # Write message to screen
+                }                                                                           # End else (if ($VnetObject))
+                if ($SubnetObject) {                                                        # If $var has a value
+                    Write-Host 'Clearing $SubnetObject'                                     # Write message to screen
+                    $SubnetObject = $null                                                   # Clears $var
+                }                                                                           # End if ($SubnetObject)
+                else {                                                                      # If $SubnetObject does not have a value
+                    Write-Host '$SubnetObject is already clear'                             # Write message to screen
+                }                                                                           # End else (if ($SubnetObject))
+                if ($NicObject) {                                                           # If $var has a value
+                    Write-Host 'Clearing $NicObject'                                        # Write message to screen
+                    $NicObject = $null                                                      # Clears $var
+                }                                                                           # End if ($NicObject)
+                else {                                                                      # If $NicObject does not have a value
+                    Write-Host '$NicObject is already clear'                                # Write message to screen
+                }                                                                           # End else (if ($NicObject))
+                if ($LoadBalancerObject) {                                                  # If $var has a value
+                    Write-Host 'Clearing $LoadBalancerObject'                               # Write message to screen
+                    $LoadBalancerObject = $null                                             # Clears $var
+                }                                                                           # End if ($LoadBalancerObject)
+                else {                                                                      # If $LoadBalancerObject does not have a value
+                    Write-Host '$LoadBalancerObject is already clear'                       # Write message to screen
+                }                                                                           # End else (if ($LoadBalancerObject))
             }                                                                               # End elseif ($ManageAzNetwork -eq '0')
             elseif ($ManageAzNetwork -eq '1') {                                             # Elseif $ManageAzNetwork equals 1
                 Write-Host 'Manage virtual network'                                         # Write message to screen
@@ -7747,16 +7893,21 @@ function ManageAzNetwork {                                                      
                 $NicObject, $VnetObject, $SubnetObject = ManageAzNetworkInterface `
                     ($RGObject, $SubnetObject)                                              # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNetwork -eq '3')
-            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 3
+            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 4
                 Write-Host 'Manage public IPs'                                              # Write message to screen
                 $PublicIPObject = ManageAzPublicIPAddress                                   # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '3')
+            }                                                                               # End elseif ($ManageAzNetwork -eq '4')
+            elseif ($ManageAzNetwork -eq '5') {                                             # Elseif $ManageAzNetwork equals 5
+                Write-Host 'Manage load balancers'                                          # Write message to screen
+                $LoadBalancerObject = ManageAzLoadBalancer                                  # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzNetwork -eq '5')
             else {                                                                          # If $ManageAzNetwork do not match any if or elseif     
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($ManageAzNetwork -eq 'exit'))
-        } # End :ManageAzureNetwork while ($true)
-    } # End Begin
-} # End function ManageAzNetwork
+        }                                                                                   # End :ManageAzureNetwork while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzNetwork
 # Functions for ManageAzVirtualNetwork
 function ManageAzVirtualNetwork {                                                           # Function for managing azure virtual networks
     Begin {                                                                                 # Begin function
@@ -9028,48 +9179,50 @@ function RemoveAzPublicIPAddress {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzPublicIPAddress
-# Additional functions required for ManageAzVirtualNetwork
-function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
+# Functions for ManageAzLoadBalancer
+function ManageAzLoadBalancer {                                                             # Function to manage load balancer Skus
     Begin {                                                                                 # Begin function
-        :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
-            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
-            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
-            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
-            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
-                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
-                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
-                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
-            }                                                                               # End foreach ($_ in $LoadBalancerList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            Write-Host ""                                                                   # Write message to screen
-            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
-                Write-Host $_.Number                                                        # Write message to screen
-                Write-Host $_.Name                                                          # Write message to screen
-                Write-Host $_.RGName                                                        # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $LoadBalancerArray)
-            :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
-                $OperatorSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
-                if ($OperatorSelect -eq '0') {                                              # If $OperatorSelect equals 0
-                    Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
-                }                                                                           # End if ($OperatorSelect -eq '0')
-                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
-                    $OperatorSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OperatorSelect
-                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
-                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
-                        $LoadBalancerObject.Name -ResourceGroupName `
-                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
-                    Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
+        :ManageAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
+            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
+                Write-Host 'The current load balancer is'$LoadBalancerObject.Name           # Write message to screen
+            }                                                                               # End if ($LoadBalancerObject)
+            Write-Host '[0] Clear "$LoadBalancerObject"'                                    # Write message to screen
+            Write-Host '[1] New load balancer'                                              # Write message to screen
+            Write-Host '[2] List load balancers'                                            # Write message to screen
+            Write-Host '[3] Get load balancer'                                              # Write message to screen
+            Write-Host '[4] Remove load balancer'                                           # Write message to screen
+            $OperatorSelect = Read-Host 'Enter the option [#]'                              # Operator input for the function selection
+            if ($OperatorSelect -eq 'exit') {                                               # $OperatorSelect equals 'exit'    
+                Break ManageAzureLoadBalancer                                               # Breaks :ManageAzureLoadBalancer
+            }                                                                               # End if ($OperatorSelect -eq 'exit')
+            elseif ($OperatorSelect -eq '0') {                                              # $OperatorSelect equals '0'
+                if ($LoadBalancerObject){                                                   # If $LoadBalancerObject has a value
+                    $LoadBalancerObject = $null                                             # Clears $LoadBalancerObject
+                    Write-Host '$LoadBalancerObject has been cleared'                       # Write message to screen
                 }                                                                           # End if ($LoadBalancerObject)
                 else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host '$LoadBalancerObject was already empty'                      # Write message to screen
                 }                                                                           # End else (if ($LoadBalancerObject))
-            }                                                                               # End :SelectAzureLoadBalancer while ($true)
-        }                                                                                   # End :GetAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+            }                                                                               # elseif ($OperatorSelect -eq '0')
+            elseif ($OperatorSelect -eq '1') {                                              # $OperatorSelect equals '1'
+                $LoadBalancerObject = NewAzLoadBalancer                                     # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '1')
+            elseif ($OperatorSelect -eq '2') {                                              # $OperatorSelect equals '2'
+                ListAzLoadBalancer                                                          # Calls function
+            }                                                                               # elseif ($OperatorSelect -eq '2')
+            elseif ($OperatorSelect -eq '3') {                                              # $OperatorSelect equals '3'
+                $LoadBalancerObject = GetAzLoadBalancer                                     # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '3')
+            elseif ($OperatorSelect -eq '4') {                                              # $OperatorSelect equals '4'
+                RemoveAzLoadBalancer ($LoadBalancerObject)                                  # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '4')
+            else {                                                                          # All other inputs for $OperatorSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSelect -eq 'exit'))
+        }                                                                                   # End :ManageAzureLoadBalancer while ($true)
+        return $LoadBalancerObject                                                          # Returns to calling function with $LoadBalancerObject
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzLoadBalancer            
+}                                                                                           # End function ManageAzLoadBalancer
 function NewAzLoadBalancer {                                                                # Function to create a new load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
@@ -9508,5 +9661,116 @@ function NewAzLBRuleConfig {                                                    
         }                                                                                   # End :NewAzureLBRuleConfig while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzLBRuleConfig                                                                                    # End function GetAzPublicIpAddress
+}                                                                                           # End function NewAzLBRuleConfig
+function ListAzLoadBalancer {                                                               # Function to get an existing load balancer
+    Begin {                                                                                 # Begin function
+        :ListAzureLoadBalancer while ($true) {                                              # Outer loop to manage function
+            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
+            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
+            foreach ($_ in $LoadBalancerList) {                                             # For each item in $LoadBalancerList
+                if ($_.FrontendIpConfigurations.publicIPaddress.id) {                       # If the current item .FrontendIpConfigurations.publicIPaddress.id  has a value
+                    $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
+                    $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                        {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
+                }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                $LoadBalancerInput = [PSCustomObject]@{'Name'= $_.Name;'RGName'=`
+                    $_.ResourceGroupName;'Loc'=$_.Location;'Sku'=$_.Sku.Name;`
+                    'PubAllocation'=$PublicIPObject.PublicIpAllocationMethod;`
+                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=`
+                    $PublicIPObject.Name}                                                   # Creates the item to loaded into array
+                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                $PubIPID = $null                                                            # Clears $var
+                $PublicIPObject = $null                                                     # Clears $var
+            }                                                                               # End foreach ($_ in $LoadBalancerList)
+            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
+                Write-Host 'Balancer name: '$_.Name                                         # Write message to screen
+                Write-Host 'Balancer loc:  '$_.loc                                          # Write message to screen
+                Write-Host 'Balancer RG:   '$_.RGName                                       # Write message to screen
+                Write-Host 'Balancer sku:  '$_.Sku                                          # Write message to screen
+                if ($_.Pubname) {                                                           # If $_.Pubname exists
+                    Write-Host 'Public IP name:'$_.Pubname                                  # Write message to screen
+                    Write-Host 'Public IP add: '$_.PubAddress                               # Write message to screen
+                    Write-Host 'Public IP allo:'$_.PubAllocation                            # Write message to screen
+                }                                                                           # End if ($_.Pubname)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            Break ListAzureLoadBalancer                                                     # Breaks :ListAzureLoadBalancer
+        }                                                                                   # End :ListAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzLoadBalancer    
+function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
+    Begin {                                                                                 # Begin function
+        :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
+            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
+            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
+            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
+            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
+                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
+                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
+                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
+            }                                                                               # End foreach ($_ in $LoadBalancerList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host ""                                                                   # Write message to screen
+            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
+                Write-Host $_.Number                                                        # Write message to screen
+                Write-Host $_.Name                                                          # Write message to screen
+                Write-Host $_.RGName                                                        # Write message to screen
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
+                $OperatorSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
+                if ($OperatorSelect -eq '0') {                                              # If $OperatorSelect equals 0
+                    Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
+                }                                                                           # End if ($OperatorSelect -eq '0')
+                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
+                    $OperatorSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OperatorSelect
+                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
+                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
+                        $LoadBalancerObject.Name -ResourceGroupName `
+                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
+                    Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
+                }                                                                           # End if ($LoadBalancerObject)
+                else {                                                                      # If $LoadBalancerObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($LoadBalancerObject))
+            }                                                                               # End :SelectAzureLoadBalancer while ($true)
+        }                                                                                   # End :GetAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzLoadBalancer    
+function RemoveAzLoadBalancer {                                                             # Function to remove a network interface
+    Begin {                                                                                 # Begin function
+        :RemoveAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
+            if (!$LoadBalancerObject) {                                                     # If $LoadBalancerObject does not have a value
+                $CallingFunction = 'RemoveAzLoadBalancer'                                   # Sets $CallingFunction
+                $LoadBalancerObject=GetAzLoadBalancer ($CallingFunction)                    # Calls function and assigns output to $var
+                if (!$LoadBalancerObject) {                                                 # If $LoadBalancerObject does not have a value
+                    Break RemoveAzureLoadBalancer                                           # Breaks :RemoveAzureLoadBalancer
+                }                                                                           # End if (!$LoadBalancerObject)
+            }                                                                               # End if (!$LoadBalancerObject)
+            Write-Host 'Remove the load balancer named:'$LoadBalancerObject.name            # Write message to screen
+            Write-Host 'from the resource group:'$LoadBalancerObject.ResourceGroupName      # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the Nic
+            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y;
+                Try {                                                                       # Try the following
+                    Remove-AzLoadBalancer -Name $LoadBalancerObject.Name -ResourceGroupName `
+                        $LoadBalancerObject.ResourceGroupName -Force -ErrorAction 'Stop'    # Removes the selected load balancer
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Break RemoveAzureLoadBalancer                                           # Breaks :RemoveAzureLoadBalancer
+                }                                                                           # End catch
+                Write-Host 'The selected load balancer has been removed'                    # Write message to screen
+                Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
+            }                                                                               # End if ($OperatorConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OperatorConfirm
+                Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
+            }                                                                               # End else (If ($OperatorConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLoadBalancer
 # End Manage Network
