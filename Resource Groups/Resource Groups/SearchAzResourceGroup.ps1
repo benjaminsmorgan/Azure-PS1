@@ -13,79 +13,19 @@
     SearchAzResourceGroupTag:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceGroupTag.ps1
 } #>    
 <# Function Description: {
-    SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
-        SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
-        SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
-        SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
-        SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
+    SearchAzResourceGroup:      Management function for all SearchAzResourceGroup functions
+    SearchAzResourceGroupName:  Searchs for resource group using partial name matches on the group name, or a contained resource name
+    SearchAzResourceGroupType:  Searchs for resource group resource provider or type on a resource or resource group
+    SearchAzResourceGroupLoc:   Searchs for resource group using location matches on the group, or a contained resource
+    SearchAzResourceGroupTag:   Searchs for resource group using tag matches on the group, or a contained resource
 } #>
 <# Variables: {
-    SearchAzResourceGroup {
-        $SearchAzRG:            Operator input for type of search
-        :SearchAzureRG          Named loop for selecting search type
-    }
-        SearchAzResourceGroupName {
-            $OperatorSearchOption:  Operator input for search option
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByName    Named outer loop for function
-            :SearchAzureRSName      Named inner loop for finding $RGObject using resource name
-            :SearchAzureRGName      Named inner loop for finding $RGObject
-        }
-        SearchAzResourceGroupType {
-            $ProviderList:          List of all available Azure providers, created at function start as takes time to create
-            $OperatorSearchOption:  Operator input for the search type within this function
-            $RPObjectInput:         Operator input for search option
-            $RPObject:              Resource provider object
-            $RPTObjectInput:        Operator input for the resource provider type
-            $RPTObject:             Object for the resource provider type, only used to verify type exists
-            $RPTObjectName:         Combination of $RPObject.ProviderNamespace "/" $RPTObject.ResourceTypeName, used for getting $RSObject
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRStype      Named outer loop for function
-            :SearchAzureRSProvider  Named middle loop for getting a resource group by provider name only
-            :SearchAzureRSType      Named middle loop for getting a resource group by provider name plus type
-            :SearchAzureRPName      Named inner loop for getting the provider name, used in both middle loops
-            :GetAzureRPTName        Named inner loop for getting the provider type, used in :SearchAzureRSType only
-            :GetAzureRSObject       Named inner loop for getting the resource object and resource group, used in both middle loops
-        }
-        SearchAzResourceGroupName {
-            $ValidLocation:         Object containing all Azure location names
-            $OperatorSearchOption:  Operator input for search option
-            $Location:              Operator input for the Azure location
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByLoc     Named outer loop for function
-            :SearchAzureRSLoc       Named middle loop for finding $RGObject using resource location
-            :SearchAzureRGLoc       Named middle loop for finding $RGObject using resource group location
-            :SetLocation            Named inner loop for getting and verifying Azure location, used in both middle loops
-            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSLoc
-            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGLoc
-        }
-        SearchAzResourceGroupTag {
-            $ValidTagName:          Object containing all Azure Tags
-            $ValidTagValue:         Object containing all the $TagNameInput values
-            $OperatorSearchOption:  Operator input for search option
-            $TagNameInputNameInput: Operator input for the tag name
-            $TagNameInputValueInput:Operator input for the tag value
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object, used to get $RGObject
-            $RGObjectInput:         Operator input for the resource group name
-            $RGObject:              Resource group object, used for all actions
-            :SearchAzureRGByTag     Named outer loop for function
-            :SearchAzureRSTag       Named middle loop for finding $RGObject using resource Tag
-            :SearchAzureRGTag       Named middle loop for finding $RGObject using resource group Tag
-            :SetTagName             Named inner loop for getting and verifying Azure tag name, used in both middle loops
-            :SetTagValue            Named inner loop for getting and verifying Azure tag value, used in both middle loops
-            :GetAzureRSObject       Named inner loop for getting a matching resource object, used in :SearchAzureRSTag
-            :GetAzureRGObject       Named inner loop for getting a matching resource group object, used in :SearchAzureRGTag
-        }
-    } # End SearchAzResourceGroup
+    :SearchAzureRG              Outer loop for selecting search type
+    $SearchAzRG:                Operator input for type of search
+    SearchAzResourceGroupName{} Gets $RGObject
+    SearchAzResourceGroupType{} Gets $RGObject
+    SearchAzResourceGroupName{} Gets $RGObject
+    SearchAzResourceGroupTag{}  Gets $RGObject
 } #>
 <# Process Flow {
     Function
@@ -97,117 +37,128 @@
                 Return SearchAzResourceGroup > Send $RGObject
                     Return Function > Send $RGObject
 }#>
-function SearchAzResourceGroup { # Search for resource group management function
-    Begin {
-        :SearchAzureRG while($true) { # :SearchAzureRG named loop to select search function
-            Write-Host "Azure Resource Group Search" # Write message to screen
-            Write-Host "1 Search by partial name lookup" # Write message to screen
-            Write-Host "2 Search by contained resource type" # Write message to screen
-            Write-Host "3 Search by resource group location" # Write message to screen
-            Write-Host "4 Search by tags" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $SearchAzRG = Read-Host "Option?" # Collects operator input on $SearchAzRG option
-            if ($SearchAzRG -eq 'exit') { # Exit if statement for this function
-                Break SearchAzureRG # Ends :SearchAzureRG loop, leading to return statement
-            } # End if ($SearchAzRG -eq 'exit')
-            elseif ($SearchAzRG -eq '1') { # Elseif statement for searching by name
-                Write-Host "Search by name" # Write message to screen
-                $RGObject = SearchAzResourceGroupName # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '1')
-            elseif ($SearchAzRG -eq '2') { # Elseif statement for searching by resource provider and type
-                Write-Host "Search by type" # Write message to screen
-                $RGObject = SearchAzResourceGroupType # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '2')
-            elseif ($SearchAzRG -eq '3') { # Elseif statement for searching by location
-                Write-Host "Search by location" # Write message to screen
-                $RGObject = SearchAzResourceGroupLoc # Calls function to assign object to $RGObject
-            } # End elseif ($SearchAzRG -eq '3')
-            elseif ($SearchAzRG -eq '4') { # Elseif statement for searching by tag
-                Write-Host "Search by tag" # Write message to screen
-                $RGObject = SearchAzResourceGroupTag
-            } # End elseif ($SearchAzRG -eq '4')
-            <# elseif ($SearchAzRG -eq '5') { # Unused elseif statement
-                Write-Host "Option 5" # Write message to screen
-            } # End elseif ($SearchAzRG -eq '5') #>
-            Return $RGObject # Returns to calling function if search option is used
-        } # End $SearchAzRG while statement
-        Return # Returns to calling function if no search option is used
-    } # End begin statement
-} # End SearchAzResourceGroup function
-function SearchAzResourceGroupName { # Searchs for resource group using partial name matches on the group name, or a contained resource name
-    Begin {
-        :SearchAzureRGByName while($true) { # :SearchAzureRGByName loop finds a resource group off partial name inputs
-            Write-Host "Resource Group Search By Name" # Write message to screen
-            Write-Host "1 Search by resource name" # Write message to screen
-            Write-Host "2 Search by group name" # Write message to screen
-            $OperatorSearchOption = Read-Host "Option?" # Operator input for $OperatorSearchOption
-            if ($OperatorSearchOption -eq 'exit') { # Ends SearchAzureRGByName loop if operator types exit
-                Break SearchAzureRGByName # Breaks the SearchAzureRGByName loop
-            } # End exit if statement
-            elseif ($OperatorSearchOption -eq '1') { # Elseif statement for search by resource name
-                :SearchAzureRSName while ($true) { # :SearchAzureRSName loop finds resource group off partial resource name inputs
-                    Write-Host "Search by resource name" # Write message to screen
-                    $RSObjectInput = Read-Host "Parital resource name" # Operator input for $RSObjectInput
-                    if ($RSObjectInput -eq 'exit') { # Ends SearchAzureRSName loop if operator types exit
-                        Break SearchAzureRSName # Breaks the SearchAzureRSName loop
-                    } # End exit if statement
-                    $RSObjectInput = "*"+$RSObjectInput+"*" # Adds wildcards to $RSObjectInput
-                    $RSObject = Get-AzResource | Where-Object {$_.Name -Like $RSObjectInput} # Performs search and assigns any matching resources to $RSObject
-                    if ($RSObject) { # If statement if $RSObject value is found
-                        if ($RSObject.count -gt 1) { # If statement if more than one $RSObject value found
-                            Write-Host "More than one value found" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-host $RSObject.name -Separator `n # Write message to screen
-                            Write-Host " " # Write message to screen
-                            $RSObject = $null # Clears $RSObject, restarting :SearchAzureRSName loop
-                        } # End multiple $RSObject if statement
-                        else { # If statement for single $RSObject value
-                            $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName # Gets $RGObject using $RSObject.ResourceGroupName
-                            $RSObject = $null # Sets $RSObject as $null
-                            Return $RGObject # Returns $RGObject to calling function
-                        } # End else statement for single $RSObject value
-                    } # End if statement for $RSObject value is found
-                    else { # Else statment for no $RSObject value found
-                        Write-Host " " # Write message to screen
-                        Write-Host "No resource found that matches" # Write message to screen
-                        Write-Host "Please try again" # Write message to screen
-                        Write-Host " " # Write message to screen
-                    } # End else statment for no $RSObject value found
-                } # End :SearchAzureRSName loop
-            } # End else if statment for $OperatorSearchOption -eq '1'
-            elseif ($OperatorSearchOption -eq '2') {  # Elseif statement for search by resource group name
-                :SearchAzureRGName while ($true) { # :SearchAzureRGName loop finds resource group off partial resource group name inputs
-                    Write-Host "Search by resource group name" # Write message to screen
-                    $RGObjectInput = Read-Host "Parital resource group name" # Operator input for $RGObjectInput
-                    if ($RGObjectInput -eq 'exit') { # Ends SearchAzureRGName loop if operator types exit
-                        Break SearchAzureRGName # Breaks the SearchAzureRGName loop
-                    } # End exit if statement
-                    $RGObjectInput = "*"+$RGObjectInput+"*"
-                    $RGObject = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -Like $RGObjectInput}
-                    if ($RGObject) { # If statement if $RGObject value is found
-                        if ($RGObject.count -gt 1) { # If statement if more than one $RGObject value found
-                            Write-Host "More than one value found" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-host $RGObject.ResourceGroupName -Separator `n # Write message to screen
-                            Write-Host " " # Write message to screen
-                            $RGObject = $null # Clears $RGObject, restarting :SearchAzureRGName loop
-                        } # End multiple $RGObject if statement
-                        else { # If statement for single $RGObject value
-                            Return $RGObject # Returns $RGObject to calling function
-                        } # End else statement for single $RGObject value
-                    } # End if statement for $RGObject value is found
-                    else { # Else statment for no $RGObject value found
-                        Write-Host " " # Write message to screen
-                        Write-Host "No resource groups found that matches" # Write message to screen
-                        Write-Host "Please try again" # Write message to screen
-                        Write-Host " " # Write message to screen
-                    } # End else statment for no $RGObject value found
-                } # End :SearchAzureRGName loop
-            } # End else if statment for $OperatorSearchOption -eq '2'
-        } # End $SearchAzRGName while statement 
-        Return # Returns to calling function empty if operator has used 'exit' options
-    } # End begin statement
-} # End SearchAzResourceGroupName
+function SearchAzResourceGroup {                                                            # Function to manage search for resource group functions
+    Begin {                                                                                 # Begin function
+        :SearchAzureRG while($true) {                                                       # Outer loop for managing function
+            Write-Host "Azure Resource Group Search"                                        # Write message to screen
+            Write-Host "[1] Search by partial name lookup"                                  # Write message to screen
+            Write-Host "[2] Search by contained resource type"                              # Write message to screen
+            Write-Host "[3] Search by resource group location"                              # Write message to screen
+            Write-Host "[4] Search by tags"                                                 # Write message to screen
+            Write-Host "'Exit to return'"                                                   # Write message to screen
+            $SearchAzRG = Read-Host "Option?"                                               # Operator input on $SearchAzRG option
+            if ($SearchAzRG -eq 'exit') {                                                   # If $SearchAzRG equals 'exit'
+                Break SearchAzureRG                                                         # Breaks :SearchAzureRG
+            }                                                                               # End if ($SearchAzRG -eq 'exit')
+            elseif ($SearchAzRG -eq '1') {                                                  # Else if $SearchAzRG equals '1'
+                Write-Host "Search by name"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupName                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '1')
+            elseif ($SearchAzRG -eq '2') {                                                  # Else if $SearchAzRG equals '2'
+                Write-Host "Search by type"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupType                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '2')
+            elseif ($SearchAzRG -eq '3') {                                                  # Else if $SearchAzRG equals '3'
+                Write-Host "Search by location"                                             # Write message to screen
+                $RGObject = SearchAzResourceGroupLoc                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '3')
+            elseif ($SearchAzRG -eq '4') {                                                  # Else if $SearchAzRG equals '4'
+                Write-Host "Search by tag"                                                  # Write message to screen
+                $RGObject = SearchAzResourceGroupTag                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '4')
+            else {                                                                          # All other inputs for $SearchAzRG
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if($SearchAzRG -eq 'exit'))
+            if ($RGObject) {                                                                # If $RGObject has a value
+                Return $RGObject                                                            # Returns to calling function with $RGObject
+            }                                                                               # End if ($RGObject)
+            else {                                                                          # If $RGObject does not have a value
+                Write-Host 'No resource group selected'                                     # Write message to screen
+            }                                                                               # End else (if ($RGObject))
+        }                                                                                   # End :SearchAzureRG while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function SearchAzResourceGroup
+function SearchAzResourceGroupName {                                                        # Function to search for resource group by name
+    Begin {                                                                                 # Begin function
+        :SearchAzureRGByName while($true) {                                                 # Outer loop for managing function
+            Write-Host "Resource Group Search By Name"                                      # Write message to screen
+            Write-Host "[1] Search by resource name"                                        # Write message to screen
+            Write-Host "[2] Search by group name"                                           # Write message to screen
+            $OperatorSearchOption = Read-Host "Option?"                                     # Operator input for search method
+            if ($OperatorSearchOption -eq 'exit') {                                         # If $OperatorSearchOption equals 'exit'
+                Break SearchAzureRGByName                                                   # Breaks :SearchAzureRGByName
+            }                                                                               # End if ($OperatorSearchOption -eq 'exit')
+            elseif ($OperatorSearchOption -eq '1') {                                        # Else if $OperatorSearchOption equals '1' 
+                :SearchAzureRSName while ($true) {                                          # Inner loop for finding resource group off partial resource name inputs
+                    Write-Host "Search by resource name"                                    # Write message to screen
+                    $RSObjectInput = Read-Host "Parital resource name"                      # Operator input for $RSObjectInput
+                    if ($RSObjectInput -eq 'exit') {                                        # If $RSObjectInput equals 'exit'
+                        Break SearchAzureRSName                                             # Breaks :SearchAzureRSName
+                    }                                                                       # End if ($RSObjectInput -eq 'exit')
+                    $RSObjectInput = "*"+$RSObjectInput+"*"                                 # Adds wildcards to $RSObjectInput
+                    $RSObject = Get-AzResource | Where-Object `
+                        {$_.Name -Like $RSObjectInput}                                      # Performs search and assigns any matching resources to $RSObject
+                    if ($RSObject) {                                                        # If statement if $RSObject value is found
+                        if ($RSObject.count -gt 1) {                                        # If statement if more than one $RSObject value found
+                            Write-Host "More than one value found"                          # Write message to screen
+                            Write-Host " "                                                  # Write message to screen
+                            Write-host $RSObject.name -Separator `n                         # Write message to screen
+                            Write-Host " "                                                  # Write message to screen
+                            $RSObject = $null                                               # Clears $RSObject, restarting :SearchAzureRSName loop
+                        }                                                                   # End if ($RSObject.count -gt 1)
+                        else {                                                              # If statement for single $RSObject value
+                            $RGObject = Get-AzResourceGroup -Name `
+                                $RSObject.ResourceGroupName                                 # Gets $RGObject using $RSObject.ResourceGroupName
+                            $RSObject = $null                                               # Sets $RSObject as $null
+                            Return $RGObject                                                # Returns $RGObject to calling function
+                        }                                                                   # End else (if ($RSObject.count -gt 1))
+                    }                                                                       # End if ($RSObject)
+                    else {                                                                  # Else statment for no $RSObject value found
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host "No resource found that matches"                         # Write message to screen
+                        Write-Host "Please try again"                                       # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                    }                                                                       # End else (if ($RSObject))
+                }                                                                           # End :SearchAzureRSName while ($true)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals '2' 
+                :SearchAzureRGName while ($true) {                                          # Inner loop for finding a resource group of partial group name match
+                    Write-Host "Search by resource group name"                              # Write message to screen
+                    $RGObjectInput = Read-Host "Parital resource group name"                # Operator input for $RGObjectInput
+                    if ($RGObjectInput -eq 'exit') {                                        # If $RGObjectInput equals 'exit'
+                        Break SearchAzureRGName                                             # Breaks :SearchAzureRGName 
+                    }                                                                       # End if ($RGObjectInput -eq 'exit')
+                    $RGObjectInput = "*"+$RGObjectInput+"*"                                 # Adds wildcards to $RGObjectInput
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -Like $RGObjectInput}                         # Pulls a list of all resources groups with a name like $RGObjectInput
+                    if ($RGObject) {                                                        # If statement if $RGObject value is found
+                        if ($RGObject.count -gt 1) {                                        # If statement if more than one $RGObject value found
+                            Write-Host "More than one value found"                          # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-host $RGObject.ResourceGroupName -Separator `n            # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            $RGObject = $null                                               # Clears $RGObject, restarting :SearchAzureRGName loop
+                        }                                                                   # End if ($RGObject.count -gt 1)
+                        else {                                                              # If statement for single $RGObject value
+                            Return $RGObject                                                # Returns $RGObject to calling function
+                        }                                                                   # else (if ($RGObject.count -gt 1))
+                    }                                                                       # End if ($RGObject)
+                    else {                                                                  # Else statment for no $RGObject value found
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host "No resource groups found that matches"                  # Write message to screen
+                        Write-Host "Please try again"                                       # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                    }                                                                       # End else (if ($RGObject))
+                }                                                                           # End :SearchAzureRGName while ($true)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            else {                                                                          # All other inputs for $OperatorSearchOption
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSearchOption -eq 'exit'))
+        }                                                                                   # End :SearchAzureRGByName while($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SearchAzResourceGroupName
 function SearchAzResourceGroupType { # Searchs for resource group resource provider or type on a resource or resource group
     Begin {
         $ProviderList = Get-AzResourceProvider | select-object ProviderNamespace # Collects all current Azure resource provider names
