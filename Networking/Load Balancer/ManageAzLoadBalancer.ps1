@@ -691,7 +691,7 @@ function RemoveAzLoadBalancer {                                                 
                 Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
             }                                                                               # End if ($OperatorConfirm -eq 'y')
             else {                                                                          # All other inputs for $OperatorConfirm
-                Break RemoveAzureLoadBalancer                                                        # Breaks :RemoveAzureLoadBalancer
+                Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
             }                                                                               # End else (If ($OperatorConfirm -eq 'y'))
         }                                                                                   # End :RemoveAzureLoadBalancer while ($true)
         Return                                                                              # Returns to calling function with $null
