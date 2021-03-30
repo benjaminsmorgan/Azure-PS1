@@ -13,6 +13,13 @@
     New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
     Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
     Remove-AzPublicIpAddress:   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
+    New-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
+    New-AzLoadBalancerFrontendIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
+    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerProbeConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
 } #>
@@ -22,7 +29,7 @@
         ListAzVirtualNetwork:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/ListAzVirtualNetwork.ps1
         GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
         RemoveAzVirtualNetwork:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/RemoveAzVirtualNetwork.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
         AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
     ManageAzVNetSubnetConfig:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/ManageAzVNetSubnetConfig.ps1
@@ -40,7 +47,7 @@
         RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
         NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
         GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
         GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
     ManageAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ManageAzPublicIpAddress.ps1
@@ -48,6 +55,19 @@
         ListAzPublicIPAddress:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ListAzPublicIpAddress.ps1
         GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
         RemoveAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/RemoveAzPublicIpAddress.ps1
+    ManageAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ManageAzLoadBalancer.ps1
+        NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
+        ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
+        GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+        RemoveAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/RemoveAzLoadBalancer.ps1
+        NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+        NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
+        NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
+        NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+        NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
     ManageAzNetwork:            Management function for azure networking
@@ -72,6 +92,18 @@
         ListAzPublicIPAddress:      Lists all existing public IP addresses
         GetAzPublicIPAddress:       Gets an existing public IP address
         RemoveAzPublicIPAddress:    Removes an existing public IP address
+    ManageAzLoadBalancer:       Function for managing load balancers
+        NewAzLoadBalancer:          Creates a new load balancer    
+        ListAzLoadBalancer:         Lists all existing load balancers
+        GetAzLoadBalancer:          Gets an existing load balancer
+        RemoveAzLoadBalancer:       Removes an existing load balancer
+        NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+        NewAzPublicIpAddress:       Creates a new public IP addres
+        GetAzPublicIpAddress:       Gets an existing IP address
+        NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
+        NewAzLBProbeConfig:         Creates a load balancer probe configuration
+        NewAzLBIBNatPoolConfig:     Creates inbound pool configuration for load balancer
+        NewAzLBRuleConfig:          Creates a new load balancer rule
     GetAzResourceGroup:         Gets a resource group object
     GetAzLocation:              Gets an Azure location
 } #>
@@ -79,6 +111,9 @@
     :ManageAzureNetwork         Outer loop for managing function
     $RGObject:                  Resource group object
     $VNetObject:                Virtual network object
+    $SubnetObject:              Subnet object
+    $NicObject:                 Network interface object
+    $LoadBalancerObject:        Load balancer object
     $ManageAzNetwork:           Operator input to select management function
     ManageAzVirtualNetwork{}    Gets $VnetObject
         NewAzVirtualNetwork{}       Creates $VNetObject
@@ -127,7 +162,21 @@
         ListAzPublicIPAddress{}     Lists $PublicIPObject
         GetAzPublicIPAddress{}      Gets $PublicIPObject
         RemoveAzPublicIPAddress{}   Removes $PublicIPObject
-            GetAzPublicIPAddress{}      Gets $PublicIPObject         
+            GetAzPublicIPAddress{}      Gets $PublicIPObject      
+    ManageAzLoadBalancer{}      Gets $LoadBalancerObject
+        NewAzLoadBalancer{}         Creates $LoadBalancerObject
+            NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+            NewAzPublicIpAddress{}      Creates $PublicIPObject
+                GetAzResourceGroup{}        Gets $RGObject
+            GetAzPublicIpAddress{}      Gets $PublicIPObject
+            NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
+            NewAzLBProbeConfig{}        Gets $HealthProbeObject
+            NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
+            NewAzLBRuleConfig{}         Gets $LoadBalanceRule 
+        ListAzLoadBalancer{}        Lists $LoadBalancerObject
+        GetAzLoadBalancer{}         Gets $LoadBalancerObject
+        RemoveAzLoadBalancer{}      Removes $LoadBalancerObject
+            GetAzLoadBalancer{}         Gets $LoadBalancerObject        
 } #>
 <# Process Flow {
     Function
@@ -276,6 +325,51 @@
                     Return ManageAzPublicIPAddress > Send $null
             End ManageAzPublicIPAddress
                 Return ManageAzNetwork > Send $PublicIPObject
+            Call ManageAzLoadBalancer > Get $LoadBalancerObject
+                Call NewAzLoadBalancer > Get $LoadBalancerObject
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return NewAzLoadBalancer > Send $RGObject          
+                    Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                        Call NewAzPublicIpAddress > Get $PublicIPObject
+                            Call GetAzResourceGroup > Get RGObject
+                            End GetAzResourceGroup
+                                Return NewAzPublicIpAddress > Send RGObject
+                        End NewAzPublicIpAddress
+                            Return NewAzLBFrontendIpConfig > Send $PublicIPObject
+                        Call GetAzPublicIpAddress > Get $PublicIPObject
+                        End GetAzPublicIpAddress
+                            Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
+                    End NewAzLBFrontendIpConfig
+                        Return NewAzLoadBalancer > Send $FrontEndIPConfigObject    
+                    Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+                    End NewAzLBBackendIpConfig
+                        Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
+                    Call NewAzLBProbeConfig > Get $HealthProbeObject
+                    End NewAzLBProbeConfig
+                        Return NewAzLoadBalancer > Send $HealthProbeObject           
+                    Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+                    End NewAzLBIBNatPoolConfig
+                        Return NewAzLoadBalancer > Send $InboundNatPoolObject
+                    Call NewAzLBRuleConfig > Get $LoadBalanceRule
+                    End NewAzLBRuleConfig
+                        Return NewAzLoadBalancer > Send $LoadBalanceRule
+                End NewAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
+                Call ListAzLoadBalancer > Get $null
+                End ListAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $null
+                Call GetAzLoadBalancer > Get $LoadBalancerObject
+                End GetAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
+                Call RemoveAzPublicIPAddres > Get $null
+                    Call GetAzLoadBalancer > Get $LoadBalancerObject
+                    End GetAzLoadBalancer
+                        Return RemoveAzLoadBalancer > Send $LoadBalancerObject
+                End RemoveAzLoadBalancer
+                    Return ManageAzLoadBalancer > Send $null
+            End ManageAzLoadBalancer
+                Return ManageAzNetwork > Send $LoadBalancerObject
         End ManageAzNetwork
             Return function > Send $Null
 }#>
@@ -302,6 +396,10 @@ function ManageAzNetwork {                                                      
                 Write-Host 'The currently selected public IP is:'`
                     $PublicIPObject.Name                                                    # Write message to screen
             }                                                                               # End if ($PublicIPObject)
+            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
+                Write-Host 'The currently selected load balancer is:'`
+                    $LoadBalancerObject.Name                                                # Write message to screen
+            }                                                                               # End if ($LoadBalancerObject)
             Write-Host "Azure Network Management"                                           # Write message to screen
             Write-Host '0 Clear "$vars"'                                                    # Write message to screen
             Write-Host '1 Manage virtual network'                                           # Write message to screen
@@ -314,14 +412,42 @@ function ManageAzNetwork {                                                      
             if ($ManageAzNetwork -eq 'exit') {                                              # If $ManageAzNetwork equals 'exit'
                 Break ManageAzureAksCluster                                                 # Breaks :ManageAzureAksCluster
             }                                                                               # End if ($ManageAzNetwork -eq 'exit')
-            elseif ($ManageAzNetwork -eq '0') {  #fix this                                           # Elseif $ManageAzNetwork equals 0
-                if ($) {                                                           # If $ has a value
-                    Write-Host 'Clearing "$'                                       # Write message to screen
-                    $ = $null                                                      # Clears $
-                }                                                                           # End if ($)
-                else {                                                                      # If $ does not have a value
-                    Write-Host '$ is already clear'                                         # Write message to screen
-                }                                                                           # End else (if ($AksObject))
+            elseif ($ManageAzNetwork -eq '0') {                                             # Elseif $ManageAzNetwork equals 0
+                if ($RGObject) {                                                            # If $var has a value
+                    Write-Host 'Clearing $RGObject'                                         # Write message to screen
+                    $RGObject = $null                                                       # Clears $var
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host '$RGObject is already clear'                                 # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+                if ($VnetObject) {                                                          # If $VnetObject has a value
+                    Write-Host 'Clearing $VnetObject'                                       # Write message to screen
+                    $VnetObject = $null                                                     # Clears $VnetObject
+                }                                                                           # End if ($VnetObject)
+                else {                                                                      # If $VnetObject does not have a value
+                    Write-Host '$VnetObject is already clear'                               # Write message to screen
+                }                                                                           # End else (if ($VnetObject))
+                if ($SubnetObject) {                                                        # If $var has a value
+                    Write-Host 'Clearing $SubnetObject'                                     # Write message to screen
+                    $SubnetObject = $null                                                   # Clears $var
+                }                                                                           # End if ($SubnetObject)
+                else {                                                                      # If $SubnetObject does not have a value
+                    Write-Host '$SubnetObject is already clear'                             # Write message to screen
+                }                                                                           # End else (if ($SubnetObject))
+                if ($NicObject) {                                                           # If $var has a value
+                    Write-Host 'Clearing $NicObject'                                        # Write message to screen
+                    $NicObject = $null                                                      # Clears $var
+                }                                                                           # End if ($NicObject)
+                else {                                                                      # If $NicObject does not have a value
+                    Write-Host '$NicObject is already clear'                                # Write message to screen
+                }                                                                           # End else (if ($NicObject))
+                if ($LoadBalancerObject) {                                                  # If $var has a value
+                    Write-Host 'Clearing $LoadBalancerObject'                               # Write message to screen
+                    $LoadBalancerObject = $null                                             # Clears $var
+                }                                                                           # End if ($LoadBalancerObject)
+                else {                                                                      # If $LoadBalancerObject does not have a value
+                    Write-Host '$LoadBalancerObject is already clear'                       # Write message to screen
+                }                                                                           # End else (if ($LoadBalancerObject))
             }                                                                               # End elseif ($ManageAzNetwork -eq '0')
             elseif ($ManageAzNetwork -eq '1') {                                             # Elseif $ManageAzNetwork equals 1
                 Write-Host 'Manage virtual network'                                         # Write message to screen
@@ -337,16 +463,21 @@ function ManageAzNetwork {                                                      
                 $NicObject, $VnetObject, $SubnetObject = ManageAzNetworkInterface `
                     ($RGObject, $SubnetObject)                                              # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManageAzNetwork -eq '3')
-            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 3
+            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 4
                 Write-Host 'Manage public IPs'                                              # Write message to screen
                 $PublicIPObject = ManageAzPublicIPAddress                                   # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '3')
+            }                                                                               # End elseif ($ManageAzNetwork -eq '4')
+            elseif ($ManageAzNetwork -eq '5') {                                             # Elseif $ManageAzNetwork equals 5
+                Write-Host 'Manage load balancers'                                          # Write message to screen
+                $LoadBalancerObject = ManageAzLoadBalancer                                  # Calls function and assigns output to $var
+            }                                                                               # End elseif ($ManageAzNetwork -eq '5')
             else {                                                                          # If $ManageAzNetwork do not match any if or elseif     
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($ManageAzNetwork -eq 'exit'))
-        } # End :ManageAzureNetwork while ($true)
-    } # End Begin
-} # End function ManageAzNetwork
+        }                                                                                   # End :ManageAzureNetwork while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzNetwork
 # Functions for ManageAzVirtualNetwork
 function ManageAzVirtualNetwork {                                                           # Function for managing azure virtual networks
     Begin {                                                                                 # Begin function
@@ -1618,48 +1749,50 @@ function RemoveAzPublicIPAddress {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzPublicIPAddress
-# Additional functions required for ManageAzVirtualNetwork
-function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
+# Functions for ManageAzLoadBalancer
+function ManageAzLoadBalancer {                                                             # Function to manage load balancer Skus
     Begin {                                                                                 # Begin function
-        :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
-            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
-            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
-            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
-            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
-                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
-                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
-                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
-            }                                                                               # End foreach ($_ in $LoadBalancerList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            Write-Host ""                                                                   # Write message to screen
-            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
-                Write-Host $_.Number                                                        # Write message to screen
-                Write-Host $_.Name                                                          # Write message to screen
-                Write-Host $_.RGName                                                        # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $LoadBalancerArray)
-            :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
-                $OperatorSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
-                if ($OperatorSelect -eq '0') {                                              # If $OperatorSelect equals 0
-                    Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
-                }                                                                           # End if ($OperatorSelect -eq '0')
-                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
-                    $OperatorSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OperatorSelect
-                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
-                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
-                        $LoadBalancerObject.Name -ResourceGroupName `
-                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
-                    Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
+        :ManageAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
+            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
+                Write-Host 'The current load balancer is'$LoadBalancerObject.Name           # Write message to screen
+            }                                                                               # End if ($LoadBalancerObject)
+            Write-Host '[0] Clear "$LoadBalancerObject"'                                    # Write message to screen
+            Write-Host '[1] New load balancer'                                              # Write message to screen
+            Write-Host '[2] List load balancers'                                            # Write message to screen
+            Write-Host '[3] Get load balancer'                                              # Write message to screen
+            Write-Host '[4] Remove load balancer'                                           # Write message to screen
+            $OperatorSelect = Read-Host 'Enter the option [#]'                              # Operator input for the function selection
+            if ($OperatorSelect -eq 'exit') {                                               # $OperatorSelect equals 'exit'    
+                Break ManageAzureLoadBalancer                                               # Breaks :ManageAzureLoadBalancer
+            }                                                                               # End if ($OperatorSelect -eq 'exit')
+            elseif ($OperatorSelect -eq '0') {                                              # $OperatorSelect equals '0'
+                if ($LoadBalancerObject){                                                   # If $LoadBalancerObject has a value
+                    $LoadBalancerObject = $null                                             # Clears $LoadBalancerObject
+                    Write-Host '$LoadBalancerObject has been cleared'                       # Write message to screen
                 }                                                                           # End if ($LoadBalancerObject)
                 else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host '$LoadBalancerObject was already empty'                      # Write message to screen
                 }                                                                           # End else (if ($LoadBalancerObject))
-            }                                                                               # End :SelectAzureLoadBalancer while ($true)
-        }                                                                                   # End :GetAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+            }                                                                               # elseif ($OperatorSelect -eq '0')
+            elseif ($OperatorSelect -eq '1') {                                              # $OperatorSelect equals '1'
+                $LoadBalancerObject = NewAzLoadBalancer                                     # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '1')
+            elseif ($OperatorSelect -eq '2') {                                              # $OperatorSelect equals '2'
+                ListAzLoadBalancer                                                          # Calls function
+            }                                                                               # elseif ($OperatorSelect -eq '2')
+            elseif ($OperatorSelect -eq '3') {                                              # $OperatorSelect equals '3'
+                $LoadBalancerObject = GetAzLoadBalancer                                     # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '3')
+            elseif ($OperatorSelect -eq '4') {                                              # $OperatorSelect equals '4'
+                RemoveAzLoadBalancer ($LoadBalancerObject)                                  # Calls function and assigns output to $var
+            }                                                                               # elseif ($OperatorSelect -eq '4')
+            else {                                                                          # All other inputs for $OperatorSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSelect -eq 'exit'))
+        }                                                                                   # End :ManageAzureLoadBalancer while ($true)
+        return $LoadBalancerObject                                                          # Returns to calling function with $LoadBalancerObject
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzLoadBalancer            
+}                                                                                           # End function ManageAzLoadBalancer
 function NewAzLoadBalancer {                                                                # Function to create a new load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
@@ -2099,6 +2232,118 @@ function NewAzLBRuleConfig {                                                    
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBRuleConfig
+function ListAzLoadBalancer {                                                               # Function to get an existing load balancer
+    Begin {                                                                                 # Begin function
+        :ListAzureLoadBalancer while ($true) {                                              # Outer loop to manage function
+            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
+            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
+            foreach ($_ in $LoadBalancerList) {                                             # For each item in $LoadBalancerList
+                if ($_.FrontendIpConfigurations.publicIPaddress.id) {                       # If the current item .FrontendIpConfigurations.publicIPaddress.id  has a value
+                    $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
+                    $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                        {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
+                }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                $LoadBalancerInput = [PSCustomObject]@{'Name'= $_.Name;'RGName'=`
+                    $_.ResourceGroupName;'Loc'=$_.Location;'Sku'=$_.Sku.Name;`
+                    'PubAllocation'=$PublicIPObject.PublicIpAllocationMethod;`
+                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=`
+                    $PublicIPObject.Name}                                                   # Creates the item to loaded into array
+                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                $PubIPID = $null                                                            # Clears $var
+                $PublicIPObject = $null                                                     # Clears $var
+            }                                                                               # End foreach ($_ in $LoadBalancerList)
+            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
+                Write-Host 'Balancer name: '$_.Name                                         # Write message to screen
+                Write-Host 'Balancer loc:  '$_.loc                                          # Write message to screen
+                Write-Host 'Balancer RG:   '$_.RGName                                       # Write message to screen
+                Write-Host 'Balancer sku:  '$_.Sku                                          # Write message to screen
+                if ($_.Pubname) {                                                           # If $_.Pubname exists
+                    Write-Host 'Public IP name:'$_.Pubname                                  # Write message to screen
+                    Write-Host 'Public IP add: '$_.PubAddress                               # Write message to screen
+                    Write-Host 'Public IP allo:'$_.PubAllocation                            # Write message to screen
+                }                                                                           # End if ($_.Pubname)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            Break ListAzureLoadBalancer                                                     # Breaks :ListAzureLoadBalancer
+        }                                                                                   # End :ListAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzLoadBalancer    
+function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
+    Begin {                                                                                 # Begin function
+        :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
+            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
+            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
+            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
+            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
+                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
+                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
+                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
+            }                                                                               # End foreach ($_ in $LoadBalancerList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host ""                                                                   # Write message to screen
+            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
+                Write-Host $_.Number                                                        # Write message to screen
+                Write-Host $_.Name                                                          # Write message to screen
+                Write-Host $_.RGName                                                        # Write message to screen
+                Write-Host ""                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
+                $OperatorSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
+                if ($OperatorSelect -eq '0') {                                              # If $OperatorSelect equals 0
+                    Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
+                }                                                                           # End if ($OperatorSelect -eq '0')
+                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
+                    $OperatorSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OperatorSelect
+                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
+                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
+                        $LoadBalancerObject.Name -ResourceGroupName `
+                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
+                    Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
+                }                                                                           # End if ($LoadBalancerObject)
+                else {                                                                      # If $LoadBalancerObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($LoadBalancerObject))
+            }                                                                               # End :SelectAzureLoadBalancer while ($true)
+        }                                                                                   # End :GetAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzLoadBalancer    
+function RemoveAzLoadBalancer {                                                             # Function to remove a network interface
+    Begin {                                                                                 # Begin function
+        :RemoveAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
+            if (!$LoadBalancerObject) {                                                     # If $LoadBalancerObject does not have a value
+                $CallingFunction = 'RemoveAzLoadBalancer'                                   # Sets $CallingFunction
+                $LoadBalancerObject=GetAzLoadBalancer ($CallingFunction)                    # Calls function and assigns output to $var
+                if (!$LoadBalancerObject) {                                                 # If $LoadBalancerObject does not have a value
+                    Break RemoveAzureLoadBalancer                                           # Breaks :RemoveAzureLoadBalancer
+                }                                                                           # End if (!$LoadBalancerObject)
+            }                                                                               # End if (!$LoadBalancerObject)
+            Write-Host 'Remove the load balancer named:'$LoadBalancerObject.name            # Write message to screen
+            Write-Host 'from the resource group:'$LoadBalancerObject.ResourceGroupName      # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the Nic
+            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y;
+                Try {                                                                       # Try the following
+                    Remove-AzLoadBalancer -Name $LoadBalancerObject.Name -ResourceGroupName `
+                        $LoadBalancerObject.ResourceGroupName -Force -ErrorAction 'Stop'    # Removes the selected load balancer
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Break RemoveAzureLoadBalancer                                           # Breaks :RemoveAzureLoadBalancer
+                }                                                                           # End catch
+                Write-Host 'The selected load balancer has been removed'                    # Write message to screen
+                Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
+            }                                                                               # End if ($OperatorConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OperatorConfirm
+                Break RemoveAzureLoadBalancer                                               # Breaks :RemoveAzureLoadBalancer
+            }                                                                               # End else (If ($OperatorConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureLoadBalancer while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLoadBalancer
+# Additional functions required for ManageAzVirtualNetwork
 function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
     Begin {                                                                                 # Begin function
         $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
