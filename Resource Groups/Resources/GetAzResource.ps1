@@ -1,63 +1,71 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzResource:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    None
 } #>
 <# Functions Description: {
-    GetAzResourceGroup:         Collects resource group object
     GetAzResource:              Collects resources within a resource group
 } #>
 <# Variables: {
-    GetAzResourceGroup {
-        $RGObject:              Resource group object
-        $RGObjectInput:         Operator input for the resource group name
-        $RGList:                Variable used for printing all resource groups to screen if needed
-    }
-    GetAzResource {
-        $RGObject:              Resource group object
-        $RSObject:              Resource object
-        $RSObjectInput:         Operator input for the resource name
-        $RSList:                Variable used for printing all resources to screen if needed
-    }
+    GetAzureResource:           Outer loop for managing function
+    :SelectAzureResource        Inner loop to select the resource
+    $RSList:                    List of all resources
+    $ListNumber:                $var used for selecting an object in $ListArray
+    $ListArray:                 Array used to show resource info
+    $ListInput:                 $var used to load items into $ListArray
+    $Number:                    Current item .Number, used to format write to screen
+    $CallingFunction:           Name of the function that called this function
+    $RSSelect:                  Operator input to select the function
+    $RSObject:                  Resource object
 } #>
 <# Process Flow {
-    Function                        ->          [Call] GetAzResource                    ->          [Request] $RSObject
-        GetAzResource                   ->          [Return] Function                       ->          [Return] $RSObject
-    GetAzResource                   ->          [Call] GetAzResourceGroup               ->          [Request] $RGObject
+    Function
+        Call GetAzResource > Get $RSObject
+        End GetAzResource
+            Return function > Send $RSObject
 }#>
-function GetAzResource { # Function to get a resource, can pipe $RSObject to another function
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RSObject = $null # Sets $RSObject to $null from previous uses
-        if (!$RGObject) { # If statement if $RGObject is $null
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResource function was terminated" # Message write to screen
-                Return # Returns to calling function
-            } # End if statement
-        } # End if statement
-        while (!$RSObject) { # Loop to continue getting a resource until the operator provided name matches an existing resource
-            $RSObjectInput = Read-Host "Resource name" # Operator input of the resource name
-            if ($RSObjectInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResource function was terminated"
-                Return # Returns to calling function
-            } # End if statement
-            $RSObject = Get-AzResource -Name $RSObjectInput -ResourceGroupName $RGObject.ResourceGroupName # Collection of the resource from the operator input
-            if (!$RSObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource" # Error note
-                Write-Host "This is the list of available resources" # Error note
-                $RSList = Get-AzResource -ResourceGroupName $RGObject.ResourceGroupName # Collects all resource objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RSList.Name -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RSObject is assigned
-                Write-Host $RSObject.Name 'Has been assigned to "$RSObject"' # Writes the resource name to the screen before ending function
-            } # End of else statement
-        } # End of while statement
-        Return $RSObject  # Returns the value of $RSObject to a function that called it
-    } # End begin statement
-} # End function 
+function GetAzResource {                                                                    # Function to get a resource 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResource while ($true) {                                                   # Outer loop for managing function
+            $RSList = Get-AzResource                                                        # Gets all resources and assigns to $RSList
+            $ListNumber = 1                                                                 # Sets $ListNumber to 1
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
+            foreach ($_ in $RSList) {                                                       # For each $_ in $RSListList
+                $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                'RG' = $_.ResourceGroupName;'Number' = $ListNumber; `
+                'Location' = $_.Location}                                                   # Creates the item to loaded into array
+                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
+                $Number = $_.Number                                                         # Sets $Number to current item .Number
+                Write-Host "[$Number]"$_.Name                                               # Write message to screen
+                Write-Host 'RG: '$_.RG                                                      # Write message to screen
+                Write-Host 'Loc:'$_.Location                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ListArray)
+            :SelectAzureResource while ($true) {                                            # Inner loop to select the resource 
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource for"$CallingFunction         # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RSSelect = Read-Host "Enter the resource [#]"                              # Operator input for the resource selection
+                if ($RSSelect -eq '0') {                                                    # If $RSSelect equals 0
+                    Break GetAzureResource                                                  # Breaks :GetAzureResource
+                }                                                                           # End if ($RSSelect -eq '0')
+                if ($RSSelect -in $ListArray.Number) {                                      # If $RSSelect is in $ListArray
+                    $RSSelect = $ListArray | Where-Object {$_.Number -eq $RSSelect}         # $RSSelect is equal to $ListArray where $ListArray.Number is equal to $RSSelect                                  
+                    $RSObject = Get-AzResource -ResourceGroup $RSSelect.RG `
+                        | Where-Object {$_.Name -eq $RSSelect.Name}                         # Pulls the full resource object
+                    Return $RSObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RSSelect -in $ListArray)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureResource` while ($true)
+        }                                                                                   # End :GetAzureResource while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
