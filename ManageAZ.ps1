@@ -589,158 +589,208 @@ function SearchAzResourceGroupName {                                            
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SearchAzResourceGroupName
-function SearchAzResourceGroupType { # Searchs for resource group resource provider or type on a resource or resource group
-    Begin {
-        $ProviderList = Get-AzResourceProvider | select-object ProviderNamespace # Collects all current Azure resource provider names
-        :SearchAzureRGByType while($True) { # :SearchAzureRGByType loop finds a resource group off resource providers and types
-            Write-Host "Resource Group Search By Resource Type" # Write message to screen
-            Write-Host "1 Search by provider type" # Write message to screen
-            Write-Host "2 Search by resource type" # Write message to screen
-            $OperatorSearchOption = Read-Host "Option?" # Operator input for $OperatorSearchOption
-            if ($OperatorSearchOption -eq 'exit') { # Ends SearchAzureRGByType loop if operator types exit
-                Break SearchAzureRGByType # Breaks the SearchAzureRGByType loop
-            } # End exit if statement
-            elseif ($OperatorSearchOption -eq '1') { # Elseif statement for searching by resource provider
-                :SearchAzureRSProvider while($True) { # :SearchAzureRSProvider loops finds a resource group off resource types
-                    $RPObject = $null # Clears listed $var from all previous use with in this function
-                    $RGObject = $null # Clears listed $var from all previous use with in this function
-                    $RSObject = $null # Clears listed $var from all previous use with in this function
-                    Write-Host $ProviderList.ProviderNamespace -Separator `n # Writes resource provider list to screen
-                    :SearchAzureRPName while ($True) { # :SearchAzureRPName loop, used for getting a resource provider name
-                        $RPObjectInput = Read-Host "Resource provider" # Operator input for $RPObjectInput
-                        if ($RPObjectInput -eq 'exit') {  # If statement to end :SearchAzureRSType loop
-                            Break SearchAzureRSProvider # Ends :SearchAzureRSType loop, returns to :SearchAzureRGByType loop
-                        } # End if ($RPObjectInput -eq 'exit') statement
-                        $RPObjectInput = "*"+$RPObjectInput+"*" # Adds wildcards to $RPObjecInput
-                        $RPObject = Get-AzResourceProvider | Where-Object ProviderNamespace -Like $RPObjectInput # Collects resource provider name space and assigns to $RPObject
-                        if (!$RPObject) { # If statement if $RPObject input does not match a provider name space
-                            Write-Host "The provider name input did not match an existing provider" # Message write to screen
-                            Write-Host "Please re-enter the provider name" # Message write to screen
-                            Write-Host $ProviderList.ProviderNamespace -Separator `n # Writes resource provider list to screen
-                        } # End if (!$RPObject)
-                        elseif ($RPObject.count -eq 1) { # Elseif statement for confirming that the correct provider name space has been found
-                            $OperatorConfirm = Read-Host $RPObject.ProviderNamespace "is the correct resource provider?" # Operator confirmation on provider name space
-                            if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'Yes') { # If statement if operator confirms provider name space is correct
-                                Break SearchAzureRPName # Breaks :SearchAzurePRName loop
-                            } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'Yes')
-                            else { # Else statement for non-operator confirmation of the provider name space
-                                "Please re-enter the provider name"  # Message write to screen
-                            } # End else statement
-                        } # End elseif ($RPObject.count -eq 1)
-                        elseif ($RPObject.count -gt 1) { # Elseif statement for multiple resource providers being found
-                            Write-Host "The resource provider entry provided matches more than 1 provider" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-Host $RPObject.ProviderNamespace -Separator `n # Writes $RPObject to screen
-                            Write-Host " " # Write message to screen
-                            Write-Host "Please re-enter the provider name" # Write message to screen    
-                        } # End elseif ($RPObject.count -gt 1)
-                    } # End while ($RPObject.count -ne 1)
-                    $RPObject = $RPObject.ProviderNamespace+"/*"
-                    $RSObject = Get-AzResource | Where-Object {$_.ResourceType -like $RPObject} # Collects all resource with a resource provider matching $RPObject
-                    if (!$RSObject) { # If statement if no resources match the resource provider type
-                        Write-Host "No resources found with the selected provider type"$RPObject # Write message to screen
-                        Break SearchAzureRSProvider # Ends :SearchAzureRSProvider loop, returns to :SearchAzureRGByType loop
-                    } # End if (!$RSObject)
-                    :GetAzureRSObject while ($True) { # :GetAzureRSObject loop for narrowing down matching resources
-                        if ($RSObject.count -gt 1) { # If statement if more than 1 resource matches the resource provider type
-                            Write-Host "Multiple resources found" # Write message to screen
-                            Write-Host $RSObject.Name -Separator `n # Writes list of all resource names to screen
-                            $RSObjectInput = Read-Host "Resource name" # Collects resource name value to narrow selection
-                            if ($RSObjectInput -eq 'exit') { # If statement for exiting :SearchAzureRSType
-                                Break SearchAzureRSProvider # Ends :SearchAzureRSProvider loop, returns to :SearchAzureRGByType loop
-                            } # End if ($RSObjectInput -eq 'exit')
-                            $RSObjectInput = "*"+$RSObjectInput+"*" # Adds wildcards to $RSObjectInput
-                            $RSObject = Get-AzResource | Where-Object {$_.Name -Like $RSObjectInput -and $_.ResourceType -like $RPObject} # Collects $RSObject again using the narrower search options
-                        } # if ($RSObject.count -gt 1)
-                        elseif ($RSObject.count -eq 1) { # elseif statement for a single matching resource object
-                            $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName # Collects the resource group object containing $RSObject
-                            Write-Host "Returning with RGObject" # Write message to screen
-                            Return $RGObject # Returns $RGObject to calling function # Returns $RGObject to calling function
-                        } # End if ($RSObject.count -eq 1) 
-                    } # End :GetAzureRSObject while ($True)
-                } # End :SearchAzureRSType while($True)
-            } # End elseif ($OperatorSearchOption -eq '1')
-            elseif ($OperatorSearchOption -eq '2') { # Elseif statement for searching by resource provider plus resource type
-                :SearchAzureRSType while($True) { # :SearchAzureRSType loops finds a resource group off resource types
-                    $RPObject = $null # Clears listed $var from all previous use with in this function
-                    $RPTObject = $null # Clears listed $var from all previous use with in this function
-                    $RGObject = $null # Clears listed $var from all previous use with in this function
-                    $RSObject = $null # Clears listed $var from all previous use with in this function
-                    Write-Host $ProviderList.ProviderNamespace -Separator `n # Writes resource provider list to screen
-                    :SearchAzureRPName while ($True) { # :SearchAzureRPName loop, used for getting a resource provider name
-                        $RPObjectInput = Read-Host "Resource provider" # Operator input for $RPObjectInput
-                        if ($RPObjectInput -eq 'exit') {  # If statement to end :SearchAzureRSType loop
-                            Break SearchAzureRSType # Ends :SearchAzureRSType loop, returns to :SearchAzureRGByType loop
-                        } # End if ($RPObjectInput -eq 'exit') statement
-                        $RPObjectInput = "*"+$RPObjectInput+"*" # Adds wildcards to $RPObjecInput
-                        $RPObject = Get-AzResourceProvider | Where-Object ProviderNamespace -Like $RPObjectInput # Collects resource provider name space and assigns to $RPObject
-                        if (!$RPObject) { # If statement if $RPObject input does not match a provider name space
-                            Write-Host "The provider name input did not match an existing provider" # Message write to screen
-                            Write-Host "Please re-enter the provider name" # Message write to screen
-                            Write-Host $ProviderList.ProviderNamespace -Separator `n # Writes resource provider list to screen
-                        } # End if (!$RPObject)
-                        elseif ($RPObject.count -eq 1) { # Elseif statement for confirming that the correct provider name space has been found
-                            $OperatorConfirm = Read-Host $RPObject.ProviderNamespace "is the correct resource provider?" # Operator confirmation on provider name space
-                            if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'Yes') { # If statement if operator confirms provider name space is correct
-                                Break SearchAzureRPName # Breaks :SearchAzurePRName loop
-                            } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'Yes')
-                            else { # Else statement for non-operator confirmation of the provider name space
-                                "Please re-enter the provider name"  # Message write to screen
-                            } # End else statement
-                        } # End elseif ($RPObject.count -eq 1)
-                        elseif ($RPObject.count -gt 1) { # Elseif statement for multiple resource providers being found
-                            Write-Host "The resource provider entry provided matches more than 1 provider" # Write message to screen
-                            Write-Host " " # Write message to screen
-                            Write-Host $RPObject.ProviderNamespace -Separator `n # Writes $RPObject to screen
-                            Write-Host " " # Write message to screen
-                            Write-Host "Please re-enter the provider name" # Write message to screen    
-                        } # End elseif ($RPObject.count -gt 1)
-                    } # End while ($RPObject.count -ne 1)
-                    $RPTObjectList = $RPObject.ResourceTypes # Collects all resource types under $RPObject
-                    :GetAzureRPTName while ($True) { # :SearchAzureRPTName loop, used for getting a resource provider type
-                        Write-Host $RPTObjectList.ResourceTypeName -Separator `n # Writes $RPObjects.ResourceTypes list to screen
-                        $RPTObjectInput = Read-Host "Resource provider type" # Operator input for the resource provider type name
-                        if ($RPTObjectInput -eq 'exit') { # If statement for exiting SearchAzureRSType 
-                            Break SearchAzureRSType # Ends :SearchAzureRSType loop, returns to :SearchAzureRGByType loop
-                        } # End if ($RPTObjectInput -eq 'exit')
-                        $RPTObject = (Get-AzResourceProvider | Where-Object {$_.ProviderNamespace -eq $RPObject.ProviderNamespace}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq $RPTObjectInput} # Pulls resource type object from resource provider
-                        $RPTObjectName = $RPObject.ProviderNamespace+"/"+$RPTObject.ResourceTypeName # Creates full ResourceType search name using $RPObject.ProviderNamespace and $RPTOBject.ResourceTypeName
-                        if (!$RPTObject) { # If statement if the provider type name input does not match
-                            Write-Host "No resource provider type matches" # Write message to screen
-                            Write-Host "Please re-enter the resource provider type name again" # Write message to screen
-                        } # End if (!$RPTObject)
-                        elseif ($RPTObject.count -eq 1) { # Elseif statement for an exact match on the resource provider type name 
-                            Break GetAzureRPTName # Ends :GetAzureRPTName loop
-                        } # End elseif ($RPTObject.count -eq 1
-                    } # End :GetAzureRPTObject while ($True)
-                    $RSObject = Get-AzResource -ResourceType $RPTObjectName # Collects all resource with a resource provider type matching $RPTObject
-                    if (!$RSObject) { # If statement if no resources match the resource provider type
-                        Write-Host "No resources found with the selected provider type"$RPTObjectName # Write message to screen
-                        Break SearchAzureRSType # Ends :SearchAzureRSType loop, returns to :SearchAzureRGByType loop
-                    } # End if (!$RSObject)
-                    :GetAzureRSObject while ($True) { # :GetAzureRSObject loop for narrowing down matching resources
-                        if ($RSObject.count -gt 1) { # If statement if more than 1 resource matches the resource provider type
-                            Write-Host "Multiple resources found" # Write message to screen
-                            Write-Host $RSObject.Name -Separator `n # Writes list of all resource names to screen
-                            $RSObjectInput = Read-Host "Resource name" # Collects resource name value to narrow selection
-                            if ($RSObjectInput -eq 'exit') { # If statement for exiting :SearchAzureRSType
-                                Break SearchAzureRSType # # Ends :SearchAzureRSType loop, returns to :SearchAzureRGByType loop
-                            } # End if ($RSObjectInput -eq 'exit')
-                            $RSObjectInput = "*"+$RSObjectInput+"*" # Adds wildcards to $RSObjectInput
-                            $RSObject = Get-AzResource -ResourceType $RPTObjectName | Where-Object Name -Like $RSObjectInput # Collects $RSObject again using the narrower search options
-                        } # if ($RSObject.count -gt 1)
-                        elseif ($RSObject.count -eq 1) { # elseif statement for a single matching resource object
-                            $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName # Collects the resource group object containing $RSObject
-                            Write-Host "Returning with RGObject" # Write message to screen
-                            Return $RGObject # Returns $RGObject to calling function # Returns $RGObject to calling function
-                        } # End if ($RSObject.count -eq 1) 
-                    } # End :GetAzureRSObject while ($True)
-                } # End :SearchAzureRSType while($True)
-            } # End elseif ($OperatorSearchOption -eq '2')
-        } # End :SearchAzRGByType while statement
-        Return # Returns to calling function empty if operator has used 'exit' options
-    } # End begin statement
-} # End SearchAzResourceGroupType
+function SearchAzResourceGroupType {                                                        # Function to search for resource group by resource provider or type
+    Begin {                                                                                 # Begin function
+        :SearchAzureRGByType while($True) {                                                 # Outer loop for manaing function
+            $ProviderList = Get-AzResourceProvider | select-object ProviderNamespace        # Collects all current Azure resource provider names
+            $ListNumber = 1                                                                 # Sets $ListNumber to '1'
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the $ListArray
+            foreach ($_ in $ProviderList) {                                                 # For each $_ in $ProviderList
+                $ListInput = [PSCustomObject]@{'Name' = $_.ProviderNamespace; `
+                    'Number' = $ListNumber}                                                 # Creates the item to loaded into array
+                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
+            }                                                                               # End foreach ($_ in $ProviderList)
+            Write-Host "Resource Group Search By Resource Type"                             # Write message to screen
+            Write-Host "[1] Search by provider type"                                        # Write message to screen
+            Write-Host "[2] Search by resource type"                                        # Write message to screen
+            $OperatorSearchOption = Read-Host 'Search option [#]'                           # Operator input for $OperatorSearchOption
+            if ($OperatorSearchOption -eq 'exit') {                                         # If $OperatorSearchOption equals 'exit'
+                Break SearchAzureRGByType                                                   # Breaks :SearchAzureRGByType
+            }                                                                               # End if ($OperatorSearchOption -eq 'exit')
+            elseif ($OperatorSearchOption -eq '1') {                                        # Else if $OperatorSearchOption equals '1'
+                :SearchAzureRSProvider while($True) {                                       # Inner loop to find a resource group off resource provider
+                    $RPObject = $null                                                       # Clears $RPObject
+                    $RGObject = $null                                                       # Clears $RGObject
+                    $RSObject = $null                                                       # Clears $RSObject
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    foreach ($_ in $ListArray) {                                            # For each item in $ListArray
+                        $Number = $_.Number                                                 # $Number is equal to current item .Number
+                        Write-Host "[$Number]" $_.Name                                      # Write message to screen
+                    }                                                                       # End foreach ($_ in $ListArray)
+                    :SelectAzureRSProvider while ($True) {                                  # Inner loop for selecting a resource provider name
+                        $RPObjectInput = Read-Host "Resource provider"                      # Operator input for $RPObjectInput
+                        if ($RPObjectInput -eq '0') {                                       # If $RPObjectInput equals '0'
+                            Break SearchAzureRSProvider                                     # Breaks :SearchAzureRSProvider 
+                        }                                                                   # End if ($RPObjectInput -eq '0')
+                        elseif ($RPObjectInput -in $ListArray.Number) {                     # If $RPObjectInput in $ListArray.Number
+                            $RPObject = $ListArray | Where-Object `
+                                {$_.Number -eq $RPObjectInput}                              # $RPObjectInput is equal to $ListArray where $RPObjectInput equals $ListArray.number 
+                            $RPObject = $RPObject.Name                                      # Isolates the resource provider name
+                            $RPObject = $RPObject+"/*"                                      # Adds a wild card to the resource search 
+                            Break SelectAzureRSProvider                                     # Breaks :SelectAzureRSProvider 
+                        }                                                                   # End elseif ($RPObjectInput -in $ListArray.Number)
+                        else {                                                              # All other inputs for $RPObjectInput
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                        }                                                                   # End else (if ($RPObjectInput -eq '0'))
+                    }                                                                       # End :SelectAzureRSProvider while ($True)
+                    $RSObject = Get-AzResource | Where-Object `
+                        {$_.ResourceType -like $RPObject}                                   # Collects all resource with a resource provider matching $RPObject
+                    if (!$RSObject) {                                                       # If $RSObject does not have a value
+                        Write-Host `
+                            'No resources found with the selected provider type'$RPObject   # Write message to screen
+                        Break SearchAzureRSProvider                                         # Breaks :SearchAzureRSProvider
+                    }                                                                       # End if (!$RSObject)
+                    if ($RSObject.count -gt 1) {                                            # If $RSObject count is greater than 1
+                        $ListArray = $null                                                  # Clears $ListArray
+                        [System.Collections.ArrayList]$ListArray = @()                      # Recreates the $ListArray
+                        $ListNumber = 1                                                     # Sets $ListNumber to '1'
+                        foreach ($_ in $RSObject) {                                         # For each $_ in $ProviderList
+                            $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                                'Number' = $ListNumber}                                     # Creates the item to loaded into array
+                            $ListArray.Add($ListInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                            $ListNumber = $ListNumber + 1                                   # Increments $ListNumber by 1
+                        }                                                                   # End foreach ($_ in $RSObject)
+                        :SelectAzureRSObject while ($True) {                                # Inner loop for selecting a resource from a list
+                            Write-Host '[0] Exit'                                           # Write message to screen
+                            foreach ($_ in $ListArray) {                                    # For each item in $ListArray
+                                $Number = $_.Number                                         # $Number is equal to current item.Number
+                                Write-Host "[$Number]" $_.name                              # Write message to screen
+                            }                                                               # End foreach ($_ in $ListArray)
+                            $RSObjectInput = Read-Host 'Enter the [#] of the resource'      # Operator input to select the resource
+                            if ($RSObjectInput -eq '0') {                                   # If $RSObjectInput equals '0'
+                                Break SearchAzureRSProvider                                 # Breaks :SearchAzureRSProvider
+                            }                                                               # End if ($RSObjectInput -eq '0')
+                            elseif ($RSObjectInput -in $ListArray.Number) {                 # IF $RSObjectInput in $ListArray.Number
+                                $RSObject = $ListArray | Where-Object `
+                                    {$_.Number -eq $RSObjectInput}                          # $RSObject equals $ListArray where $RSObjectInput equals $ListArray.Number
+                                $RSObject = Get-AzResource -Name $RSObject.Name             # Pulls the full resource object
+                                $RGObject = Get-AzResourceGroup -Name `
+                                    $RSObject.ResourceGroupName                             # Collects the resource group object containing $RSObject
+                                Return $RGObject                                            # Returns $RGObject to calling function
+                            }                                                               # End elseif ($RSObjectInput -in $ListArray.Number)
+                            else {                                                          # All other inputs for $RSObjectInput
+                                Write-Host 'That was not a valid input'                     # Write message to screen
+                            }                                                               # End else (if ($RSObjectInput -eq '0'))
+                        }                                                                   # End :SelectAzureRSObject while ($True)
+                    }                                                                       # End if ($RSObject.count -gt 1) 
+                    else {                                                                  # If $RSObject has a value and the count is not greater than '1'
+                        $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName   # Collects the resource group object containing $RSObject
+                        Return $RGObject                                                    # Returns $RGObject to calling function
+                    }                                                                       # End else (if ($RSObject.count -gt 1))
+                }                                                                           # End :SearchAzureRSProvider while ($True)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals
+                :SearchAzureRSProvider while($True) {                                       # Inner loop to find a resource group off resource types
+                    $RPObject = $null                                                       # Clears $RPObject
+                    $RPTObject = $null                                                      # Clears $RPTObject
+                    $RGObject = $null                                                       # Clears $RGObject
+                    $RSObject = $null                                                       # Clears $RSObject
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    foreach ($_ in $ListArray) {                                            # For each item in $ListArray
+                        $Number = $_.Number                                                 # $Number is equal to current item .Number
+                        Write-Host "[$Number]" $_.Name                                      # Write message to screen
+                    }                                                                       # End foreach ($_ in $ListArray)
+                    :SelectAzureRSProvider while ($True) {                                  # Inner loop for selecting a resource provider 
+                        $RPObjectInput = Read-Host "Resource provider"                      # Operator input for $RPObjectInput
+                        if ($RPObjectInput -eq '0') {                                       # If $RPObjectInput equals '0'
+                            Break SearchAzureRSProvider                                     # Breaks :SearchAzureRSProvider 
+                        }                                                                   # End if ($RPObjectInput -eq '0')
+                        elseif ($RPObjectInput -in $ListArray.Number) {                     # If $RPObjectInput in $ListArray.Number
+                            $RPObject = $ListArray | Where-Object `
+                                {$_.Number -eq $RPObjectInput}                              # $RPObjectInput is equal to $ListArray where $RPObjectInput equals $ListArray.number 
+                            $RPObject = $RPObject.Name                                      # Isolates the resource provider name
+                            Break SelectAzureRSProvider                                     # Breaks :SelectAzureRSProvider 
+                        }                                                                   # End elseif ($RPObjectInput -in $ListArray.Number)
+                        else {                                                              # All other inputs for $RPObjectInput
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                        }                                                                   # End else (if ($RPObjectInput -eq '0'))
+                    }                                                                       # End :SelectAzureRSProvider while ($True)
+                    $RPTObjectList = (Get-AzResourceProvider | Where-Object `
+                        {$_.ProviderNamespace -eq $RPObject`
+                        }).ResourceTypes                                                    # Creates a list of resrouce provider types
+                    $ListArray = $null                                                      # Clears $ListArray
+                    [System.Collections.ArrayList]$ListArray = @()                          # Recreates the $ListArray
+                    $ListNumber = 1                                                         # Sets $ListNumber to '1'
+                    foreach ($_ in $RPTObjectList) {                                        # For each $_ in $ProviderList
+                        $ListInput = [PSCustomObject]@{'Name'=$_.ResourceTypeName; `
+                            'Number' = $ListNumber}                                         # Creates the item to loaded into array
+                        $ListArray.Add($ListInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                        $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                    }                                                                       # End foreach ($_ in $RPTObjectList)
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    foreach ($_ in $ListArray) {                                            # For each item in $ListArray
+                        $Number = $_.Number                                                 # $Number equals current item .Number
+                        Write-Host "[$Number]" $_.name                                      # Write message to screen
+                    }                                                                       # End foreach ($_ in $ListArray)
+                    :SelectAzureRPType while ($True) {                                      # Inner loop for selecting the resource provider type
+                        $RPTObjectInput = Read-Host 'Enter the type [#]'                    # Operator input for the resource provider type name
+                        if ($RPTObjectInput -eq '0') {                                      # If $RPTObjectInput equals '0' 
+                            Break SearchAzureRSType                                         # Breaks :SearchAzureRSType
+                        }                                                                   # End if ($RPTObjectInput -eq '0')
+                        elseif ($RPTObjectInput -in $ListArray.Number) {                    # If $RPTObjectInput in $ListArry.Number
+                            $RPTObject = $ListArray | Where-Object `
+                                {$_.Number -eq $RPTObjectInput}                             # $RPTObject equals $ListArray where $RPTObjectInput equals $ListArray.number
+                            $RPTObject = $RPTObject.Name                                    # RPTObject equals $RPTObject.Name
+                            $RPTObjectName = $RPObject+"/"+$RPTObject                       # Merges $RPObject and $RPTObject for resource search
+                            Break SelectAzureRPType                                         # Breaks :SelectAzureRPType
+                        }                                                                   # End elseif ($RPTObjectInput -in $ListArray.Number)
+                        else {                                                              # All other inputs for $RPTObject
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                        }                                                                   # End else (if ($RPTObjectInput -eq '0'))
+                    }                                                                       # End :GetAzureRPTObject while ($True)
+                    $RSObject = Get-AzResource -ResourceType $RPTObjectName                 # Collects all resource with a resource provider type matching $RPTObject
+                    if (!$RSObject) {                                                       # If $RSObject does not have a value
+                        Write-Host `
+                            'No resources found with provider type'$RPTObjectName           # Write message to screen
+                        Break SearchAzureRSType                                             # Breaks :SearchAzureRSType
+                    }                                                                       # End if (!$RSObject)
+                    if ($RSObject.count -gt 1) {                                            # If $RSObject count is greater than 1
+                        $ListArray = $null                                                  # Clears $ListArray
+                        [System.Collections.ArrayList]$ListArray = @()                      # Recreates the $ListArray
+                        $ListNumber = 1                                                     # Sets $ListNumber to '1'
+                        foreach ($_ in $RSObject) {                                         # For each $_ in $ProviderList
+                            $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                                'Number' = $ListNumber}                                     # Creates the item to loaded into array
+                            $ListArray.Add($ListInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                            $ListNumber = $ListNumber + 1                                   # Increments $ListNumber by 1
+                        }                                                                   # End foreach ($_ in $RSObject)
+                        :SelectAzureRSObject while ($True) {                                # Inner loop for selecting a resource from a list
+                            Write-Host '[0] Exit'                                           # Write message to screen
+                            foreach ($_ in $ListArray) {                                    # For each item in $ListArray
+                                $Number = $_.Number                                         # $Number is equal to current item.Number
+                                Write-Host "[$Number]" $_.name                              # Write message to screen
+                            }                                                               # End foreach ($_ in $ListArray)
+                            $RSObjectInput = Read-Host 'Enter the [#] of the resource'      # Operator input to select the resource
+                            if ($RSObjectInput -eq '0') {                                   # If $RSObjectInput equals '0'
+                                Break SearchAzureRSProvider                                 # Breaks :SearchAzureRSProvider
+                            }                                                               # End if ($RSObjectInput -eq '0')
+                            elseif ($RSObjectInput -in $ListArray.Number) {                 # If $RSObjectInput in $ListArray.Number
+                                $RSObject = $ListArray | Where-Object `
+                                    {$_.Number -eq $RSObjectInput}                          # $RSObject equals $ListArray where $RSObjectInput equals $ListArray.Number
+                                $RSObject = Get-AzResource -Name $RSObject.Name             # Pulls the full resource object
+                                $RGObject = Get-AzResourceGroup -Name `
+                                    $RSObject.ResourceGroupName                             # Collects the resource group object containing $RSObject
+                                Return $RGObject                                            # Returns $RGObject to calling function
+                            }                                                               # End elseif ($RSObjectInput -in $ListArray.Number)
+                            else {                                                          # All other inputs for $RSObjectInput
+                                Write-Host 'That was not a valid input'                     # Write message to screen
+                            }                                                               # End else (if ($RSObjectInput -eq '0'))
+                        }                                                                   # End :SelectAzureRSObject while ($True)
+                    }                                                                       # End if ($RSObject.count -gt 1) 
+                    else {                                                                  # If $RSObject has a value and the count is not greater than '1'
+                        $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName   # Collects the resource group object containing $RSObject
+                        Return $RGObject                                                    # Returns $RGObject to calling function
+                    }                                                                       # End else (if ($RSObject.count -gt 1))
+                }                                                                           # End :SearchAzureRSProvider while ($True)
+            }                                                                               # End elseif ($OperatorSearchOption -eq '2')
+            else {                                                                          # All other inputs for if $OperatorSearchOption
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSearchOption -eq 'exit'))
+        }                                                                                   # End :SearchAzRGByType while ($true)
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End SearchAzResourceGroupType
 function SearchAzResourceGroupLoc { # Searchs for resource group using location matches on the group, or a contained resource
     Begin {
         $ErrorActionPreference='silentlyContinue' # Disables Errors
@@ -1117,39 +1167,44 @@ function GetAzLocation {                                                        
         Return                                                                              # Returns with $null 
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLocation
-function GetAzResource { # Function to get a resource, can pipe $RSObject to another function
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $RSObject = $null # Sets $RSObject to $null from previous uses
-        if (!$RGObject) { # If statement if $RGObject is $null
-            $RGObject = GetAzResourceGroup # Calls function GetAzResourceGroup and assigns to $RGObject
-            if (!$RGObject) { # If statement if $RGObject is $null after calling GetAzResourceObject
-                Write-Host "GetAzResource function was terminated" # Message write to screen
-                Return # Returns to calling function
-            } # End if statement
-        } # End if statement
-        while (!$RSObject) { # Loop to continue getting a resource until the operator provided name matches an existing resource
-            $RSObjectInput = Read-Host "Resource name" # Operator input of the resource name
-            if ($RSObjectInput -eq 'exit') { # Operator input for exit
-                Write-Host "GetAzResource function was terminated"
-                Return # Returns to calling function
-            } # End if statement
-            $RSObject = Get-AzResource -Name $RSObjectInput -ResourceGroupName $RGObject.ResourceGroupName # Collection of the resource from the operator input
-            if (!$RSObject) { # Error reporting if input does not match an existing group
-                Write-Host "The name provided does not match an existing resource" # Error note
-                Write-Host "This is the list of available resources" # Error note
-                $RSList = Get-AzResource -ResourceGroupName $RGObject.ResourceGroupName # Collects all resource objects and assigns to a variable
-                Write-Host "" # Error reporting
-                Write-Host $RSList.Name -Separator `n # Write-host used so list is written to screen when function is used as $RGObject = GetAzResourceGroup
-                Write-Host "" # Error reporting
-            } # End of if statement
-            else { # Else for when $RSObject is assigned
-                Write-Host $RSObject.Name 'Has been assigned to "$RSObject"' # Writes the resource name to the screen before ending function
-            } # End of else statement
-        } # End of while statement
-        Return $RSObject  # Returns the value of $RSObject to a function that called it
-    } # End begin statement
-} # End function  
+function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
+            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
+            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
+            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
+                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
+                Write-Host $_.Number $_.Name "|" $_.Location                                # Writes RG number, name, and location to screen
+            }                                                                               # End foreach ($_ in $RGListArray)
+            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RGObject)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureRGList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
 function SearchAzResource { # Search for resource group management function
     Begin {
         :SearchAzureRS while($true) { # :SearchAzureRS named loop to select search function
