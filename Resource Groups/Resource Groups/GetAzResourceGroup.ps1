@@ -16,6 +16,7 @@
     $RGListArray:               Array containing the list number, name, and location of each resource group
     $RGListInput:               $var used to load items into $RGListArray
     $CallingFunction:           Name of the calling function
+    $Number:                    The current item in $ListArray.Number, used for write to screen
     $RGSelect:                  Operator input for the resource group
     $RGObject:                  Resource group object
 } #>
@@ -25,7 +26,7 @@
         End GetAzResourceGroup
             Return Function > Send $RGObject
 }#>
-function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+function GetAzResourceGroup {                                                               # Function to get a resource group
     Begin {                                                                                 # Begin function
         $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
         :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
@@ -38,9 +39,15 @@ function GetAzResourceGroup {                                                   
                 $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
                 $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
             }                                                                               # End foreach ($_ in $RGList)
-            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host "[0]  Exit"                                                          # Write message to screen
             foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
-                Write-Host $_.Number $_.Name "|" $_.Location                                # Writes RG number, name, and location to screen
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
             }                                                                               # End foreach ($_ in $RGListArray)
             :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
                 if ($CallingFunction) {                                                     # If $CallingFunction exists
