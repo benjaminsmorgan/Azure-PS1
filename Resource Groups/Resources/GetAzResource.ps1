@@ -9,7 +9,7 @@
     GetAzResource:              Collects resources within a resource group
 } #>
 <# Variables: {
-    GetAzureResource:           Outer loop for managing function
+    :GetAzureResource           Outer loop for managing function
     :SelectAzureResource        Inner loop to select the resource
     $RSList:                    List of all resources
     $ListNumber:                $var used for selecting an object in $ListArray
@@ -43,7 +43,12 @@ function GetAzResource {                                                        
             Write-Host "0 Exit"                                                             # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
                 $Number = $_.Number                                                         # Sets $Number to current item .Number
-                Write-Host "[$Number]"$_.Name                                               # Write message to screen
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name                                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9)
+                else {                                                                      # If current item .number is more than 9
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9))
                 Write-Host 'RG: '$_.RG                                                      # Write message to screen
                 Write-Host 'Loc:'$_.Location                                                # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -68,4 +73,4 @@ function GetAzResource {                                                        
             }                                                                               # End :SelectAzureResource` while ($true)
         }                                                                                   # End :GetAzureResource while ($true)
     }                                                                                       # End begin statement
-}                                                                                           # End function GetAzResourceGroup
+}                                                                                           # End function GetAzResource
