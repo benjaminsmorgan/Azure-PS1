@@ -57,12 +57,12 @@ function GetAzResourceGroup {                                                   
                 if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
                     Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
                 }                                                                           # End if ($RGSelect -eq '0')
-                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
-                $RGObject = Get-AzResourceGroup | Where-Object `
-                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
-                if ($RGObject) {                                                            # If $RGObject has a value
+                elseif ($RGSelect -in $ListArray.Number) {                                  # If $RGSelect in $ListArray.Number
+                    $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
                     Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End if ($RGObject)
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
                 else {                                                                      # If $RGObject does not have a value
                     Write-Host "That was not a valid option"                                # Write message to screen
                 }                                                                           # End else (if ($RGObject))
