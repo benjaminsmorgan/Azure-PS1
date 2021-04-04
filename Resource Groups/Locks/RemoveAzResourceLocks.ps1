@@ -83,30 +83,42 @@
                     Call GetAzResourceGroup > Get $RGObject
                     Call GetAzResource > Get $RSObject
 }#>
-function RemoveAzResourceLocks { # Function to remove resource locks, No input validation is done
-    Begin {
-        if (!$Locks) { # If statement if $Locks is $null
-            $Locks = GetAzResourceLocks # Calls GetAzResourceLocks and assigns to $Locks
-            if(!$Locks) { # If statement if $Locks is $null after calling function to assign
-                Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-                Return $Locks # Returns to calling function
-            } # End if statement
-        } # End if statement
-        $Locks.Name # Writes all names contained in $Locks
-        $OperatorConfirm = Read-Host "Type 'Y' or 'Yes' to remove these locks" # Operator confirmation to remove the listed locks
-        if (!($OperatorConfirm -ceq 'Y' -or $OperatorConfirm -ceq 'Yes')) { # If $Operatorconfirm is not (Equal to 'Y' or 'Yes') statement
-            $Locks = $null # $Locks is set to $null
-            Write-Host "RemoveAzResourceLocks function was terminated, no changes made" # Message write to screen
-            Return $Locks # Return to calling function
-        } # End if statement
-        else { # Else statement if $Operatorconfirm is (Equal to 'Y' or 'Yes')
-            $ErrorActionPreference='silentlyContinue' # Disables Errors
-            foreach ($LockId in $Locks) { # Completes the command in a loop untill performed on all LockIds within $Locks
-                $LockId.name # Prints the LockId for each lock as the cycle goes
-                Remove-AzResourceLock -LockId $LockId.LockId -force # Removes the lock by targeting the LockID, -force removes operator confirmation
-            } # End foreach loop
-            $Locks = $null # Clears $Locks prior to returning to calling function
-            Return $Locks # Returns to calling function
-        } # End else statement
-    } # End begin statement
-} # End function
+function RemoveAzResourceLocks {                                                            # Function to remove resource locks
+    Begin {                                                                                 # Begin function
+        :RemoveAzureLocks while ($true) {                                                   # Outer loop for managing function
+            if (!$Locks) {                                                                  # If $Locks is $null
+                $Locks = GetAzResourceLocks                                                 # Calls GetAzResourceLocks and assigns to $Locks
+                if(!$Locks) {                                                               # If $Locks is $null
+                    Break RemoveAzureLocks                                                  # Breaks :RemoveAzureLocks
+                }                                                                           # End if(!$Locks) | Inner
+            }                                                                               # End if(!$Locks) | Outer
+            foreach ($_ in $Locks) {                                                        # For each item in $Locks
+                Write-Host $_.Name                                                          # Write message to screen
+            }                                                                               # End foreach ($_ in $Locks)
+            Write-Host 'Remove these locks'                                                 # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the locks
+            if ($OperatorConfirm -eq 'Y') {                                                 # If $Operatorconfirm equals 'y' 
+                foreach ($_ in $Locks) {                                                    # For each item in $Locks
+                    Try {                                                                   # Try the following
+                        Write-Host 'Removing'$_.name                                        # Write message to screen
+                        Remove-AzResourceLock -LockId $_.LockId -force -ErrorAction 'Stop'  # Removes the current item in $Locks
+                    }                                                                       # End try
+                    catch {                                                                 # If Try fails
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        $LocksRemoved = 'n'                                                 # Sets $LocksRemoved to 'n'
+                        Return $LocksRemoved                                                # Returns to calling function with $LocksRemoved
+                    }                                                                       # End catch
+                }                                                                           # End foreach ($_ in $Locks)
+                Write-Host 'All locks removed'                                              # Write message to screen
+                $LocksRemoved = 'y'                                                         # Sets $LocksRemoved to 'y'
+                Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
+            }                                                                               # End if ($OperatorConfirm -eq 'Y') 
+            else {                                                                          # Else if $Operatorconfirm is not equal to 'y'
+                Write-Host "No changes made"                                                # Message write to screen
+                $LocksRemoved = 'n'                                                         # Sets $LocksRemoved to 'n'
+                Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
+            }                                                                               # End else (if ($OperatorConfirm -eq 'Y') )
+        }                                                                                   # End :RemoveAzureLocks while ($true)
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin 
+}                                                                                           # End function RemoveAzResourceLocks
