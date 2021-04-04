@@ -1,4 +1,5 @@
-function GetAzResourceType {
+function GetAzResource
+function GetAzResourceTypeOLD {
     Begin {
         if (!$RSObject) {
             $RSObject = GetAzResource
