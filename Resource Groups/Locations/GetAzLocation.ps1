@@ -60,6 +60,7 @@ function GetAzLocation {                                                        
                         Write-Host 'Please try again later'                                 # Write message to screen
                         Break GetAzureLocation                                              # Breaks :GetAzureLocation 
                     }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
                     Return $LocationObject                                                  # Returns $LocationObject to calling function
                 }                                                                           # End elseif ($LocationSelect -in $ListArray.Number) 
                 else {                                                                      # All other inputs for $LocationSelect
@@ -67,6 +68,7 @@ function GetAzLocation {                                                        
                 }                                                                           # End else (if ($LocationSelect -eq '0'))
             }                                                                               # End :SelectAzureLocation while ($true)
         }                                                                                   # End :GetAzureLocation while ($true)
+        Clear-Host                                                                          # Clears screen
         Return                                                                              # Returns with $null 
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLocation
