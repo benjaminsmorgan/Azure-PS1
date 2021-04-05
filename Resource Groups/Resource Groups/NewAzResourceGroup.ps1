@@ -59,14 +59,14 @@ function NewAzResourceGroup {                                                   
             }                                                                               # End :SetAzureTag while ($true)
             :SetAzureName while ($true) {                                                   # Inner loop for setting the resource group name
                 $RGObjectInput = Read-Host 'New resource group name'                        # Operator input for the resource group name
+                if ($RGObjectInput -eq 'exit') {                                            # If $RGObjectInput equals 'exit'
+                    Break NewAzureRGObject                                                  # Breaks :NewAzrueRGObject
+                }                                                                           # End elseif ($RGObjectInput -eq 'exit') 
                 Write-Host 'The new resource group will be called' $RGObjectInput           # Write message to screen
                 $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation that the name is correct
                 if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
                     Break SetAzureName                                                      # Break :SetAzureName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-                elseif ($OperatorConfirm -eq 'exit') {                                      # If $OperatorConfirm equals 'exit'
-                    Break NewAzureRGObject                                                  # Breaks :NewAzrueRGObject
-                }                                                                           # End elseif ($OperatorConfirm -eq 'exit')    
+                }                                                                           # End if ($OperatorConfirm -eq 'y')   
             }                                                                               # End :SetAzureName while ($true)
             if (!$LocationObject) {                                                         # If $LocationObject is $null
                 :SetAzureLocation while ($true) {                                           # Inner loop for setting the resource group location
@@ -80,6 +80,10 @@ function NewAzResourceGroup {                                                   
             }                                                                               # End if (!$LocationObject) 
             if ($Tag) {                                                                     # If $Tag has a value
                 Try {                                                                       # Try the following
+                    Write-Host 'Building the resource group with the following settings:'   # Write message to screen
+                    Write-Host 'Name:'$RGObjectInput                                        # Write message to screen
+                    Write-Host 'Loc: '$LocationObject.Location                              # Write message to screen
+                    Write-Host 'Tags:'$TagNameInput $TagValueInput                          # Write message to screen
                     $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location `
                         $LocationObject.Location -Tag $Tag -ErrorAction 'Stop'              # Creates the resouce group and assigns to $RGObject
                 }                                                                           # End Try
@@ -87,12 +91,17 @@ function NewAzResourceGroup {                                                   
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host 'You may not have the permissions required'                  # Write message to screen
                     Write-Host 'Policy may exist preventing this action'                    # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
                     Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject  
                 }                                                                           # End catch
+                Clear-Host                                                                  # Clears Screen
                 Return $RGObject                                                            # Returns to calling function with $RGObject
             }                                                                               # End if ($Tag)
             else {                                                                          # If $Tag does not have a value
                 Try {                                                                       # Try the following
+                    Write-Host 'Building the resource group with the following settings:'   # Write message to screen
+                    Write-Host 'Name:'$RGObjectInput                                        # Write message to screen
+                    Write-Host 'Loc: '$LocationObject.Location                              # Write message to screen
                     $RGObject = New-AzResourceGroup -Name $RGObjectInput -Location `
                         $LocationObject.Location -Tag $Tag -ErrorAction 'Stop'              # Creates the resouce group and assigns to $RGObject
                 }                                                                           # End Try
@@ -100,11 +109,14 @@ function NewAzResourceGroup {                                                   
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host 'You may not have the permissions required'                  # Write message to screen
                     Write-Host 'Policy may exist preventing this action'                    # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
                     Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject  
                 }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
                 Return $RGObject                                                            # Returns to calling function with $RGObject
             }                                                                               # End else (if ($Tag))
         }                                                                                   # End :NewAzureRGObject while ($true)
+        Clear-Host                                                                          # Clears screen
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End of begin statement
 }                                                                                           # End function NewAzResourceGroup
