@@ -39,12 +39,14 @@ function GetAzRGLocksAll {                                                      
             $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName      # Collects all locks and assigns to $Locks
             if (!$Locks) {                                                                  # If $Locks is $null
                 Write-Host "No locks are on this resource group"                            # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
                 Break GetAzureRGLocksAll                                                    # Breaks :GetAzureRGLocksAll
             }                                                                               # End if (!$Locks)
             else {                                                                          # Else if $Locks has a value
                 Return $Locks                                                               # Returns $Locks to the calling function
             }                                                                               # End else (if (!$Locks))
         }                                                                                   # End :GetAzureRGLocksAll while ($true)
+        Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzRGLocksAll
