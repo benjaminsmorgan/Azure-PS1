@@ -312,6 +312,8 @@ function RemoveAzResourceGroup {                                                
             Write-Host " All resource locks will be removed automatically if confirmed "    # Write message to screen
             Write-Host " All resources within the resource group will also be deleted  "    # Write message to screen
             Write-Host "\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////"    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Delete this resource group'                                         # Write message to screen
             $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input on confirming deletion of the resource group
             $RGObjectName = $RGObject.ResourceGroupName                                     # Collects the name of the resource group for later use
             if ($OperatorConfirm -eq "Y") {                                                 # If $OperatorConfirm equals 'y'
@@ -412,12 +414,14 @@ function GetAzRGLocksAll {                                                      
             $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName      # Collects all locks and assigns to $Locks
             if (!$Locks) {                                                                  # If $Locks is $null
                 Write-Host "No locks are on this resource group"                            # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
                 Break GetAzureRGLocksAll                                                    # Breaks :GetAzureRGLocksAll
             }                                                                               # End if (!$Locks)
             else {                                                                          # Else if $Locks has a value
                 Return $Locks                                                               # Returns $Locks to the calling function
             }                                                                               # End else (if (!$Locks))
         }                                                                                   # End :GetAzureRGLocksAll while ($true)
+        Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzRGLocksAll
