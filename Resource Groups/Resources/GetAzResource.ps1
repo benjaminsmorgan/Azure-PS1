@@ -65,12 +65,15 @@ function GetAzResource {                                                        
                     $RSSelect = $ListArray | Where-Object {$_.Number -eq $RSSelect}         # $RSSelect is equal to $ListArray where $ListArray.Number is equal to $RSSelect                                  
                     $RSObject = Get-AzResource -ResourceGroup $RSSelect.RG `
                         | Where-Object {$_.Name -eq $RSSelect.Name}                         # Pulls the full resource object
+                    Clear-Host                                                              # Clears screen
                     Return $RSObject                                                        # Returns to calling function with $RGObject
                 }                                                                           # End if ($RSSelect -in $ListArray)
                 else {                                                                      # If $RGObject does not have a value
                     Write-Host "That was not a valid option"                                # Write message to screen
                 }                                                                           # End else (if ($RGObject))
-            }                                                                               # End :SelectAzureResource` while ($true)
+            }                                                                               # End :SelectAzureResource while ($true)
         }                                                                                   # End :GetAzureResource while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzResource
