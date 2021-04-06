@@ -76,6 +76,8 @@ function RemoveAzResourceGroup {                                                
             Write-Host " All resource locks will be removed automatically if confirmed "    # Write message to screen
             Write-Host " All resources within the resource group will also be deleted  "    # Write message to screen
             Write-Host "\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////"    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Delete this resource group'                                         # Write message to screen
             $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input on confirming deletion of the resource group
             $RGObjectName = $RGObject.ResourceGroupName                                     # Collects the name of the resource group for later use
             if ($OperatorConfirm -eq "Y") {                                                 # If $OperatorConfirm equals 'y'
