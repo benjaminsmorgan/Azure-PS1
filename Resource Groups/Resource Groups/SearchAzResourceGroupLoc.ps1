@@ -5,10 +5,12 @@
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.2.0
 } #>
 <# Required Functions Links: {
+    SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceLoc.ps1
     GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
 } #>    
 <# Function Description: {
     SearchAzResourceGroupLoc:   Gets a resource or resource group by location
+    SearchAzResourceLoc:        Searches for resource using location matches on a resource
     GetAzLocation:              Gets an Azure location
 } #>
 <# Variables: {
@@ -25,11 +27,19 @@
     $Number:                    Current item .number used for formatting write to screen
     $RGObject:                  Resource group object
     $RGList:                    List of all matching resource groups
-    GetAzLocation{}             Gets $RGObject
+    SearchAzResourceLoc{}       Gets $RSObject
+        GetAzLocation{}             Gets $LocationObject
+    GetAzLocation{}             Gets $LocationObject
 } #>
 <# Process Flow {
     Function
         Call SearchAzResourceGroupLoc > Get $RGObject
+            Call SearchAzResourceLoc > Get $RSObject
+                Call GetAzLocation > Get $LocationObject
+                End GetAzLocation
+                    Return SearchAzResourceLoc > Send $LocationObject
+            End SearchAzResourcLoc
+                Return SearchAzResourceGroupLoc > Send $RSObject
             Call GetAzLocation > Get $LocationObject
             End GetAzLocation
                 Return SearchAzResourceGroupLoc > Send $LocationObject
@@ -54,52 +64,22 @@ function SearchAzResourceGroupLoc {                                             
                 Break SearchAzureByLoc                                                      # End Break SearchAzureByLoc
             }                                                                               # End if ($OperatorSelect -eq '0')
             elseif ($OperatorSelect -eq '1') {                                              # Else if $OperatorSelect equals '1'
-                $RSList = Get-AzResource | Where-Object `
-                    {$_.Location -eq $LocationObject.Location}                              # Gets a list of all resources within the $LocationObject.Location
-                if (!$RSList) {                                                             # If $RSList is $null
-                    Write-Host 'No resource found'                                          # Write message to screen
-                    Break SearchAzureByLoc                                                  # End Break SearchAzureByLoc
-                }                                                                           # End if (!$RSList)
-                elseif ($RSList.Count -gt 1) {                                              # If $RSList.Count greater than 1
-                    $ListNumber = 1                                                         # Sets $ListNumber to 1
-                    [System.Collections.ArrayList]$ListArray = @()                          # Creates the $ListArray
-                    foreach ($_ in $RSList) {                                               # For each $_ in $RSList
-                        $ListInput = [PSCustomObject]@{'Name' = $_.Name; `
-                            'Number'=$ListNumber;'RG'=$_.ResourceGroupName}                 # Creates the item to loaded into array
-                        $ListArray.Add($ListInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                        $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
-                    }                                                                       # End foreach ($_ in $ProviderList)
-                    Write-Host '[0] Exit'                                                   # Write message to screen
-                    foreach ($_ in $ListArray) {                                            # For each item in $ListArray
-                        $Number = $_.number                                                 # $Number equals current item .Number
-                        Write-Host "[$Number]" $_.Name $_.RG                                # Write message to screen
-                    }                                                                       # End foreach ($_ in $ListArray)
-                    :SelectAzureResource while ($true) {                                    # Inner loop for selecting a resource from list
-                        $OperatorSelect = Read-Host 'Enter the resource [#]'                # Operator input to select the resource
-                        if ($OperatorSelect -eq '0') {                                      # If $OperatorSelect equals '0'
-                        Break SearchAzureByLoc                                              # End Break SearchAzureByLoc
-                        }                                                                   # End if ($OperatorSelect -eq '0')
-                        elseif ($OperatorSelect -in $ListArray.Number) {                    # Else if $OperatorSelect -in $ListArray.Number
-                            $RGObject = $ListArray | Where-Object `
-                                {$_.Number -eq $OperatorSelect}                             # $RGObject equals $ListArray where $OperatorSelect equals $ListArray.Number
-                            $RGObject = Get-AzResourceGroup -name $RGObject.RG              # Pulls the full resource group object
-                            Return $RGObject                                                # Returns to calling function with $RGObject
-                        }                                                                   # End elseif ($OperatorSelect -in $ListArray.Number)
-                        else {                                                              # All other inputs for $OperatorSelect
-                            Write-Host 'That was not a valid option'                        # Write message to screen
-                        }                                                                   # End else (if ($OperatorSelect -eq '0'))
-                    }                                                                       # End :SelectAzureResource while ($true) 
-                }                                                                           # End elseif ($RSList.Count -gt 1)
-                else {                                                                      # If $RSList has only a single item
-                    $RGObject = Get-AzResourceGroup -name $RSList.ResourceGroupName         # Pulls the full resource group object
-                    Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End else (if (!$RSList))
+                $RSObject = SearchAzResourceGroupLoc ($CallingFunction)                     # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject does not have a value
+                    Break SearchAzureByLoc                                                  # Breaks :SearchAzureByLoc
+                }                                                                           # End if (!$RSObject)
+                else {                                                                      # If $RSObject does have a value
+                    $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName       # Pulls the resource group object
+                    Clear-Host                                                              # Clears the screen
+                    Return $RGObject                                                        # Returns to calling function with $var
+                }                                                                           # End else (if (!$RSObject))
             }                                                                               # End elseif ($OperatorSelect -eq '1')
             elseif ($OperatorSelect -eq '2') {                                              # Else if $OperatorSelect equals '2'
                 $RGList = Get-AzResourceGroup | Where-Object `
                     {$_.Location -eq $LocationObject.Location}                              # Gets a list of all resources within the $LocationObject.Location
                 if (!$RGList) {                                                             # If $RGList is $null
-                    Write-Host 'No resource groups found'                                   # Write message to screen
+                    Write-Host 'No resource groups found in'$LocationObject.Location        # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
                     Break SearchAzureByLoc                                                  # End Break SearchAzureByLoc
                 }                                                                           # End if (!$RGList)
                 elseif ($RGList.Count -gt 1) {                                              # If $RGList.Count greater than 1
@@ -125,6 +105,7 @@ function SearchAzResourceGroupLoc {                                             
                             $RGObject = $ListArray | Where-Object `
                                 {$_.Number -eq $OperatorSelect}                             # $RGObject equals $ListArray where $OperatorSelect equals $ListArray.Number
                             $RGObject = Get-AzResourceGroup -name $RGObject.RG              # Pulls the full resource group object
+                            Clear-Host                                                      # Clears the screen
                             Return $RGObject                                                # Returns to calling function with $RGObject
                         }                                                                   # End elseif ($OperatorSelect -in $ListArray.Number)
                         else {                                                              # All other inputs for $OperatorSelect
@@ -134,13 +115,15 @@ function SearchAzResourceGroupLoc {                                             
                 }                                                                           # End elseif ($RGList.Count -gt 1)
                 else {                                                                      # If $RGList has only a single item
                     $RGObject = Get-AzResourceGroup -name $RGList.Name                      # Pulls the full resource group object
+                    Clear-Host                                                              # Clears the screen
                     Return $RGObject                                                        # Returns to calling function with $RGObject
                 }                                                                           # End else (if (!$RGList))
             }                                                                               # End elseif ($OperatorSelect -eq '2')
             else {                                                                          # All other inputs for $OperatorSelect 
                 Write-Host 'That was not a valid option'                                    # Write message to screen
             }                                                                               # End else (if ($OperatorSelect -eq '0'))
-        }                                                                                   # End :SearchAzureByLoc while ($true) 
+        }                                                                                   # End :SearchAzureByLoc while ($true)
+        Clear-Host                                                                          # Clears the screen 
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End SearchAzResourceGroupLoc
