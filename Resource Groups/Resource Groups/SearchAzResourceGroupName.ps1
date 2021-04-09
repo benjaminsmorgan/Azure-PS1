@@ -53,6 +53,7 @@ function SearchAzResourceGroupName {                                            
                 }                                                                           # End if (!$RSObject)
                 $RGObject = Get-AzResourceGroup | Where-Object `
                     {$_.ResourceGroupName -eq $RSObject.ResourceGroupName}                  # Pulls the resource group object holding $RSObject
+                Clear-Host                                                                  # Clears the screen
                 Return $RGObject                                                            # Returns $RGObject to calling function
             }                                                                               # End elseif ($OperatorSearchOption -eq '1')
             elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals '2' 
@@ -61,11 +62,13 @@ function SearchAzResourceGroupName {                                            
                     Break SearchAzureRGByName                                               # Breaks :SearchAzureRGByName
                 }                                                                           # End if (!$RGObject)        
                 Return $RGObject                                                            # Returns $RGObject to calling function 
+                Clear-Host                                                                  # Clears the screen
             }                                                                               # End elseif ($OperatorSearchOption -eq '2')
             else {                                                                          # All other inputs for $OperatorSearchOption
                 Write-Host 'That was not a valid option'                                    # Write message to screen
             }                                                                               # if ($OperatorSearchOption -eq 'exit')
         }                                                                                   # End :SearchAzureRGByName while($true)
+        Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SearchAzResourceGroupName
