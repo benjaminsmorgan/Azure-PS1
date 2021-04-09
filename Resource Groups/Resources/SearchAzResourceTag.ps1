@@ -67,6 +67,7 @@ function SearchAzResourceTag {                                                  
                     $TagName = $ObjectArray | Where-Object `
                         {$_.Number -eq $TagNameInput}                                       # Pulls the tag name from $ObjectArray
                         $TagName = $TagName.Name                                            # Isolates .Name in $TagName
+                        Clear-Host                                                          # Clears the screen
                         Break SelectTagName                                                 # Breaks :SelectTagName
                 }                                                                           # End elseif ($TagNameInput -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $TagNameInput
@@ -105,6 +106,7 @@ function SearchAzResourceTag {                                                  
                         $TagValue = $ObjectArray | Where-Object `
                             {$_.Number -eq $TagValueInput}                                  # Pulls the tag value from $ObjectArray
                         $TagValue = $TagValue.Name                                          # Isolates the tag value name
+                        Clear-Host                                                          # Clears the screen
                         Break SelectTagValue                                                # Breaks :SelectTagValue
                     }                                                                       # End elseif ($TagValueInput -in $ObjectArray.Number)
                     else {                                                                  # All other inputs for $TagValueInput
@@ -117,6 +119,7 @@ function SearchAzResourceTag {                                                  
                     $TagValue.Name                                                          # Collects all resource objects where tag name and value matches $TagNameInput and TagValueInput
                 if (!$RSObject) {                                                           # $RSObject does not have a value
                     Write-Host "No resources found for the Tag Value"$TagValue.Name         # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
                     Break SearchAzureResource                                               # Breaks :SearchAzureResource 
                 }                                                                           # End if (!$RSObject)
             }                                                                               # End if ($TagValue)
@@ -124,6 +127,7 @@ function SearchAzResourceTag {                                                  
                 $RSObject = Get-AzResource -TagName $TagName                                # Collects all resource objects where tag name matches $TagNameInput
                 if (!$RSObject) {                                                           # $RSObject does not have a value
                     Write-Host "No resources found for the Tag name"$TagName                # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
                     Break SearchAzureResource                                               # Breaks :SearchAzureResource 
                 }                                                                           # End if (!$RSObject)
             }                                                                               # End else if (($TagValue))
@@ -165,6 +169,7 @@ function SearchAzResourceTag {                                                  
                             {$_.Number -eq $RSSelect}                                       # $RSSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RSSelect                                  
                         $RSObject = Get-AzResource -ResourceGroup $RSSelect.RG `
                             | Where-Object {$_.Name -eq $RSSelect.Name}                     # Pulls the full resource object
+                        Clear-Host                                                          # Clears the screen
                         Return $RSObject                                                    # Returns $RSObject to calling function
                     }                                                                       # End if ($RSSelect -in $ObjectArray)
                     else {                                                                  # If $RGObject does not have a value
@@ -173,10 +178,12 @@ function SearchAzResourceTag {                                                  
                 }                                                                           # End :SelectAzureResource while ($true)
             }                                                                               # End if ($RSObject.count -eq 1) 
             else {                                                                          # If $RSObject has a single value
+                Clear-Host                                                                  # Clears the screen
                 Write-Host 'A single matching resource is named:'$RSObject.Name             # Write message to screen
                 Return $RSObject                                                            # Returns $RGObject to calling function       
             }                                                                               # End else (if ($RSObject.count -eq 1))
         }                                                                                   # End :SearchAzureResource while ($true)
-        return                                                                              # Returns to calling function with $null    
+        Clear-Host                                                                          # Clears the screen
+        return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SearchAzResourceTag
