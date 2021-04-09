@@ -6,94 +6,44 @@
     Get-AzTag:                  https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azTag?view=azps-5.2.0
 } #>
 <# Required Functions Links: {
-    SearchAzResourceName:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceName.ps1
     SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceType.ps1
     SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceLoc.ps1
     SearchAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceTag.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
 } #>    
 <# Function Description: {
-    SearchAzResourceGroup:      Management function for all SearchAzResourceGroup*
-        SearchAzResourceName:       Searchs for resource using partial name matches on a resource name
-        SearchAzResourceType:       Searchs for resource using resource provider or type on a resource or resource
-        SearchAzResourceLoc:        Searchs for resource using location matches on a resource
-        SearchAzResourceTag:        Searchs for resource using tag matches on a resource
+    SearchAzResource:           Management function for all SearchAzResource functions
+    SearchAzResourceType:       Searches for resource using resource provider or type on a resource or resource
+    SearchAzResourceLoc:        Searches for resource using location matches on a resource
+    SearchAzResourceTag:        Searches for resource using tag matches on a resource
+    GetAzLocation:              Gets an Azure location
 } #>
 <# Variables: {
-    SearchAzResource {
-        :SearchAzureRS          Outer loop for function
-        $SearchAzRS:            Operator input for type of search
-        $RSObject:              Resource object      
-        SearchAzResourceName {
-            :SearchAzureRSByName    Outer loop for function
-            :SearchAzureRSName      Inner loop for finding resource by name
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object
-            $RGObjectInput:         Operator input for the resource group name
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceName
-        SearchAzResourceType {                
-            :SearchAzureRSByType    Outer loop for function
-            :SearchAzureRPName      Inner lopp for getting the Azure resource provider
-            :SearchAzureRSType      Inner loop for getting the Azure resource provider type
-            :GetAzureRSObject       Inner loop for collecting the resource object
-            $OperatorSearchOption:  Operator input to search by provider or provider and type
-            $ProviderList:          List of all Azure resource providers
-            $RPObjectInput:         Azure resource provider object input
-            $RPObject:              Azure resource provider object
-            $RPTObjectList:         List of all types on selected Azure resource provider 
-            $RPTObjectInput:        Operator input for Azure resource provider type object
-            $RPTObject:             Azure resource provider type object
-            $RSObjectInput:         Operator input for the resource name
-            $RSObject:              Resource object
-            $RGObjectInput:         Operator input for the resource group name       
-            $OperatorConfirm:       Operator confirmation that the resource provider and type are correct
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceType
-        SearchAzResourceLoc {
-            :SearchAzureRSByLoc     Outer loop for function
-            :SearchAzureRSLoc       Inner loop for finding resource by location
-            :SetLocation            Inner loop for setting $Location
-            :GetAzureRSObject       Inner loop for collecting the resource object
-            $ValidLocation:         List of all valid Azure locations
-            $Location:              Operator input for the resource location
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name 
-            $RGObjectInput:         Operator input for the resource group name 
-            $ForEachCount:          Number used in foreach statement for each found resource
-        } End SearchAzResourceLoc
-        SearchAzResourceTag {
-            :SearchAzureRSByTag     Outer loop for function
-            :SearchAzureRSTag       Inner loop for finding resource by tags
-            :SetTagName             Inner loop for setting tag name
-            :SetTagValue            Inner loop for setting tag value
-            $ValidTagName:          List of all available tags in Azure subscription
-            $TagNameInput:          Operator input for the tag name
-            $TagValueInput:         Operator input for the tag value
-            $RSObject:              Resource object
-            $OperatorSearchOption:  Operator input to narrow search 
-            $ForEachCount:          Number used in foreach statement for each found resource          
-            $RSObjectInput:         Operator input for the resource name 
-            $RGObjectInput:         Operator input for the resource group name
-        } End SearchAzResourceTag
-    } End SearchAzResource
+    :SearchAzureRS              Outer loop for managing function
+    $OpSelect:                  Operator input for selecting the search function
+    $RSObject:                  Resource object
+    SearchAzResourceType{}      Gets $RSObject
+    SearchAzResourceLoc{}       Gets $RSObject
+        GetAzLocation{}             Gets $LocationObject
+    SearchAzResourceTag{}       Gets $RSObject
 } #>
 <# Process Flow {
     Function
         Call SearchAzResource > Get $RSObject
-            Call SearchAzResourceName > Get $RSObject
-            End SearchAzResourceName
-                Return SearchAzResource > Send $RSObject
             Call SearchAzResourceType > Get $RSObject
             End SearchAzResourceType
                 Return SearchAzResource > Send $RSObject                
             Call SearchAzResourceLoc  > Get $RSObject
+                Call GetAzLocation > Get $LocationObject
+                End GetAzLocation
+                    Return SearchAzResourceLoc > Send $LocationObject
             End SearchAzResourceLoc
                 Return SearchAzResource > Send $RSObject
             Call SearchAzResourceTag  > Get $RSObject
             End SearchAzResourceTag
                 Return SearchAzResource > Send $RSObject
-            End SearchAzResource
-                Return Function > Send $RSObject
+        End SearchAzResource
+            Return Function > Send $RSObject
 }#>
 function SearchAzResource {                                                                 # Function to manage search resource functions
     Begin {                                                                                 # Begin function
@@ -434,3 +384,204 @@ function SearchAzResourceLoc {                                                  
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function SearchAzResourceLoc
+function SearchAzResourceTag {                                                              # Function to find a resource from attached tag
+    Begin {
+        :SearchAzureResource while ($true) {                                                # Outer loop for managing function
+            $RSList = Get-AzResource                                                        # Creates a list of all resource
+            $ObjectList = Get-AzTag | Where-Object {$_.Name -in $RSList.Tags.Keys}          # Pulls list of all tags in $RSList and assigns to $var
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.Name; `
+                    'Number' = $ObjectNumber}                                               # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name                                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectTagName while ($true) {                                                  # Loop for getting $TagNameInput
+                $TagNameInput = Read-Host "Enter the tag [#]"                               # Operator input for the Tag
+                if ($TagNameInput -eq '0') {                                                # If $TagNameInput equals '0'
+                    Break SearchAzureResource                                               # Breaks :SearchAzureResource
+                }                                                                           # End if ($TagNameInput -eq '0')
+                elseif ($TagNameInput -in $ObjectArray.Number) {                            # If $TagNameInput in $ObjectArray.Number
+                    $TagName = $ObjectArray | Where-Object `
+                        {$_.Number -eq $TagNameInput}                                       # Pulls the tag name from $ObjectArray
+                        $TagName = $TagName.Name                                            # Isolates .Name in $TagName
+                        Clear-Host                                                          # Clears the screen
+                        Break SelectTagName                                                 # Breaks :SelectTagName
+                }                                                                           # End elseif ($TagNameInput -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $TagNameInput
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($TagNameInput -eq '0'))
+            }                                                                               # End :SelectTagName while ($true)
+            Write-Host "Include a tag value in search"                                      # Write message to screen
+            $OperatorSearchOption = Read-Host '[Y] or [N]'                                  # Operator input for searching just by tag name, or adding a tag value
+            if ($OperatorSearchOption -eq 'y') {                                            # If statement for adding a tag value
+                $ObjectList = (Get-AzTag -Name $TagName).values | Where-Object `
+                    {$_.Name -in $RSList.Tags.Values}                                       # Gets all tag values under the tag name $TagName and in $RSList
+                $ObjectNumber = 1                                                           # Sets $ObjectNumber to 1
+                [System.Collections.ArrayList]$ObjectArray = @()                            # Creates the object array
+                foreach ($_ in $ObjectList) {                                               # For each $_ in $ObjectList
+                    $ListInput = [PSCustomObject]@{'Name' = $_.Name; `
+                        'Number' = $ObjectNumber}                                           # Creates the item to loaded into array
+                    $ObjectArray.Add($ListInput) | Out-Null                                 # Loads item into array, out-null removes write to screen
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
+                }                                                                           # End foreach ($_ in $ObjectList)
+                Write-Host "[0]  Exit"                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name                                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name                                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                :SelectTagValue while ($true) {                                             # Loop for getting $TagNameValue
+                    $TagValueInput = Read-Host "Enter the tag value [#]"                    # Operator input for the Tag value
+                    if ($TagValueInput -eq '0') {                                           # If $TagValueInput equals '0'
+                        Break SearchAzureResource                                           # Breaks :SearchAzureResource
+                    }                                                                       # End if ($TagValueInput -eq '0')
+                    elseif ($TagValueInput -in $ObjectArray.Number) {                       # If $TagValueInput in $ObjectArray.Number
+                        $TagValue = $ObjectArray | Where-Object `
+                            {$_.Number -eq $TagValueInput}                                  # Pulls the tag value from $ObjectArray
+                        $TagValue = $TagValue.Name                                          # Isolates the tag value name
+                        Clear-Host                                                          # Clears the screen
+                        Break SelectTagValue                                                # Breaks :SelectTagValue
+                    }                                                                       # End elseif ($TagValueInput -in $ObjectArray.Number)
+                    else {                                                                  # All other inputs for $TagValueInput
+                        Write-Host 'That was not a valid option'                            # Write message to screen
+                    }                                                                       # End else (if ($TagValueInput -eq '0'))
+                }                                                                           # End :SelectTagValue while ($true)
+            }                                                                               # End if ($OperatorSearchOption -eq 'y') 
+            if ($TagValue) {                                                                # If statement for $TagValue having a value
+                $RSObject = Get-AzResource -TagName $TagName -TagValue `
+                    $TagValue.Name                                                          # Collects all resource objects where tag name and value matches $TagNameInput and TagValueInput
+                if (!$RSObject) {                                                           # $RSObject does not have a value
+                    Write-Host "No resources found for the Tag Value"$TagValue.Name         # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
+                    Break SearchAzureResource                                               # Breaks :SearchAzureResource 
+                }                                                                           # End if (!$RSObject)
+            }                                                                               # End if ($TagValue)
+            else {                                                                          # Else statement for $TagValueInput not having a value
+                $RSObject = Get-AzResource -TagName $TagName                                # Collects all resource objects where tag name matches $TagNameInput
+                if (!$RSObject) {                                                           # $RSObject does not have a value
+                    Write-Host "No resources found for the Tag name"$TagName                # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
+                    Break SearchAzureResource                                               # Breaks :SearchAzureResource 
+                }                                                                           # End if (!$RSObject)
+            }                                                                               # End else if (($TagValue))
+            if ($RSObject.count -gt 1) {                                                    # If $RSObject has more than 1 value
+                $ObjectNumber = 1                                                           # Sets $ObjectNumber to 1
+                [System.Collections.ArrayList]$ObjectArray = @()                            # Creates the object array
+                foreach ($_ in $RSObject) {                                                 # For each $_ in $RSListList
+                    $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                    'RG' = $_.ResourceGroupName;'Number' = $ObjectNumber; `
+                    'Location' = $_.Location}                                               # Creates the item to loaded into array
+                    $ObjectArray.Add($ListInput) | Out-Null                                 # Loads item into array, out-null removes write to screen
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
+                }                                                                           # End foreach ($_ in $RSObject)
+                Write-Host "[0]  Exit"                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .Number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name                                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9)
+                    else {                                                                  # If current item .number is more than 9
+                        Write-Host "[$Number]"$_.Name                                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9))
+                    Write-Host 'RG: '$_.RG                                                  # Write message to screen
+                    Write-Host 'Loc:'$_.Location                                            # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                :SelectAzureResource while ($true) {                                        # Inner loop to select the resource 
+                    if ($CallingFunction) {                                                 # If $CallingFunction exists
+                        Write-Host `
+                            "You are selecting the resource for"$CallingFunction            # Write message to screen
+                    }                                                                       # End if ($CallingFunction)
+                    $RSSelect = Read-Host "Enter the resource [#]"                          # Operator input for the resource selection
+                    if ($RSSelect -eq '0') {                                                # If $RSSelect equals 0
+                        Break GetAzureResource                                              # Breaks :GetAzureResource
+                    }                                                                       # End if ($RSSelect -eq '0')
+                    elseif ($RSSelect -in $ObjectArray.Number) {                            # If $RSSelect is in $ObjectArray
+                        $RSSelect = $ObjectArray | Where-Object `
+                            {$_.Number -eq $RSSelect}                                       # $RSSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RSSelect                                  
+                        $RSObject = Get-AzResource -ResourceGroup $RSSelect.RG `
+                            | Where-Object {$_.Name -eq $RSSelect.Name}                     # Pulls the full resource object
+                        Clear-Host                                                          # Clears the screen
+                        Return $RSObject                                                    # Returns $RSObject to calling function
+                    }                                                                       # End if ($RSSelect -in $ObjectArray)
+                    else {                                                                  # If $RGObject does not have a value
+                        Write-Host "That was not a valid option"                            # Write message to screen
+                    }                                                                       # End else (if ($RSSelect -eq '0')))
+                }                                                                           # End :SelectAzureResource while ($true)
+            }                                                                               # End if ($RSObject.count -eq 1) 
+            else {                                                                          # If $RSObject has a single value
+                Clear-Host                                                                  # Clears the screen
+                Write-Host 'A single matching resource is named:'$RSObject.Name             # Write message to screen
+                Return $RSObject                                                            # Returns $RGObject to calling function       
+            }                                                                               # End else (if ($RSObject.count -eq 1))
+        }                                                                                   # End :SearchAzureResource while ($true)
+        Clear-Host                                                                          # Clears the screen
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SearchAzResourceTag
+# Additional functions required for SearchAzResource
+function GetAzLocation {                                                                    # Function to get azure location
+    Begin {                                                                                 # Begin function
+        :GetAzureLocation while ($true) {                                                   # Outer loop for managing function
+            $ListObject = Get-AzLocation                                                    # Gets a list of all Azure locations
+            $ListNumber = 1                                                                 # $Var for selecting the location
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
+            foreach ($_ in $ListObject) {                                                   # For each $_ in $ListObject
+                $ListInput = [PSCustomObject]@{'Number' = $ListNumber; 'Location' `
+                = $_.DisplayName}                                                           # Creates the item to load into array
+                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
+            }                                                                               # End foreach ($_ in $ListObject)
+            Write-Host "[ 0 ] Exit"                                                         # Write message to screen
+            foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
+                Write-Host '['$_.Number']' $_.Location                                      # Writes number and location to screen
+            }                                                                               # End foreach ($_ in $ListArray)
+            :SelectAzureLocation while ($true) {                                            # Inner loop for selecting location from list
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the location for"$CallingFunction         # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $LocationSelect = Read-Host "Please enter [#] of the location"              # Operator input for the selection
+                if ($LocationSelect -eq '0') {                                              # If $LocationSelect is 0
+                    Break GetAzureLocation                                                  # Breaks :GetAzureLocation
+                }                                                                           # End if ($LocationSelect -eq '0')
+                elseif ($LocationSelect -in $ListArray.Number) {                            # If $LocationSelect in $ListArray.Number
+                    $LocationSelect = $ListArray | Where-Object {$_.Number -eq `
+                        $LocationSelect}                                                    # LocationSelect is equal to $ListArray where $LocationSelect equals $ListArray.Number
+                    Try {                                                                   # Try the following
+                        $LocationObject = Get-AzLocation | Where-Object {$_.DisplayName `
+                            -eq $LocationSelect.Location} -ErrorAction 'Stop'               # Pulls the full $LocationObject
+                    }                                                                       # End try
+                    catch {                                                                 # If try fails
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Write-Host 'Please try again later'                                 # Write message to screen
+                        Break GetAzureLocation                                              # Breaks :GetAzureLocation 
+                    }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
+                    Return $LocationObject                                                  # Returns $LocationObject to calling function
+                }                                                                           # End elseif ($LocationSelect -in $ListArray.Number) 
+                else {                                                                      # All other inputs for $LocationSelect
+                    Write-Host "That was not a valid selection"                             # Write message to screen   
+                }                                                                           # End else (if ($LocationSelect -eq '0'))
+            }                                                                               # End :SelectAzureLocation while ($true)
+        }                                                                                   # End :GetAzureLocation while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns with $null 
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzLocation
