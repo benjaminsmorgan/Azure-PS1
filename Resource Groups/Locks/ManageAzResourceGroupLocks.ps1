@@ -29,101 +29,11 @@
     GetAzResource:              Collects resources within a resource group
 } #>
 <# Variables: {
-    ManageAzResourceGroupLocks {
-        :ManageAzureRGLocks     Outer loop for function
-        $OPSelect:  Operator input for management option
-        $OperatorSelect:        Operator input for clearing $Vars
-        $ForEachCount:          Number used in foreach statement for each found resource
-        NewAzResourceGroupLock {
-            $RGObject:              Resource group object
-            $LockName:              Operator input for the lock name
-            $LockLevel:             Operator input for the lock level
-            $LockNotes:             Optional operator input for the lock notes
-            $Locks:                 Locks object
-            :NewAzureRGLock         Outer loop for function
-            :GetAzureLockName       Inner loop for getting lock name
-            :GetAzureLockLevel      Inner loop for getting lock level
-        }
-        NewAzResourceLock {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $LockName:              Operator input for the lock name
-            $LockLevel:             Operator input for the lock level
-            $LockNotes:             Optional operator input for the lock notes
-            $Locks:                 Locks object
-            :NewAzureRSLock         Outer loop for function
-            :GetAzureLockName       Inner loop for getting lock name
-            :GetAzureLockLevel      Inner loop for getting lock level
-        }
-        GetAzResourceGroupLocksAll {
-            $RGObject:              Resource group object
-            $Locks:                 Locks object
-        }
-        GetAzResourceGroupLockNamed {
-            $RGObject:              Resource group object
-            $Locks:                 Locks object
-            $LocksInput:            Input to collect a named lock
-            $LocksList:             Object containing all locks within the resource group
-            $OperatorConfirm:       Operator confirmation that the lock found was the intended 
-        }
-        GetAzResourceLocksAll {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $Locks:                 Locks object
-        }
-        GetAzResourceLockNamed {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $Locks:                 Lock objects
-            $OperatorConfirm:       Operator input that the correct object has been found
-        }
-        RemoveAzResourceLocks {
-            $Locks:                 Lock or locks object
-        }    
-        GetAzResourceGroup {
-            $RGObject:              Resource group object
-            $RGObjectInput:         Operator input for the resource group name
-            $RGList:                Variable used for printing all resource groups to screen if needed
-        }
-            GetAzResource {
-            $RGObject:              Resource group object
-            $RSObject:              Resource object
-            $RSObjectInput:         Operator input for the resource name
-            $RSList:                Variable used for printing all resources to screen if needed
-        }
-    } End ManageAzResourceGroupLocks
+
 } #>
 <# Process Flow {
     Function
-        Call ManageAzResourceGroupLock
-            Call NewAzResourceGroupLock > Get $Locks
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call NewAzResourceLock > Get $Locks 
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceGroupLocksAll > Get $Locks
-                Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceGroupLocksAll > Send $RGObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceGroupLockNamed > Get $Locks
-                Call GetAzResourceGroup > Get RGObject
-                    Return GetAzResourceGroup > Send $RGObject
-                Return ManageAzResourceGroupLock > Send $Locks                
-            Call GetAzResourceLocksAll > Get $Locks
-                Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceLocksAll > Send $RGObject
-                Call GetAzResource > Get $RSObject
-                    Return GetAzResource > Send $RSObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call GetAzResourceLockNamed > Get $Locks
-                Call GetAzResourceGroup > Get $RGObject
-                    Return GetAzResourceLockNamed > Send $RGObject
-                Call GetAzResource > Get $RSObject
-                    Return GetAzResourceLockNamed > Send $RSObject
-                Return ManageAzResourceGroupLock > Send $Locks
-            Call RemoveAzResourceLocks > Send $Locks
-                Return ManageAzResourceGroupLock 
-            End Function
-                Return Function
+
 }#>
 function ManageAzResourceGroupLocks {                                                       # Function for managing resource locks
     Begin {                                                                                 # Begin function
@@ -138,7 +48,7 @@ function ManageAzResourceGroupLocks {                                           
                     $ResName = $LockID.Split('/')[8]                                        # Collects the resource name if lock on a resource
                     Write-Host 'LockName:'$_.name                                           # Write message to screen
                     if ($ResProvider -ne 'locks') {                                         # If $ResProvider not equal to 'locks'
-                        Write-Host 'ResName: '$ResName                                     # Write message to screen
+                        Write-Host 'ResName: '$ResName                                      # Write message to screen
                     }                                                                       # End if ($ResProvider -ne 'locks')
                     Write-Host 'RGName:  '$_.ResourceGroupName                              # Write message to screen
                     Write-Host 'Notes:   '$_.Properties                                     # Write message to screen
@@ -148,47 +58,52 @@ function ManageAzResourceGroupLocks {                                           
                     $ResName = $null                                                        # Clears the selected $var
                 }                                                                           # End foreach ($_ in $Locks)
             }                                                                               # End if ($Locks)
-            Write-Host '[1] Clear "$Locks"'                                                 # Write message to screen
+            Write-Host '[0] Clear "$Locks"'                                                 # Write message to screen
             Write-Host '[1] New Resource Group Lock'                                        # Write message to screen
-            Write-Host '[2] New Resource Lock'                                              # Write message to screen
-            Write-Host '[3] Get All Resource Group Locks'                                   # Write message to screen
-            Write-Host '[4] Get Named Resource Group Lock'                                  # Write message to screen
-            Write-Host '[5] Get All Resource Locks'                                         # Write message to screen
-            Write-Host '[6] Get Named Resource Lock'                                        # Write message to screen
-            Write-Host '[7] Remove Locks'                                                   # Write message to screen
+            Write-Host '[2] Get Resource Group Lock'                                        # Write message to screen
+            Write-Host '[3] List Resource Group Locks'                                      # Write message to screen
+            Write-Host '[4] Remove Resource Group Lock'                                     # Write message to screen
+            Write-Host '[5] New Resource Lock'                                              # Write message to screen
+            Write-Host '[6] Get Resource Lock'                                              # Write message to screen
+            Write-Host '[7] List Resource Locks'                                            # Write message to screen
+            Write-Host '[8] Remove Resource Lock'                                           # Write message to screen
             Write-Host '[Exit] to return'                                                   # Write message to screen
             $OPSelect = Read-Host "Option?"                                                 # Operator input to select management function
             if ($OPSelect -eq 'exit') {                                                     # If $OPSelect equals 'exit'
                 Break ManageAzureRGLocks                                                    # Breaks :ManageAzureRGLocks 
             }                                                                               # End if ($OPSelect -eq 'exit')
             elseif ($OPSelect -eq '1') {                                                    # Else if $OPSelect equals '1'
-                Write-Host "New Resource Group Lock"                                        # Write message to screen
+                Write-Host 'New Resource Group Lock'                                        # Write message to screen
                 $Locks = NewAzResourceGroupLock                                             # Calls function and assigns output to $var
             }                                                                               # End elseif ($OPSelect -eq '1')
             elseif ($OPSelect -eq '2') {                                                    # Else if $OPSelect equals '2'
-                Write-Host "New Resource Lock"                                              # Write message to screen
-                $Locks = NewAzResourceLock                                                  # Calls function and assigns output to $var
+                Write-Host 'Get Resource Group Lock'                                        # Write message to screen
+                $Locks = GetAzResourceGroupLock                                             # Calls function and assigns output to $var
             }                                                                               # End elseif ($OPSelect -eq '2')
             elseif ($OPSelect -eq '3') {                                                    # Else if $OPSelect equals '3'
-                Write-Host "Get All Resource Group Locks"                                   # Write message to screen
-                $Locks = GetAzResourceGroupLocksAll                                         # Calls function and assigns output to $var
+                Write-Host 'List Resource Group Locks'                                      # Write message to screen
+                ListAzResourceGroupLocks                                                    # Calls function 
             }                                                                               # End elseif ($OPSelect -eq '3')
             elseif ($OPSelect -eq '4') {                                                    # Else if $OPSelect equals '4'
-                Write-Host "Get Named Resource Group Lock"                                  # Write message to screen
-                $Locks = GetAzResourceGroupLockNamed                                        # Calls function and assigns output to $var
+                Write-Host 'Remove Resource Group Lock'                                     # Write message to screen
+                RemoveAzResourceGroupLock                                                   # Calls function
             }                                                                               # End elseif ($OPSelect -eq '4')
             elseif ($OPSelect -eq '5') {                                                    # Else if $OPSelect equals '5'
-                Write-Host "Get All Resource Locks"                                         # Write message to screen
-                $Locks = GetAzResourceLocksAll                                              # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OPSelect -eq '5')
+                Write-Host 'New Resource Lock'                                              # Write message to screen
+                $Locks = NewAzResourceLock                                                  # Calls function and assigns output to $var
+        }                                                                                   # End elseif ($OPSelect -eq '5')
             elseif ($OPSelect -eq '6') {                                                    # Else if $OPSelect equals '6'
-                Write-Host "Get Named Resource Lock"                                        # Write message to screen
-                $Locks = GetAzResourceLockNamed                                             # Calls function and assigns output to $var
+                Write-Host "Get Resource Lock"                                              # Write message to screen
+                $Locks = GetAzResourceLock                                                  # Calls function and assigns output to $var
             }                                                                               # End elseif ($OPSelect -eq '6')
             elseif ($OPSelect -eq '7') {                                                    # Else if $OPSelect equals '7'
-                Write-Host "7 Remove Locks"                                                 # Write message to screen
-                RemoveAzResourceLocks ($Locks)                                              # Calls function
+                Write-Host 'List Resource Locks'                                            # Write message to screen
+                ListAzResourceLocks                                                         # Calls function
             }                                                                               # End elseif ($OPSelect -eq '7')
+            elseif ($OPSelect -eq '8') {                                                    # Else if $OPSelect equals '8'
+                Write-Host 'Remove Resource Lock'                                           # Write message to screen
+                RemoveAzResourceLock                                                        # Calls function
+            }                                                                               # End elseif ($OPSelect -eq '8')
             elseif ($OPSelect -eq '0') {                                                    # Else if $OPSelect equals '0'
                 If ($Locks) {                                                               # If $Locks has a value
                     $Locks = $null                                                          # Clears $var
@@ -198,6 +113,9 @@ function ManageAzResourceGroupLocks {                                           
                     Write-Host '"$Locks was already cleared'                                # Write message to screen
                 }                                                                           # End else (If ($Locks))
             }                                                                               # End elseif ($OPSelect -eq '0')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect-eq 'exit'))
         }                                                                                   # End :ManageAzureRGLocks while ($true)
         Clear-Host                                                                          # Clears the screen
         if ($Locks) {                                                                       # If $Locks has a value
@@ -208,58 +126,421 @@ function ManageAzResourceGroupLocks {                                           
         }                                                                                   # End else (if ($Locks))
     }                                                                                       # End begin
 }                                                                                           # End function ManageAzResourceGroupLocks
-function GetAzRGLocksAll {                                                                  # Function to get all locks assigned to a resource group
+function NewAzResourceGroupLock {                                                           # Function to create a new resource lock on a resource group
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
-        :GetAzureRGLocksAll while ($true) {                                                 # Outer loop for managing function
+        :NewAzureRGLock while ($true) {                                                     # Outer loop for managing fucntion
             if (!$RGObject) {                                                               # If $RGObject is $null
-                $CallingFunction = 'GetAzRGLocksAll'                                        # Creates $CallingFunction
-                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                $CallingFunction = 'NewAzResourceGroupLock'                                 # Creates $CallingFunction
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var                                         
                 if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break GetAzureRGLocksAll                                                # Breaks :GetAzureRGLocksAll
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
                 }                                                                           # End if (!$RGObject) | Inner
             }                                                                               # End if (!$RGObject) | Outer
-            $Locks = Get-AzResourceLock -ResourceGroupName $RGObject.ResourceGroupName      # Collects all locks and assigns to $Locks
-            if (!$Locks) {                                                                  # If $Locks is $null
-                Write-Host "No locks are on this resource group"                            # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
-                Break GetAzureRGLocksAll                                                    # Breaks :GetAzureRGLocksAll
-            }                                                                               # End if (!$Locks)
-            else {                                                                          # Else if $Locks has a value
-                Return $Locks                                                               # Returns $Locks to the calling function
-            }                                                                               # End else (if (!$Locks))
-        }                                                                                   # End :GetAzureRGLocksAll while ($true)
+            :SetAzureLockName while ($true) {                                               # Inner loop for setting the lock name
+                $LockName = Read-Host "Lock Name?"                                          # Operator input for the lock name
+                if ($LockName -eq 'exit') {                                                 # If $LockName equals 'exit'
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
+                }                                                                           # End if ($LockName -eq 'exit')
+                Write-Host "The lock name will be" $LockName                                # Write message to screen
+                $OpConfirm = Read-Host '[Y] or [N]'                                         # Operator input to confirm the lock name
+                if ($OpConfirm -eq 'exit') {                                                # If $OpConfirm equals 'exit' 
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
+                }                                                                           # End if ($OpConfirm -eq 'exit')
+                elseif ($OpConfirm -eq 'y') {                                               # $OpConfirm equals 'y'
+                    Break SetAzureLockName                                                  # Breaks :SetAzureLockName
+                }                                                                           # End elseif ($OpConfirm -eq 'y')
+                else {                                                                      # All other inputs for $OpConfirm
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($OpConfirm -eq 'exit'))
+            }                                                                               # End :SetAzureLockName while ($true)
+            :SetAzureLockLevel while ($true) {                                              # Inner loop for setting lock level
+                Write-Host '[1] Read Only'                                                  # Write message to screen
+                Write-Host '[2] Can Not Delete'                                             # Write message to screen
+                Write-Host '[Exit] to leave function'                                       # Write message to screen
+                $LockLevel = Read-Host 'Option [#]'                                         # Operator input for the lock level
+                if ($LockLevel -eq 'exit') {                                                # If $LockLevel equals 'exit'
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
+                }                                                                           # End if ($LockLevel -eq 'exit')
+                elseif ($LockLevel -eq '1') {                                               # If $LockLevel equals '1'
+                    $LockLevel = 'ReadOnly'                                                 # Sets $LockLevel to 'ReadOnly'
+                    Break SetAzureLockLevel                                                 # Breaks :SetAzureLockLevel
+                }                                                                           # End elseif ($LockLevel -eq '1')
+                elseif ($LockLevel -eq '2') {                                               # If $LockLevel equals '2'
+                    $LockLevel = 'CanNotDelete'                                             # Sets $LockLevel to 'CanNotDelete'
+                    Break SetAzureLockLevel                                                 # Breaks :SetAzureLockLevel
+                }                                                                           # End elseif ($LockLevel -eq '2')
+                else {                                                                      # All other inputs for $LockLevel
+                    Write-Host "That is not a valid option"                                 # Write message to screen
+                }                                                                           # End else (if ($LockLevel -eq 'exit'))
+            }                                                                               # End :SetAzureLockLevel while($true)
+            $LockNotes = Read-Host 'Enter any lock notes here'                              # Operator input for lock notes
+            if ($LockNotes) {                                                               # If $LocksNotes has a value
+                Try {                                                                       # Try the following
+                    $Locks = New-AzResourceLock -LockLevel $LockLevel -LockNotes `
+                        $LockNotes -LockName $LockName -ResourceGroupName `
+                        $RGObject.ResourceGroupName -Force -ErrorAction 'Stop'              # Deploys resource lock to resource group (With lock notes)   
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have permissions'                               # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears the screen
+                Return $Locks                                                               # Returns to calling function with $var
+            }                                                                               # End if ($LockNotes)
+            else {                                                                          # If $LockNotes is $null
+                Try {                                                                       # Try the following
+                    $Locks = New-AzResourceLock -LockLevel $LockLevel -LockName $LockName `
+                        -ResourceGroupName $RGObject.ResourceGroupName -Force `
+                        -ErrorAction 'Stop'                                                 # Deploys resource lock to resource group   
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have permissions'                               # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears the screen
+                Return $Locks                                                               # Returns to calling function with $var
+            }                                                                               # End else (if ($LockNotes))
+        }                                                                                   # End :NewAzureRGLock while ($true) 
         Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End begin statement
-}                                                                                           # End function GetAzRGLocksAll
-function GetAzRSLocksAll {                                                                  # Function to get all locks assigned to a resource
+    }                                                                                       # End begin
+}                                                                                           # End function NewAzResourceGroupLock
+function GetAzResourceGroupLock {                                                           # Function to get a lock assigned to a resource group
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
-        :GetAzureRSLocksAll while ($true) {                                                 # Outer loop for managing function
+        :GetAzureRGLock while ($true) {                                                     # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                if (!$CallingFunction) {                                                    # If $CallingFunction is $null
+                    $CallingFunction = 'GetAzResourceGroupLock'                             # Creates $CallingFunction
+                }                                                                           # End if (!$CallingFunction)
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break GetAzureRGLock                                                    # Breaks :GetAzureRGLock
+                }                                                                           # End if (!$RGObject) | Inner
+            }                                                                               # End (!$RGObject) | Outer
+            $ObjectList = Get-AzResourceLock -ResourceGroupName `
+                $RGObject.ResourceGroupName -AtScope                                        # Collects all locks on $RGObject
+            $ObjectNumber = 1                                                               # Creates $ObjectNumber
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Number'=$ObjectNumber;'Name'=$_.Name; `
+                    'Properties'=$_.Properties}                                             # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number]   "$_.Name                                        # Write message to screen
+                    Write-Host 'Level:'$_.Properties.Level                                  # Write message to screen
+                    if ($_.Properties.Notes) {                                              # If $_.Properties.Notes has a value
+                        Write-Host 'Notes:'$_.Properties.Notes                              # Write message to screen
+                    }                                                                       # End if ($_.Properties.Notes)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]  "$_.Name                                         # Write message to screen
+                    Write-Host 'Level:'$_.Properties.Level                                  # Write message to screen
+                    if ($_.Properties.Notes) {                                              # If $_.Properties.Notes has a value
+                        Write-Host 'Notes:'$_.Properties.Notes                              # Write message to screen
+                    }                                                                       # End if ($_.Properties.Notes)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the lock
+                if ($CallingFunction -ne 'GetAzResourceGroupLock') {                        # If $CallingFunction does not equal 'GetAzResourceGroupLock'
+                    Write-Host "You are selecting the lock for"$CallingFunction             # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $LockSelect = Read-Host "Enter the lock [#]"                                # Operator input for the lock selection
+                if ($LockSelect -eq '0') {                                                  # If $LockSelect equals 0
+                    Break GetAzureRGLock                                                    # Breaks :GetAzureRGLock
+                }                                                                           # End if ($LockSelect -eq '0')
+                elseif ($LockSelect -in $ObjectArray.Number) {                              # If $LockSelect in $ObjectArray.Number
+                    $LockSelect = $ObjectArray | Where-Object {$_.Number -eq $LockSelect}   # $LockSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $LockSelect                                  
+                    $Locks = Get-AzResourceLock -Name $LockSelect.Name -ResourceGroupName `
+                        $RGObject.ResourceGroupName                                         # Pulls the full lock object
+                    Clear-Host                                                              # Clears screen
+                    Return $Locks                                                           # Returns to calling function with $var
+                }                                                                           # End elseif ($LockSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $LockSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($LockSelect))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+            Clear-Host                                                                      # Clears the screen
+            return                                                                          # Returns to calling function with $null
+        }                                                                                   # End :GetAzureRGLock while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroupLock
+function ListAzResourceGroupLocks {                                                         # Function to list locks assigned to a resource group
+    Begin {                                                                                 # Begin function
+        :GetAzureRGLock while ($true) {                                                     # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                if (!$CallingFunction) {                                                    # If $CallingFunction is $null
+                    $CallingFunction = 'ListAzResourceGroupLocks'                           # Creates $CallingFunction
+                }                                                                           # End if (!$CallingFunction)
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break GetAzureRGLock                                                    # Breaks :GetAzureRGLock
+                }                                                                           # End if (!$RGObject) | Inner
+            }                                                                               # End (!$RGObject) | Outer
+            $ObjectList = Get-AzResourceLock -ResourceGroupName `
+                $RGObject.ResourceGroupName -AtScope                                        # Collects all locks on $RGObject
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name'=$_.Name;'Properties'=$_.Properties} # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                Write-Host 'Name: '$_.Name                                                  # Write message to screen
+                Write-Host 'Level:'$_.Properties.Level                                      # Write message to screen
+                if ($_.Properties.Notes) {                                                  # If $_.Properties.Notes has a value
+                    Write-Host 'Notes:'$_.Properties.Notes                                  # Write message to screen
+                }                                                                           # End if ($_.Properties.Notes)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Start-Sleep(15)                                                                 # Pauses all actions for 15 seconds
+            Clear-Host                                                                      # Clears the screen
+            return                                                                          # Returns to calling function with $null
+        }                                                                                   # End :GetAzureRGLock while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function ListAzResourceGroupLocks
+function RemoveAzResourceGroupLock {                                                        # Function to remove a single resource group lock
+    Begin {                                                                                 # Begin function
+        :RemoveAzureRGLock while ($true) {                                                  # Outer loop for managing function
+            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
+                $CallingFunction = 'RemoveAzResourceGroupLock'                              # Creates $CallingFunction
+            }                                                                               # End if (!$CallingFunction)
+            if (!$Locks) {                                                                  # If $Locks is $null
+                $Locks = GetAzResourceGroupLock ($CallingFunction)                          # Calls function and assigns output to $var
+                if (!$Locks) {                                                              # If $Locks is $null
+                    Break RemoveAzureRGLock                                                 # Breaks :RemoveAzureRGLock
+                }                                                                           # End if (!$Locks) | Inner
+            }                                                                               # End if (!$Locks) | Outer
+            $LocksRemoved = RemoveAzResourceLocks ($Locks)                                  # Calls function and assigns output to $var
+            $LocksRemoved = $null
+            Break RemoveAzureRGLock                                                         # Breaks :RemoveAzureRGLock
+        }                                                                                   # End :RemoveAzureRGLock while ($true) 
+        Clear-Host                                                                          # Clears screen
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function RemoveAzResourceGroupLock
+function NewAzResourceLock {                                                                # Function to create a new resource lock on a resource
+    Begin {                                                                                 # Begin function
+        :NewAzureRSLock while ($true) {                                                     # Outer loop for managing fucntion
             if (!$RSObject) {                                                               # If $RSObject is $null
-                $CallingFunction = 'GetAzRSLocksAll'                                        # Creates $CallingFunction
-                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
+                $CallingFunction = 'NewAzResourceLock'                                      # Creates $CallingFunction
+                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var                                         
                 if (!$RSObject) {                                                           # If $RSObject is $null
-                    Break GetAzureRSLocksAll                                                # Breaks :GetAzureRSLocksAll
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
                 }                                                                           # End if (!$RSObject) | Inner
             }                                                                               # End if (!$RSObject) | Outer
-            $RSID = $RSObject.ResourceID                                                    # Isolates the resource ID
-            $RSID = $RSID+'/*'                                                              # Adds a wildcard to the resource ID
-            $Locks = Get-AzResourceLock | Where-Object {$_.ResourceID -like $RSID}          # Collects all locks and assigns to $Locks
-            if (!$Locks) {                                                                  # If $Locks is $null
-                Write-Host "No locks are on this resource "                                 # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all action for 5 seconds
-                Break GetAzureRSLocksAll                                                    # Breaks :GetAzureRSLocksAll
-            }                                                                               # End if (!$Locks)
-            else {                                                                          # Else if $Locks has a value
-                Return $Locks                                                               # Returns $Locks to the calling function
-            }                                                                               # End else (if (!$Locks))
-        }                                                                                   # End :GetAzureRSLocksAll while ($true)
+            :SetAzureLockName while ($true) {                                               # Inner loop for setting the lock name
+                $LockName = Read-Host "Lock Name?"                                          # Operator input for the lock name
+                if ($LockName -eq 'exit') {                                                 # If $LockName equals 'exit'
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
+                }                                                                           # End if ($LockName -eq 'exit')
+                Write-Host "The lock name will be" $LockName                                # Write message to screen
+                $OpConfirm = Read-Host '[Y] or [N]'                                         # Operator input to confirm the lock name
+                if ($OpConfirm -eq 'exit') {                                                # If $OpConfirm equals 'exit' 
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
+                }                                                                           # End if ($OpConfirm -eq 'exit')
+                elseif ($OpConfirm -eq 'y') {                                               # $OpConfirm equals 'y'
+                    Break SetAzureLockName                                                  # Breaks :SetAzureLockName
+                }                                                                           # End elseif ($OpConfirm -eq 'y')
+                else {                                                                      # All other inputs for $OpConfirm
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($OpConfirm -eq 'exit'))
+            }                                                                               # End :SetAzureLockName while ($true)
+            :SetAzureLockLevel while ($true) {                                              # Inner loop for setting lock level
+                Write-Host '[1] Read Only'                                                  # Write message to screen
+                Write-Host '[2] Can Not Delete'                                             # Write message to screen
+                Write-Host '[Exit] to leave function'                                       # Write message to screen
+                $LockLevel = Read-Host 'Option [#]'                                         # Operator input for the lock level
+                if ($LockLevel -eq 'exit') {                                                # If $LockLevel equals 'exit'
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
+                }                                                                           # End if ($LockLevel -eq 'exit')
+                elseif ($LockLevel -eq '1') {                                               # If $LockLevel equals '1'
+                    $LockLevel = 'ReadOnly'                                                 # Sets $LockLevel to 'ReadOnly'
+                    Break SetAzureLockLevel                                                 # Breaks :SetAzureLockLevel
+                }                                                                           # End elseif ($LockLevel -eq '1')
+                elseif ($LockLevel -eq '2') {                                               # If $LockLevel equals '2'
+                    $LockLevel = 'CanNotDelete'                                             # Sets $LockLevel to 'CanNotDelete'
+                    Break SetAzureLockLevel                                                 # Breaks :SetAzureLockLevel
+                }                                                                           # End elseif ($LockLevel -eq '2')
+                else {                                                                      # All other inputs for $LockLevel
+                    Write-Host "That is not a valid option"                                 # Write message to screen
+                }                                                                           # End else (if ($LockLevel -eq 'exit'))
+            }                                                                               # End :SetAzureLockLevel while($true)
+            $LockNotes = Read-Host 'Enter any lock notes here'                              # Operator input for lock notes
+            if ($LockNotes) {                                                               # If $LocksNotes has a value
+                Try {                                                                       # Try the following
+                    $Locks = New-AzResourceLock -LockLevel $LockLevel -LockNotes `
+                        $LockNotes -LockName $LockName -ResourceName $RSObject.Name `
+                        -ResourceType $RSObject.ResourceType -ResourceGroupName `
+                        $RSObject.ResourceGroupName -Force -ErrorAction 'Stop'              # Deploys resource lock to resource (With lock notes)   
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have permissions'                               # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears the screen
+                Return $Locks                                                               # Returns to calling function with $var
+            }                                                                               # End if ($LockNotes)
+            else {                                                                          # If $LockNotes is $null
+                Try {                                                                       # Try the following
+                    $Locks = New-AzResourceLock -LockLevel $LockLevel -LockName $LockName `
+                        -ResourceName $RSObject.Name -ResourceType $RSObject.ResourceType `
+                        -ResourceGroupName $RSObject.ResourceGroupName -Force `
+                        -ErrorAction 'Stop'                                                 # Deploys resource lock to resource
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have permissions'                               # Write message to screen
+                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears the screen
+                Return $Locks                                                               # Returns to calling function with $var
+            }                                                                               # End else (if ($LockNotes))
+        }                                                                                   # End :NewAzureRSLock while ($true) 
         Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function NewAzResourceLock
+function GetAzResourceLock {                                                                # Function to get a lock assigned to a resource
+    Begin {                                                                                 # Begin function
+        :GetAzureRSLock while ($true) {                                                     # Outer loop for managing function
+            if (!$RSObject) {                                                               # If $RSObject is $null
+                if (!$CallingFunction) {                                                    # If $CallingFunction is $null
+                    $CallingFunction = 'GetAzResourceLock'                                  # Creates $CallingFunction
+                }                                                                           # End if (!$CallingFunction)
+                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject is $null
+                    Break GetAzureRSLock                                                    # Breaks :GetAzureRSLock
+                }                                                                           # End if (!$RSObject) | Inner
+            }                                                                               # End (!$RSObject) | Outer
+            $ObjectList = Get-AzResourceLock | Where-Object `
+                {$_.ResourceName -eq $RSObject.Name}                                        # Collects all locks on $RSObject
+            $ObjectNumber = 1                                                               # Creates $ObjectNumber
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Number'=$ObjectNumber;'Name'=$_.Name; `
+                    'Properties'=$_.Properties}                                             # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number]   "$_.Name                                        # Write message to screen
+                    Write-Host 'Level:'$_.Properties.Level                                  # Write message to screen
+                    if ($_.Properties.Notes) {                                              # If $_.Properties.Notes has a value
+                        Write-Host 'Notes:'$_.Properties.Notes                              # Write message to screen
+                    }                                                                       # End if ($_.Properties.Notes)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]  "$_.Name                                         # Write message to screen
+                    Write-Host 'Level:'$_.Properties.Level                                  # Write message to screen
+                    if ($_.Properties.Notes) {                                              # If $_.Properties.Notes has a value
+                        Write-Host 'Notes:'$_.Properties.Notes                              # Write message to screen
+                    }                                                                       # End if ($_.Properties.Notes)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the lock
+                if ($CallingFunction -ne 'GetAzResourceLock') {                             # If $CallingFunction does not equal 'GetAzResourceLock'
+                    Write-Host "You are selecting the lock for"$CallingFunction             # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $LockSelect = Read-Host "Enter the lock [#]"                                # Operator input for the lock selection
+                if ($LockSelect -eq '0') {                                                  # If $LockSelect equals 0
+                    Break GetAzureRSLock                                                    # Breaks :GetAzureRSLock
+                }                                                                           # End if ($LockSelect -eq '0')
+                elseif ($LockSelect -in $ObjectArray.Number) {                              # If $LockSelect in $ObjectArray.Number
+                    $LockSelect = $ObjectArray | Where-Object {$_.Number -eq $LockSelect}   # $LockSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $LockSelect                                  
+                    $Locks = Get-AzResourceLock -Name $LockSelect.Name -ResourceGroupName `
+                        $RSObject.ResourceGroupName -ResourceName $RSObject.Name `
+                        -ResourceType $RSObject.ResourceType                                # Pulls the full lock object
+                    Clear-Host                                                              # Clears screen
+                    Return $Locks                                                           # Returns to calling function with $var
+                }                                                                           # End elseif ($LockSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $LockSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($LockSelect))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+            Clear-Host                                                                      # Clears the screen
+            return                                                                          # Returns to calling function with $null
+        }                                                                                   # End :GetAzureRSLock while ($true)
     }                                                                                       # End begin statement
-}                                                                                           # End function GetAzRSLocksAll
+}                                                                                           # End function GetAzResourceLock
+function ListAzResourceLocks {                                                              # Function to list locks assigned to a resource 
+    Begin {                                                                                 # Begin function
+        :GetAzureRSLock while ($true) {                                                     # Outer loop for managing function
+            if (!$RSObject) {                                                               # If $RSObject is $null
+                if (!$CallingFunction) {                                                    # If $CallingFunction is $null
+                    $CallingFunction = 'ListAzResourceLocks'                                # Creates $CallingFunction
+                }                                                                           # End if (!$CallingFunction)
+                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject is $null
+                    Break GetAzureRSLock                                                    # Breaks :GetAzureRSLock
+                }                                                                           # End if (!$RSObject) | Inner
+            }                                                                               # End (!$RSObject) | Outer
+            $ObjectList = Get-AzResourceLock | Where-Object `
+                {$_.ResourceName -eq $RSObject.Name}                                        # Collects all locks on $RSObject
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name'=$_.Name;'Properties'=$_.Properties} # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                Write-Host 'Name: '$_.Name                                                  # Write message to screen
+                Write-Host 'Level:'$_.Properties.Level                                      # Write message to screen
+                if ($_.Properties.Notes) {                                                  # If $_.Properties.Notes has a value
+                    Write-Host 'Notes:'$_.Properties.Notes                                  # Write message to screen
+                }                                                                           # End if ($_.Properties.Notes)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Start-Sleep(15)                                                                 # Pauses all actions for 15 seconds
+            Clear-Host                                                                      # Clears the screen
+            return                                                                          # Returns to calling function with $null
+        }                                                                                   # End :GetAzureRSLock while ($true)
+    }                                                                                       # End begin statement
+}                                                                                           # End function ListAzResourceLocks
+function RemoveAzResourceLock {                                                             # Function to remove a single resource lock
+    Begin {                                                                                 # Begin function
+        :RemoveAzureRSLock while ($true) {                                                  # Outer loop for managing function
+            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
+                $CallingFunction = 'RemoveAzResourceLock'                                   # Creates $CallingFunction
+            }                                                                               # End if (!$CallingFunction)
+            if (!$Locks) {                                                                  # If $Locks is $null
+                $Locks = GetAzResourceLock ($CallingFunction)                               # Calls function and assigns output to $var
+                if (!$Locks) {                                                              # If $Locks is $null
+                    Break RemoveAzureRSLock                                                 # Breaks :RemoveAzureRSLock
+                }                                                                           # End if (!$Locks) | Inner
+            }                                                                               # End if (!$Locks) | Outer
+            $LocksRemoved = RemoveAzResourceLocks ($Locks)                                  # Calls function and assigns output to $var
+            $LocksRemoved = $null                                                           # Clears $LocksRemoved
+            Break RemoveAzureRSLock                                                         # Breaks :RemoveAzureRSLock
+        }                                                                                   # End :RemoveAzureRSLock while ($true) 
+        Clear-Host                                                                          # Clears screen
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function RemoveAzResourceLock
 function RemoveAzResourceLocks {                                                            # Function to remove resource locks
     Begin {                                                                                 # Begin function
         :RemoveAzureLocks while ($true) {                                                   # Outer loop for managing function
@@ -272,7 +553,12 @@ function RemoveAzResourceLocks {                                                
             foreach ($_ in $Locks) {                                                        # For each item in $Locks
                 Write-Host $_.Name                                                          # Write message to screen
             }                                                                               # End foreach ($_ in $Locks)
-            Write-Host 'Remove these locks'                                                 # Write message to screen
+            if ($Locks.Count -gt 1) {                                                       # If $Locks.Count greater than 1
+                Write-Host 'Remove these locks'                                             # Write message to screen
+            }                                                                               # End if ($Locks.Count -gt 1)
+            else {                                                                          # If $Locks.Count is not greater than 1
+                Write-Host 'Remove this lock'                                               # Write message to screen
+            }                                                                               # End else (if ($Locks.Count -gt 1))
             $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the locks
             if ($OperatorConfirm -eq 'Y') {                                                 # If $Operatorconfirm equals 'y' 
                 foreach ($_ in $Locks) {                                                    # For each item in $Locks
@@ -289,7 +575,12 @@ function RemoveAzResourceLocks {                                                
                         Return $LocksRemoved                                                # Returns to calling function with $LocksRemoved
                     }                                                                       # End catch
                 }                                                                           # End foreach ($_ in $Locks)
-                Write-Host 'All locks removed'                                              # Write message to screen
+                if ($Locks.Count -gt 1) {                                                   # If $Locks.Count greater than 1
+                    Write-Host 'Locks removed'                                              # Write message to screen
+                }                                                                           # End if ($Locks.Count -gt 1)
+                else {                                                                      # If $Locks.Count is not greater than 1
+                    Write-Host 'Lock removed'                                               # Write message to screen
+                }                                                                           # End else (if ($Locks.Count -gt 1))
                 $LocksRemoved = 'y'                                                         # Sets $LocksRemoved to 'n'
                 Start-Sleep(10)                                                             # Pauses actions for 10 seconds
                 Clear-Host                                                                  # Clears Screen
@@ -305,3 +596,102 @@ function RemoveAzResourceLocks {                                                
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin 
 }                                                                                           # End function RemoveAzResourceLocks
+# Additional external functions required for ManageAzResourceGroupLocks
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
+                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
+function GetAzResource {                                                                    # Function to get a resource 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResource while ($true) {                                                   # Outer loop for managing function
+            $RSList = Get-AzResource                                                        # Gets all resources and assigns to $RSList
+            $ListNumber = 1                                                                 # Sets $ListNumber to 1
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
+            foreach ($_ in $RSList) {                                                       # For each $_ in $RSListList
+                $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                'RG' = $_.ResourceGroupName;'Number' = $ListNumber; `
+                'Location' = $_.Location}                                                   # Creates the item to loaded into array
+                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
+            }                                                                               # End foreach ($_ in $RSList)
+            Write-Host "0 Exit"                                                             # Write message to screen
+            foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
+                $Number = $_.Number                                                         # Sets $Number to current item .Number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name                                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9)
+                else {                                                                      # If current item .number is more than 9
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9))
+                Write-Host 'RG: '$_.RG                                                      # Write message to screen
+                Write-Host 'Loc:'$_.Location                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ListArray)
+            :SelectAzureResource while ($true) {                                            # Inner loop to select the resource 
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource for"$CallingFunction         # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RSSelect = Read-Host "Enter the resource [#]"                              # Operator input for the resource selection
+                if ($RSSelect -eq '0') {                                                    # If $RSSelect equals 0
+                    Break GetAzureResource                                                  # Breaks :GetAzureResource
+                }                                                                           # End if ($RSSelect -eq '0')
+                if ($RSSelect -in $ListArray.Number) {                                      # If $RSSelect is in $ListArray
+                    $RSSelect = $ListArray | Where-Object {$_.Number -eq $RSSelect}         # $RSSelect is equal to $ListArray where $ListArray.Number is equal to $RSSelect                                  
+                    $RSObject = Get-AzResource -ResourceGroup $RSSelect.RG `
+                        | Where-Object {$_.Name -eq $RSSelect.Name}                         # Pulls the full resource object
+                    Clear-Host                                                              # Clears screen
+                    Return $RSObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End if ($RSSelect -in $ListArray)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureResource while ($true)
+        }                                                                                   # End :GetAzureResource while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResource
