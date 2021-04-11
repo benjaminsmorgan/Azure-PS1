@@ -41,7 +41,12 @@ function RemoveAzResourceLocks {                                                
             foreach ($_ in $Locks) {                                                        # For each item in $Locks
                 Write-Host $_.Name                                                          # Write message to screen
             }                                                                               # End foreach ($_ in $Locks)
-            Write-Host 'Remove these locks'                                                 # Write message to screen
+            if ($Locks.Count -gt 1) {                                                       # If $Locks.Count greater than 1
+                Write-Host 'Remove these locks'                                             # Write message to screen
+            }                                                                               # End if ($Locks.Count -gt 1)
+            else {                                                                          # If $Locks.Count is not greater than 1
+                Write-Host 'Remove this lock'                                               # Write message to screen
+            }                                                                               # End else (if ($Locks.Count -gt 1))
             $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the locks
             if ($OperatorConfirm -eq 'Y') {                                                 # If $Operatorconfirm equals 'y' 
                 foreach ($_ in $Locks) {                                                    # For each item in $Locks
@@ -58,7 +63,12 @@ function RemoveAzResourceLocks {                                                
                         Return $LocksRemoved                                                # Returns to calling function with $LocksRemoved
                     }                                                                       # End catch
                 }                                                                           # End foreach ($_ in $Locks)
-                Write-Host 'All locks removed'                                              # Write message to screen
+                if ($Locks.Count -gt 1) {                                                   # If $Locks.Count greater than 1
+                    Write-Host 'Locks removed'                                              # Write message to screen
+                }                                                                           # End if ($Locks.Count -gt 1)
+                else {                                                                      # If $Locks.Count is not greater than 1
+                    Write-Host 'Lock removed'                                               # Write message to screen
+                }                                                                           # End else (if ($Locks.Count -gt 1))
                 $LocksRemoved = 'y'                                                         # Sets $LocksRemoved to 'n'
                 Start-Sleep(10)                                                             # Pauses actions for 10 seconds
                 Clear-Host                                                                  # Clears Screen
