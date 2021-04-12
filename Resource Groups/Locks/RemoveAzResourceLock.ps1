@@ -10,17 +10,17 @@
     GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/GetAzResource.ps1
 } #>
 <# Functions Description: {
-    RemoveAzResourceLock:  Gets a resource group lock and sends it to RemoveAzResourceLocks
+    RemoveAzResourceLock:       Gets a resource lock and sends it to RemoveAzResourceLocks
     RemoveAzResourceLocks:      Removes all $Locks
-    GetAzResourceLock:     Collects a lock on a resource group
-    GetAzResource:         Collects resource group object
+    GetAzResourceLock:          Collects a lock on a resource 
+    GetAzResource:              Collects resource group object
 } #>
 <# Variables: {
     :RemoveAzureRSLock          Outer loop for managing function  
     $CallingFunction:           Name of this function
     $Locks:                     Lock object
     $LocksRemoved:              Temp $var not used in this function
-    GetAzResourceLocks{}    Gets $Locks
+    GetAzResourceLocks{}        Gets $Locks
         GetAzResource{}             Gets $RSObject
     RemoveAzResourceLocks{}     Removes $Locks
 } #>
