@@ -2275,101 +2275,144 @@ function RemoveAzResourceLocks {                                                
     }                                                                                       # End begin 
 }                                                                                           # End function RemoveAzResourceLocks
 # End ManageAzLocks
-function ManageAzResourceGroupTags { # Management function for tags
-    Begin {
-        :ManageAzureRGTag while($true) { # :ManageAzureRGTag loop for managing resource group tags 
-            Write-Host "Resource Group Tag Management" # Write message to screen
-            Write-Host "1 Set Tag Info For Multiple Use" # Write message to screen
-            Write-Host "2 Add Resource Group Tag" # Write message to screen
-            Write-Host "3 Add Resource Tag" # Write message to screen
-            Write-Host "4 Get All Resource Group Tags" # Write message to screen
-            Write-Host "5 Get All Resource Tags" # Write message to screen
-            Write-Host "6 Remove Named Resource Group Tag" # Write message to screen
-            Write-Host "7 Remove Named Resource Tag" # Write message to screen
-            Write-Host "8 Remove All Resource Group Tags" # Write message to screen
-            Write-Host "9 Remove All Resource Tags" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $OperatorManageOption = Read-Host "Option?" # Operator input to select management function
-            if ($OperatorManageOption -eq 'exit') { # If statement for exiting this function
-                Break ManageAzureRGTag # Ends :ManageAzureRGTag loop, returning to calling function 
-            } # End if ($OperatorManageOption -eq 'exit')
-            elseif ($OperatorManageOption -eq '1') { # Option for setting tag name and value
-                Write-Host "Set Tag Info For Multiple Use" # Write message to screen
-                $TagNameInput, $TagValueInput = SetAzTagPair # Calls function
-            } # End elseif ($OperatorManageOption -eq '1')
-            elseif ($OperatorManageOption -eq '2') { # Option for new resource group tag
-                Write-Host "Add Resource Group Tag" # Write message to screen
-                $TagsList = AddAzResourceGroupTag ($RGObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '2')
-            elseif ($OperatorManageOption -eq '3') { # Option for new resource tag
-                Write-Host "Add Resource Tag" # Write message to screen
-                $TagsList = AddAzResourceTag ($RGObject, $RSObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '3')
-            elseif ($OperatorManageOption -eq '4') { # Option to get tags a resource group
-                Write-Host "Get Resource Group Tag" # Write message to screen
-                $TagsList = GetAzResourceGroupTags ($RGObject) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '4')
-            elseif ($OperatorManageOption -eq '5') { # Option to get tags on a resource
-                Write-Host "Get Resource Tag" # Write message to screen
-                $TagsList = GetAzResourceTags ($RGObject, $RSObject) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '5')
-            elseif ($OperatorManageOption -eq '6') { # Option to remove a named tag on resource group
-                Write-Host "Remove Named Resource Group Tag" # Write message to screen
-                $TagsList = RemoveAzResourceGroupTag ($RGObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '6')
-            elseif ($OperatorManageOption -eq '7') { # Option to remove a named tag on a resource
-                Write-Host "Remove Named Resource Tag" # Write message to screen
-                $TagsList = RemoveAzResourceTag ($RGObject, $RSObject, $TagNameInput, $TagValueInput) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '7')
-            elseif ($OperatorManageOption -eq '8') { # Option to remove all resource group tags
-                Write-Host "Remove Resource Group Tag" # Write message to screen
-                $TagsList = RemoveAzResourceGroupTags ($RGObject) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '8')
-            elseif ($OperatorManageOption -eq '9') { # Option to remove all resource tags
-                Write-Host "Remove Resource Tag" # Write message to screen
-                $TagsList = RemoveAzResourceTags ($RGObject, $RSObject) # Calls function and assigns value to $TagsList
-                Write-Host $TagsList # Writes existing tags to screen
-            } # End elseif ($OperatorManageOption -eq '9')
-            elseif ($OperatorManageOption -eq '0') { # Option to clear the current $Tags, $RGObject, $RSObject values
-                $OperatorSelect = Read-Host "Tag, RGObject, and/or RSObject" # Operator input for removing a value from $var
-                if ($OperatorSelect -like "*Tag*") { # Option for clearing $TagNameInput
-                    $TagNameInput = $null # Clears $TagNameInput value
-                    $TagValueInput = $null # Clears $TagValueInput value
-                    Write-Host '$TagNameInput and $TagValueInput has been cleared' # Write message to screen
-                } # End if ($OperatorSelect -like "*Lock*")
-                if ($OperatorSelect -like "*RGObject*") { # Option for clearing $RGObject
-                    $RGObject = $null # Clears $RGObject value
-                    Write-Host '$RGObject has been cleared' # Write message to screen
-                } # #End if ($OperatorSelect -like "*RGObject*")
-                if ($OperatorSelect -like "*RSObject*") { # Option for clearing $RSObject
-                    $RSObject = $null # Clears $RSObject value
-                    Write-Host '$RSObject has been cleared' # Write message to screen
-                } # End if ($OperatorSelect -like "*RSObject*")
-            } # End elseif ($OperatorManageOption -eq '0')
-            if ($TagNameInput -or $RGObject -or $RSObject) { # If $TagNameInput, $RGObject, or $RSObject object has a value, writes info to screen
-                if ($TagNameInput) { # If $TagsName has a value
-                    Write-Host $TagNameInput "is the currently selected Tag" # Write message to screen
-                } # End if if ($TagNameInput)
-                if ($RGObject) { # If $RGObject has a value
-                    Write-Host $RGObject.ResourceGroupName "is the currently selected resource group" # Write message to screen
-                } # End if ($RGObject)
-                if ($RSObject) { # If $RSObject has a value
-                    Write-Host $RSObject.Name "is the currently selected resource" # Write message to screen
-                } # End if ($RSObject) 
-            Write-Host 'Use option "0" to clear $Tags' # Write message to screen
-            } # End if ($TagNameInput -or $RGObject -or $RSObject)
-            $OperatorManageOption = $null # Clears $Operator search option incase of error
-        }# End :ManageAzureRGTag while loop
-        Return # Returns to calling function, no info is returned
-    } # End begin
-} # End function ManageAzResourceGroupTags
+function ManageAzTags {                                                                     # Management function for tags
+    Begin {                                                                                 # Begin function
+        :ManageAzureTag while($true) {                                                      # Outer loop for managing function
+            if ($TagNameInput -or $RGObject -or $RSObject) {                                # If $TagNameInput, $RGObject, or $RSObject object has a value
+                if ($TagNameInput) {                                                        # If $TagsName has a value
+                    Write-Host $TagNameInput 'is the currently selected Tag'                # Write message to screen
+                }                                                                           # End if if ($TagNameInput)
+                if ($RGObject) {                                                            # If $RGObject has a value
+                    Write-Host `
+                        $RGObject.ResourceGroupName `
+                        "is the currently selected resource group"                          # Write message to screen
+                }                                                                           # End if ($RGObject)
+                if ($RSObject) {                                                            # If $RSObject has a value
+                    Write-Host $RSObject.Name "is the currently selected resource"          # Write message to screen
+                }                                                                           # End if ($RSObject)
+            }                                                                               # End if ($TagNameInput -or $RGObject -or $RSObject) 
+            Write-Host 'Resource Group Tag Management'                                      # Write message to screen
+            Write-Host '[1] Set Tag Info For Multiple Use'                                  # Write message to screen
+            Write-Host '[2] Add Resource Group Tag'                                         # Write message to screen
+            Write-Host '[3] Add Resource Tag'                                               # Write message to screen
+            Write-Host '[4] Get All Resource Group Tags'                                    # Write message to screen
+            Write-Host '[5] Get All Resource Tags'                                          # Write message to screen
+            Write-Host '[6] Remove Named Resource Group Tag'                                # Write message to screen
+            Write-Host '[7] Remove Named Resource Tag'                                      # Write message to screen
+            Write-Host '[8] Remove All Resource Group Tags'                                 # Write message to screen
+            Write-Host '[9] Remove All Resource Tags'                                       # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+                Break ManageAzureTag                                                        # Breaks :ManageAzureTag  
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host "Set Tag Info For Multiple Use"                                  # Write message to screen
+                $TagNameInput, $TagValueInput = SetAzTagPair                                # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host "Add Resource Group Tag"                                         # Write message to screen
+                $TagsList = AddAzResourceGroupTag `
+                    ($RGObject, $TagNameInput, $TagValueInput)                              # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host "Add Resource Tag"                                               # Write message to screen
+                $TagsList = AddAzResourceTag `
+                    ($RGObject, $RSObject, $TagNameInput, $TagValueInput)                   # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host "Get Resource Group Tag"                                         # Write message to screen
+                $TagsList = GetAzResourceGroupTags ($RGObject)                              # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host "Get Resource Tag"                                               # Write message to screen
+                $TagsList = GetAzResourceTags ($RGObject, $RSObject)                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect equals '6'
+                Write-Host "Remove Named Resource Group Tag"                                # Write message to screen
+                $TagsList = RemoveAzResourceGroupTag `
+                    ($RGObject, $TagNameInput, $TagValueInput)                              # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            elseif ($OpSelect -eq '7') {                                                    # Else if $OpSelect equals '7'
+                Write-Host "Remove Named Resource Tag"                                      # Write message to screen
+                $TagsList = RemoveAzResourceTag `
+                    ($RGObject, $RSObject, $TagNameInput, $TagValueInput)                   # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '7')
+            elseif ($OpSelect -eq '8') {                                                    # Else if $OpSelect equals '8'
+                Write-Host "Remove Resource Group Tag"                                      # Write message to screen
+                $TagsList = RemoveAzResourceGroupTags ($RGObject)                           # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '8')
+            elseif ($OpSelect -eq '9') {                                                    # Else if $OpSelect equals '9'
+                Write-Host "Remove Resource Tag"                                            # Write message to screen
+                $TagsList = RemoveAzResourceTags ($RGObject, $RSObject)                     # Calls function and assigns output to $var
+            }                                                                               # End elseif ($OpSelect -eq '9')
+            elseif ($OpSelect -eq '0') {                                                    # Else if $OpSelect equals '0'
+                Write-Host '[0] Clear all $vars'                                            # Write message to screen
+                Write-Host '[1] Clear $Tags'                                                # Write message to screen
+                Write-Host '[2] Clear $RGObject'                                            # Write message to screen
+                Write-Host '[3] Clear $RSObject'                                            # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for removing a value from $var
+                if ($OpSelect -eq '0'){                                                     # If $OpSelect has a value
+                    if ($TagNameInput) {                                                    # If $TagsNameInput has a value
+                        $TagNameInput = $null                                               # Clears $var
+                        Write-Host '$TagNameInput has been cleared'                         # Write message to screen
+                    }                                                                       # End if ($TagNameInput)
+                    else {                                                                  # If $TagNameInput does not have a value
+                        Write-Host '$TagNameInput is already clear'                         # Write message to screen
+                    }                                                                       # End else (if ($TagNameInput))
+                    if ($RGObject) {                                                        # If $RGObject has a value
+                        $RGObject = $null                                                   # Clears $var
+                        Write-Host '$RGObject has been cleared'                             # Write message to screen
+                    }                                                                       # End if ($RGObject)
+                    else {                                                                  # If $RGObject does not have a value
+                        Write-Host '$RGObject is already clear'                             # Write message to screen
+                    }                                                                       # End else (if ($RGObject))
+                    if ($RsObject) {                                                        # If $RSObject has a value
+                        $RsObject = $null                                                   # Clears $var
+                        Write-Host '$RsObject has been cleared'                             # Write message to screen
+                    }                                                                       # End if ($RSObject)
+                    else {                                                                  # If $SGObject does not have a value
+                        Write-Host '$RsObject is already clear'                             # Write message to screen
+                    }                                                                       # End else (if ($RSObject))
+                }                                                                           # End if ($OpSelect -eq '0') 
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    if ($TagNameInput) {                                                    # If $TagsNameInput has a value
+                        $TagNameInput = $null                                               # Clears $var
+                        Write-Host '$TagNameInput has been cleared'                         # Write message to screen
+                    }                                                                       # End if ($TagNameInput)
+                    else {                                                                  # If $TagNameInput does not have a value
+                        Write-Host '$TagNameInput is already clear'                         # Write message to screen
+                    }                                                                       # End else (if ($TagNameInput))
+                }                                                                           # End elseif ($OpSelect -eq '1') 
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    if ($RGObject) {                                                        # If $RGObject has a value
+                        $RGObject = $null                                                   # Clears $var
+                        Write-Host '$RGObject has been cleared'                             # Write message to screen
+                    }                                                                       # End if ($RGObject)
+                    else {                                                                  # If $RGObject does not have a value
+                        Write-Host '$RGObject is already clear'                             # Write message to screen
+                    }                                                                       # End else (if ($RGObject))
+                }                                                                           # End elseif ($OpSelect -eq '2') 
+                elseif ($OpSelect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    if ($RsObject) {                                                        # If $RSObject has a value
+                        $RsObject = $null                                                   # Clears $var
+                        Write-Host '$RsObject has been cleared'                             # Write message to screen
+                    }                                                                       # End if ($RSObject)
+                    else {                                                                  # If $SGObject does not have a value
+                        Write-Host '$RsObject is already clear'                             # Write message to screen
+                    }                                                                       # End else (if ($RSObject))
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End elseif ($OpSelect -eq '0')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureTag while loop
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzTags
 function SetAzTagPair { # Function for setting the tag name and value pair
     Begin {
         :SetAzureTagPair while ($true) { # :SetAzureTagPairLoop
