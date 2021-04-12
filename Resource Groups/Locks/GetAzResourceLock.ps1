@@ -26,11 +26,11 @@
 } #>
 <# Process Flow {
     Function
-        Call GetAzResourceLockNamed > Get $Locks
+        Call GetAzResourceLock > Get $Locks
             Call GetAzResource > Get $RSObject
             End GetAzResource
-                Return GetAzResourceLockNamed > Send $RSObject
-        End GetAzResourceLockNamed
+                Return GetAzResourceLock > Send $RSObject
+        End GetAzResourceLock
             Return function > Send $Locks
 }#>
 function GetAzResourceLock {                                                                # Function to get a lock assigned to a resource
