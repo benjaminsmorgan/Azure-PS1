@@ -5,15 +5,15 @@
     New-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroup?view=azps-5.1.0
     Remove-AzResourceGroup:     https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcegroup?view=azps-5.1.0
     Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.2.0
-    Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
-    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
     Get-AzResourceProvider:     https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourceprovider?view=azps-5.2.0
     Get-AzTag:                  https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azTag?view=azps-5.2.0
     Remove-AzResource:          https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresource?view=azps-5.1.0
+    New-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcelock?view=azps-5.2.0
     Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
+    Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0
 } #>
 <# Required Functions Links: {
-    ManageAzResourceGroup:      TBD
+    ManageAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ManageAzResourceGroup.ps1
         NewAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/NewAzResourceGroup.ps1 
         GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
         ListAzRGResources:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/ListAzRGResources.ps1
@@ -21,7 +21,7 @@
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
         GetAzRGLocksAll:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzRGLocksAll.ps1
         RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLocks.ps1
-    SearchAzResourceGroup:      TBD
+    SearchAzResourceGroup:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroup.ps1
         SearchAzResourceGroupName:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupName.ps1
         SearchAzResourceGroupType:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupType.ps1
         SearchAzResourceGroupLoc:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/SearchAzResourceGroupLoc.ps1
@@ -32,18 +32,29 @@
         SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResourceType.ps1
         GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
-    ManageAzResource:           TBD
+    ManageAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/ManageAzResource.ps1
         GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/GetAzResource.ps1
         ListAzResources:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/ListAzResources.ps1
         RemoveAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/RemoveAzResource.ps1
         GetAzRSLocksAll:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzRSLocksAll.ps1
         RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLocks.ps1
-    SearchAzResource:           TBD
+    SearchAzResource:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/SearchAzResource.ps1
         SearchAzResourceType:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceType.ps1
         SearchAzResourceLoc:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceLoc.ps1
         SearchAzResourceTag:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/SearchAzResourceTag.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
-    ManageAzLocks:              TBD
+    ManageAzLocks:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/ManageAzLocks.ps1
+        NewAzResourceGroupLock:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/NewAzResourceGroupLock.ps1
+        GetAzResourceGroupLock:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceGroupLock.ps1
+        ListAzResourceGroupLocks:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/ListAzResourceGroupLocks.ps1
+        RemoveAzResourceGroupLock:  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceGroupLock.ps1
+        NewAzResourceLock:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/NewAzResourceLock.ps1
+        GetAzResourceLock:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/GetAzResourceLock.ps1  
+        ListAzResourceLocks:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/ListAzResourceLocks.ps1
+        RemoveAzResourceLock:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLock.ps1
+        RemoveAzResourceLocks:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locks/RemoveAzResourceLocks.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzResource:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resources/GetAzResource.ps1
     ManageAZTags:               TBD
 } #>
 <# Functions Description: {
@@ -66,10 +77,16 @@
         SearchAzResourceType:       Searches for resource using resource provider or type on a resource or resource
         SearchAzResourceLoc:        Searches for resource using location matches on a resource
         SearchAzResourceTag:        Searches for resource using tag matches on a resource
-    ManageAzLocks:              Management function for all lock functions
-        GetAzRGLocksAll:            Gets a list of locks on $RGObject
-        GetAzRSLocksAll:            Gets a list of locks on $RSObject
-        RemoveAzResourceLocks:      Removes all items in $Locks
+    ManageAzLocks:              Management function for Locks functions
+        NewAzResourceGroupLock:     Create a new resource lock on a resource group
+        GetAzResourceGroupLock:     Collects a lock on a resource group
+        ListAzResourceGroupLocks:   Lists all locks on a resource group
+        RemoveAzResourceGroupLock:  Gets a resource group lock and sends it to RemoveAzResourceLocks
+        NewAzResourceLock:          Create a new resource lock on a resource
+        GetAzResourceLock:          Collects a lock on a resource   
+        ListAzResourceLocks:        Lists all locks on a resource
+        RemoveAzResourceLock:       Gets a resource lock and sends it to RemoveAzResourceLocks
+        RemoveAzResourceLocks:      Removes all $Locks 
     ManageAZTags:               Management function for all tags
     GetAzLocation:              Gets a list of azure locations
 } #>
@@ -112,6 +129,26 @@
         SearchAzResourceLoc{}       Gets $RSObject
             GetAzLocation{}             Gets $LocationObject
         SearchAzResourceTag{}       Gets $RSObject
+    ManageAzLocks{}             Manages $Locks
+        NewAzResourceGroupLock{}    Gets $Locks
+            GetAzResourceGroup{}        Gets $RGObject
+        GetAzResourceGroupLock{}    Gets $Locks
+            GetAzResourceGroup{}        Gets $RGObject
+        ListAzResourceGroupLocks{}  Gets $null
+            GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzResourceGroupLock{} Gets $null
+            GetAzResourceGroupLock{}    Gets $Locks
+                GetAzResourceGroup{}        Gets $RGObject
+            RemoveAzResourceLocks{}     Gets $LocksRemoved
+        NewAzResourceLock{}         Gets $Locks
+            GetAzResource{}             Gets RSObject
+        GetAzResourceLock{}         Gets $Locks
+            GetAzResource{}             Gets $RSObject
+        ListAzResourceLocks{}       Gets $null
+            GetAzResource{}             Gets $RSObject
+        RemoveAzResourceLock{}      Gets $null
+            GetAzResourceLock{}         Gets $Locks
+            RemoveAzResourceLocks{}         Gets $LocksRemoved        
 } #>
 <# Process Flow {
     Function
@@ -218,6 +255,69 @@
                     Return SearchAzResource > Send $RSObject
             End SearchAzResource
                 Return ManageAzResourceGroups > Send $RSObject
+            Call ManageAzLocks > Get $Locks
+                Call NewAzResourceGroupLock > Get $Locks
+                    Call GetAzResourceGroup > Get RGObject
+                    End GetAzResourceGroup
+                        Return NewAzResourceGroupLock > Send $RGObject
+                    End NewAzResourceGroupLock
+                        Return ManageAzLocks > Send $Locks
+                Call GetAzResourceGroupLock > Get $Locks
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return GetAzResourceGroupLock > Send $RGObject
+                End GetAzResourceGroupLock
+                    Return ManageAzLocks > Send $Locks 
+                Call ListAzResourceGroupLocks > Get $null
+                    Call GetAzResourceGroup > Get $RGObject
+                    End GetAzResourceGroup
+                        Return ListAzResourceGroupLocks > Send $RGObject
+                End ListAzResourceGroupLocks
+                    Return ManageAzLocks > Send $null    
+                Call RemoveAzResourceGroupLock > Get $null
+                    Call GetAzResourceGroupLock > Get $Locks
+                        Call GetAzResourceGroup > Get $RGObject
+                        End GetAzResourceGroup
+                            Return GetAzResourceGroupLock > Send $RGObject
+                    End GetAzResourceGroupLock
+                        Return RemoveAzResourceGroupLock > Send $Locks 
+                    Call RemoveAzResourceLocks > Get $LocksRemoved
+                    End RemoveAzResourceLocks
+                        Return RemoveAzResourceGroupLock > Send $LocksRemoved
+                End RemoveAzResourceGroupLock
+                    Return ManageAzLocks > Send $null
+                Call NewAzResourceLock > Get $Locks
+                    Call GetAzResource > Get RSObject
+                    End GetAzResource
+                        Return NewAzResourceLock > Send $RSObject    
+                End NewAzResourceLock
+                        Return ManageAzLocks > Send $Locks
+                Call GetAzResourceLock > Get $Locks
+                    Call GetAzResource > Get $RSObject
+                    End GetAzResource
+                        Return GetAzResourceLock > Send $RSObject
+                End GetAzResourceLock
+                    Return ManageAzLocks > Send $Locks
+                Call ListAzResourceLocks > Get $null
+                    Call GetAzResource > Get $RSObject
+                    End GetAzResource
+                        Return ListAzResourceLocks > Send $RSObject
+                End ListAzResourceLocks
+                    Return ManageAzLocks > Send $null
+                Call RemoveAzResourceLock > Get $null
+                    Call GetAzResourceLock > Get $Locks
+                        Call GetAzResource > Get $RSObject
+                        End GetAzResource
+                            Return GetAzResourceLock > Send $RSObject
+                    End GetAzResourceLock
+                        Return RemoveAzResourceLock > Send $Locks 
+                    Call RemoveAzResourceLocks > Get $LocksRemoved
+                    End RemoveAzResourceLocks
+                        Return RemoveAzResourceLock > Send $LocksRemoved
+                End RemoveAzResourceLock
+                    Return ManageAzLocks > Send $null
+            End ManageAzLocks
+                Return function > Send $Locks      
         End ManageAzResourceGroups
             Return function > Send $null
 }#> 
@@ -265,7 +365,7 @@ function ManageAzResourceGroups {                                               
             }                                                                               # End elseif ($ManageAzRG -eq '4')
             elseif ($ManageAzRG -eq '5') {                                                  # else if $ManageAzRG equals '5'
                 Write-Host 'Manage Locks'                                                   # Write message to screen
-                ManageAzResourceGroupLocks ($RGObject, $RSObject)                           # Calls function 
+                $Locks = ManageAzLocks ($RGObject, $RSObject)                               # Calls function 
             }                                                                               # End elseif ($ManageAzRG -eq '5')
             elseif ($ManageAzRG -eq '6') {                                                  # else if $ManageAzRG equals '6'
                 Write-Host 'Manage Tags'                                                    # Write message to screen
@@ -1612,10 +1712,10 @@ function SearchAzResourceTag {                                                  
     }                                                                                       # End Begin
 }                                                                                           # End function SearchAzResourceTag
 # End SearchAzResource
-# Functions for ManageAzResourceGroupLocks
-function ManageAzResourceGroupLocks {                                                       # Function for managing resource locks
+# Functions for ManageAzLocks
+function ManageAzLocks {                                                                    # Function for managing resource locks
     Begin {                                                                                 # Begin function
-        :ManageAzureRGLocks while($true) {                                                  # Outer loop for managing function 
+        :ManageAzureLocks while($true) {                                                    # Outer loop for managing function 
             Write-Host 'Resource Group Lock Management'                                     # Write message to screen
             if ($Locks) {                                                                   # If $Locks has a value
                 Write-Host 'The following locks are currently selected'                     # Write message to screen
@@ -1648,7 +1748,7 @@ function ManageAzResourceGroupLocks {                                           
             Write-Host '[Exit] to return'                                                   # Write message to screen
             $OPSelect = Read-Host "Option?"                                                 # Operator input to select management function
             if ($OPSelect -eq 'exit') {                                                     # If $OPSelect equals 'exit'
-                Break ManageAzureRGLocks                                                    # Breaks :ManageAzureRGLocks 
+                Break ManageAzureLocks                                                      # Breaks :ManageAzureLocks 
             }                                                                               # End if ($OPSelect -eq 'exit')
             elseif ($OPSelect -eq '1') {                                                    # Else if $OPSelect equals '1'
                 Write-Host 'New Resource Group Lock'                                        # Write message to screen
@@ -1694,7 +1794,7 @@ function ManageAzResourceGroupLocks {                                           
             else {                                                                          # All other inputs for $OpSelect
                 Write-host 'That was not a valid option'                                    # Write message to screen
             }                                                                               # End else (if ($OpSelect-eq 'exit'))
-        }                                                                                   # End :ManageAzureRGLocks while ($true)
+        }                                                                                   # End :ManageAzureLocks while ($true)
         Clear-Host                                                                          # Clears the screen
         if ($Locks) {                                                                       # If $Locks has a value
             Return $Locks                                                                   # Returns to calling function with $Locks
@@ -1703,7 +1803,7 @@ function ManageAzResourceGroupLocks {                                           
             Return                                                                          # Returns to calling function with $null
         }                                                                                   # End else (if ($Locks))
     }                                                                                       # End begin
-}                                                                                           # End function ManageAzResourceGroupLocks
+}                                                                                           # End function ManageAzLocks
 function NewAzResourceGroupLock {                                                           # Function to create a new resource lock on a resource group
     Begin {                                                                                 # Begin function
         :NewAzureRGLock while ($true) {                                                     # Outer loop for managing fucntion
@@ -2123,11 +2223,10 @@ function RemoveAzResourceLocks {                                                
     Begin {                                                                                 # Begin function
         :RemoveAzureLocks while ($true) {                                                   # Outer loop for managing function
             if (!$Locks) {                                                                  # If $Locks is $null
-                $Locks = GetAzResourceLocks                                                 # Calls GetAzResourceLocks and assigns to $Locks
-                if(!$Locks) {                                                               # If $Locks is $null
-                    Break RemoveAzureLocks                                                  # Breaks :RemoveAzureLocks
-                }                                                                           # End if(!$Locks) | Inner
-            }                                                                               # End if(!$Locks) | Outer
+                Write-Host 'No locks were passed to this function'                          # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Break RemoveAzureLocks                                                      # Breaks :RemoveAzureLocks
+            }                                                                               # End if(!$Locks) 
             foreach ($_ in $Locks) {                                                        # For each item in $Locks
                 Write-Host $_.Name                                                          # Write message to screen
             }                                                                               # End foreach ($_ in $Locks)
@@ -2166,6 +2265,7 @@ function RemoveAzResourceLocks {                                                
             }                                                                               # End if ($OperatorConfirm -eq 'Y') 
             else {                                                                          # Else if $Operatorconfirm is not equal to 'y'
                 Write-Host "No changes made"                                                # Message write to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
                 $LocksRemoved = 'n'                                                         # Sets $LocksRemoved to 'n'
                 Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
             }                                                                               # End else (if ($OperatorConfirm -eq 'Y') )
@@ -2174,7 +2274,7 @@ function RemoveAzResourceLocks {                                                
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin 
 }                                                                                           # End function RemoveAzResourceLocks
-# End ManageAzResourceGroupLocks
+# End ManageAzLocks
 function ManageAzResourceGroupTags { # Management function for tags
     Begin {
         :ManageAzureRGTag while($true) { # :ManageAzureRGTag loop for managing resource group tags 
