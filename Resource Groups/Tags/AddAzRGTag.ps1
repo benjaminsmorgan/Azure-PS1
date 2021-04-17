@@ -8,7 +8,7 @@
     SetAzTagPair:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Tags/SetAzTagPair.ps1
 } #>
 <# Functions Description: {
-    AddAzResourceGroupTag:      Create a new resource tag on a resource group
+    AddAzRGTag:                 Create a new resource tag on a resource group
     GetAzResourceGroup:         Collects resource group object
     SetAzTagPair:               Creates an array of tags
 } #>
@@ -20,23 +20,23 @@
     $RGObject:                  Resource group object
     $TagsList:                  List of all tags on the current resource group 
     GetAzResourceGroup{}        Gets $RGObject
-    AddAzResourceGroupTag{}     Gets $TagArray
+    SetAzTagPair{}     Gets $TagArray
 } #>
 <# Process Flow {
     Function
-        Call AddAzResourceGroupTag > Get $null
+        Call AddAzRGTag > Get $null
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGroup
-                Return AddAzResourceGroupTag > Send $RGObject
+                Return AddAzRGTag > Send $RGObject
             Call SetAzTagPair > Get $TagArray
             End SetAzTagPair
-                Return AddAzResourceGroupTag > Send $TagArray
-        End AddAzResourceGroupTag
-            Return function > Send $$null
+                Return AddAzRGTag > Send $TagArray
+        End AddAzRGTag
+            Return function > Send $null
 } #>
-function AddAzResourceGroupTag {                                                            # Function to add a new tag to a resource group
+function AddAzRGTag {                                                                       # Function to add a new tag to a resource group
     Begin {                                                                                 # Begin function
-        $CallingFunction = 'AddAzResourceGroupTag'                                          # Creates $CallingFunction
+        $CallingFunction = 'AddAzRGTag'                                                     # Creates $CallingFunction
         :AddAzureRGTag while ($true) {                                                      # Outer loop for managing function
             if (!$RGObject) {                                                               # If $RGObject is $null
                 $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
@@ -57,20 +57,23 @@ function AddAzResourceGroupTag {                                                
                 catch {                                                                     # If try fails
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host 'Check your permissions'                                     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $TagsList = `
+                        (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable    # Gets the current tags assigned to $RGObject
+                    Write-Host 'The following tags are currently set on'`
+                        $RGObject.ResourceGroupName                                         # Write message to screen
+                    Write-Host $TagsList                                                    # Write message to screen
                     Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
                     Break AddAzureRGTag                                                     # Breaks :AddAzureRGTag
                 }                                                                           # End catch
             }                                                                               # End foreach ($_ in $TagArray)                                                       
-            $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable `
-                | Out-String                                                                # Formats hashable array into string
+            $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable    # Gets the current tags assigned to $RGObject
             Write-Host 'The following tags are currently set on'$RGObject.ResourceGroupName # Write message to screen
-            foreach ($_ in $TagsList) {                                                     # For each item in $TagList
-                Write-Host $_.Name $_.Value                                                 # Write message to screen
-            }                                                                               # End foreach ($_ in $TagsList)
+            Write-Host $TagsList                                                            # Write message to screen
             Start-Sleep(10)                                                                 # Pauses all actions for 10 seconds
             Break AddAzureRGTag                                                             # Breaks :AddAzureRGTag
         }                                                                                   # End :AddAzureRGTag while ($true)
         Clear-Host                                                                          # Clears the screen
         Return                                                                              # Returns to the calling function with $null
     }                                                                                       # End begin
-}                                                                                           # End function AddAzResourceGroupTag
+}                                                                                           # End function AddAzRGTag
