@@ -40,7 +40,7 @@ function GetAzResource {                                                        
                 $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
                 $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
             }                                                                               # End foreach ($_ in $RSList)
-            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host "[0] Exit"                                                           # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
                 $Number = $_.Number                                                         # Sets $Number to current item .Number
                 if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
