@@ -510,171 +510,185 @@
         End ManageAzStorage
             Return Function > Send $null
 }#>
-function ManageAzStorage { # Function for managing Azure storage
-    Begin {
-        :ManageAzureStorage while ($true) { # :ManageAzureStorage named loop to select search function
-            Write-Host "Azure Storage Management" # Write message to screen
-            Write-Host "1 Manage Storage Accounts" # Write message to screen
-            Write-Host "2 Manage Storage Containers" # Write message to screen
-            Write-Host "3 Manage Blobs" # Write message to screen
-            Write-Host "4 Manage Storage Shares" # Write message to screen
-            Write-Host "5 Manage Key Vaults" # Write message to screen
-            Write-Host "6 Manage Disks" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorage = Read-Host "Option?" # Collects operator input on $ManageAzStorage option
-            if ($ManageAzStorage -eq 'exit') { # Exit if statement for this function
-                Break ManageAzureStorage # Ends :ManageAzureStorage loop, leading to return statement
-            } # End if ($ManageAzStorage -eq 'exit')
-            elseif ($ManageAzStorage -eq '1') { # Elseif statement for managing storage accounts
-                Write-Host "Manage Storage Accounts" # Write message to screen
-                $StorageAccObject = ManageAzStorageAccount ($RGObject, $RSObject)  # Calls function
-            } # End elseif ($ManageAzStorage -eq '1')
-            elseif ($ManageAzStorage -eq '2') { # Elseif statement for managing storage containers
-                Write-Host "Manage Storage Containers" # Write message to screen
-                $StorageConObject = ManageAzStorageContainer ($RGObject, $RSObject, $StorageAccObject)  # Calls function
-            } # End elseif ($ManageAzStorage -eq '2')
-            elseif ($ManageAzStorage -eq '3') { # Elseif statement for managing Blobs
-                Write-Host "Manage Blobs" # Write message to screen
-                $StorageBlobObject = ManageAzStorageBlob ($RGObject, $RSObject, $StorageAccObject, $StorageConObject)  # Calls function
-            } # End elseif ($ManageAzStorage -eq '3')
-            elseif ($ManageAzStorage -eq '4') { # Elseif statement for managing file shares
-                Write-Host "Manage Storage Shares" # Write message to screen
-                $StorageShareObject = ManageAzStorageShare ($RGObject, $RSObject, $StorageAccObject)  # Calls function
-            } # End elseif ($ManageAzStorage -eq '4')
-            elseif ($ManageAzStorage -eq '5') { # Elseif statement for managing keyvaults
-                Write-Host "Manage Key Vaults" # Write message to screen
-                ManageAzKeyVault ($RGObject) # Calls function
-            } # End elseif ($ManageAzStorage -eq '5')
-            elseif ($ManageAzStorage -eq '6') { # Elseif statement for managing disks
-                Write-Host "Manage Disks" # Write message to screen
-                ManageAzDisk ($RGObject) # Calls function
-            } # End elseif ($ManageAzStorage -eq '6')
-            Write-Host $RGObject.ResourceGroupName
-            Write-Host $RSObject.Name
-            Write-Host $StorageAccObject.StorageAccountName
-            Write-Host $StorageConObject.Name
-        } # End ManageAzureStorage while ($true)
-        Return # Returns to calling function if no search option is used
-    } # End begin
-} # End function ManageAzStorage
-function ManageAzStorageAccount { # Management function for storage accounts
-    Begin {
-        :ManageAzureStorageAcc while ($true) { # :ManageAzureStorageAcc named loop to select search function
-            Write-Host "Azure Storage Account Management" # Write message to screen
-            Write-Host "1 New Storage Account" # Write message to screen
-            Write-Host "2 Get Storage Account" # Write message to screen
-            Write-Host "3 Remove Storage Account" # Write message to screen
-            Write-Host '0 Clear "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageACC = Read-Host "Option?" # Collects operator input on $ManageAzStorageACC option
-            if ($ManageAzStorageACC -eq 'exit') { # Exit if statement for this function
-                if ($StorageAccObject) { # If $StorageAccObject is not $null
-                    Return $StorageAccObject # Returns $StorageAccObject to calling function
-                } # End if ($StorageAccObject)
-                Break ManageAzureStorageAcc # Ends :ManageAzureStorageAcc loop, leading to return statement
-            } # End if ($ManageAzStorageACC -eq 'exit')
-            elseif ($ManageAzStorageACC -eq '1') { # Elseif statement for creating storage accounts
-                Write-Host "New Storage Account" # Write message to screen
-                $StorageAccObject = NewAzStorageAccount ($RSObject, $RGObject) # Calls function and assigns to $var
-                Write-Host $StorageAccObject.StorageAccountName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind #Writes message to screen
-            } # End elseif ($ManageAzStorageACC -eq '1')
-            elseif ($ManageAzStorageACC -eq '2') { # Elseif statement for getting storage accounts
-                Write-Host "Get Storage Account" # Write message to screen
-                $StorageAccObject = GetAzStorageAccount ($RSObject, $RGObject)  # Calls function and assigns to $var
-                Write-Host $StorageAccObject.StorageAccountName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind  #Writes message to screen
-            } # End elseif ($ManageAzStorageACC -eq '2')
-            elseif ($ManageAzStorageACC -eq '3') { # Elseif statement for removing storage accounts
-                Write-Host "Remove Storage Accounts" # Write message to screen
-                RemoveAzStorageAccount  # Calls function
-            } # End elseif ($ManageAzStorageACC -eq '3')
-            elseif ($ManageAzStorageACC -eq '0') { # Elseif statement for clearing $vars
-                Write-Host 'Clearing "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-                $StorageAccObject = $null # Clears $var
-                $RSObject = $null # Clears $var
-                $RGObject = $null # Clears $var
-            } # End elseif ($ManageAzStorageACC -eq '0')
-            else { # All other inputs for $ManageAzStorageAcc
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End else (if ($ManageAzStorageACC -eq 'exit'))
-        } # End ManageAzureStorageAcc while ($true)
-        Return # Returns to calling function 
-    } # End begin
-} # End function ManageAzStorageAccount
-function NewAzStorageAccount { # Creates a new storage account
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Turns off error reporting
-        :NewAzureStorageAcc while ($true) { # Outer loop for managing function
-            if (!$RGObject) { # If $RGObject is $null
-                $RGObject = GetAzResourceGroup  # Calls GetAzResourceGroup and assigns to $RGObject
-                if (!$RGObject) { # If $RGObject is still $null
-                    Break NewAzureStorageAcc # Breaks NewAzureStorageAcc loop
-                } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            :SetAzureStorageAccName while ($true) { # Inner loop for setting the storage account name
-                $StorageAccNameInput = '000100000000001000000' # Assigns a value for elseif statement if operator input is invalid
-                try { # Try statement for operator input of account name
-                    [ValidatePattern('^[a-z,0-9]+$')][ValidateLength (3, 24)]$StorageAccNameInput = [string](Read-Host "New storage account name").ToLower() # Operator input for the account name, only allows letters and numbers. All letters converted to lowercase
-                } # End try
-                catch {Write-Host "The provided name was not valid characters in length and use numbers and lower-case letters only"} # Error message for failed try
-                if ($StorageAccNameInput -eq 'exit') { # $StorageAccNameInput is equal to exit
-                    Break NewAzureStorageAcc # Breaks NewAzureStorageAcc loop
-                } # if ($StorageAccNameInput -eq 'exit')
-                elseif ($StorageAccNameInput -eq '000100000000001000000') {}# Elseif when Try statement fails
-                else { # If Try statement input has value not equal to exit
-                    Write-Host $StorageAccNameInput # Writes $var to screen
-                    $OperatorConfirm = Read-Host "Is this name correct" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureStorageAccName # Breaks SetAzureStorageAccName
-                    } # End If ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    else {} # If $OperatorConfirm is not -eq 'y' or 'yes;
-                } # End else (if ($StorageAccNameInput -eq 'exit'))
-            } # :SetAzureStorageAccName while ($true)
-            $ValidSku = 'Standard_LRS', 'Standard_GRS', 'Standard_RAGRS', 'Standard_ZRS', 'Premium_LRS', 'Premium_ZRS', 'Standard_GZRS', 'Standard_RAGZRS' # Current list of all skus
-            :SetAzureStorageAccSku while ($true) { # Inner loop for setting the sku
-                $StorageAccSkuInput = Read-Host "New storage account sku" # Operator input for the sku
-                if ($StorageAccSkuInput -eq 'exit') { # If $StorageAccSkuInput -eq 'exit'
-                    Break NewAzureStorageAcc # Breaks :NewAzureStorageACC loop
-                } # if ($StorageAccNameInput -eq 'exit')
-                if ($StorageAccSkuInput -cin $ValidSku) { # If $StorageAccSkuInput is in $ValidSku (Case sensitive)
-                    Write-Host $StorageAccSkuInput # Writes $StorageAccSkuInput to screen
-                    $OperatorConfirm = Read-Host "Is the Sku correct" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureStorageAccSku # Breaks :SetAzureStorageAccSku
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                } # End if ($StorageAccNameInput -iin $ValidSku)
-                else { # Else for all other inputs 
-                    Write-Host "The Sku name provided is not valid" # Write message to screen
-                    Write-Host "Select from the following" # Write message to screen
-                    Write-Host "" # Write message to screen
-                    Write-Host $ValidSku -Separator `n # Write $ValidSku list to screen
-                } # End else (if ($StorageAccNameInput -iin $ValidSku))
-            } # End :SetAzureStorageAccSku while
-            $ValidLocation = Get-AzLocation # Collects the list of all valid Azure locations
-            :SetAzureStorageAccLoc while ($true) { # Inner loop for setting the account location
-                $StorageAccLocInput = Read-Host "New storage account location" # Operator input for the account location
-                if ($StorageAccLocInput -eq 'exit') { # If $StorageAccLocInput is 'exit'
-                    Break NewAzureStorageAcc # Breaks :NewAzureStorageAcc
-                } # if ($StorageAccNameInput -eq 'exit')
-                if ($StorageAccLocInput -iin $ValidLocation.Location) { # if $StorageAccLocInput is in $ValidLocation.Location (Case insensitive)
-                    Write-Host $StorageAccLocInput # Write $StorageAccLocInput to screen
-                    $OperatorConfirm = Read-Host "Is the location correct" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureStorageAccLoc # Breaks :SetAzureStorageAccLoc
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                } # End if ($StorageAccLocInput -iin $ValidLocation)
-                else { # All other inputs for $StorageAccLocInput
-                    Write-Host "The location provided is not valid" # Write message to screen
-                    Write-Host "Select from the following" # Write message to screen
-                    Write-Host "" # Write message to screen
-                    Write-Host $ValidLocation.Location -Separator `n # Writes $ValidLocation.Location to screen
-                } # End else (if ($StorageAccLocInput -iin $ValidLocation))
-            } # End :SetAzStorageAccLoc while ($true)
-            $StorageAccObject = New-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName -Location $StorageAccLocInput -Name $StorageAccNameInput -SkuName $StorageAccSkuInput # Creates the new storage account and assigns to $StorageAccObject
-            Return $StorageAccObject # Returns $var to calling function
-        } # End :NewAzureStorageAcc while ($true)
-        Break # Returns to calling function empty
-    } # End Begin
-} # End function NewAzStorageAccount
+function ManageAzStorage {                                                                  # Function for managing Azure storage
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorage while ($true) {                                                 # Outer loop for managing function
+            Write-Host 'Azure Storage Management'                                           # Write message to screen
+            Write-Host '[1] Manage Storage Accounts'                                        # Write message to screen
+            Write-Host '[2] Manage Storage Containers'                                      # Write message to screen
+            Write-Host '[3] Manage Blobs'                                                   # Write message to screen
+            Write-Host '[4] Manage Storage Shares'                                          # Write message to screen
+            Write-Host '[5] Manage Key Vaults'                                              # Write message to screen
+            Write-Host '[6] Manage Disks'                                                   # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host "Option?"                                                 # Operator input for managing function selection
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+                Break ManageAzureStorage                                                    # Breaks :ManageAzureStorage 
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Manage Storage Accounts'                                        # Write message to screen
+                ManageAzStorageAccount                                                      # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'Manage Storage Containers'                                      # Write message to screen
+                ManageAzStorageContainer                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Manage Blobs'                                                   # Write message to screen
+                ManageAzStorageBlob:                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Manage Storage Shares'                                          # Write message to screen
+                ManageAzStorageShare                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Manage Key Vaults'                                              # Write message to screen
+                ManageAzKeyVault                                                            # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect equals '6'
+                Write-Host 'Manage Disks'                                                   # Write message to screen
+                ManageAzDisk                                                                # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '6')
+        }                                                                                   # End ManageAzureStorage while ($true)
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorage
+# Functions for ManageAzStorageAccount
+function ManageAzStorageAccount {                                                           # Management function for storage accounts
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorageAcc while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Azure Storage Account Management'                                   # Write message to screen
+            Write-Host '[1] New Storage Account'                                            # Write message to screen
+            Write-Host '[2] List Storage Accounts'                                          # Write message to screen
+            Write-Host '[3] Get Storage Account'                                            # Write message to screen
+            Write-Host '[4] Remove Storage Account'                                         # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host "Option?"                                                 # Operator input for management function selection
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+                Break ManageAzureStorageAcc                                                 # Breaks :ManageAzureStorageAcc
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'New Storage Account'                                            # Write message to screen
+                NewAzStorageAccount                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Storage Accounts'                                          # Write message to screen
+                ListAzStorageAccount                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Get Storage Account'                                            # Write message to screen
+                GetAzStorageAccount                                                         # Calls function and assigns to $var
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove Storage Accounts'                                        # Write message to screen
+                RemoveAzStorageAccount                                                      # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+        }                                                                                   # End ManageAzureStorageAcc while ($true)
+        Return $null                                                                        # Returns to calling function 
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorageAccount
+function NewAzStorageAccount {                                                              # Creates a new storage account
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Turns off error reporting
+        $CallingFunction = 'NewAzStorageAccount'                                            # Creates $CallingFunction
+        :NewAzureStorageAcc while ($true) {                                                 # Outer loop for managing function
+            $RGObject = GetAzResourceGroup ($CallingFunction)                               # Calls function and assigns output to $var
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                Break NewAzureStorageAcc                                                    # Breaks :NewAzureStorageAcc 
+            }                                                                               # End if (!$RGObject)
+            :SetAzureStorageAccName while ($true) {                                         # Inner loop for setting the storage account name
+                $StorageAccNameInput = '0'                                                  # Sets a fail value for $StorageAccNameInput
+                try {                                                                       # Try the following
+                    Write-Host 'Storage account name must be between 3-24 characters'       # Write message to screen
+                    Write-Host 'May only use letters and numbers'
+                    [ValidatePattern('^[a-z,0-9]+$')]$StorageAccNameInput = `
+                        [string](Read-Host 'New storage account name').ToLower()            # Operator input for the account name
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host "The account name must only include letters and numbers"     # Write message to screen
+                }                                                                           # End catch
+                if ($StorageAccNameInput -eq 'exit') {                                      # $StorageAccNameInput is equal to 'exit'
+                    Break NewAzureStorageAcc                                                # Breaks :NewAzureStorageAcc
+                }                                                                           # if ($StorageAccNameInput -eq 'exit')
+                elseif ($StorageAccNameInput.Length -le 2 `
+                    -or $StorageAccNameInput.Length -ge 25) {                               # Else if $StorageAccNameInput is not between 3 and 24 characters
+                    Write-Host `
+                        "The account name must be between 3 and 24 characters in length"    # Write message to screen
+                        Start-Sleep(5)                                                      # Pauses all actions for 5 seconds
+                        Clear-Host                                                          # Clears the screen
+                }                                                                           # End elseif ($StorageAccNameInput.Length -le 2 -or $StorageAccNameInput.Length -ge 25)
+                else {                                                                      # All other inputs for $StorageAccNameInput
+                    Write-Host 'Use'$StorageAccNameInput' as the name'                      # Writes $var to screen
+                    $OpConfirm = Read-Host '[Y] or [N]'                                     # Operator confirmation
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm is equal to 'y'
+                        Clear-Host                                                          # Clears the screen
+                        Break SetAzureStorageAccName                                        # Breaks :SetAzureStorageAccName
+                    }                                                                       # End If ($OpConfirm -eq 'y')
+                }                                                                           # End else (if ($StorageAccNameInput -eq 'exit'))
+            }                                                                               # :SetAzureStorageAccName while ($true)
+            $ValidSkuList = @('Standard_LRS', 'Standard_GRS', 'Standard_RAGRS', `
+                'Standard_ZRS','Premium_LRS', 'Premium_ZRS', 'Standard_GZRS', `
+                'Standard_RAGZRS')                                                          # Current list of all skus
+                $ObjectNumber = 1                                                           # Sets $ObjectNumber to 1
+                [System.Collections.ArrayList]$ObjectArray = @()                            # Creates the RG list array
+                foreach ($_ in $ValidSkuList) {                                             # For each $_ in $ValidSkuList
+                    $ObjectInput = [PSCustomObject]@{'Name' = $_; `
+                        'Number' = $ObjectNumber}                                           # Creates the item to loaded into array
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
+                }                                                                           # End foreach ($_ in $ObjectList)
+                Write-Host "[0]  Exit"                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name                                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name                                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+            :SetAzureStorageAccSku while ($true) {                                          # Inner loop for setting the sku
+                $StorageAccSkuInput = Read-Host 'Enter option [#]'                          # Operator input for the storage account sku
+                if ($StorageAccSkuInput -eq '0') {                                          # If $StorageAccSkuInput equals '0'
+                    Break NewAzureStorageAcc                                                # Breaks :NewAzureStorageACC
+                }                                                                           # if ($StorageAccNameInput -eq '0')
+                if ($StorageAccSkuInput -in $ObjectArray.Number) {                          # If $StorageAccSkuInput is in $ObjectArray.Number
+                    $StorageAccSkuInput = $ObjectArray | Where-Object `
+                        {$_.Number -eq $StorageAccSkuInput}                                 # $StorageAccSkuInput equals $ObjectArray where $ObjectArray.Number equals $StorageAccSkuInput
+                    $StorageAccSkuInput = $StorageAccSkuInput.name                          # Isolates the sku name
+                    Clear-Host                                                              # Clears the screen
+                    Break SetAzureStorageAccSku                                             # Breaks :SetAzureStorageAccSku
+                }                                                                           # End if ($StorageAccNameInput -in $ObjectArray.Number)
+                else {                                                                      # Else for all other inputs 
+                    Write-Host "That was not a valid input"                                 # Write message to screen
+                }                                                                           # End else (if ($StorageAccNameInput -in $ObjectArray.Number))
+            }                                                                               # End :SetAzureStorageAccSku while ($true)
+            $LocationObject = GetAzLocation                                                 # Calls function and assigns output to $var
+            Clear-Host                                                                      # Clears the screen
+            if (!$LocationObject) {                                                         # If $LocationObject is $null
+                Break NewAzureStorageAcc                                                    # Breaks :NewAzureStorageAcc
+            }                                                                               # End if (!$LocationObject)
+            try {                                                                           # Try the following
+                New-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName `
+                    -Location $LocationObject.location -Name $StorageAccNameInput `
+                    -SkuName $StorageAccSkuInput -ErrorAction 'Stop'                        # Creates the new storage account
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Break NewAzureStorageAcc                                                    # Breaks :NewAzureStorageAcc
+            }                                                                               # End catch
+            Write-Host 'The storage account has been made'                                  # Write message to screen
+            Start-Sleep(5)                                                                  # Pause all actions for 5 seconds
+            Break NewAzureStorageAcc                                                        # Breaks :NewAzureStorageAcc
+        }                                                                                   # End :NewAzureStorageAcc while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzStorageAccount
 function GetAzStorageAccount { # Function to get a storage account, can pipe $StorageAccObject to another function
     Begin {
         $ErrorActionPreference = 'silentlyContinue' # Disables errors
@@ -766,6 +780,7 @@ function RemoveAzStorageAccount { # Function to get a storage account, can pipe 
         Return # Returns to calling function with $null
     } # End begin 
 } # End function GetAzStorageAccount
+# End ManageAzStorageAccount
 function ManageAzStorageContainer { # Management function for containers
     Begin {
         :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
@@ -776,36 +791,36 @@ function ManageAzStorageContainer { # Management function for containers
             Write-Host "4 Remove Storage Container" # Write message to screen
             Write-Host '0 Clear "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
             Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageCon = Read-Host "Option?" # Collects operator input on $ManageAzStorageCon option
-            if ($ManageAzStorageCon -eq 'exit') { # Exit if statement for this function
+            $OpSelectCon = Read-Host "Option?" # Collects operator input on $OpSelectCon option
+            if ($OpSelectCon -eq 'exit') { # Exit if statement for this function
                 Break ManageAzureStorageCon # Ends :ManageAzureStorageCon loop, leading to return statement
-            } # End if ($ManageAzStorageCon -eq 'exit')
-            elseif ($ManageAzStorageCon -eq '1') { # Elseif statement for creating storage Containers
+            } # End if ($OpSelectCon -eq 'exit')
+            elseif ($OpSelectCon -eq '1') { # Elseif statement for creating storage Containers
                 Write-Host "New Storage Container" # Write message to screen
                 NewAzStorageContainer ($RSObject, $RGObject, $StorageAccObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageCon -eq '1')
-            elseif ($ManageAzStorageCon -eq '2') { # Elseif statement for getting storage Containers
+            } # End elseif ($OpSelectCon -eq '1')
+            elseif ($OpSelectCon -eq '2') { # Elseif statement for getting storage Containers
                 Write-Host "List All Storage Containers" # Write message to screen
                 ListAzStorageContainer # Calls function    
-            } # End elseif ($ManageAzStorageCon -eq '2')
-            elseif ($ManageAzStorageCon -eq '3') { # Elseif statement for getting storage Containers
+            } # End elseif ($OpSelectCon -eq '2')
+            elseif ($OpSelectCon -eq '3') { # Elseif statement for getting storage Containers
                 Write-Host "Get Storage Container" # Write message to screen
                 $StorageAccObject = GetAzStorageContainer ($RSObject, $RGObject, $StorageAccObject)  # Calls function and assigns to $var
                 Write-Host $StorageAccObject.StorageContainerName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind  #Writes message to screen
-            } # End elseif ($ManageAzStorageCon -eq '3')
-            elseif ($ManageAzStorageCon -eq '4') { # Elseif statement for removing storage Containers
+            } # End elseif ($OpSelectCon -eq '3')
+            elseif ($OpSelectCon -eq '4') { # Elseif statement for removing storage Containers
                 Write-Host "Remove Storage Containers" # Write message to screen
                 RemoveAzStorageContainer  # Calls function
-            } # End elseif ($ManageAzStorageCon -eq '4')
-            elseif ($ManageAzStorageCon -eq '0') { # Elseif statement for clearing $vars
+            } # End elseif ($OpSelectCon -eq '4')
+            elseif ($OpSelectCon -eq '0') { # Elseif statement for clearing $vars
                 Write-Host 'Clearing "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
                 $StorageAccObject = $null # Clears $var
                 $RSObject = $null # Clears $var
                 $RGObject = $null # Clears $var
-            } # End elseif ($ManageAzStorageCon -eq '0')
-            else { # All other inputs for $ManageAzStorageCon
+            } # End elseif ($OpSelectCon -eq '0')
+            else { # All other inputs for $OpSelectCon
                 Write-Host "That was not a valid option" # Write message to screen
-            } # End else (if ($ManageAzStorageCon -eq 'exit'))
+            } # End else (if ($OpSelectCon -eq 'exit'))
         } # End ManageAzureStorageCon while ($true)
         Return # Returns to calling function 
     } # End begin
@@ -1023,27 +1038,27 @@ function ManageAzStorageBlob { # Manages storage blob functions
             Write-Host "4 Remove Storage Blobs" # Write message to screen
             Write-Host "0 Unselect currently selected resources" # Write message to screen
             Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageBlob = Read-Host "Option?" # Collects operator input on $ManageAzStorageBlob option
-            if ($ManageAzStorageBlob -eq 'exit') { # Exit if statement for this function
+            $OpSelectBlob = Read-Host "Option?" # Collects operator input on $OpSelectBlob option
+            if ($OpSelectBlob -eq 'exit') { # Exit if statement for this function
                 Break ManageAzureStorageBlob # Ends :ManageAzureStorageBlob loop, leading to return statement
-            } # End if ($ManageAzStorageBlob -eq 'exit')
-            elseif ($ManageAzStorageBlob -eq '1') { # Elseif statement for managing storage accounts
+            } # End if ($OpSelectBlob -eq 'exit')
+            elseif ($OpSelectBlob -eq '1') { # Elseif statement for managing storage accounts
                 Write-Host "Add Storage Blob" # Write message to screen
                 $StorageBlobObject = SetAzStorageBlobContent ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '1')
-            elseif ($ManageAzStorageBlob -eq '2') { # Elseif statement for managing storage containers
+            } # End elseif ($OpSelectBlob -eq '1')
+            elseif ($OpSelectBlob -eq '2') { # Elseif statement for managing storage containers
                 Write-Host "List Storage Blobs" # Write message to screen
                 $StorageBlobObject, $StorageAccObject, $StorageConObject = ListAzStorageBlob ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '2')
-            elseif ($ManageAzStorageBlob -eq '3') { # Elseif statement for managing Blobs
+            } # End elseif ($OpSelectBlob -eq '2')
+            elseif ($OpSelectBlob -eq '3') { # Elseif statement for managing Blobs
                 Write-Host "Download Storage Blobs" # Write message to screen
                 $StorageBlobObject = GetAzStorageBlobContent ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '3')
-            elseif ($ManageAzStorageBlob -eq '4') { # Elseif statement for managing file shares
+            } # End elseif ($OpSelectBlob -eq '3')
+            elseif ($OpSelectBlob -eq '4') { # Elseif statement for managing file shares
                 Write-Host "Remove Storage Blobs" # Write message to screen
                 RemoveAzStorageBlob ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageBlob -eq '4')
-            elseif ($ManageAzStorageBlob -eq '0') { # Elseif statement for managing disks
+            } # End elseif ($OpSelectBlob -eq '4')
+            elseif ($OpSelectBlob -eq '0') { # Elseif statement for managing disks
                 if ($RGObject) { # If $var is not $null
                 Write-Host "Clearing" $RGObject.ResourceGroupName # Write message to screen
                 $RGObject = $null # Sets $var to $null
@@ -1061,7 +1076,7 @@ function ManageAzStorageBlob { # Manages storage blob functions
                 $StorageBlobObject = $null # Sets $var to $null
                 } # End if ($StorageBlobObject)
                 Write-Host "All objects have been cleared" # Write message to screen
-            } # End elseif ($ManageAzStorageBlob -eq '0')
+            } # End elseif ($OpSelectBlob -eq '0')
             if ($RGObject) { # If $var is not $null
                 Write-Host "Current Resource Group:    " $RGObject.ResourceGroupName # Write message to screen
             } # End if ($RGObject)
@@ -1260,28 +1275,28 @@ function ManageAzStorageShare { # Manages storage blob functions
             Write-Host "5 Manage Storage Share Contents" # Write message to screen
             Write-Host "0 Unselect currently selected resources" # Write message to screen
             Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageShare = Read-Host "Option?" # Collects operator input on $ManageAzStorageShare option
-            if ($ManageAzStorageShare -eq 'exit') { # Exit if statement for this function
+            $OpSelectShare = Read-Host "Option?" # Collects operator input on $OpSelectShare option
+            if ($OpSelectShare -eq 'exit') { # Exit if statement for this function
                 Break ManageAzureStorageShares # Ends :ManageAzureStorageShares loop, leading to return statement
-            } # End if ($ManageAzStorageShare -eq 'exit')
-            elseif ($ManageAzStorageShare -eq '1') { # Elseif statement for managing storage accounts
+            } # End if ($OpSelectShare -eq 'exit')
+            elseif ($OpSelectShare -eq '1') { # Elseif statement for managing storage accounts
                 Write-Host "New Storage Share" # Write message to screen
                 $StorageShareObject = NewAzStorageShare ($StorageAccObject, $RGObject) # Calls function and assigns to $var 
                 Write-Host $StorageShareObject.Name
-            } # End elseif ($ManageAzStorageShare -eq '1')
-            elseif ($ManageAzStorageShare -eq '2') { # Elseif statement for managing storage containers
+            } # End elseif ($OpSelectShare -eq '1')
+            elseif ($OpSelectShare -eq '2') { # Elseif statement for managing storage containers
                 Write-Host "Get Storage Share" # Write message to screen
                 $StorageShareObject, $StorageAccObject = GetAzStorageShare ($StorageAccObject, $RGObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageShare -eq '2')
-            elseif ($ManageAzStorageShare -eq '3') { # Elseif statement for managing Blobs
+            } # End elseif ($OpSelectShare -eq '2')
+            elseif ($OpSelectShare -eq '3') { # Elseif statement for managing Blobs
                 Write-Host "List All Storage Shares" # Write message to screen
                 GetAzStorageShareAll # Calls function 
-            } # End elseif ($ManageAzStorageShare -eq '3')
-            elseif ($ManageAzStorageShare -eq '4') { # Elseif statement for managing Storage shares
+            } # End elseif ($OpSelectShare -eq '3')
+            elseif ($OpSelectShare -eq '4') { # Elseif statement for managing Storage shares
                 Write-Host "Remove Storage Share" # Write message to screen
                 RemoveAzStorageShare ($StorageAccObject, $StorageShareObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageShare -eq '4')
-            elseif ($ManageAzStorageShare -eq '0') { # Elseif statement for managing disks
+            } # End elseif ($OpSelectShare -eq '4')
+            elseif ($OpSelectShare -eq '0') { # Elseif statement for managing disks
                 if ($RGObject) { # If $var is not $null
                 Write-Host "Clearing" $RGObject.ResourceGroupName # Write message to screen
                 $RGObject = $null # Sets $var to $null
@@ -1295,7 +1310,7 @@ function ManageAzStorageShare { # Manages storage blob functions
                 $StorageShareObject = $null # Sets $var to $null
                 } # End if ($StorageBlobObject)
                 Write-Host "All objects have been cleared" # Write message to screen
-            } # End elseif ($ManageAzStorageShare -eq '0')
+            } # End elseif ($OpSelectShare -eq '0')
             Write-Host "" # Write message to screen
             if ($RGObject) { # If $var is not $null
                 Write-Host "Current Resource Group:    " $RGObject.ResourceGroupName # Write message to screen
