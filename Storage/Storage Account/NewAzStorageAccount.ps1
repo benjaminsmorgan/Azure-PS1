@@ -32,7 +32,7 @@
 } #>
 <# Process Flow {
     function
-        Call NewAzStorageAccount > Get $StorageAccObject
+        Call NewAzStorageAccount > Get $null
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGroup
                 Return NewAzStorageAccount > Send $RGObject
@@ -40,7 +40,7 @@
             End GetAzLocation
                 Return NewAzStorageAccount > Send $LocationObject
         End NewAzStorageAccount 
-            Return Function > Send $StorageAccObject
+            Return Function > Send $null
 }#>
 function NewAzStorageAccount {                                                              # Creates a new storage account
     Begin {                                                                                 # Begin function
