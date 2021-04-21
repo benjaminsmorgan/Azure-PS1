@@ -61,7 +61,7 @@ function RemoveAzResourceLocks {                                                
                     Write-Host 'Lock removed'                                               # Write message to screen
                 }                                                                           # End else (if ($Locks.Count -gt 1))
                 $LocksRemoved = 'y'                                                         # Sets $LocksRemoved to 'n'
-                Start-Sleep(10)                                                             # Pauses actions for 10 seconds
+                Start-Sleep(5)                                                              # Pauses actions for 10 seconds
                 Clear-Host                                                                  # Clears Screen
                 Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
             }                                                                               # End if ($OperatorConfirm -eq 'Y') 
