@@ -48,16 +48,23 @@ function ListAzResourceLocks {                                                  
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
             }                                                                               # End foreach ($_ in $ObjectList)
-            Write-Host ''                                                                   # Write message to screen
-            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
-                Write-Host 'Name: '$_.Name                                                  # Write message to screen
-                Write-Host 'Level:'$_.Properties.Level                                      # Write message to screen
-                if ($_.Properties.Notes) {                                                  # If $_.Properties.Notes has a value
-                    Write-Host 'Notes:'$_.Properties.Notes                                  # Write message to screen
-                }                                                                           # End if ($_.Properties.Notes)
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Write-Host 'No locks are present on this resource'                          # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+            }                                                                               # End if (!$ObjectArray)
+            else {                                                                          # If $ObjectArray has a value
                 Write-Host ''                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $ObjectArray)
-            Start-Sleep(15)                                                                 # Pauses all actions for 15 seconds
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    Write-Host 'Name: '$_.Name                                              # Write message to screen
+                    Write-Host 'Level:'$_.Properties.Level                                  # Write message to screen
+                    if ($_.Properties.Notes) {                                              # If $_.Properties.Notes has a value
+                        Write-Host 'Notes:'$_.Properties.Notes                              # Write message to screen
+                    }                                                                       # End if ($_.Properties.Notes)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                $SleepCount = $ObjectArray.Count * 5                                        # $SleepCount is equal to $ObjectArray.Count time 5
+                Start-Sleep($SleepCount)                                                    # Pauses all actions for $SleepCount
+            }                                                                               # End else (if (!$ObjectArray))
             Clear-Host                                                                      # Clears the screen
             return                                                                          # Returns to calling function with $null
         }                                                                                   # End :GetAzureRSLock while ($true)
