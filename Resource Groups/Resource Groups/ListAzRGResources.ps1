@@ -55,9 +55,11 @@ function ListAzRGResources {                                                    
                     Write-Host 'Type:'$_.ResourceType                                       # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $RSList)
+                Pause                                                                       # Pauses for operator input
                 Break ListAzureRGResources                                                  # Breaks :ListAzureRGResources
             }                                                                               # End else (End if (!$RSList))
         }                                                                                   # End :ListAzureRGResources while ($true)
+        Clear-Host                                                                          # Clears screen
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzRGResources
