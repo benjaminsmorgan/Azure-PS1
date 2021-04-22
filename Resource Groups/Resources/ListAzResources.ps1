@@ -46,8 +46,10 @@ function ListAzResources {                                                      
                 Write-Host 'Type:'$_.Type                                                   # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ListArray)
+            Pause                                                                           # Pauses for operator input
             Break ListAzureResources                                                        # Breaks :ListAzureResources
         }                                                                                   # End :ListAzureResources while ($true)
+        Clear-Host                                                                          # Clears screen
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzResources
