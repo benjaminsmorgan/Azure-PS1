@@ -47,6 +47,11 @@ function GetAzResourceLock {                                                    
             }                                                                               # End (!$RSObject) | Outer
             $ObjectList = Get-AzResourceLock | Where-Object `
                 {$_.ResourceName -eq $RSObject.Name}                                        # Collects all locks on $RSObject
+            if (!$ObjectList) {                                                             # If $ObjectList does not have a value
+                Write-Host 'No locks on'$RSObject.Name                                      # Write message to screen
+                Start-Sleep(3)                                                              # Pauses all action for 3 seconds
+                Break GetAzureRSLock                                                        # Breaks :GetAzureRGLock
+            }                                                                               # End if (!$ObjectList)
             $ObjectNumber = 1                                                               # Creates $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
             foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
