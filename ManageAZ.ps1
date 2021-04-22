@@ -48,7 +48,7 @@ function ManageAz {                                                             
             }                                                                               # End if ($ManAzure -eq 'exit')
             elseif ($ManAzure -eq '1') {                                                    # Else if $ManAzure is equal to '1'
                 Write-Host 'Manage resource groups'                                         # Write message to screen 
-                $RGObject, $RSOBject = ManageAzResourceGroup                                # Calls function and assigns output to $var
+                $RGObject, $RSOBject = ManageAzResourceGroups                               # Calls function and assigns output to $var
             }                                                                               # End elseif ($ManAzure -eq '1')
             elseif ($ManAzure -eq '2') {                                                    # Else if $ManAzure is equal to '2'
             Write-Host 'Manage storage'                                                     # Write message to screen 
@@ -790,9 +790,11 @@ function ListAzRGResources {                                                    
                     Write-Host 'Type:'$_.ResourceType                                       # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $RSList)
+                Pause                                                                       # Pauses for operator input
                 Break ListAzureRGResources                                                  # Breaks :ListAzureRGResources
             }                                                                               # End else (End if (!$RSList))
         }                                                                                   # End :ListAzureRGResources while ($true)
+        Clear-Host                                                                          # Clears screen
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzRGResources
@@ -1333,8 +1335,10 @@ function ListAzResources {                                                      
                 Write-Host 'Type:'$_.Type                                                   # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ListArray)
+            Pause                                                                           # Pauses for operator input
             Break ListAzureResources                                                        # Breaks :ListAzureResources
         }                                                                                   # End :ListAzureResources while ($true)
+        Clear-Host                                                                          # Clears screen
         return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzResources
@@ -2081,6 +2085,11 @@ function GetAzResourceGroupLock {                                               
             }                                                                               # End (!$RGObject) | Outer
             $ObjectList = Get-AzResourceLock -ResourceGroupName `
                 $RGObject.ResourceGroupName -AtScope                                        # Collects all locks on $RGObject
+            if (!$ObjectList) {                                                             # If $ObjectList does not have a value
+                Write-Host 'No locks on'$RGObject.ResourceGroupName                         # Write message to screen
+                Start-Sleep(3)                                                              # Pauses all action for 3 seconds
+                Break GetAzureRGLock                                                        # Breaks :GetAzureRGLock
+            }                                                                               # End if (!$ObjectList)
             $ObjectNumber = 1                                                               # Creates $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
             foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
@@ -2289,6 +2298,11 @@ function GetAzResourceLock {                                                    
             }                                                                               # End (!$RSObject) | Outer
             $ObjectList = Get-AzResourceLock | Where-Object `
                 {$_.ResourceName -eq $RSObject.Name}                                        # Collects all locks on $RSObject
+            if (!$ObjectList) {                                                             # If $ObjectList does not have a value
+                Write-Host 'No locks on'$RSObject.Name                                      # Write message to screen
+                Start-Sleep(3)                                                              # Pauses all action for 3 seconds
+                Break GetAzureRSLock                                                        # Breaks :GetAzureRGLock
+            }                                                                               # End if (!$ObjectList)
             $ObjectNumber = 1                                                               # Creates $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
             foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
