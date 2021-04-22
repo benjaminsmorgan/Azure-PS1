@@ -31,7 +31,7 @@
 } #>
 <# Variables: {
     :ManageAzureStorageCon      Outer loop for function
-    $ManageAzStorageCon:        Operator input for choosing sub function
+    $OpSelect:        Operator input for choosing sub function
     NewAzStorageContainer{}     Function for creating new storage containers
         GetAzStorageAccount{}       Gets $StorageAccObject
             GetAzResourceGroup{}        Gets $RGObject
@@ -78,78 +78,76 @@
                     Return ManageAzStorageContainer > Send $null
             End ManageAzStorageContainer > Send $null
 }#>
-function ManageAzStorageContainer {
-    Begin {
-        :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
-            Write-Host "Azure Storage Container Management" # Write message to screen
-            Write-Host "1 New Storage Container" # Write message to screen
-            Write-Host "2 List All Storage Containers" # Write message to screen
-            Write-Host "3 Get Storage Container" # Write message to screen
-            Write-Host "4 Remove Storage Container" # Write message to screen
-            Write-Host '0 Clear "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageCon = Read-Host "Option?" # Collects operator input on $ManageAzStorageCon option
-            if ($ManageAzStorageCon -eq 'exit') { # Exit if statement for this function
-                Break ManageAzureStorageCon # Ends :ManageAzureStorageCon loop, leading to return statement
-            } # End if ($ManageAzStorageCon -eq 'exit')
-            elseif ($ManageAzStorageCon -eq '1') { # Elseif statement for creating storage Containers
-                Write-Host "New Storage Container" # Write message to screen
-                NewAzStorageContainer ($RSObject, $RGObject, $StorageAccObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageCon -eq '1')
-            elseif ($ManageAzStorageCon -eq '2') { # Elseif statement for getting storage Containers
-                Write-Host "List All Storage Containers" # Write message to screen
-                ListAzStorageContainer # Calls function    
-            } # End elseif ($ManageAzStorageCon -eq '2')
-            elseif ($ManageAzStorageCon -eq '3') { # Elseif statement for getting storage Containers
-                Write-Host "Get Storage Container" # Write message to screen
-                $StorageAccObject = GetAzStorageContainer ($RSObject, $RGObject, $StorageAccObject)  # Calls function and assigns to $var
-                Write-Host $StorageAccObject.StorageContainerName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind  #Writes message to screen
-            } # End elseif ($ManageAzStorageCon -eq '3')
-            elseif ($ManageAzStorageCon -eq '4') { # Elseif statement for removing storage Containers
-                Write-Host "Remove Storage Containers" # Write message to screen
-                RemoveAzStorageContainer  # Calls function
-            } # End elseif ($ManageAzStorageCon -eq '4')
-            elseif ($ManageAzStorageCon -eq '0') { # Elseif statement for clearing $vars
-                Write-Host 'Clearing "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-                $StorageAccObject = $null # Clears $var
-                $RSObject = $null # Clears $var
-                $RGObject = $null # Clears $var
-            } # End elseif ($ManageAzStorageCon -eq '0')
-            else { # All other inputs for $ManageAzStorageCon
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End else (if ($ManageAzStorageCon -eq 'exit'))
-        } # End ManageAzureStorageCon while ($true)
-        Return # Returns to calling function 
-    } # End begin
-} # End function ManageAzStorageContainer
-function NewAzStorageContainer { # Creates new storage container(s) in a storage account
-    Begin {
-        :NewAzureStorageCon while ($true) { # Outer loop for function
-            if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount # Calls function and assigns to $var
-                    if (!$StorageAccObject) { # If $StorageAccObject is still $null after calling function
-                        Break NewAzureStorageCon # Breaks :NewAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            :SetAzureStorageConName while ($true) { # Inner loop for setting storage account name
-                Try { # First validation of the storage container name or names
-                    Write-Host "Storage container names must be atleast 3 characters and made up of letters and numbers only" # Write message to screen
-                    Write-Host "To create multiple containers in this storage account, enter each name seperated by a [Space]" # Write message to screen
-                    [ValidatePattern('^[a-z,0-9,\s]+$')]$StorageConNameInput = [string](Read-Host "Storage account name or names").ToLower() # Operator input for the container names
-                } # End Try 
-                catch { # Catch for failing to meet character validation of the container names
-                    Write-Host "***Error***"  # Write message to screen
-                    Write-Host "The provided name(s) were not valid, accepted inputs are letters and numbers only" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                    $StorageConNameInput = '0' # Sets $StorageConNameInput value to a failed check to reset loop
-                } # End Catch
-                if ($StorageConNameInput -eq '0') { # If $StorageConNamInput is 0 (failed check)
-                    Write-Host " " # Writes a message to screen, last action before restarting loop
-                } # End if ($StorageConNameInput -eq '0')
-                elseif ($StorageConNameInput.Length -le 2) { # If unsplit $StorageConNameInput is 2 or less characters
-                    Write-Host "***Error***" # Write message to screen
-                    Write-Host "The name entered is invalid, the minimum length of a name is 3 characters" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
+function ManageAzStorageContainer {                                                         # Function to manage storage containers
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorageCon while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Azure Storage Container Management'                                 # Write message to screen
+            Write-Host '[1] New Storage Container'                                          # Write message to screen
+            Write-Host '[2] List All Storage Containers'                                    # Write message to screen
+            Write-Host '[3] Get Storage Container'                                          # Write message to screen
+            Write-Host '[4] Remove Storage Container'                                       # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
+                Break ManageAzureStorageCon                                                 # Breaks :ManageAzureStorageCon 
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host "New Storage Container"                                          # Write message to screen
+                NewAzStorageContainer                                                       # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List All Storage Containers'                                    # Write message to screen
+                ListAzStorageContainer                                                      # Calls function    
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Get Storage Container'                                          # Write message to screen
+                GetAzStorageContainer                                                       # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove Storage Container'                                       # Write message to screen
+                RemoveAzStorageContainer                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+        }                                                                                   # End ManageAzureStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorageContainer
+function NewAzStorageContainer {                                                            # Creates new storage container(s) in a storage account
+    Begin {                                                                                 # Begin function
+        :NewAzureStorageCon while ($true) {                                                 # Outer loop for managing function
+            $StorageAccObject = GetAzStorageAccount                                         # Calls function and assigns output to $var
+            if (!$StorageAccObject) {                                                       # If $StorageAccObject is $null
+                Break NewAzureStorageCon                                                    # Breaks :NewAzureStorageCon
+            }                                                                               # End if (!$StorageAccObject)
+            :SetAzureStorageConName while ($true) {                                         # Inner loop for setting storage account name
+                Try {                                                                       # First validation of the storage container name or names
+                    $StorageConNameInput = '0'                                              # Sets $StorageConNameInput to '0'
+                    Write-Host 'Storage container names must be atleast 3 characters'       # Write message to screen
+                    Write-Host 'and made up of letters and numbers only'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                    Write-Host 'To create multiple containers in this storage account,'     # Write message to screen
+                    Write-Host 'enter each name seperated by a [Space]'                     # Write message to screen
+                    [ValidatePattern('^[a-z,0-9,\s]+$')]$StorageConNameInput = `
+                        [string](Read-Host "Storage account name or names").ToLower()       # Operator input for the container names
+                }                                                                           # End Try 
+                catch {                                                                     # If try fails
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'The provided name(s) were not valid,'                       # Write message to screen
+                    Write-Host 'accepted inputs are letters and numbers only'               # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                }                                                                           # End Catch
+                if ($StorageConNameInput -eq '0') {                                         # If $StorageConNamInput is 0 (failed check)
+                    Clear-Screen                                                            # Clears screen
+                }                                                                           # End if ($StorageConNameInput -eq '0')
+                elseif ($StorageConNameInput.Length -le 2) {                                # Else if $StorageConNameInput.Length is less than 3
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'The name entered is invalid, the minimum'                   # Write message to screen
+                    Write-Host 'length of a name is 3 characters'                           # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Clear-Screen                                                            # Clears the screen
                 } # End elseif ($StorageConNameInput.Length -le 2)
                 else { # Inital validation checks passed, performing secondary validation
                     $StorageConName = $StorageConNameInput # Creats $StorageConName $Var
@@ -325,3 +323,173 @@ function RemoveAzStorageContainer { # Removes existing storage container
         Return # Returns to calling function
     } # End Begin
 } # End function RemoveAzStorageContainer
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
+                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
+function GetAzStorageAccount {                                                              # Function to get a storage account
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables errors
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'GetAzStorageAccount'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :GetAzureStorageAcc while ($true) {                                                 # Outer loop for managing function
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject is $null
+                    Break GetAzureStorageACC                                                # Ends :GetAzureStorageAcc
+                }                                                                           # End if (!$RGObject) | Inner
+            }                                                                               # End if (!$RGObject) | Outer
+            $ObjectList = Get-AzStorageAccount -ResourceGroupName `
+                $RGObject.ResourceGroupName                                                 # Collects all storage accounts in $RGObject and assigns to $StorageAccList
+            if (!$ObjectList) {                                                             # If $ObjectList is $null   
+                Write-Host 'No storage accounts found on RG:'$RGObject.ResourceGroupName    # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Break GetAzureStorageACC                                                    # Ends :GetAzureStorageAcc
+            }                                                                               # End if (!$StorageAccList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.StorageAccountName; `
+                    'Number' = $ObjectNumber;'Sku'=$_.Sku.Name;'AccTier'=$_.AccessTier;`
+                    'Location'=$_.PrimaryLocation}                                          # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) 
+                Write-Host 'Primary Loc:'$_.Location                                        # Write message to screen
+                Write-Host 'Sku Name:   '$_.Sku                                             # Write message to screen
+                Write-Host 'Access Tier:'$_.AccTier                                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount') {     # If $CallingFunction exists and not equal 'GetAzStorageAccount'
+                    Write-Host "You are selecting the storage account for"$CallingFunction  # Write message to screen
+                }                                                                           # End if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount')
+                $ObjectSelect = Read-Host "Enter the storage account [#]"                   # Operator input for the storage account selection
+                if ($ObjectSelect -eq '0') {                                                # If $ObjectSelect equals 0
+                    Break GetAzureStorageAcc                                                # Breaks :GetAzureStorageAcc
+                }                                                                           # End if ($ObjectSelect -eq '0')
+                elseif ($ObjectSelect -in $ObjectArray.Number) {                            # If $ObjectSelect in $ObjectArray.Number
+                    $ObjectSelect = $ObjectArray | Where-Object `
+                        {$_.Number -eq $ObjectSelect}                                       # $ObjectSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $ObjectSelect                                  
+                    $StorageAccObject = Get-AzStorageAccount | Where-Object `
+                        {$_.StorageAccountName -eq $ObjectSelect.Name}                      # Pulls the full storage account object
+                    Clear-Host                                                              # Clears screen
+                    Return $StorageAccObject                                                # Returns to calling function with $var
+                }                                                                           # End elseif ($ObjectSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $ObjectSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($ObjectSelect -eq '0'))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+            if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount') {         # If $CallingFunction exists and not equal 'GetAzStorageAccount'
+                Clear-Host                                                                  # Clears screen
+                Return $StorageAccObject                                                    # Returns to calling function with $StorageAccObject
+            }                                                                               # End if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount')
+            else {                                                                          # If $Calling function does not exist or is equal to 'GetAzStorageAccount'
+                Break GetAzureStorageAcc                                                    # Breaks :GetAzureStorageAcc  
+            }                                                                               # End  else (if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount'))
+        }                                                                                   # End :GetAzureStorageAcc while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin 
+}                                                                                           # End function GetAzStorageAccount
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
+                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
