@@ -864,180 +864,262 @@ function RemoveAzStorageAccount {                                               
     }                                                                                       # End begin 
 }                                                                                           # End function GetAzStorageAccount 
 # End ManageAzStorageAccount
-function ManageAzStorageContainer { # Management function for containers
-    Begin {
-        :ManageAzureStorageCon while ($true) { # :ManageAzureStorageCon named loop to select search function
-            Write-Host "Azure Storage Container Management" # Write message to screen
-            Write-Host "1 New Storage Container" # Write message to screen
-            Write-Host "2 List All Storage Containers" # Write message to screen
-            Write-Host "3 Get Storage Container" # Write message to screen
-            Write-Host "4 Remove Storage Container" # Write message to screen
-            Write-Host '0 Clear "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $OpSelectCon = Read-Host "Option?" # Collects operator input on $OpSelectCon option
-            if ($OpSelectCon -eq 'exit') { # Exit if statement for this function
-                Break ManageAzureStorageCon # Ends :ManageAzureStorageCon loop, leading to return statement
-            } # End if ($OpSelectCon -eq 'exit')
-            elseif ($OpSelectCon -eq '1') { # Elseif statement for creating storage Containers
-                Write-Host "New Storage Container" # Write message to screen
-                NewAzStorageContainer ($RSObject, $RGObject, $StorageAccObject) # Calls function and assigns to $var
-            } # End elseif ($OpSelectCon -eq '1')
-            elseif ($OpSelectCon -eq '2') { # Elseif statement for getting storage Containers
-                Write-Host "List All Storage Containers" # Write message to screen
-                ListAzStorageContainer # Calls function    
-            } # End elseif ($OpSelectCon -eq '2')
-            elseif ($OpSelectCon -eq '3') { # Elseif statement for getting storage Containers
-                Write-Host "Get Storage Container" # Write message to screen
-                $StorageAccObject = GetAzStorageContainer ($RSObject, $RGObject, $StorageAccObject)  # Calls function and assigns to $var
-                Write-Host $StorageAccObject.StorageContainerName $StorageAccObject.PrimaryLocation $StorageAccObject.Kind  #Writes message to screen
-            } # End elseif ($OpSelectCon -eq '3')
-            elseif ($OpSelectCon -eq '4') { # Elseif statement for removing storage Containers
-                Write-Host "Remove Storage Containers" # Write message to screen
-                RemoveAzStorageContainer  # Calls function
-            } # End elseif ($OpSelectCon -eq '4')
-            elseif ($OpSelectCon -eq '0') { # Elseif statement for clearing $vars
-                Write-Host 'Clearing "$StorageAccObject, $RSObject, $RGObject"' # Write message to screen
-                $StorageAccObject = $null # Clears $var
-                $RSObject = $null # Clears $var
-                $RGObject = $null # Clears $var
-            } # End elseif ($OpSelectCon -eq '0')
-            else { # All other inputs for $OpSelectCon
-                Write-Host "That was not a valid option" # Write message to screen
-            } # End else (if ($OpSelectCon -eq 'exit'))
-        } # End ManageAzureStorageCon while ($true)
-        Return # Returns to calling function 
-    } # End begin
-} # End function ManageAzStorageContainer
-function NewAzStorageContainer { # Creates new storage container(s) in a storage account
-    Begin {
-        :NewAzureStorageCon while ($true) { # Outer loop for function
-            if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount # Calls function and assigns to $var
-                    if (!$StorageAccObject) { # If $StorageAccObject is still $null after calling function
-                        Break NewAzureStorageCon # Breaks :NewAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            :SetAzureStorageConName while ($true) { # Inner loop for setting storage account name
-                Try { # First validation of the storage container name or names
-                    Write-Host "Storage container names must be atleast 3 characters and made up of letters and numbers only" # Write message to screen
-                    Write-Host "To create multiple containers in this storage account, enter each name seperated by a [Space]" # Write message to screen
-                    [ValidatePattern('^[a-z,0-9,\s]+$')]$StorageConNameInput = [string](Read-Host "Storage account name or names").ToLower() # Operator input for the container names
-                } # End Try 
-                catch { # Catch for failing to meet character validation of the container names
-                    Write-Host "***Error***"  # Write message to screen
-                    Write-Host "The provided name(s) were not valid, accepted inputs are letters and numbers only" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                    $StorageConNameInput = '0' # Sets $StorageConNameInput value to a failed check to reset loop
-                } # End Catch
-                if ($StorageConNameInput -eq '0') { # If $StorageConNamInput is 0 (failed check)
-                    Write-Host " " # Writes a message to screen, last action before restarting loop
-                } # End if ($StorageConNameInput -eq '0')
-                elseif ($StorageConNameInput.Length -le 2) { # If unsplit $StorageConNameInput is 2 or less characters
-                    Write-Host "***Error***" # Write message to screen
-                    Write-Host "The name entered is invalid, the minimum length of a name is 3 characters" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                } # End elseif ($StorageConNameInput.Length -le 2)
-                else { # Inital validation checks passed, performing secondary validation
-                    $StorageConName = $StorageConNameInput # Creats $StorageConName $Var
-                    if ($StorageConName -eq 'exit') { # If $StorageConName equals exit
-                        Break NewAzStorageAccount # Breaks :NewAzStorageAccount
-                    } # End if ($StorageConNameInput -eq 'exit')
-                    $StorageConNameSplit = $StorageConName.split() # Creates $StorageConNameSplit, a list of names for each space in $StoreConName
-                    foreach ($_ in $StorageConNameSplit) { # Performs length check on all names in list
-                        if ($_.length -le 2) { # If $StoreConNameSplit.listitem is 2 or less charaters
-                            Write-Host "***Error***" # Write message to screen
-                            Write-Host $_ "is not a valid name" # Write message to screen
-                            Write-Host "***Error***" # Write message to screen
-                            $StorageConNameInput = '0'# Sets $StorageConNameInput value to a failed check to reset loop
-                            $StorageConNameSplit = $null # Sets $StorageConNameSplit to $null
-                        } # End if ($_.length -le 2)
-                    } # End foreach ($_ in $StorageConNameSplit) 
-                    if ($StorageConNameInput -eq '0') { # If $StorageConNamInput is 0 (failed check)
-                        Write-Host " " # Writes a message to screen, last action before restarting loop
-                    } # End if ($StorageConNameInput -eq '0')
-                    else { # All validation passed
-                        if ($StorageConNameSplit.count -gt 1) { # If $StorageConNameSplit has more than one value
-                            Write-Host "Create multiple storage containers with the following names" # Write message to screen
-                            Write-Host $StorageConNameSplit -Separator `n # Writes all names to screen
-                        } # End if ($StorageConNameSplit.count -gt 1)
-                        else { # If $StorageConNameSplit has 1 value
-                            Write-Host "Create a single storage account named"$StorageConName # Write message to screen
-                            $StorageConNameSplit = $null  # Sets $StorageConNameSplit to $null
-                        } # End else (if ($StorageConNameSplit.count -gt 1))
-                        $OperatorConfirm = Read-Host "Yes or No" # Operator input for approving the name
-                        if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                            Break SetAzureStorageConName # Breaks :SetAzureStorageConName
-                        } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    } # End else (if ($StorageConNameInput -eq '0'))
-                } # End else (if ($StorageConNameInput -eq '0'))
-            } # End :SetAzureStorageConName while ($true)
-            Write-Host "Container - Provides full read access to a container and its blobs." # Write message to screen
-            Write-Host "Blob      - Provides read access to blob data throughout a container through" # Write message to screen
-            Write-Host "            anonymous request, but does not provide access to container data." # Write message to screen
-            Write-Host "Off       - Which restricts access to only the storage account owner." # Write message to screen
-            $ValidRights = 'Container', 'Blob', 'Off' # List of valid rights input
-            :SetAzureStorageConRights while ($true) { # Inner loop for setting the rights level
-                $StorageConRightsInput = Read-Host "Container rights level" # Operator input for the rights level
-                if ($StorageConRightsInput -eq 'exit') { # If $StorageConRightsInput is equal to 'exit'
-                    Break NewAzureStorageCon # Breaks :NewAzureStorageCon
-                } # End if ($StorageConRightsInput -eq 'exit')
-                elseif ($StorageConRightsInput -iin $ValidRights) { # If $StorageConRightsInput is in $ValidRights list
-                    Break SetAzureStorageConRights # Breaks :SetAzureStorageConRights
-                } # End elseif ($StorageConRightsInput -iin $ValidRights)
-                else { # All other inputs for $StorageConRightsInput
-                    Write-Host 'That was not a valid input'# Write message to screen
-                    Write-Host 'please select from the following'# Write message to screen
-                    Write-Host $ValidRights -Separator `n # Writes $ValidRights list to screen
-                } # End else (if ($StorageConRightsInput -eq 'exit'))
-            } # End :SetAzureStorageConRights while ($true)
-            if ($StorageConNameSplit) { # If StorageConNameSplit is not $null
-                Write-Host "Creating storage containers, this may take a minute"# Write message to screen
-                $StorageConNameSplit | New-AzStorageContainer -context $StorageAccObject.Context -Permission $StorageConRightsInput # Creates the storage containers
-            } # End if ($StorageConNameSplit) 
-            else { # If $StorageConNameSplit is $null
-                New-AzStorageContainer -Name $StorageConName -context $StorageAccObject.Context -Permission $StorageConRightsInput # Creates to storage container
-            } # End else (if ($StorageConNameSplit) )
-            Return # Returns to calling function empty
-        } # End :NewAzureStorageCon while ($true)
-    } # End begin
-} # End NewAzStorageContainer
-function ListAzStorageContainer { # Lists storage containers
-    Begin {
-        $RGList = Get-AzResourceGroup # creates list of all resource groups
-        foreach ($_ in $RGList) { # For each object in $RGList
-            Write-Host "------------------------------------------" # Write message to screen
-            Write-Host $_.ResourceGroupName # Write message to screen
-            $StorageAccList = Get-AzStorageAccount -ResourceGroupName $_.ResourceGroupName # Creates a list of all storage accounts in current resource group
-            if ($StorageAccList) { # If storage accounts exist in this group
-                foreach ($StorageAccountName in $StorageAccList) { # For each object in $StorageAccList
-                    Write-Host "------------------------------------------" # Write message to screen
-                    Write-Host "StorageAccount: " $StorageAccountName.StorageAccountName # Write message to screen
-                    Try { # Try the following command
-                        $StorageConList = Get-AzStorageContainer -Context $StorageAccountName.Context # Creates a list of all containers in current $StorageAccount
-                    } # End Try
-                    catch { # If try fails
-                        Write-Host "You may not have the permissions to view this acount" # Write message to screen
-                        Write-Host "The account maybe locked which prevents listing containers" # Write message to screen
-                    } # End catch
-                    if ($StorageConList) { # If storage containers exist in the current account
-                        Write-Host "" # Write message to screen
-                        foreach ($Name in $StorageConList) { # For each object in $StorageConList
-                            Write-Host "Container Name:   " $Name.Name # Write message to screen
-                        } # End foreach ($Name in $StorageConList)
-                    } # End if ($StorageConList)
-                    else { # If no storage containers exist in the current account
-                        Write-Host "No containers exist in this storage account" # Write message to screen
-                    } # End if ($StorageConList)
-                } # End foreach ($_ in $StorageAccList)
-            } # End if ($StorageAccList)
-            else { # If no storage accounts exist in current group
-                Write-Host "No Storage Accounts in this resource group" # Write message to screen
-            } # End else(if ($StorageAccList))
-        } # End foreach ($_ in $RGList)
-        Write-Host "------------------------------------------" # Write message to screen
-        Return # Returns to calling function
-    } # End Begin
-} # End function ListAzStorageContainer
+# Functions for ManageAzStorageAccount
+function ManageAzStorageContainer {                                                         # Function to manage storage containers
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorageCon while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Azure Storage Container Management'                                 # Write message to screen
+            Write-Host '[1] New Storage Container'                                          # Write message to screen
+            Write-Host '[2] List All Storage Containers'                                    # Write message to screen
+            Write-Host '[3] Get Storage Container'                                          # Write message to screen
+            Write-Host '[4] Remove Storage Container'                                       # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
+                Break ManageAzureStorageCon                                                 # Breaks :ManageAzureStorageCon 
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host "New Storage Container"                                          # Write message to screen
+                NewAzStorageContainer                                                       # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List All Storage Containers'                                    # Write message to screen
+                ListAzStorageContainer                                                      # Calls function    
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Get Storage Container'                                          # Write message to screen
+                GetAzStorageContainer                                                       # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove Storage Container'                                       # Write message to screen
+                RemoveAzStorageContainer                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host "That was not a valid option"                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+        }                                                                                   # End ManageAzureStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorageContainer
+function NewAzStorageContainer {                                                            # Creates new storage container(s) in a storage account
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'NewAzStorageContainer'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :NewAzureStorageCon while ($true) {                                                 # Outer loop for managing function
+            $StorageAccObject = GetAzStorageAccount ($CallingFunction)                      # Calls function and assigns output to $var
+            if (!$StorageAccObject) {                                                       # If $StorageAccObject is $null
+                Break NewAzureStorageCon                                                    # Breaks :NewAzureStorageCon
+            }                                                                               # End if (!$StorageAccObject)
+            :SetAzureStorageConName while ($true) {                                         # Inner loop for setting storage account name
+                Try {                                                                       # First validation of the storage container name or names
+                    $StorageConNameInput = '0'                                              # Sets $StorageConNameInput to '0'
+                    $StorageConNameSplit = $null                                            # Clears $StorageConNameSplit
+                    Write-Host 'Storage container names must be atleast 3 characters'       # Write message to screen
+                    Write-Host 'and made up of letters and numbers only'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                    Write-Host 'To create multiple containers in this storage account,'     # Write message to screen
+                    Write-Host 'enter each name seperated by a [Space]'                     # Write message to screen
+                    [ValidatePattern('^[a-z,0-9,\s]+$')]$StorageConNameInput = `
+                        [string](Read-Host "Storage account name or names").ToLower()       # Operator input for the container names
+                }                                                                           # End Try 
+                catch {                                                                     # If try fails
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'The provided name(s) were not valid,'                       # Write message to screen
+                    Write-Host 'accepted inputs are letters and numbers only'               # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                }                                                                           # End Catch
+                if ($StorageConNameInput -eq '0') {                                         # If $StorageConNamInput is 0 (failed check)
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if ($StorageConNameInput -eq '0')
+                else {                                                                      # If $StorageConNameInput has pass validation
+                    :CheckAzureStorageConName while ($true) {                               # Inner loop for verifing each name
+                        if ($StorageConNameInput -eq 'exit') {                              # If $StorageConName equals exit
+                            Break NewAzStorageAccount                                       # Breaks :NewAzStorageAccount
+                        }                                                                   # End if ($StorageConNameInput -eq 'exit')
+                        $StorageConNameSplit = $StorageConNameInput.split()                 # $StorageConSplit equals $StorageConNameInput.Split()
+                        foreach ($_ in $StorageConNameSplit) {                              # For each item in $StorageConNameSplit
+                            if ($_.length -le 2) {                                          # If current item is 2 or less charaters
+                                Write-Host ''                                               # Write message to screen
+                                Write-Host 'The name'$_' is invalid, the minimum'           # Write message to screen
+                                Write-Host 'length of a name is 3 characters'               # Write message to screen
+                                Write-Host ''                                               # Write message to screen
+                                Start-Sleep(3)                                              # Pauses all action for 3 seconds
+                                Clear-Host                                                  # Clears screen
+                                Break CheckAzureStorageConName                              # End Break CheckAzureStorageConName
+                            }                                                               # End if ($_.length -le 2)
+                            elseif ($_.Length -ge 64) {                                     # If current item is 64 or more charaters
+                                Write-Host ''                                               # Write message to screen
+                                Write-Host 'The name'$_' is invalid, the maximium'          # Write message to screen
+                                Write-Host 'length of a name is 63 characters'              # Write message to screen
+                                Write-Host ''                                               # Write message to screen
+                                Start-Sleep(5)                                              # Pauses all action for 5 seconds
+                                Clear-Host                                                  # Clears screen
+                                Break CheckAzureStorageConName                              # End Break CheckAzureStorageConName
+                            }                                                               # End elseif ($_.Length -ge 64)
+                            else {                                                          # All other inputs for $_
+                                Write-Host ''                                               # Write message to screen
+                                Write-Host $_ 'is a valid name'                             # Write message to screen
+                                Start-Sleep(1)                                              # Pauses all actions for 1 second
+                            }                                                               # End else (if ($_.length -le 2))
+                        }                                                                   # End foreach ($_ in $StorageConNameSplit) 
+                        if ($StorageConNameSplit.count -gt 1) {                             # If $StorageConNameSplit has more than one value
+                            Write-Host 'Create multiple storage containers '                # Write message to screen
+                            Write-Host 'with the following names:'                          # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-Host $StorageConNameSplit -Separator `n                   # Writes all names to screen
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End if ($StorageConNameSplit.count -gt 1)
+                        else {                                                              # If $StorageConNameSplit has 1 value
+                            Write-Host 'Create a storage account named:' `
+                                $StorageConNameInput                                        # Write message to screen
+                        }                                                                   # End else (if ($StorageConNameSplit.count -gt 1))
+                        $OpConfirm = Read-Host '[Y] or [N]'                                 # Operator input for approving the name
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Clear-Host                                                      # Clears screen 
+                            Break SetAzureStorageConName                                    # Breaks :SetAzureStorageConName
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                        else {                                                              # All other inputs for $OpConfirm
+                            Clear-Host                                                      # Clears screen 
+                            Break CheckAzureStorageConName                                  # Breaks :CheckAzureStorageConName
+                        }                                                                   # End else (if ($OpConfirm -eq 'y'))
+                    }                                                                       # End :CheckAzureStorageConName while ($true)
+                }                                                                           # End else (if ($StorageConNameInput -eq '0'))
+            }                                                                               # End :SetAzureStorageConName while ($true)
+            Write-Host 'Please review the following permissions'
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Container: Provides full read'                                      # Write message to screen
+            Write-Host 'access to a container and its blobs.'                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Blob:      Provides read access to'                                 # Write message to screen
+            Write-Host 'blob data throughout a container through'                           # Write message to screen
+            Write-Host 'anonymous request, but does not provide'                            # Write message to screen
+            Write-Host 'access to container data.'                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Off:       Restricts access to only'                                # Write message to screen
+            Write-Host 'the storage account owner.'                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $ObjectList = @('Container';'Blob';'Off')                                       # List of valid rights input
+            $ObjectNumber = 1                                                               # Creates ObjectNumber
+            [System.Collections.ArrayList]$ObjectArray=@()                                  # Creates ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $ObjectInput=[PSCustomObject]@{'Number'=$ObjectNumber;'Name'=$_}            # Combines $ObjectNumber and current item
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $ObjectNumber = $ObjectNumber + 1                                           # ObjectNumber is $ObjectNumber + 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SetAzureStorageConRights while ($true) {                                       # Inner loop for setting the rights level
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray 
+                    $Number = $_.Number                                                     # $Number equals current item .Number
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                $OpSelect = Read-Host 'Select rights level [#]'                             # Operator input for the rights level
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect is equal to '0'
+                    Break NewAzureStorageCon                                                # Breaks :NewAzureStorageCon
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect equals $ObjectArray where $OpSelect equals $ObjectArray.Number
+                    $StorageConRights = $OpSelect.Name                                      # $StorageConRights equals $OpSelect.Name
+                    Break SetAzureStorageConRights                                          # Breaks :SetAzureStorageConRights
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureStorageConRights while ($true)
+            if ($StorageConNameSplit.Count -gt 1) {                                         # If StorageConNameSplit is not $null
+                Write-Host 'Creating storage containers, this may take a minute'            # Write message to screen
+                Try {                                                                       # Try the following
+                    $StorageConNameSplit | New-AzStorageContainer -context `
+                        $StorageAccObject.Context -Permission $StorageConRights `
+                        -ErrorAction 'Stop'                                                 # Creates the storage containers
+                }                                                                           # End try
+                catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host  ''                                                          # Write message to screen
+                    Write-Host 'The container name may'                                     # Write message to screen
+                    Write-Host 'already exist in this account'                              # Write message to screen
+                    Pause                                                                   # Pauses for operator input
+                    Break NewAzureStorageCon                                                # Breaks :NewAzureStorageCon
+                }                                                                           # End catch
+                Write-Host 'The storage containers have been made'                          # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break NewAzureStorageCon                                                    # Breaks :NewAzureStorageCon
+            }                                                                               # End if ($StorageConNameSplit.Count -gt 1) 
+            else {                                                                          # If $StorageConNameSplit.count is 1
+                Try {                                                                       # Try the following
+                    Write-Host 'Creating the storage container, this may take a minute'     # Write message to screen
+                    $StorageConNameSplit | New-AzStorageContainer -context `
+                        $StorageAccObject.Context -Permission $StorageConRights `
+                        -ErrorAction 'Stop'                                                 # Creates the storage container
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host  ''                                                          # Write message to screen
+                    Write-Host 'The container name may'                                     # Write message to screen
+                    Write-Host 'already exist in this account'                              # Write message to screen
+                    Pause                                                                   # Pauses for operator input
+                    Break NewAzureStorageCon                                                # Breaks :NewAzureStorageCon
+                }                                                                           # End catch
+                Write-Host 'The storage container has been made'                            # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break NewAzureStorageCon                                                    # Breaks :NewAzureStorageCon
+            }                                                                               # End else (if ($StorageConNameSplit.Count -gt 1))
+        }                                                                                   # End :NewAzureStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function NewAzStorageContainer
+function ListAzStorageContainer {                                                           # Function for listing storage containers
+    Begin {                                                                                 # Begin function
+        :ListAzStorageCon while ($true) {                                                   # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # creates list of all resource groups
+            foreach ($_ in $RGList) {                                                       # For each object in $RGList
+                $StorageAccList = Get-AzStorageAccount -ResourceGroupName `
+                    $_.ResourceGroupName                                                    # Creates a list of all storage accounts in current resource group
+                if ($StorageAccList) {                                                      # If $StorageAccList has a value
+                    foreach ($_ in $StorageAccList) {                                       # For each item in $StorageAccList
+                        Write-Host '------------------------------------------'             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'Resource group:   '$_.ResourceGroupName                 # Write message to screen
+                        Write-Host 'Storage account:  '$_.StorageAccountName                # Write message to screen
+                        Try {                                                               # Try the following 
+                            $StorageConList = Get-AzStorageContainer -Context $_.Context    # Creates a list of all containers in current $StorageAccount
+                        }                                                                   # End Try
+                        catch {                                                             # If try fails
+                            Write-Host `
+                                'You may not have the permissions to view this acount'      # Write message to screen
+                            Write-Host 'The account may have a lock on it'                  # Write message to screen
+                        }                                                                   # End catch
+                        if ($StorageConList) {                                              # If $StorageConList has a value
+                            foreach ($_ in $StorageConList) {                               # For each item in $StorageConList
+                                Write-Host 'Storage container:'$_.Name 
+                            }                                                               # End foreach ($_ in $StorageConList)
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End if ($StorageConList)
+                        else {                                                              # If $StorageConList does not have a value
+                            Write-Host 'Storage container: None'                            # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End else  (if ($StorageConList))
+                    }                                                                       # End foreach ($_ in $StorageAccList)
+                }                                                                           # End if ($StorageAccList)
+                else {                                                                      # If $StorageAccList does not have a value
+                    Write-Host '------------------------------------------'                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'Resource group:   '$_.ResourceGroupName                     # Write message to screen
+                    Write-Host 'Storage account:   None'                                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else(if ($StorageAccList))
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host '------------------------------------------'                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen 
+            Pause                                                                           # Pauses for operator input
+            Break ListAzStorageCon                                                          # Breaks :ListAzStorageCon
+        }                                                                                   # End :ListAzStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzStorageContainer
 function GetAzStorageContainer { # Gets an existing stoage container
     Begin {
         $ErrorActionPreference='silentlyContinue'
