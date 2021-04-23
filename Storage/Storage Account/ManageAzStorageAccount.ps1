@@ -182,6 +182,8 @@ function NewAzStorageAccount {                                                  
                 Break NewAzureStorageAcc                                                    # Breaks :NewAzureStorageAcc
             }                                                                               # End if (!$LocationObject)
             try {                                                                           # Try the following
+                Write-Host 'Creating the storage account'                                   # Write message to screen
+                Write-Host 'This may take a minute'                                         # Write message to screen
                 New-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName `
                     -Location $LocationObject.location -Name $StorageAccNameInput `
                     -SkuName $StorageAccSkuInput -ErrorAction 'Stop'                        # Creates the new storage account
