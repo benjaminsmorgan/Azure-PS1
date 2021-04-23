@@ -21,40 +21,53 @@
         End ListAzStorageContainer
             Return Function > Send $null
 }#>
-function ListAzStorageContainer {
-    Begin {
-        $RGList = Get-AzResourceGroup # creates list of all resource groups
-        foreach ($_ in $RGList) { # For each object in $RGList
-            Write-Host "------------------------------------------" # Write message to screen
-            Write-Host $_.ResourceGroupName # Write message to screen
-            $StorageAccList = Get-AzStorageAccount -ResourceGroupName $_.ResourceGroupName # Creates a list of all storage accounts in current resource group
-            if ($StorageAccList) { # If storage accounts exist in this group
-                foreach ($StorageAccountName in $StorageAccList) { # For each object in $StorageAccList
-                    Write-Host "------------------------------------------" # Write message to screen
-                    Write-Host "StorageAccount: " $StorageAccountName.StorageAccountName # Write message to screen
-                    Try { # Try the following command
-                        $StorageConList = Get-AzStorageContainer -Context $StorageAccountName.Context # Creates a list of all containers in current $StorageAccount
-                    } # End Try
-                    catch { # If try fails
-                        Write-Host "You may not have the permissions to view this acount" # Write message to screen
-                        Write-Host "The account maybe locked which prevents listing containers" # Write message to screen
-                    } # End catch
-                    if ($StorageConList) { # If storage containers exist in the current account
-                        Write-Host "" # Write message to screen
-                        foreach ($Name in $StorageConList) { # For each object in $StorageConList
-                            Write-Host "Container Name:   " $Name.Name # Write message to screen
-                        } # End foreach ($Name in $StorageConList)
-                    } # End if ($StorageConList)
-                    else { # If no storage containers exist in the current account
-                        Write-Host "No containers exist in this storage account" # Write message to screen
-                    } # End if ($StorageConList)
-                } # End foreach ($_ in $StorageAccList)
-            } # End if ($StorageAccList)
-            else { # If no storage accounts exist in current group
-                Write-Host "No Storage Accounts in this resource group" # Write message to screen
-            } # End else(if ($StorageAccList))
-        } # End foreach ($_ in $RGList)
-        Write-Host "------------------------------------------" # Write message to screen
-        Return # Returns to calling function
-    } # End Begin
-} # End function ListAzStorageContainer
+function ListAzStorageContainer {                                                           # Function for listing storage containers
+    Begin {                                                                                 # Begin function
+        :ListAzStorageCon while ($true) {                                                   # Outer loop for managing function
+            $RGList = Get-AzResourceGroup                                                   # creates list of all resource groups
+            foreach ($_ in $RGList) {                                                       # For each object in $RGList
+                $StorageAccList = Get-AzStorageAccount -ResourceGroupName `
+                    $_.ResourceGroupName                                                    # Creates a list of all storage accounts in current resource group
+                if ($StorageAccList) {                                                      # If $StorageAccList has a value
+                    foreach ($_ in $StorageAccList) {                                       # For each item in $StorageAccList
+                        Write-Host '------------------------------------------'             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'Resource group:   '$_.ResourceGroupName                 # Write message to screen
+                        Write-Host 'Storage account:  '$_.StorageAccountName                # Write message to screen
+                        Try {                                                               # Try the following 
+                            $StorageConList = Get-AzStorageContainer -Context $_.Context    # Creates a list of all containers in current $StorageAccount
+                        }                                                                   # End Try
+                        catch {                                                             # If try fails
+                            Write-Host `
+                                'You may not have the permissions to view this acount'      # Write message to screen
+                            Write-Host 'The account may have a lock on it'                  # Write message to screen
+                        }                                                                   # End catch
+                        if ($StorageConList) {                                              # If $StorageConList has a value
+                            foreach ($_ in $StorageConList) {                               # For each item in $StorageConList
+                                Write-Host 'Storage container:'$_.Name 
+                            }                                                               # End foreach ($_ in $StorageConList)
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End if ($StorageConList)
+                        else {                                                              # If $StorageConList does not have a value
+                            Write-Host 'Storage container: None'                            # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End else  (if ($StorageConList))
+                    }                                                                       # End foreach ($_ in $StorageAccList)
+                }                                                                           # End if ($StorageAccList)
+                else {                                                                      # If $StorageAccList does not have a value
+                    Write-Host '------------------------------------------'                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'Resource group:   '$_.ResourceGroupName                     # Write message to screen
+                    Write-Host 'Storage account:   None'                                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End else(if ($StorageAccList))
+            }                                                                               # End foreach ($_ in $RGList)
+            Write-Host '------------------------------------------'                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen 
+            Pause                                                                           # Pauses for operator input
+            Break ListAzStorageCon                                                          # Breaks :ListAzStorageCon
+        }                                                                                   # End :ListAzStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzStorageContainer
