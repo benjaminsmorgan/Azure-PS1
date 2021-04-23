@@ -124,6 +124,8 @@ function NewAzStorageAccount {                                                  
                 Break NewAzureStorageAcc                                                    # Breaks :NewAzureStorageAcc
             }                                                                               # End if (!$LocationObject)
             try {                                                                           # Try the following
+                Write-Host 'Creating the storage account'                                   # Write message to screen
+                Write-Host 'This may take a minute'                                         # Write message to screen
                 New-AzStorageAccount -ResourceGroupName $RGObject.ResourceGroupName `
                     -Location $LocationObject.location -Name $StorageAccNameInput `
                     -SkuName $StorageAccSkuInput -ErrorAction 'Stop'                        # Creates the new storage account
@@ -141,98 +143,3 @@ function NewAzStorageAccount {                                                  
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzStorageAccount
-function GetAzResourceGroup {                                                               # Function to get a resource group
-    Begin {                                                                                 # Begin function
-        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
-        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
-            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
-            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
-            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
-            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
-                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
-                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
-                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
-                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
-            }                                                                               # End foreach ($_ in $ObjectList)
-            Write-Host "[0]  Exit"                                                          # Write message to screen
-            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
-                $Number = $_.Number                                                         # Sets $Number to current item .number
-                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
-                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
-                }                                                                           # End if ($_.Number -le 9) 
-                else {                                                                      # If current item .number is greater then 9
-                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
-                }                                                                           # End else (if ($_.Number -le 9) )
-            }                                                                               # End foreach ($_ in $ObjectArray)
-            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
-                if ($CallingFunction) {                                                     # If $CallingFunction exists
-                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
-                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
-                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
-                }                                                                           # End if ($RGSelect -eq '0')
-                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
-                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
-                    $RGObject = Get-AzResourceGroup | Where-Object `
-                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
-                    Clear-Host                                                              # Clears screen
-                    Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
-                else {                                                                      # If $RGObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($RGObject))
-            }                                                                               # End :SelectAzureObjectList while ($true)
-        }                                                                                   # End :GetAzureResourceGroup while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return                                                                              # Returns to calling function with $null
-    }                                                                                       # End begin statement
-}                                                                                           # End function GetAzResourceGroup
-function GetAzLocation {                                                                    # Function to get azure location
-    Begin {                                                                                 # Begin function
-        :GetAzureLocation while ($true) {                                                   # Outer loop for managing function
-            $ListObject = Get-AzLocation                                                    # Gets a list of all Azure locations
-            $ListNumber = 1                                                                 # $Var for selecting the location
-            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
-            foreach ($_ in $ListObject) {                                                   # For each $_ in $ListObject
-                $ListInput = [PSCustomObject]@{'Number' = $ListNumber; 'Location' `
-                = $_.DisplayName}                                                           # Creates the item to load into array
-                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
-                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
-            }                                                                               # End foreach ($_ in $ListObject)
-            Write-Host "[ 0 ] Exit"                                                         # Write message to screen
-            foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
-                Write-Host '['$_.Number']' $_.Location                                      # Writes number and location to screen
-            }                                                                               # End foreach ($_ in $ListArray)
-            :SelectAzureLocation while ($true) {                                            # Inner loop for selecting location from list
-                if ($CallingFunction) {                                                     # If $CallingFunction exists
-                    Write-Host "You are selecting the location for"$CallingFunction         # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $LocationSelect = Read-Host "Please enter [#] of the location"              # Operator input for the selection
-                if ($LocationSelect -eq '0') {                                              # If $LocationSelect is 0
-                    Break GetAzureLocation                                                  # Breaks :GetAzureLocation
-                }                                                                           # End if ($LocationSelect -eq '0')
-                elseif ($LocationSelect -in $ListArray.Number) {                            # If $LocationSelect in $ListArray.Number
-                    $LocationSelect = $ListArray | Where-Object {$_.Number -eq `
-                        $LocationSelect}                                                    # LocationSelect is equal to $ListArray where $LocationSelect equals $ListArray.Number
-                    Try {                                                                   # Try the following
-                        $LocationObject = Get-AzLocation | Where-Object {$_.DisplayName `
-                            -eq $LocationSelect.Location} -ErrorAction 'Stop'               # Pulls the full $LocationObject
-                    }                                                                       # End try
-                    catch {                                                                 # If try fails
-                        Write-Host 'An error has occured'                                   # Write message to screen
-                        Write-Host 'Please try again later'                                 # Write message to screen
-                        Break GetAzureLocation                                              # Breaks :GetAzureLocation 
-                    }                                                                       # End catch
-                    Clear-Host                                                              # Clears screen
-                    Return $LocationObject                                                  # Returns $LocationObject to calling function
-                }                                                                           # End elseif ($LocationSelect -in $ListArray.Number) 
-                else {                                                                      # All other inputs for $LocationSelect
-                    Write-Host "That was not a valid selection"                             # Write message to screen   
-                }                                                                           # End else (if ($LocationSelect -eq '0'))
-            }                                                                               # End :SelectAzureLocation while ($true)
-        }                                                                                   # End :GetAzureLocation while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return                                                                              # Returns with $null 
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzLocation
