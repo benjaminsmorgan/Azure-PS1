@@ -1,5 +1,7 @@
 function ManageAzAD {                                                                       # Function for managing Azure AD
     Begin {                                                                                 # Begin function
+        Import-Module AzureAD                                                               # Imports AzureAD module (Does not work in PS core)
+        Connect-AzureAD                                                                     # Opens Azure AD log in
         :ManageAzureAD while ($true) {                                                      # Outer loop for managing function
             Write-Host '[1] Manage Accounts'                                                # Write message to screen
             Write-Host '[2] Manage Applications'                                            # Write message to screen
@@ -127,94 +129,110 @@ function NewAzADUser {                                                          
             $PassProfile.ForceChangePasswordNextLogin = $true                               # Adds defaults to password profile
             $PassProfile.EnforceChangePasswordPolicy = $true                                # Adds defaults to password profile
             :SetAzureADUserGName while ($true) {                                            # Inner loop for setting the user given (first) name
-                $Gname = Read-Host 'Enter the given (first) name'                           # Operator input for the given name
-                Write-Host $Gname 'is correct?'                                             # Write message to screen
-                $OpConfirm = Read-Host '[Y], [N], or [E]'                                   # Operator confirmation of the given name
+                $GName = Read-Host 'Enter the given (first) name'                           # Operator input for the given name
+                $GNameStart = $GName.Substring(0,1).ToUpper()                               # Creates $GNameStart
+                $GNameEnd = $GName.Substring(1).ToLower()                                   # Creates $GNameEnd
+                $GName = $GNameStart+$GNameEnd                                              # Recreates $GName
+                Write-Host $GName 'is correct?'                                             # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the given name
                 if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'y'
                     Break NewAzureADUser                                                    # Breaks :NewAzureADUser                                                    
                 }                                                                           # End if ($OpConfirm -eq 'e')
                 elseif ($OpConfirm -eq 'y') {                                               # Elseif $OpConfirm equals 'y'
+                    Clear-Host                                                              # Clears screen
                     Break SetAzureADUserGName                                               # Breaks :SetAzureADUserGName
                 }                                                                           # End elseif ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureADUserGName while ($true)
             :SetAzureADUserSName while ($true) {                                            # Inner loop for setting the user sur (last) name
-                $Sname = Read-Host 'Enter the surname (last) name'                          # Operator input for the surname
-                Write-Host $Sname 'is correct?'                                             # Write message to screen
-                $OpConfirm = Read-Host '[Y], [N], or [E]'                                   # Operator confirmation of the surname
+                $SName = Read-Host 'Enter the surname (last) name'                          # Operator input for the surname
+                $SNameStart = $SName.Substring(0,1).ToUpper()                               # Creates $SNameStart
+                $SNameEnd = $SName.Substring(1).ToLower()                                   # Creates $SNameEnd
+                $SName = $SNameStart+$SNameEnd                                              # Recreates $SName
+                Write-Host $SName 'is correct?'                                             # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the surname
                 if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'y'
                     Break NewAzureADUser                                                    # Breaks :NewAzureADUser                                                    
                 }                                                                           # End if ($OpConfirm -eq 'e')
                 elseif ($OpConfirm -eq 'y') {                                               # Elseif $OpConfirm equals 'y'
+                    Clear-Host                                                              # Clears screen
                     Break SetAzureADUserSName                                               # Breaks :SetAzureADUserSName
                 }                                                                           # End elseif ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureADUserSName while ($true)
             :SetAzureADUserMName while ($true) {                                            # Inner loop for setting the user middle inital
-                $Mname = Read-Host 'Enter the middle Name (if present)'                     # Operator input for the middle inital
-                Write-Host $Mname 'is correct?'                                             # Write message to screen
-                $OpConfirm = Read-Host '[Y], [N], or [E]'                                   # Operator confirmation of the surname
+                $MName = Read-Host 'Enter the middle Name (if present)'                     # Operator input for the middle inital
+                if ($MName) {                                                               # If $MName has a value
+                    Write-Host $MName 'is correct?'                                         # Write message to screen
+                }                                                                           # End if ($MName)
+                else {                                                                      # If $MName does not have a value
+                    Write-Host 'Confirm no middle name'                                     # Write message to screen
+                }                                                                           # End else (if ($MName))
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the surname
                 if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'y'
                     Break NewAzureADUser                                                    # Breaks :NewAzureADUser                                                    
                 }                                                                           # End if ($OpConfirm -eq 'e')
                 elseif ($OpConfirm -eq 'y') {                                               # Elseif $OpConfirm equals 'y'
-                    Break SetAzureADUserMname                                               # Breaks :SetAzureADUserMName
+                    Clear-Host                                                              # Clears screen    
+                    Break SetAzureADUserMName                                               # Breaks :SetAzureADUserMName
                 }                                                                           # End elseif ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureADUser<Name while ($true)
             :SetAzureADUserPrincipalName while ($true) {                                    # Inner loop for setting the user principalName
-                $SnameSub = $Sname.Substring(0,6)
-                $GNameSub = $Gname.Substring(0,1).ToLower()
-                if ($Mname) {
-                    $MNameSub = $Mname.SubSting(0,1).ToLower()
-                    $UPName = $SnameSub+$GNameSub+$MNameSub+'@morganbs.com'
-                    :CheckAzureADUserPrincipalName while ($true) {
-                        $AddCount = 1
-                        $CheckADUser = Get-AzADUser -UserPrincipalName $UPName
-                        if ($CheckADUser) {
-                            $UPName = $SnameSub+$GNameSub+$MNameSub+$AddCount+'@morganbs.com'
-                            $AddCount = $AddCount +1
-                            $CheckADUser = $null
+                $SNameSub = $SName.Substring(0,6)                                           # Collects the first 6 letters of SName
+                $GNameSub = $GName.Substring(0,1).ToLower()                                 # Collects the first letter of the GName                        
+                if ($MName) {                                                               # If $MName has a value
+                    $MNameSub = $MName.Substring(0,1).ToLower()                             # Collects the first letter of $MName
+                    $UPName = $SNameSub+$GNameSub+$MNameSub+'@morganbs.com'                 # Creates $UPName
+                    $AddCount = 1                                                           # Number used to append to $UPName
+                    :CheckAzureADUserPrincipalName while ($true) {                          # Inner loop for validating the $UPName
+                        [string]$AddCountString = $AddCount                                 # Converts $AddCount to string
+                        $CheckADUser = Get-AzureAdUser | Where-Object `
+                            {$_.UserPrincipalName -eq $UPName}                              # Finds a matching UserPrinicpalName is existing
+                        if ($CheckADUser) {                                                 # If $CheckADUser has a value
+                            $UPName = `
+                            $SNameSub+$GNameSub+$MNameSub+$AddCountString+'@morganbs.com'   # Updates $UPName with $AddCountString
+                            $AddCount = $AddCount + 1                                       # Increments $AddCount up by 1
+                            $CheckADUser = $null                                            # Clears $CheckADUser
                         }                                                                   # End if ($CheckADUser)
-                        else {
-                            Break SetAzureADUserPrincipalName
+                        else {                                                              # If $CheckADUser does not have a value
+                            Break SetAzureADUserPrincipalName                               # Breaks :SetAzureADUserPrincipalName
                         }                                                                   # End else (if ($CheckADUser))
                     }                                                                       # End :CheckAzureADUserPrincipalName while ($true) 
-                }
-                else {
-                    $UPName = $SnameSub+$GNameSub+'@morganbs.com'
-                    :CheckAzureADUserPrincipalName while ($true) {
-                        $AddCount = 1
-                        $CheckADUser = Get-AzADUser -UserPrincipalName $UPName
-                        if ($CheckADUser) {
-                            $UPName = $SnameSub+$GNameSub+$AddCount+'@morganbs.com'
-                            $AddCount = $AddCount +1
-                            $CheckADUser = $null
+                }                                                                           # End if ($MName)
+                else {                                                                      # If $MName does not have a value
+                    $UPName = $SNameSub+$GNameSub+'@morganbs.com'                           # Creates $UPName
+                    $AddCount = 1                                                           # Number used to append to $UPName
+                    :CheckAzureADUserPrincipalName while ($true) {                          # Inner loop for validating the $UPName
+                        [string]$AddCountString = $AddCount                                 # Converts $AddCount to string
+                        $CheckADUser = Get-AzureAdUser | Where-Object `
+                            {$_.UserPrincipalName -eq $UPName}                              # Finds a matching UserPrinicpalName is existing
+                        if ($CheckADUser) {                                                 # If $CheckADUser has a value
+                            $UPName = $SNameSub+$GNameSub+$AddCountString+'@morganbs.com'   # Updates $UPName with $AddCountString
+                            $AddCount = $AddCount +1                                        # Increments $AddCount up by 1
+                            $CheckADUser = $null                                            # Clears $CheckADUser
                         }                                                                   # End if ($CheckADUser)
-                        else {
-                            Break SetAzureADUserPrincipalName
+                        else {                                                              # If $CheckADUser does not have a value
+                            Break SetAzureADUserPrincipalName                               # Breaks :SetAzureADUserPrincipalName
                         }                                                                   # End else (if ($CheckADUser))
                     }                                                                       # End :CheckAzureADUserPrincipalName while ($true)
-                }
+                }                                                                           # End else (if ($MName))
             }                                                                               # End :SetAzureADUserPrincipalName while ($true)
-            $Dname = $Gname + ' ' + $Sname
-            $MailName = $UPName.Split('@')[0]
-            Write-Host $Sname
-            Write-Host $GName
-            Write-Host $UPName
-            Write-Host $Dname
-            Write-Host $MailName
-            #Try {
-                New-AzADUser -UserPrincipalName $UPName -DisplayName $Dname -MailNickname `
-                    $MailName -givenname $Gname -Surname $Sname -PasswordProfile `
-                    $PassProfile -AccountEnabled $true #-ErrorAction 'Stop' 
-            #} # End try
-            #Catch {
-            #    Write-Host 'An error has occured'
-            #    Start-Sleep(2)
-            #} # End catch
-            Write-Host 'The user account has been created'
-            Break NewAzureADUser
-            Start-Sleep(2)
+            $Dname = $GName + ' ' + $SName                                                  # Creates $DName (Display Name)
+            $MailName = $UPName.Split('@')[0]                                               # Creates $MailName (Mail Nickname)
+            Try {                                                                           # Try the following
+                New-AzureADUser -UserPrincipalName $UPName -DisplayName $Dname `
+                    -MailNickname $MailName -GivenName $GName -Surname $SName `
+                    -PasswordProfile $PassProfile -AccountEnabled $true `
+                    -ErrorAction 'Stop'                                                     # Creates the user account
+            }                                                                               # End try
+            Catch {                                                                         # If Try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break NewAzureADUser                                                        # Breaks :NewAzureADUser
+            }                                                                               # End catch   
+            Write-Host 'The user account has been created'                                  # Write message to screen
+            Start-Sleep(2)                                                                  # Pauses all actions for 2 seconds
+            Break NewAzureADUser                                                            # Breaks :NewAzureADUser
         }                                                                                   # End :NewAzureADUser while ($true)
-        #Clear-Host
+        Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzADUser
