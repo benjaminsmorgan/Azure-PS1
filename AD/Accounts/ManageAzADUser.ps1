@@ -36,8 +36,38 @@
             Call ListAzADUser > Get $null
             End ListAzADUser
                 Return ManageAzADUser > Send $null
-            Call GetAzADUser > Get $null
-            End GetAzADUser
+            Call UpdateAzADUser > Get $null
+                Call EnableAzADUser > Get $null 
+                    Call GetAzADUser > Get $ADUserObject
+                    End GetAzADUser
+                        Return EnableAzADUser > Send $ADUserObject
+                End EnableAzADUser
+                    Return UpdateAzADUser > Send $null
+                Call DisableAzADUser > Get $null 
+                    Call GetAzADUser > Get $ADUserObject
+                    End GetAzADUser
+                        Return DisableAzADUser > Send $ADUserObject
+                End DisableAzADUser
+                    Return UpdateAzADUser > Send $null
+                Call UpdateAzADUserDName > Get $null 
+                    Call GetAzADUser > Get $ADUserObject
+                    End GetAzADUser
+                        Return UpdateAzADUserDName > Send $ADUserObject
+                End UpdateAzADUserDName
+                    Return UpdateAzADUser > Send $null
+                Call UpdateAzADUserGName > Get $null 
+                    Call GetAzADUser > Get $ADUserObject
+                    End GetAzADUser
+                        Return UpdateAzADUserGName > Send $ADUserObject
+                End UpdateAzADUserGName
+                    Return UpdateAzADUser > Send $null
+                Call UpdateAzADUserSName > Get $null 
+                    Call GetAzADUser > Get $ADUserObject
+                    End GetAzADUser
+                        Return UpdateAzADUserSName > Send $ADUserObject
+                End UpdateAzADUserSName
+                    Return UpdateAzADUser > Send $null
+            End UpdateAzADUser
                 Return ManageAzADUser > Send $null
             Call RemoveAzADUser > Get $null
                 Call GetAzADUser > Get $ADUserObject
@@ -53,7 +83,7 @@ function ManageAzADUser {                                                       
         :ManageAzureADUser while ($true) {                                                  # Outer loop for managing function
             Write-Host '[1] New User'                                                       # Write message to screen
             Write-Host '[2] List Users'                                                     # Write message to screen
-            Write-Host '[3] Get User'                                                       # Write message to screen
+            Write-Host '[3] Update User'                                                    # Write message to screen
             Write-Host '[4] Remove User'                                                    # Write message to screen
             Write-host '[Exit] to return'                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
@@ -67,7 +97,7 @@ function ManageAzADUser {                                                       
                 ListAzADUser                                                                # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # If $OpSelect equals '3'
-                GetAzADUser                                                                 # Calls function
+                UpdateAzADUser                                                              # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
@@ -229,6 +259,156 @@ function ListAzADUser {                                                         
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzADUser
+function EnableAzADUser {                                                                   # Function to Enable an Azure AD user account
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'EnableAZADUser'                                                 # Creates $CallingFunction
+        :EnableAzureADUser while ($true) {                                                  # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Enable account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -EnableAccount $true -ErrorAction 'Stop'                            # Enables the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break EnableAzureADUser                                                 # Breaks :EnableAzureADUser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been enabled'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :EnableAzureADUser while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function EnableAzADUser
+function DisableAzADUser {                                                                  # Function to disable an Azure AD user account
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'DisableAZADUser'                                                # Creates $CallingFunction
+        :DisableAzureADUser while ($true) {                                                 # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Disable account'$ADUserObject.UserPrincipalName                     # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to disable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -EnableAccount $false -ErrorAction 'Stop'                           # Disables the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break DisableAzureADUser                                                # Breaks :DisableAzureADUser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been disabled'               # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :DisableAzureADUser while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function DisableAzADUser
+function UpdateAzADUserDName {                                                              # Function to update an Azure AD user account display name
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserDName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserDName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new display name'                       # Operator input for the new display name
+                    Write-Host $UpdatedName'is correct'
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserDName                                        # Breaks :UpdateAzureADUserDName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -DisplayName $UpdatedName -ErrorAction 'Stop'                       # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserDName                                            # Breaks :UpdateAzureADUserDName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserDName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function EnableAzADUser
+function RemoveAzADUser {                                                                   # Function to remove an Azure AD
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'RemoveAzADUser'                                                 # Creates $CallingFunction
+        :RemoveAzureADUser while ($true) {                                                  # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject does not have a value
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Remove'$ADUserObject.UserPrincipalName                              # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm is equal to 'y'
+                try {                                                                       # Try the following
+                    Remove-AzADUser -ObjectId $ADUserObject.ID -Force -ErrorAction 'Stop'   # Removes the selected account
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Start-Sleep(2)                                                          # Pauses all actions for 2 seconds
+                    Break RemoveAzureADuser                                                 # End Break RemoveAzureADuser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been removed'                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm is not equal to 'y'
+                Write-Host 'No changes has been made'                                       # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureADUser while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzADUser
+# Addtional functions for ManageAzADUser
 function GetAzADUser {                                                                      # Function to get an Azure AD user account
     Begin {                                                                                 # Begin function
         :GetAzureADUser while ($true) {                                                     # Outer loop for managing function
@@ -286,36 +466,3 @@ function GetAzADUser {                                                          
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzADUser
-function RemoveAzADUser {                                                                   # Function to remove an Azure AD
-    Begin {                                                                                 # Begin function
-        $CallingFunction = 'RemoveAzADUser'                                                 # Creates $CallingFunction
-        :RemoveAzureADUser while ($true) {                                                  # Outer loop for managing function
-            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
-            if (!$ADUserObject) {                                                           # If $ADUserObject does not have a value
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End if (!$ADUserObject)
-            Write-Host 'Remove'$ADUserObject.UserPrincipalName                              # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the account
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm is equal to 'y'
-                try {                                                                       # Try the following
-                    Remove-AzADUser -ObjectId $ADUserObject.ID -Force -ErrorAction 'Stop'   # Removes the selected account
-                }                                                                           # End try
-                Catch {                                                                     # If try fails
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Start-Sleep(2)                                                          # Pauses all actions for 2 seconds
-                    Break RemoveAzureADuser                                                 # End Break RemoveAzureADuser
-                }                                                                           # End catch
-                Write-Host $ADUserObject.UserPrincipalName'has been removed'                # Write message to screen
-                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End if ($OpConfirm -eq 'y')
-            else {                                                                          # If $OpConfirm is not equal to 'y'
-                Write-Host 'No changes has been made'                                       # Write message to screen
-                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :RemoveAzureADUser while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzADUser
