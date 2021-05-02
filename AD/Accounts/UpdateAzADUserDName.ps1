@@ -11,7 +11,8 @@
     GetAzADUser:                Gets an Azure AD account
 } #>
 <# Variables: {
-    :UpdateAzureADUser          Outer loop for managing function
+    :UpdateAzureADUserDName     Outer loop for managing function
+    :UpdateAzureADUserName      Inner loop for confirming the new name
     $CallingFunction:           Name of this function
     $ADUserObject:              Azure AD account object
     $OpConfirm:                 Operator confirmation to update
@@ -40,12 +41,12 @@ function UpdateAzADUserDName {                                                  
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
                     $UpdatedName = Read-Host 'Enter new display name'                       # Operator input for the new display name
-                    Write-Host $UpdatedName'is correct'
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'
+                    Write-Host $UpdatedName' is correct'                                    # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new name
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
                         Break UpdateAzureADUserDName                                        # Breaks :UpdateAzureADUserDName    
                     }                                                                       # End if ($OpConfirm -eq 'e')
-                    elseif ($OpConfirm -eq 'y') {
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
                         Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
                     }                                                                       # End elseif ($OpConfirm -eq 'y')
                 }                                                                           # End :UpdateAzureADUserName while ($true)
@@ -72,4 +73,4 @@ function UpdateAzADUserDName {                                                  
         Clear-Host                                                                          # Clears the screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
-}                                                                                           # End function EnableAzADUser
+}                                                                                           # End function UpdateAzADUserDName
