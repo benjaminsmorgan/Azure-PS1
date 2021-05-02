@@ -259,6 +259,46 @@ function ListAzADUser {                                                         
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzADUser
+function UpdateAzADUser {                                                                   # Function to manage UpdateAzADUser functions
+    Begin {                                                                                 # Begin function
+        :UpdateAzureADUser while ($true) {                                                  # Outer loop for managing function
+            Write-Host '[1] Enable user'                                                    # Write message to screen
+            Write-Host '[2] Disable user'                                                   # Write message to screen
+            Write-Host '[3] Change user display name'                                       # Write message to screen
+            Write-Host '[4] Change user given name'                                         # Write message to screen
+            Write-Host '[5] Change user surname'                                            # Write message to screen
+            Write-Host '[6] Change user dept'                                               # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the management function
+            if ($OpSelect -eq 'Exit') {                                                     # If $OpSelect equals 'exit'
+                Break UpdateAzureADUser                                                     # Breaks :UpdateAzureADUser 
+            }                                                                               # End if ($OpSelect -eq 'Exit')
+            elseif ($OpSelect -eq '1') {                                                    # If $OpSelect equals '1'
+                EnableAzADUser                                                              # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # If $OpSelect equals '2'
+                DisableAzADUser                                                             # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # If $OpSelect equals '3'
+                UpdateAzADUserDName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # If $OpSelect equals '4'
+                UpdateAzADUserGName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # If $OpSelect equals '5'
+                UpdateAzADUserSName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # If $OpSelect equals '6'
+            UpdateAzADUserDept                                                              # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'Exit'))
+        }                                                                                   # End :UpdateAzureADUser while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUser
 function EnableAzADUser {                                                                   # Function to Enable an Azure AD user account
     Begin {                                                                                 # Begin function
         $CallingFunction = 'EnableAZADUser'                                                 # Creates $CallingFunction
@@ -342,12 +382,12 @@ function UpdateAzADUserDName {                                                  
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
                     $UpdatedName = Read-Host 'Enter new display name'                       # Operator input for the new display name
-                    Write-Host $UpdatedName'is correct'
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'
+                    Write-Host $UpdatedName' is correct'                                    # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new name
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
                         Break UpdateAzureADUserDName                                        # Breaks :UpdateAzureADUserDName    
                     }                                                                       # End if ($OpConfirm -eq 'e')
-                    elseif ($OpConfirm -eq 'y') {
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
                         Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
                     }                                                                       # End elseif ($OpConfirm -eq 'y')
                 }                                                                           # End :UpdateAzureADUserName while ($true)
@@ -374,7 +414,164 @@ function UpdateAzADUserDName {                                                  
         Clear-Host                                                                          # Clears the screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
-}                                                                                           # End function EnableAzADUser
+}                                                                                           # End function UpdateAzADUserDName
+function UpdateAzADUserGName {                                                              # Function to update an Azure AD user account given name
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserGName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserGName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new given (First) name'                 # Operator input for the new display name
+                    Write-Host $UpdatedName'is correct'                                     # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of new name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserGName                                        # Breaks :UpdateAzureADUserGName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                        $ADUSERObject.GivenName = $UpdatedName                              # Changes the $ADUserObject.GivenName to $Updated name
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -GivenName `
+                        $ADUserObject.GivenName -ErrorAction 'Stop'                         # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserGName                                            # Breaks :UpdateAzureADUserGName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserGName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserGName
+function UpdateAzADUserSName {                                                              # Function to update an Azure AD user account surname
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserSName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserSName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new surname (Last)'                     # Operator input for the new display name
+                    Write-Host $UpdatedName' is correct'                                    # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserSName                                        # Breaks :UpdateAzureADUserSName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                        $ADUSERObject.Surname = $UpdatedName                                # Changes the $ADUserObject.GivenName to $Updated name
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -SurName `
+                        $ADUserObject.SurName -ErrorAction 'Stop'                           # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserSName                                            # Breaks :UpdateAzureADUserSName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserSName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserSName
+function UpdateAzADUserDept {                                                               # Function to update an Azure AD user account department
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserDept'                                             # Creates $CallingFunction
+        :UpdateAzureADUserDept while ($true) {                                              # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                [System.Collections.ArrayList]$DeptArray = @()                              # Creates the dept array
+                $DeptList = @('IT','HR','MT','MK','SL','BL','EX')                           # Creates a list of items to load into $DeptArray
+                $DeptNumber = 1                                                             # Sets the base number for the $DeptArray
+                foreach ($_ in $DeptList) {                                                 # For each item in $DeptList
+                    $DeptInput = [PSCustomObject]@{'Name' = $_;'Number' `
+                        = $DeptNumber}                                                      # Creates the item to loaded into array
+                    $DeptArray.Add($DeptInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                    $DeptNumber = $DeptNumber + 1                                           # Increments $DeptNumber up 1
+                }                                                                           # End foreach ($_ in $DeptList)
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                foreach ($_ in $DeptArray) {                                                # For each item in $DeptArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    Write-Host "[$Number]" $_.Name                                          # Write message to screen
+                }                                                                           # End foreach ($_ in $DeptArray)
+                :SelectDept while ($true) {                                                 # Inner loop for selecting the dept
+                    $OpSelect = Read-Host 'Dept [#]'                                        # Operator selection of the dept
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect -eq 0
+                        Break UpdateAzureADUserDept                                         # Breaks :UpdateAzureADUserDept
+                    }                                                                       # End ($OpSelect -eq '0')
+                    if ($OpSelect -in $DeptArray.Number) {                                  # If $OpSelect is in $DeptArray.Number
+                        $DeptObject = $DeptArray | Where-Object {$_.Number -eq $OpSelect}   # $DeptObject equals $DeptArray where $DeptArray.Number is equal to $OpSelect
+                        $DeptObject = $DeptObject.Name                                      # Sets $DeptObject to $DeptObject.Name
+                        Break SelectDept                                                    # Breaks :SelectDept
+                    }                                                                       # End if ($OpSelect -in $DeptArray.Number)
+                    else {                                                                  # If $DeptObject does not have a value
+                        Write-Host "That was not a valid option"                            # Write message to screen
+                    }                                                                       # End else (if ($OpSelect -in $DeptArray.Number))
+                }                                                                           # End :SelectDept while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -Department `
+                        $DeptObject -ErrorAction 'Stop'                                     # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserDept                                             # Breaks :UpdateAzureADUserDept
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserDept while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserDept
 function RemoveAzADUser {                                                                   # Function to remove an Azure AD
     Begin {                                                                                 # Begin function
         $CallingFunction = 'RemoveAzADUser'                                                 # Creates $CallingFunction
