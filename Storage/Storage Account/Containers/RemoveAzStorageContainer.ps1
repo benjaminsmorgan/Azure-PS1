@@ -20,29 +20,11 @@
     RemoveAzStorageContainer {
         :RemoveAzureStorageCon      Outer loop for managing function
         $StorageConObject:          Storage container object
-        $OperatorConfirm:           Operator confirmation to remove the storage container
-        GetAzStorageContainer {
-            :GetAzureStorageContainer   Outer loop for managing function
-            :GetAzureStorageConName     Inner loop for getting the storage container
-            $StorageAccObject:          Storage account object    
-            $StorageConNameInput:       Operator input for the storage container name
-            $StorageConObject:          Storage container object
-            $StorageConList:            List of all containers in storage account
-            GetAzStorageAccount{
-                :GetAzureStorageAccByName   Outer loop for managing funciton
-                :GetAzureStorageAcc         Inner loop for getting the storage account
-                $RGObject:                  Resource group object
-                $StorageAccObjectInput:     Operator input for the name of the storage account
-                $SAList:                    List of all storage accounts within $RGObject
-                $StorageAccObject:          Storage account object    
-                GetAzResourceGroup {
-                    $RGObject:                  Resource group object
-                    $RGObjectInput:             Operator input for the resource group name
-                    $RGList:                    Variable used for printing all resource groups to screen if needed
-                } End GetAzResourceGroup
-            } End GetAzStorageAccount
-        } End GetAzStorageContainer
-    } End RemoveAzStorageContainer
+        $StorageAccObject:          Storage account object
+        $OpConfirm:                 Operator confirmation to remove the storage container
+        GetAzStorageContainer{}     Gets $StorageConObject
+            GetAzStorageAccount{}       Gets $StorageAccObject
+                GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
@@ -52,40 +34,48 @@
                     Call GetAzResourceGroup > Get $RGObject
                     End GetAzResourceGroup
                         Return GetAzStorageAccount > Send $RGObject
-                End RemoveAzStorageContainer 
-                    Return Function > Send $null
+                End GetAzStorageAccount
+                    Return GetAzStorageContainer > Send $StorageAccObject
+            End GetAzStorageContainer
+                Return RemoveAzStorageContainer > Send $StorageConObject, $StorageAccObject
+        End RemoveAzStorageContainer 
+            Return Function > Send $null
 }#>
-function RemoveAzStorageContainer { # Removes existing storage container
-    Begin {
-        :RemoveAzureStorageCon while ($true) { # Outer loop for function
-            <#if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount ($RGObject) # Calls function and assigns to $var
-                    if (!$StorageAccObject) { # If $StorageAccObject is still $null after calling function
-                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject) #>
-            if (!$StorageConObject) { # If $StorageConObject is $null
-                $StorageConObject = GetAzStorageContainer ($StorageAccObject) # Calls function and assigns to $var
-                    if (!$StorageConObject) { # If $StorageConObject is still $null after calling function
-                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            Write-Host "***WARNING RESOURCELOCKS WILL NOT PROTECT THIS STORAGECONTAINER FROM BEING DELETED***"
-            $OperatorConfirm = Read-Host "Remove the following storage container" $StorageConObject.Name "in" $StorageAccObject.StorageAccountName # Operator confimation to remove the storage container
-                if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')) { # If Operator confirm is not (equal 'y' or 'yes')
-                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageCon
-                } # End if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes'))
-                $StoreConName = $StorageConObject.Name
-                Try { # Try to execute Remove-AzStorageAccount
-                    Remove-AzStorageContainer -Context $StorageAccObject.Context -Name $StorageConObject.Name -Force -ErrorAction Stop # Removes storage container, -ErrorAction Stop used for catch statement
-                } # End Try
-                catch { # Try fails
-                    Write-Host "You may not have the permissions to remove this storage account" # Write message to screen
-                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageAcc
-                } # End Catch
-                Write-Host $StoreConName" has been removed" # Write message to screen
-                Return # Returns to calling function
-        } # End :RemoveAzureStorageCon while ($true)
-        Return # Returns to calling function
-    } # End Begin
-} # End function RemoveAzStorageContainer
+function RemoveAzStorageContainer {                                                         # Function to removes existing storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'RemoveAzStorageContainer'                                       # Creates $CallingFunction
+        :RemoveAzureStorageCon while ($true) {                                              # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+            if (!$StorageConObject) {                                                       # If $StorageConObject is $null
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End if (!$StorageAccObject)
+            Write-Host 'Remove storage container:' $StorageConObject.Name                   # Write message to screen
+            Write-Host 'from storage account:    ' $StorageAccObject.StorageAccountName     # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confimation to remove the storage container
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzStorageContainer -Context $StorageAccObject.Context -Name `
+                        $StorageConObject.Name -Force -ErrorAction 'Stop'                   # Removes storage container
+                }                                                                           # End Try
+                catch {                                                                     # Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the'                                       # Write message to screen
+                    Write-Host 'permissions required'                                       # Write message to screen
+                    Write-Host 'to complete this action'                                    # Write message to screen
+                    Pause                                                                   # Pauses for operator input
+                    Break RemoveAzureStorageCon                                             # Breaks RemoveAzureStorageAcc
+                }                                                                           # End Catch
+                Write-Host $StorageConObject.Name'has been removed'                         # Write message to screen
+                Start-Sleep(3)                                                              # Pauses all action for 3 seconds
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all action for 2 seconds
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzStorageContainer
