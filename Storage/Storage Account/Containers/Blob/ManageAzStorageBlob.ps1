@@ -30,7 +30,7 @@
 <# Variables: {
     ManageAzStorageBlob {
         :ManageAzureStorageBlob     Outer loop for managing function
-        $ManageAzStorageBlob:       Operator input for choosing a management function
+        $OpSelect:       Operator input for choosing a management function
         $StorageBlobObject:         Storage blob object or objects
         $StorageAccObject:          Storage account for the container holding the blobs
         $StorageConObject:          Storage container holding the blobs
@@ -43,9 +43,9 @@
             $StorageConObject:          Storage container holding the blobs
             $StorageAccObject:          Storage account for the container holding the blobs
             $BlobTierInput:             Operator input for the access tier
-            $LocalFileNameInput:        Operator input for the local file path and file name
-            $OperatorConfirm:           Operator confirmation that info is correct
-            $BlobFileNameInput:         Operator input for the blob name in azure
+            $LocalFilePath:        Operator input for the local file path and file name
+            $OpConfirm:           Operator confirmation that info is correct
+            $BlobFileName:         Operator input for the blob name in azure
             $StorageBlobObject:         Storage blob object or objects
             GetAzStorageContainer{
                 :GetAzureStorageContainer   Outer loop for managing function
@@ -106,7 +106,7 @@
             $StorageAccObject:          Storage account for the container holding the blobs
             $StorageConObject:          Storage container holding the blobs
             $LocalFileDownloadPath:     Operator input for the file path blob will be downloaded to
-            $OperatorConfirm:           Operator confirmation that info is correct
+            $OpConfirm:           Operator confirmation that info is correct
             GetAzStorageContainer{
                 :GetAzureStorageContainer   Outer loop for managing function
                 :GetAzureStorageConName     Inner loop for getting the storage container
@@ -213,165 +213,167 @@
         End ManageAzStorageBlob                                  
             Return Function > Send $null
 }#>
-function ManageAzStorageBlob { # Manages storage blob functions
-    Begin {
-        :ManageAzureStorageBlob while ($true) { # :ManageAzureStorageBlob named loop to select search function
-            Write-Host "Azure Storage Blob Management" # Write message to screen
-            Write-Host "1 Add Storage Blob" # Write message to screen
-            Write-Host "2 List Storage Blobs" # Write message to screen
-            Write-Host "3 Download Storage Blobs" # Write message to screen
-            Write-Host "4 Remove Storage Blobs" # Write message to screen
-            Write-Host "0 Unselect currently selected resources" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageBlob = Read-Host "Option?" # Collects operator input on $ManageAzStorageBlob option
-            if ($ManageAzStorageBlob -eq 'exit') { # Exit if statement for this function
-                Break ManageAzureStorageBlob # Ends :ManageAzureStorageBlob loop, leading to return statement
-            } # End if ($ManageAzStorageBlob -eq 'exit')
-            elseif ($ManageAzStorageBlob -eq '1') { # Elseif statement for managing storage accounts
-                Write-Host "Add Storage Blob" # Write message to screen
-                $StorageBlobObject = SetAzStorageBlobContent ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '1')
-            elseif ($ManageAzStorageBlob -eq '2') { # Elseif statement for managing storage containers
-                Write-Host "List Storage Blobs" # Write message to screen
-                $StorageBlobObject, $StorageAccObject, $StorageConObject = ListAzStorageBlob ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '2')
-            elseif ($ManageAzStorageBlob -eq '3') { # Elseif statement for managing Blobs
-                Write-Host "Download Storage Blobs" # Write message to screen
-                $StorageBlobObject = GetAzStorageBlobContent ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '3')
-            elseif ($ManageAzStorageBlob -eq '4') { # Elseif statement for managing file shares
-                Write-Host "Remove Storage Blobs" # Write message to screen
-                RemoveAzStorageBlob ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageBlob -eq '4')
-            elseif ($ManageAzStorageBlob -eq '0') { # Elseif statement for managing disks
-                if ($RGObject) { # If $var is not $null
-                Write-Host "Clearing" $RGObject.ResourceGroupName # Write message to screen
-                $RGObject = $null # Sets $var to $null
-                } # End if ($RGObject)
-                if ($StorageAccObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageAccObject.StorageAccountName # Write message to screen
-                $StorageAccObject = $null # Sets $var to $null
-                } # End if ($StorageAccObject)
-                if ($StorageConObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageConObject.Name # Write message to screen
-                $StorageConObject = $null # Sets $var to $null
-                } # End if ($StorageConObject)
-                if ($StorageBlobObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageBlobObject.Name # Write message to screen
-                $StorageBlobObject = $null # Sets $var to $null
-                } # End if ($StorageBlobObject)
-                Write-Host "All objects have been cleared" # Write message to screen
-            } # End elseif ($ManageAzStorageBlob -eq '0')
-            if ($RGObject) { # If $var is not $null
-                Write-Host "Current Resource Group:    " $RGObject.ResourceGroupName # Write message to screen
-            } # End if ($RGObject)
-            if ($StorageAccObject) { # If $var is not $null
-                Write-Host "Current Storage Account:   " $StorageAccObject.StorageAccountName # Write message to screen
-            } # End if ($StorageAccObject)
-            if ($StorageConObject) { # If $var is not $null
-                Write-Host "Current Storage Container: " $StorageConObject.Name # Write message to screen
-            } # End if ($StorageConObject)
-            if ($StorageBlobObject) { # If $var is not $null
-                Write-Host "Current Storage Blob(s):   " $StorageBlobObject.Name # Write message to screen
-            } # End if ($StorageBlobObject)
-            Write-Host "" # Write message to screen
-        } # End :ManageAzureStorageBlob while ($true)
-        Return # Returns to calling function if no search option is used
-    } # End begin
-} # End function ManageAzStorage
-function SetAzStorageBlobContent {
-    Begin {
-        :SetAzureBlobContent while ($true) { # Outer loop for managing function
-            if (!$StorageConObject) { # If $var is $null
-                $StorageConObject, $StorageAccObject = GetAzStorageContainer # Calls function and assigns to $var
-                if (!$StorageConObject) { # If $var is $null
-                    Break SetAzureBlobContent
-                } # End if (!$StorageConObject)
-            } # End if (!$StorageConObject)
-            :SetAzureBlobTier while($true) { # Inner loop for setting access tier
-                $BlobTierInput = Read-Host "Hot or Cool" # Operator input for $BlobTierInput
-                if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool') { # If $Var is a valid entry
-                    Break SetAzureBlobTier
-                } # End if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool')
-                elseif ($BlobTierInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End elseif ($BlobTierInput -eq 'exit')
-                else { # Else if no valid entry for $Var
-                    Write-Host "Please enter hot or cool" # Write message to screen
-                } # End else (if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool'))
-            } # End :SetAzureBlobTier while($true)
-            :SetLocalFileName while ($true) {
-                $LocalFileNameInput = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
-                if ($LocalFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($LocalFileNameInput -eq 'exit')
-                Write-Host "This is the file to be uploaded" # Write message to screen
-                Write-Host $LocalFileNameInput
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetLocalFileName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetLocalFileName while ($true)
-            :SetAzureBlobName while ($true) {
-                $BlobFileNameInput = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
-                if ($BlobFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($BlobFileNameInput -eq 'exit')
-                Write-Host "This will be the file name in the container" # Write message to screen
-                Write-Host $BlobFileNameInput # Write message to screen
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetAzureBlobName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetAzureBlobName while ($true)
-            $StorageBlobObject = Set-AzStorageBlobContent -File $LocalFileNameInput -Blob $BlobFileNameInput -Container $StorageConObject.Name -Context $StorageAccObject.Context -StandardBlobTier $BlobTierInput
-            Return $StorageBlobObject 
-        } # End  :SetAzureBlobContent while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function SetAzStorageBlobContent
-function ListAzStorageBlob {
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error messages
-        :ListAzureBlobs while ($true) { # Outer loop for managing function
-            if (!$StorageConObject) { # If $var is $null
-                $StorageConObject, $StorageAccObject = GetAzStorageContainer # Calls function and assigns to $var
-                if (!$StorageConObject) { # If $var is $null
-                    Break ListAzureBlobs
-                } # End if (!$StorageConObject)
-            } # End if (!$StorageConObject)
-            $OperatorSelect = Read-Host "Search for a named blob [Y] or [N]"
-            if ($OperatorSelect -eq 'y' -or $OperatorSelect -eq 'yes') {
-                :GetAzureBlob while ($true) {
-                    $StorageBlobNameInput = Read-Host "Blob name (Case Sensitive)"
-                    if ($StorageBlobNameInput -eq 'exit') { # If $Var is 'exit'
-                        Break ListAzureBlobs
-                    } # End if ($StorageBlobNameInput -eq 'exit')
-                    $StorageBlobObject = Get-AzStorageBlob -Blob $StorageBlobNameInput -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                    if (!$StorageBlobObject) { # If $Var is $null
-                        Write-Host "No blobs names matched" # Write message to screen
-                        Write-Host "Please chose from the following" # Write message to screen
-                        $StorageBlobList = Get-AzStorageBlob -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                        Write-Host $StorageBlobList.Name -Separator `n # Write message to screen
-                        Write-Host "" # Write message to screen
-                    } # End if (!$StorageBlobObject)
-                    else {
-                        Write-Host $StorageBlobObject.Name $StorageBlobObject.Length $StorageBlobObject.LastModified $StorageBlobObject.AccessTier # Write message to screen 
-                        Return $StorageBlobObject, $StorageAccObject, $StorageConObject
-                    } # End else (if (!$StorageBlobObject))
-                } # End :GetAzureBlob while ($true)
-            } # End if ($OperatorSelect -eq 'y' -or $OperatorSelect -eq 'yes')
-            else {
-                $StorageBlobObject = Get-AzStorageBlob -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                foreach ($Name in $StorageBlobObject) {
-                    Write-Host $Name.Name $Name.Length $Name.LastModified $Name.AccessTier # Write message to screen
-                } # End foreach ($Name in $StorageBlobList)
-                Return $StorageBlobObject, $StorageAccObject, $StorageConObject
-            } # End else (if ($StorageBlobNameInput))
-        } # End :ListAzureBlobs while
-        Return # Returns to calling function empty
-    } # End Begin
-} # End function GetAzStorageBlob
+function ManageAzStorageBlob {                                                              # Manages storage blob functions
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorageBlob while ($true) {                                             # Outer loop for managing function
+            Write-Host 'Azure Storage Blob Management'                                      # Write message to screen
+            Write-Host '[1] Add Storage Blob'                                               # Write message to screen
+            Write-Host '[2] List Storage Blobs'                                             # Write message to screen
+            Write-Host '[3] Download Storage Blobs'                                         # Write message to screen
+            Write-Host '[4] Remove Storage Blobs'                                           # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function        
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+                Break ManageAzureStorageBlob                                                # Breaks :ManageAzureStorageBlob 
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Add Storage Blob'                                               # Write message to screen
+                SetAzStorageBlobContent                                                     # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Storage Blobs'                                             # Write message to screen
+                ListAzStorageBlob                                                           # Calls function  
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Download Storage Blob'                                          # Write message to screen
+                GetAzStorageBlobContent                                                     # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove Storage Blobs'                                           # Write message to screen
+                RemoveAzStorageBlob                                                         # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit))
+        }                                                                                   # End :ManageAzureStorageBlob while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorage
+function SetAzStorageBlobContent {                                                          # Function to upload a new blob to storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'SetAzStorageBlobContent'                                        # Creates $CallingFunction
+        :SetAzureBlobContent while ($true) {                                                # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+                if (!$StorageConObject) {                                                   # If $StorageConObject is $null
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if (!$StorageConObject)
+            :SetAzureBlobTier while($true) {                                                # Inner loop for setting access tier
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Hot'                                                        # Write message to screen
+                Write-Host '[2] Cool'                                                       # Write message to screen
+                $OpSelect = Read-Host 'Set blob access tier [#]'                            # Operator input for the blob tier
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $BlobTier = 'Hot'                                                       # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $BlobTier = 'Cool'                                                      # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureBlobTier while($true)
+            :SetLocalFileName while ($true) {                                               # Inner loop for adding file path
+                Write-Host 'Please enter the full path plus file name and extension'        # Write message to screen
+                $LocalFilePath = Read-Host 'Example: C:\users\admin\desktop\file.csv'       # Collects the path to file
+                if ($LocalFilePath -eq 'exit') {                                            # If $LocalFilePath equals 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($LocalFilePath -eq 'exit')
+                if (Test-Path $LocalFilePath) {                                             # If file exists
+                    Write-Host 'This is the file to be uploaded'                            # Write message to screen
+                    Write-Host $LocalFilePath                                               # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator confirmation of the file to be uploaded
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break SetLocalFileName                                              # Breaks :SetLocalFileName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if (Test-Path $LocalFilePath)
+                else {                                                                      # If file does not exist
+                    Write-Host 'The file could not be located'                              # Write message to screen
+                    Write-Host 'Please recheck the path and file name'                      # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (Test-Path $LocalFilePath)
+            }                                                                               # End :SetLocalFileName while ($true)
+            :SetAzureBlobName while ($true) {                                               # Inner loop for setting the blob file name in storage container
+                $BlobFileName = Read-Host 'New name and ext for this file'                  # Operator input for the blob name and ext once uploaded
+                if ($BlobFileName -eq 'exit') {                                             # If $BlobFileName is 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($BlobFileName -eq 'exit')
+                Write-Host 'This will be the file name in the container'                    # Write message to screen
+                Write-Host $BlobFileName                                                    # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No'                                     # Operator confirmation of the blob file name
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break SetAzureBlobName                                                  # Breaks :SetAzureBlobName  
+                }                                                                           # End if ($OpConfirm -eq 'y')
+            }                                                                               # End :SetAzureBlobName while ($true)
+            Try {
+                Set-AzStorageBlobContent -File $LocalFilePath -Blob $BlobFileName `
+                    -Container $StorageConObject.Name -Context $StorageAccObject.Context `
+                    -StandardBlobTier $BlobTier -ErrorAction 'Stop'                         # Adds file as blob
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'You may not have the'                                           # Write message to screen
+                Write-Host 'permissions required'                                           # Write message to screen
+                Write-Host 'to complete this action'                                        # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break SetAzureBlobName                                                      # Breaks SetAzureBlobName
+            }                                                                               # End catch
+            Write-Host 'The file has been uploaded into storage container'                  # Write message to screen
+            Start-Sleep(2)                                                                  # Pauses all action for 2 seconds
+            Break SetAzureBlobName                                                          # Breaks SetAzureBlobName
+        }                                                                                   # End :SetAzureBlobContent while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzStorageBlobContent
+function ListAzStorageBlob {                                                                # Function to list all blobs in storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'ListAzStorageBlob'                                              # Creates $CallingFunction
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error messages
+        :ListAzureBlobs while ($true) {                                                     # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+            if (!$StorageConObject) {                                                       # If $StorageConObject is $null
+                Break ListAzureBlobs                                                        # Breaks :ListAzureBlobs
+            }                                                                               # End if (!$StorageConObject)
+            $ObjectList = Get-AzStorageBlob -Context $StorageAccObject.context -Container `
+                $StorageConObject.Name                                                      # Object containing the blob info objects
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No blobs exist in this container'                               # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break ListAzureBlobs                                                        # Breaks :ListAzureBlobs
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.Name;'Type'=$_.BlobType; `
+                    'LM'=$_.LastModified;'AT'=$_.AccessTier;'Del'=$_.IsDeleted;`
+                    'VID'=$_.VersionID}                                                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+            }                                                                               # End foreach ($_ in $ObjectList)
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                Write-Host 'Name:       '$_.Name                                            # Write message to screen
+                Write-Host 'Type:       '$_.Type                                            # Write message to screen
+                Write-Host 'Last Mod:   '$_.LM                                              # Write message to screen
+                Write-Host 'Access Tier:'$_.AT                                              # Write message to screen
+                Write-Host 'Deleted:    '$_.Del                                             # Write message to screen
+                Write-Host 'VersionID:  '$_.VID                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureBlobs                                                            # Breaks :ListAzureBlobs
+        }                                                                                   # End :ListAzureBlobs while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzStorageBlob
 function GetAzStorageBlobContent {
     Begin {
         $ErrorActionPreference = 'silentlyContinue' # Disables error messages
@@ -396,10 +398,10 @@ function GetAzStorageBlobContent {
                     Break GetAzureBlobs
                 } # End if ($LocalFileDownloadPath -eq 'exit')
                 Write-Host "Download blobs to"$LocalFileDownloadPath # Write message to screen
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
+                $OpConfirm = Read-Host "[Y] or [N]"
+                if ($OpConfirm -eq 'y' -or $OpConfirm -eq 'yes') {
                     Break SetLocalFilePath
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
+                } # End if ($OpConfirm -eq 'y' -or $OpConfirm -eq 'yes')
             } # End :SetLocalFilePath while ($true)
             Try {
                 foreach ($Name in $StorageBlobObject) {
@@ -411,7 +413,7 @@ function GetAzStorageBlobContent {
         } # End while statement
         Return # Returns to calling function
     } # End Begin
-} # End function GetAzStorageBlobContent
+}                                                                                           # End function GetAzStorageBlobContent
 function RemoveAzStorageBlob {
     Begin {
         $ErrorActionPreference = 'silentlyContinue' # Disables error messages
@@ -448,4 +450,51 @@ function RemoveAzStorageBlob {
         } # End RemoveAzureBlobs
         Return
     } # End Begin
-} # End function RemoveAzStorageBlob
+}                                                                                           # End function RemoveAzStorageBlob
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
+                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
