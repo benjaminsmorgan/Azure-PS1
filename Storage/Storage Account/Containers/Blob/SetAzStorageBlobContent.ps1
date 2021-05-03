@@ -22,39 +22,20 @@
         :SetAzureBlobTier           Inner loop for setting a new blob access tier
         :SetLocalFileName           Inner loop for setting the local machine file path
         :SetAzureBlobName           Inner loop for setting the file name and ext in azure
+        $CallingFunction:           Name of this function
         $StorageConObject:          Storage container holding the blobs
         $StorageAccObject:          Storage account for the container holding the blobs
-        $BlobTierInput:             Operator input for the access tier
-        $LocalFileNameInput:        Operator input for the local file path and file name
-        $OperatorConfirm:           Operator confirmation that info is correct
-        $BlobFileNameInput:         Operator input for the blob name in azure
-        $StorageBlobObject:         Storage blob object or objects
-        GetAzStorageContainer{
-            :GetAzureStorageContainer   Outer loop for managing function
-            :GetAzureStorageConName     Inner loop for getting the storage container
-            $StorageAccObject:          Storage account object    
-            $StorageConNameInput:       Operator input for the storage container name
-            $StorageConObject:          Storage container object
-            $StorageConList:            List of all containers in storage account
-            GetAzStorageAccount{
-                :GetAzureStorageAccByName   Outer loop for managing funciton
-                :GetAzureStorageAcc         Inner loop for getting the storage account
-                $RGObject:                  Resource group object
-                $StorageAccObjectInput:     Operator input for the name of the storage account
-                $SAList:                    List of all storage accounts within $RGObject
-                $StorageAccObject:          Storage account object    
-                GetAzResourceGroup {
-                    $RGObject:                  Resource group object
-                    $RGObjectInput:             Operator input for the resource group name
-                    $RGList:                    Variable used for printing all resource groups to screen if needed
-                } End GetAzResourceGroup
-            } End GetAzStorageAccount
-        } End GetAzStorageContainer
-    } End SetAzStorageBlobContent
+        $BlobTier:                  Operator input for the access tier
+        $LocalFileName:             Operator input for the local file path and file name
+        $OpConfirm:                 Operator confirmation that info is correct
+        $BlobFileName:              Operator input for the blob name in azure
+        GetAzStorageContainer{}     Gets $StorageConObject
+            GetAzStorageAccount{}       Gets $StorageAccObject
+                GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
-        Call SetAzStorageBlobContent > Get $StorageBlobObject
+        Call SetAzStorageBlobContent > Get $null
             Call GetAzStorageContainer > Get $StorageConObject
                 Call GetAzStorageAccount > Get $StorageAccObject
                     Call GetAzResourceGroup > Get $RGObject
@@ -65,56 +46,90 @@
             End GetAzStorageContainer 
                 Return SetAzStorageBlob > Send $StorageConObject, $StorageAccObject
         End SetAzStorageBlobContent
-            Return function > Send $StorageBlobObject
+            Return function > Send $null
 }#>
-function SetAzStorageBlobContent {
-    Begin {
-        :SetAzureBlobContent while ($true) { # Outer loop for managing function
-            if (!$StorageConObject) { # If $var is $null
-                $StorageConObject, $StorageAccObject = GetAzStorageContainer # Calls function and assigns to $var
-                if (!$StorageConObject) { # If $var is $null
-                    Break SetAzureBlobContent
-                } # End if (!$StorageConObject)
-            } # End if (!$StorageConObject)
-            :SetAzureBlobTier while($true) { # Inner loop for setting access tier
-                $BlobTierInput = Read-Host "Hot or Cool" # Operator input for $BlobTierInput
-                if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool') { # If $Var is a valid entry
-                    Break SetAzureBlobTier
-                } # End if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool')
-                elseif ($BlobTierInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End elseif ($BlobTierInput -eq 'exit')
-                else { # Else if no valid entry for $Var
-                    Write-Host "Please enter hot or cool" # Write message to screen
-                } # End else (if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool'))
-            } # End :SetAzureBlobTier while($true)
-            :SetLocalFileName while ($true) {
-                $LocalFileNameInput = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
-                if ($LocalFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($LocalFileNameInput -eq 'exit')
-                Write-Host "This is the file to be uploaded" # Write message to screen
-                Write-Host $LocalFileNameInput
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetLocalFileName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetLocalFileName while ($true)
-            :SetAzureBlobName while ($true) {
-                $BlobFileNameInput = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
-                if ($BlobFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($BlobFileNameInput -eq 'exit')
-                Write-Host "This will be the file name in the container" # Write message to screen
-                Write-Host $BlobFileNameInput # Write message to screen
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetAzureBlobName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetAzureBlobName while ($true)
-            $StorageBlobObject = Set-AzStorageBlobContent -File $LocalFileNameInput -Blob $BlobFileNameInput -Container $StorageConObject.Name -Context $StorageAccObject.Context -StandardBlobTier $BlobTierInput
-            Return $StorageBlobObject 
-        } # End  :SetAzureBlobContent while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function SetAzStorageBlobContent
+function SetAzStorageBlobContent {                                                          # Function to upload a new blob to storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'SetAzStorageBlobContent'                                        # Creates $CallingFunction
+        :SetAzureBlobContent while ($true) {                                                # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+                if (!$StorageConObject) {                                                   # If $StorageConObject is $null
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if (!$StorageConObject)
+            :SetAzureBlobTier while($true) {                                                # Inner loop for setting access tier
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Hot'                                                        # Write message to screen
+                Write-Host '[2] Cool'                                                       # Write message to screen
+                $OpSelect = Read-Host 'Set blob access tier [#]'                            # Operator input for the blob tier
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $BlobTier = 'Hot'                                                       # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $BlobTier = 'Cool'                                                      # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureBlobTier while($true)
+            :SetLocalFileName while ($true) {                                               # Inner loop for adding file path
+                Write-Host 'Please enter the full path plus file name and extension'        # Write message to screen
+                $LocalFilePath = Read-Host 'Example: C:\users\admin\desktop\file.csv'       # Collects the path to file
+                if ($LocalFilePath -eq 'exit') {                                            # If $LocalFilePath equals 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($LocalFilePath -eq 'exit')
+                if (Test-Path $LocalFilePath) {                                             # If file exists
+                    Write-Host 'This is the file to be uploaded'                            # Write message to screen
+                    Write-Host $LocalFilePath                                               # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator confirmation of the file to be uploaded
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break SetLocalFileName                                              # Breaks :SetLocalFileName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if (Test-Path $LocalFilePath)
+                else {                                                                      # If file does not exist
+                    Write-Host 'The file could not be located'                              # Write message to screen
+                    Write-Host 'Please recheck the path and file name'                      # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (Test-Path $LocalFilePath)
+            }                                                                               # End :SetLocalFileName while ($true)
+            :SetAzureBlobName while ($true) {                                               # Inner loop for setting the blob file name in storage container
+                $BlobFileName = Read-Host 'New name and ext for this file'                  # Operator input for the blob name and ext once uploaded
+                if ($BlobFileName -eq 'exit') {                                             # If $BlobFileName is 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($BlobFileName -eq 'exit')
+                Write-Host 'This will be the file name in the container'                    # Write message to screen
+                Write-Host $BlobFileName                                                    # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No'                                     # Operator confirmation of the blob file name
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break SetAzureBlobName                                                  # Breaks :SetAzureBlobName  
+                }                                                                           # End if ($OpConfirm -eq 'y')
+            }                                                                               # End :SetAzureBlobName while ($true)
+            Try {
+                Set-AzStorageBlobContent -File $LocalFilePath -Blob $BlobFileName `
+                    -Container $StorageConObject.Name -Context $StorageAccObject.Context `
+                    -StandardBlobTier $BlobTier -ErrorAction 'Stop'                         # Adds file as blob
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'You may not have the'                                           # Write message to screen
+                Write-Host 'permissions required'                                           # Write message to screen
+                Write-Host 'to complete this action'                                        # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break SetAzureBlobName                                                      # Breaks SetAzureBlobName
+            }                                                                               # End catch
+            Write-Host 'The file has been uploaded into storage container'                  # Write message to screen
+            Start-Sleep(2)                                                                  # Pauses all action for 2 seconds
+            Break SetAzureBlobName                                                          # Breaks SetAzureBlobName
+        }                                                                                   # End :SetAzureBlobContent while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzStorageBlobContent
