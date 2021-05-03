@@ -3992,15 +3992,14 @@ function RemoveAzStorageAccount {                                               
     }                                                                                       # End begin 
 }                                                                                           # End function GetAzStorageAccount 
 # End ManageAzStorageAccount
-# Functions for ManageAzStorageAccount
+# Functions for ManageAzStorageContainer
 function ManageAzStorageContainer {                                                         # Function to manage storage containers
     Begin {                                                                                 # Begin function
         :ManageAzureStorageCon while ($true) {                                              # Outer loop for managing function
             Write-Host 'Azure Storage Container Management'                                 # Write message to screen
             Write-Host '[1] New Storage Container'                                          # Write message to screen
             Write-Host '[2] List All Storage Containers'                                    # Write message to screen
-            Write-Host '[3] Get Storage Container'                                          # Write message to screen
-            Write-Host '[4] Remove Storage Container'                                       # Write message to screen
+            Write-Host '[3] Remove Storage Container'                                       # Write message to screen
             Write-Host '[Exit] to return'                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
             if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
@@ -4015,13 +4014,9 @@ function ManageAzStorageContainer {                                             
                 ListAzStorageContainer                                                      # Calls function    
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host 'Get Storage Container'                                          # Write message to screen
-                GetAzStorageContainer                                                       # Calls function 
-            }                                                                               # End elseif ($OpSelect -eq '3')
-            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Remove Storage Container'                                       # Write message to screen
                 RemoveAzStorageContainer                                                    # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '4')
+            }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host "That was not a valid option"                                    # Write message to screen
             }                                                                               # End else (if ($OpSelect -eq 'exit'))
@@ -4248,238 +4243,282 @@ function ListAzStorageContainer {                                               
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzStorageContainer
-function GetAzStorageContainer { # Gets an existing stoage container
-    Begin {
-        $ErrorActionPreference='silentlyContinue'
-        :GetAzureStorageContainer while ($true) { # Outer loop for managing function
-            if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount # Call function and assigns to $var
-                if (!$StorageAccObject) { # If $StorageAccObject is $null after returning from function
-                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
-                } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            $SCList = Get-AzStorageContainer -Context $StorageAccObject.Context
-            $SCListNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Adds exit option to beginning of list
-            foreach ($_ in $SCList) { # For each item in list
-                Write-Host $SCListNumber"." $_.Name # Writes the option number and storage container name
-                $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
-            } # End foreach ($_ in $SCList)
-            :GetAzureStorageConName while ($true) { # Loop for selecting the storage container object
-                $SCListNumber = 1 # Resets list number to 1
-                $SCListSelect = Read-Host "Please enter the number of the storage container" # Operator input for selecting which storage container
-                if ($SCListSelect -eq '0') { # If $SCListSelect is equal to 0
-                    Break GetAzureStorageContainer # Breaks :GetAzureStorageContainer
-                } # End if ($SCListSelect -eq '0')
-                foreach ($_ in $SCList) { # For each item in list
-                    if ($SCListSelect -eq $SCListNumber) { # If the operator input matches the current $SCListNumber
-                        $StorageConObject = Get-AzStorageContainer -Context $StorageAccObject.Context -Name $_.Name # collects the full storage container object
-                        Break GetAzureStorageConName # Breaks :GetAzureStorageConName 
-                    } # End if ($SCListSelect -eq $SCListNumber)
-                    else { # If user input does not match the current $SCListNumber
-                        $SCListNumber = $SCListNumber+1 # Adds 1 to $SCListNumber
-                    } # End else (if ($SCListSelect -eq $SCListNumber))
-                } # End foreach ($_ in $SCList)
-                Write-Host "That was not a valid selection, please try again" # Write message to screen
-            } # End :GetAzureStorageConName while ($true)
-            Return $StorageConObject
-        } # End GetAzureStorageContainer
-        Return # Returns to calling function with #null
-    } # End Begin
-} # End GetAzStorageContainer
-function RemoveAzStorageContainer { # Removes existing storage container
-    Begin {
-        :RemoveAzureStorageCon while ($true) { # Outer loop for function
-            <#if (!$StorageAccObject) { # If $StorageAccObject is $null
-                $StorageAccObject = GetAzStorageAccount ($RGObject) # Calls function and assigns to $var
-                    if (!$StorageAccObject) { # If $StorageAccObject is still $null after calling function
-                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject) #>
-            if (!$StorageConObject) { # If $StorageConObject is $null
-                $StorageConObject = GetAzStorageContainer ($StorageAccObject) # Calls function and assigns to $var
-                    if (!$StorageConObject) { # If $StorageConObject is still $null after calling function
-                        Break RemoveAzureStorageCon # Breaks :RemoveAzureStorageCon
-                    } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            Write-Host "***WARNING RESOURCELOCKS WILL NOT PROTECT THIS STORAGECONTAINER FROM BEING DELETED***"
-            $OperatorConfirm = Read-Host "Remove the following storage container" $StorageConObject.Name "in" $StorageAccObject.StorageAccountName # Operator confimation to remove the storage container
-                if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')) { # If Operator confirm is not (equal 'y' or 'yes')
-                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageCon
-                } # End if (!($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes'))
-                $StoreConName = $StorageConObject.Name
-                Try { # Try to execute Remove-AzStorageAccount
-                    Remove-AzStorageContainer -Context $StorageAccObject.Context -Name $StorageConObject.Name -Force -ErrorAction Stop # Removes storage container, -ErrorAction Stop used for catch statement
-                } # End Try
-                catch { # Try fails
-                    Write-Host "You may not have the permissions to remove this storage account" # Write message to screen
-                    Break RemoveAzureStorageCon # Breaks RemoveAzureStorageAcc
-                } # End Catch
-                Write-Host $StoreConName" has been removed" # Write message to screen
-                Return # Returns to calling function
-        } # End :RemoveAzureStorageCon while ($true)
-        Return # Returns to calling function
-    } # End Begin
-} # End function RemoveAzStorageContainer
-function ManageAzStorageBlob { # Manages storage blob functions
-    Begin {
-        :ManageAzureStorageBlob while ($true) { # :ManageAzureStorageBlob named loop to select search function
-            Write-Host "Azure Storage Blob Management" # Write message to screen
-            Write-Host "1 Add Storage Blob" # Write message to screen
-            Write-Host "2 List Storage Blobs" # Write message to screen
-            Write-Host "3 Download Storage Blobs" # Write message to screen
-            Write-Host "4 Remove Storage Blobs" # Write message to screen
-            Write-Host "0 Unselect currently selected resources" # Write message to screen
-            Write-Host "'Exit to return'" # Write message to screen
-            $ManageAzStorageBlob = Read-Host "Option?" # Collects operator input on $ManageAzStorageBlob option
-            if ($ManageAzStorageBlob -eq 'exit') { # Exit if statement for this function
-                Break ManageAzureStorageBlob # Ends :ManageAzureStorageBlob loop, leading to return statement
-            } # End if ($ManageAzStorageBlob -eq 'exit')
-            elseif ($ManageAzStorageBlob -eq '1') { # Elseif statement for managing storage accounts
-                Write-Host "Add Storage Blob" # Write message to screen
-                $StorageBlobObject = SetAzStorageBlobContent ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '1')
-            elseif ($ManageAzStorageBlob -eq '2') { # Elseif statement for managing storage containers
-                Write-Host "List Storage Blobs" # Write message to screen
-                $StorageBlobObject, $StorageAccObject, $StorageConObject = ListAzStorageBlob ($StorageAccObject, $StorageConObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '2')
-            elseif ($ManageAzStorageBlob -eq '3') { # Elseif statement for managing Blobs
-                Write-Host "Download Storage Blobs" # Write message to screen
-                $StorageBlobObject = GetAzStorageBlobContent ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var 
-            } # End elseif ($ManageAzStorageBlob -eq '3')
-            elseif ($ManageAzStorageBlob -eq '4') { # Elseif statement for managing file shares
-                Write-Host "Remove Storage Blobs" # Write message to screen
-                RemoveAzStorageBlob ($StorageAccObject, $StorageConObject, $StorageBlobObject) # Calls function and assigns to $var
-            } # End elseif ($ManageAzStorageBlob -eq '4')
-            elseif ($ManageAzStorageBlob -eq '0') { # Elseif statement for managing disks
-                if ($RGObject) { # If $var is not $null
-                Write-Host "Clearing" $RGObject.ResourceGroupName # Write message to screen
-                $RGObject = $null # Sets $var to $null
-                } # End if ($RGObject)
-                if ($StorageAccObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageAccObject.StorageAccountName # Write message to screen
-                $StorageAccObject = $null # Sets $var to $null
-                } # End if ($StorageAccObject)
-                if ($StorageConObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageConObject.Name # Write message to screen
-                $StorageConObject = $null # Sets $var to $null
-                } # End if ($StorageConObject)
-                if ($StorageBlobObject) { # If $var is not $null
-                Write-Host "Clearing" $StorageBlobObject.Name # Write message to screen
-                $StorageBlobObject = $null # Sets $var to $null
-                } # End if ($StorageBlobObject)
-                Write-Host "All objects have been cleared" # Write message to screen
-            } # End elseif ($ManageAzStorageBlob -eq '0')
-            if ($RGObject) { # If $var is not $null
-                Write-Host "Current Resource Group:    " $RGObject.ResourceGroupName # Write message to screen
-            } # End if ($RGObject)
-            if ($StorageAccObject) { # If $var is not $null
-                Write-Host "Current Storage Account:   " $StorageAccObject.StorageAccountName # Write message to screen
-            } # End if ($StorageAccObject)
-            if ($StorageConObject) { # If $var is not $null
-                Write-Host "Current Storage Container: " $StorageConObject.Name # Write message to screen
-            } # End if ($StorageConObject)
-            if ($StorageBlobObject) { # If $var is not $null
-                Write-Host "Current Storage Blob(s):   " $StorageBlobObject.Name # Write message to screen
-            } # End if ($StorageBlobObject)
-            Write-Host "" # Write message to screen
-        } # End :ManageAzureStorageBlob while ($true)
-        Return # Returns to calling function if no search option is used
-    } # End begin
-} # End function ManageAzStorage
-function SetAzStorageBlobContent { # Uploads item as a blob
-    Begin {
-        :SetAzureBlobContent while ($true) { # Outer loop for managing function
-            if (!$StorageConObject) { # If $var is $null
-                $StorageConObject, $StorageAccObject = GetAzStorageContainer # Calls function and assigns to $var
-                if (!$StorageConObject) { # If $var is $null
-                    Break SetAzureBlobContent
-                } # End if (!$StorageConObject)
-            } # End if (!$StorageConObject)
-            :SetAzureBlobTier while($true) { # Inner loop for setting access tier
-                $BlobTierInput = Read-Host "Hot or Cool" # Operator input for $BlobTierInput
-                if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool') { # If $Var is a valid entry
-                    Break SetAzureBlobTier
-                } # End if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool')
-                elseif ($BlobTierInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End elseif ($BlobTierInput -eq 'exit')
-                else { # Else if no valid entry for $Var
-                    Write-Host "Please enter hot or cool" # Write message to screen
-                } # End else (if ($BlobTierInput -eq 'hot' -or $BlobTierInput -eq 'cool'))
-            } # End :SetAzureBlobTier while($true)
-            :SetLocalFileName while ($true) {
-                $LocalFileNameInput = Read-Host "Full path and filename" # Collects the path to file, example: C:\users\Admin\Documents\Blobupload.txt
-                if ($LocalFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($LocalFileNameInput -eq 'exit')
-                Write-Host "This is the file to be uploaded" # Write message to screen
-                Write-Host $LocalFileNameInput
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetLocalFileName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetLocalFileName while ($true)
-            :SetAzureBlobName while ($true) {
-                $BlobFileNameInput = Read-Host "New name and ext for this file" # Collects the new name and ext for the file that will be used in the storage account, example: SuperAwesomeBlob.jpg
-                if ($BlobFileNameInput -eq 'exit') { # If $Var is 'exit'
-                    Break SetAzureBlobContent
-                } # End if ($BlobFileNameInput -eq 'exit')
-                Write-Host "This will be the file name in the container" # Write message to screen
-                Write-Host $BlobFileNameInput # Write message to screen
-                $OperatorConfirm = Read-Host "[Y] or [N]"
-                if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') {
-                    Break SetAzureBlobName
-                } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-            } # End :SetAzureBlobName while ($true)
-            $StorageBlobObject = Set-AzStorageBlobContent -File $LocalFileNameInput -Blob $BlobFileNameInput -Container $StorageConObject.Name -Context $StorageAccObject.Context -StandardBlobTier $BlobTierInput
-            Return $StorageBlobObject 
-        } # End  :SetAzureBlobContent while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function SetAzStorageBlobContent
-function ListAzStorageBlob { # Lists all blobs
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error messages
-        :ListAzureBlobs while ($true) { # Outer loop for managing function
-            if (!$StorageConObject) { # If $var is $null
-                $StorageConObject, $StorageAccObject = GetAzStorageContainer # Calls function and assigns to $var
-                if (!$StorageConObject) { # If $var is $null
-                    Break ListAzureBlobs
-                } # End if (!$StorageConObject)
-            } # End if (!$StorageConObject)
-            $OperatorSelect = Read-Host "Search for a named blob [Y] or [N]"
-            if ($OperatorSelect -eq 'y' -or $OperatorSelect -eq 'yes') {
-                :GetAzureBlob while ($true) {
-                    $StorageBlobNameInput = Read-Host "Blob name (Case Sensitive)"
-                    if ($StorageBlobNameInput -eq 'exit') { # If $Var is 'exit'
-                        Break ListAzureBlobs
-                    } # End if ($StorageBlobNameInput -eq 'exit')
-                    $StorageBlobObject = Get-AzStorageBlob -Blob $StorageBlobNameInput -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                    if (!$StorageBlobObject) { # If $Var is $null
-                        Write-Host "No blobs names matched" # Write message to screen
-                        Write-Host "Please chose from the following" # Write message to screen
-                        $StorageBlobList = Get-AzStorageBlob -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                        Write-Host $StorageBlobList.Name -Separator `n # Write message to screen
-                        Write-Host "" # Write message to screen
-                    } # End if (!$StorageBlobObject)
-                    else {
-                        Write-Host $StorageBlobObject.Name $StorageBlobObject.Length $StorageBlobObject.LastModified $StorageBlobObject.AccessTier # Write message to screen 
-                        Return $StorageBlobObject, $StorageAccObject, $StorageConObject
-                    } # End else (if (!$StorageBlobObject))
-                } # End :GetAzureBlob while ($true)
-            } # End if ($OperatorSelect -eq 'y' -or $OperatorSelect -eq 'yes')
-            else {
-                $StorageBlobObject = Get-AzStorageBlob -Context $StorageAccObject.context -Container $StorageConObject.Name # Object containing the blob info objects
-                foreach ($Name in $StorageBlobObject) {
-                    Write-Host $Name.Name $Name.Length $Name.LastModified $Name.AccessTier # Write message to screen
-                } # End foreach ($Name in $StorageBlobList)
-                Return $StorageBlobObject, $StorageAccObject, $StorageConObject
-            } # End else (if ($StorageBlobNameInput))
-        } # End :ListAzureBlobs while
-        Return # Returns to calling function empty
-    } # End Begin
-} # End function GetAzStorageBlob
+function GetAzStorageContainer {                                                            # Function to get a storage container
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables error reporting
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'GetAzStorageContainer'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)                                                              
+        :GetAzureStorageContainer while ($true) {                                           # Outer loop for managing function
+            $StorageAccObject = GetAzStorageAccount ($CallingFunction)                      # Call function and assigns output to $var
+            if (!$StorageAccObject) {                                                       # If $StorageAccObject is $null
+                Break GetAzureStorageContainer                                              # Breaks :GetAzureStorageContainer
+            }                                                                               # End if (!$StorageAccObject)
+            $ObjectList = Get-AzStorageContainer -Context $StorageAccObject.Context         # Gets a list of all storage containers in $StorageAccObject
+            if (!$ObjectList) {                                                             # If $ObjectList is $null   
+                Write-Host 'No storage containers found on account:'`
+                    $StorageAccObject.StorageAccountName                                    # Write message to screen
+                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Break GetAzureStorageContainer                                              # Ends :GetAzureStorageContainer
+            }                                                                               # End if (!$StorageAccList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.Name; `
+                    'Number' = $ObjectNumber;'PA'=$_.PublicAccess;'LM'=$_.LastModified}     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number]   "$_.Name                                        # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]  "$_.Name                                         # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) 
+                Write-Host 'Public Access:'$_.PA                                            # Write message to screen
+                Write-Host 'Last Modified:'$_.LM                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount' `
+                    -and $CallingFunction -ne 'GetAzStorageContainer') {                    # If $CallingFunction exists and not equal 'GetAzStorageAccount' or 'GetAzStorageContainer'
+                    Write-Host `
+                        'You are selecting the storage container for:'$CallingFunction      # Write message to screen
+                }                                                                           # End if ($CallingFunction -and ($CallingFunction -ne 'GetAzStorageAccount' -or $CallingFunction -ne 'GetAzStorageContainer'))
+                $ObjectSelect = Read-Host "Enter the storage container [#]"                 # Operator input for the storage container selection
+                if ($ObjectSelect -eq '0') {                                                # If $ObjectSelect equals 0
+                    Break GetAzureStorageContainer                                          # Breaks :GetAzureStorageContainer
+                }                                                                           # End if ($ObjectSelect -eq '0')
+                elseif ($ObjectSelect -in $ObjectArray.Number) {                            # If $ObjectSelect in $ObjectArray.Number
+                    $ObjectSelect = $ObjectArray | Where-Object `
+                        {$_.Number -eq $ObjectSelect}                                       # $ObjectSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $ObjectSelect                                  
+                    $StorageConObject = Get-AzStorageContainer -Context `
+                        $StorageAccObject.Context | Where-Object `
+                        {$_.Name -eq $ObjectSelect.Name}                                    # Pulls the full storage container object
+                    Break SelectAzureObjectList                                             # Breaks :SelectAzureObjectList
+                }                                                                           # End elseif ($ObjectSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $ObjectSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($ObjectSelect -eq '0'))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+            if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount' `
+                -and $CallingFunction -ne 'GetAzStorageContainer') {                        # If $CallingFunction exists and not equal 'GetAzStorageAccount' or 'GetAzStorageContainer'
+                Clear-Host                                                                  # Clears screen
+                Return $StorageConObject, $StorageAccObject                                 # Returns to calling function with $vars
+            }                                                                               # End if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount')
+            else {                                                                          # If $Calling function does not exist or is equal to 'GetAzStorageAccount' or 'GetAzStorageContainer'
+                Break GetAzureStorageContainer                                              # Breaks :GetAzureStorageContainer  
+            }                                                                               # End  else (if ($CallingFunction -and $CallingFunction -ne 'GetAzStorageAccount'))
+        }                                                                                   # End GetAzureStorageContainer
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzStorageContainer
+function RemoveAzStorageContainer {                                                         # Function to removes existing storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'RemoveAzStorageContainer'                                       # Creates $CallingFunction
+        :RemoveAzureStorageCon while ($true) {                                              # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+            if (!$StorageConObject) {                                                       # If $StorageConObject is $null
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End if (!$StorageAccObject)
+            Write-Host 'Remove storage container:' $StorageConObject.Name                   # Write message to screen
+            Write-Host 'from storage account:    ' $StorageAccObject.StorageAccountName     # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confimation to remove the storage container
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzStorageContainer -Context $StorageAccObject.Context -Name `
+                        $StorageConObject.Name -Force -ErrorAction 'Stop'                   # Removes storage container
+                }                                                                           # End Try
+                catch {                                                                     # Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the'                                       # Write message to screen
+                    Write-Host 'permissions required'                                       # Write message to screen
+                    Write-Host 'to complete this action'                                    # Write message to screen
+                    Pause                                                                   # Pauses for operator input
+                    Break RemoveAzureStorageCon                                             # Breaks RemoveAzureStorageAcc
+                }                                                                           # End Catch
+                Write-Host $StorageConObject.Name'has been removed'                         # Write message to screen
+                Start-Sleep(3)                                                              # Pauses all action for 3 seconds
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all action for 2 seconds
+                Break RemoveAzureStorageCon                                                 # Breaks :RemoveAzureStorageCon
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureStorageCon while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzStorageContainer
+# End ManageAzStorageContainer
+# Functions for ManageAzStorageBlob
+function ManageAzStorageBlob {                                                              # Manages storage blob functions
+    Begin {                                                                                 # Begin function
+        :ManageAzureStorageBlob while ($true) {                                             # Outer loop for managing function
+            Write-Host 'Azure Storage Blob Management'                                      # Write message to screen
+            Write-Host '[1] Add Storage Blob'                                               # Write message to screen
+            Write-Host '[2] List Storage Blobs'                                             # Write message to screen
+            Write-Host '[3] Download Storage Blobs'                                         # Write message to screen
+            Write-Host '[4] Remove Storage Blobs'                                           # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function        
+            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+                Break ManageAzureStorageBlob                                                # Breaks :ManageAzureStorageBlob 
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Add Storage Blob'                                               # Write message to screen
+                SetAzStorageBlobContent                                                     # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Storage Blobs'                                             # Write message to screen
+                ListAzStorageBlob                                                           # Calls function  
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Download Storage Blob'                                          # Write message to screen
+                GetAzStorageBlobContent                                                     # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove Storage Blobs'                                           # Write message to screen
+                RemoveAzStorageBlob                                                         # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit))
+        }                                                                                   # End :ManageAzureStorageBlob while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ManageAzStorage
+function SetAzStorageBlobContent {                                                          # Function to upload a new blob to storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'SetAzStorageBlobContent'                                        # Creates $CallingFunction
+        :SetAzureBlobContent while ($true) {                                                # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+                if (!$StorageConObject) {                                                   # If $StorageConObject is $null
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if (!$StorageConObject)
+            :SetAzureBlobTier while($true) {                                                # Inner loop for setting access tier
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Hot'                                                        # Write message to screen
+                Write-Host '[2] Cool'                                                       # Write message to screen
+                $OpSelect = Read-Host 'Set blob access tier [#]'                            # Operator input for the blob tier
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $BlobTier = 'Hot'                                                       # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $BlobTier = 'Cool'                                                      # Sets $BlobTier
+                    Clear-Host                                                              # Clears screen
+                    Break SetAzureBlobTier                                                  # Breaks :SetAzureBlobTier
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureBlobTier while($true)
+            :SetLocalFileName while ($true) {                                               # Inner loop for adding file path
+                Write-Host 'Please enter the full path plus file name and extension'        # Write message to screen
+                $LocalFilePath = Read-Host 'Example: C:\users\admin\desktop\file.csv'       # Collects the path to file
+                if ($LocalFilePath -eq 'exit') {                                            # If $LocalFilePath equals 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($LocalFilePath -eq 'exit')
+                if (Test-Path $LocalFilePath) {                                             # If file exists
+                    Write-Host 'This is the file to be uploaded'                            # Write message to screen
+                    Write-Host $LocalFilePath                                               # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator confirmation of the file to be uploaded
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break SetLocalFileName                                              # Breaks :SetLocalFileName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if (Test-Path $LocalFilePath)
+                else {                                                                      # If file does not exist
+                    Write-Host 'The file could not be located'                              # Write message to screen
+                    Write-Host 'Please recheck the path and file name'                      # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (Test-Path $LocalFilePath)
+            }                                                                               # End :SetLocalFileName while ($true)
+            :SetAzureBlobName while ($true) {                                               # Inner loop for setting the blob file name in storage container
+                $BlobFileName = Read-Host 'New name and ext for this file'                  # Operator input for the blob name and ext once uploaded
+                if ($BlobFileName -eq 'exit') {                                             # If $BlobFileName is 'exit'
+                    Break SetAzureBlobContent                                               # Breaks :SetAzureBlobContent
+                }                                                                           # End if ($BlobFileName -eq 'exit')
+                Write-Host 'This will be the file name in the container'                    # Write message to screen
+                Write-Host $BlobFileName                                                    # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No'                                     # Operator confirmation of the blob file name
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break SetAzureBlobName                                                  # Breaks :SetAzureBlobName  
+                }                                                                           # End if ($OpConfirm -eq 'y')
+            }                                                                               # End :SetAzureBlobName while ($true)
+            Try {
+                Set-AzStorageBlobContent -File $LocalFilePath -Blob $BlobFileName `
+                    -Container $StorageConObject.Name -Context $StorageAccObject.Context `
+                    -StandardBlobTier $BlobTier -ErrorAction 'Stop'                         # Adds file as blob
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'You may not have the'                                           # Write message to screen
+                Write-Host 'permissions required'                                           # Write message to screen
+                Write-Host 'to complete this action'                                        # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break SetAzureBlobName                                                      # Breaks SetAzureBlobName
+            }                                                                               # End catch
+            Write-Host 'The file has been uploaded into storage container'                  # Write message to screen
+            Start-Sleep(2)                                                                  # Pauses all action for 2 seconds
+            Break SetAzureBlobName                                                          # Breaks SetAzureBlobName
+        }                                                                                   # End :SetAzureBlobContent while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzStorageBlobContent
+function ListAzStorageBlob {                                                                # Function to list all blobs in storage container
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'ListAzStorageBlob'                                              # Creates $CallingFunction
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error messages
+        :ListAzureBlobs while ($true) {                                                     # Outer loop for managing function
+            $StorageConObject, $StorageAccObject = GetAzStorageContainer ($CallingFunction) # Calls function and assigns output to $var
+            if (!$StorageConObject) {                                                       # If $StorageConObject is $null
+                Break ListAzureBlobs                                                        # Breaks :ListAzureBlobs
+            }                                                                               # End if (!$StorageConObject)
+            $ObjectList = Get-AzStorageBlob -Context $StorageAccObject.context -Container `
+                $StorageConObject.Name                                                      # Object containing the blob info objects
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No blobs exist in this container'                               # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break ListAzureBlobs                                                        # Breaks :ListAzureBlobs
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.Name;'Type'=$_.BlobType; `
+                    'LM'=$_.LastModified;'AT'=$_.AccessTier;'Del'=$_.IsDeleted;`
+                    'VID'=$_.VersionID}                                                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+            }                                                                               # End foreach ($_ in $ObjectList)
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                Write-Host 'Name:       '$_.Name                                            # Write message to screen
+                Write-Host 'Type:       '$_.Type                                            # Write message to screen
+                Write-Host 'Last Mod:   '$_.LM                                              # Write message to screen
+                Write-Host 'Access Tier:'$_.AT                                              # Write message to screen
+                Write-Host 'Deleted:    '$_.Del                                             # Write message to screen
+                Write-Host 'VersionID:  '$_.VID                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureBlobs                                                            # Breaks :ListAzureBlobs
+        }                                                                                   # End :ListAzureBlobs while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzStorageBlob
 function GetAzStorageBlobContent {
     Begin {
         $ErrorActionPreference = 'silentlyContinue' # Disables error messages
@@ -4557,6 +4596,7 @@ function RemoveAzStorageBlob { # Removes a storage blob
         Return
     } # End Begin
 } # End function RemoveAzStorageBlob
+# End ManageAzStorageBlob
 function ManageAzStorageShare { # Manages storage blob functions
     Begin {
         :ManageAzureStorageShares while ($true) { # :ManageAzureStorageShares named loop to select search function
@@ -10679,7 +10719,7 @@ function ManageAzADUser {                                                       
         :ManageAzureADUser while ($true) {                                                  # Outer loop for managing function
             Write-Host '[1] New User'                                                       # Write message to screen
             Write-Host '[2] List Users'                                                     # Write message to screen
-            Write-Host '[3] Get User'                                                       # Write message to screen
+            Write-Host '[3] Update User'                                                    # Write message to screen
             Write-Host '[4] Remove User'                                                    # Write message to screen
             Write-host '[Exit] to return'                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
@@ -10693,7 +10733,7 @@ function ManageAzADUser {                                                       
                 ListAzADUser                                                                # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # If $OpSelect equals '3'
-                GetAzADUser                                                                 # Calls function
+                UpdateAzADUser                                                              # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
@@ -10855,6 +10895,353 @@ function ListAzADUser {                                                         
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzADUser
+function UpdateAzADUser {                                                                   # Function to manage UpdateAzADUser functions
+    Begin {                                                                                 # Begin function
+        :UpdateAzureADUser while ($true) {                                                  # Outer loop for managing function
+            Write-Host '[1] Enable user'                                                    # Write message to screen
+            Write-Host '[2] Disable user'                                                   # Write message to screen
+            Write-Host '[3] Change user display name'                                       # Write message to screen
+            Write-Host '[4] Change user given name'                                         # Write message to screen
+            Write-Host '[5] Change user surname'                                            # Write message to screen
+            Write-Host '[6] Change user dept'                                               # Write message to screen
+            Write-Host '[Exit] to return'                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the management function
+            if ($OpSelect -eq 'Exit') {                                                     # If $OpSelect equals 'exit'
+                Break UpdateAzureADUser                                                     # Breaks :UpdateAzureADUser 
+            }                                                                               # End if ($OpSelect -eq 'Exit')
+            elseif ($OpSelect -eq '1') {                                                    # If $OpSelect equals '1'
+                EnableAzADUser                                                              # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # If $OpSelect equals '2'
+                DisableAzADUser                                                             # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # If $OpSelect equals '3'
+                UpdateAzADUserDName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # If $OpSelect equals '4'
+                UpdateAzADUserGName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # If $OpSelect equals '5'
+                UpdateAzADUserSName                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # If $OpSelect equals '6'
+            UpdateAzADUserDept                                                              # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq 'Exit'))
+        }                                                                                   # End :UpdateAzureADUser while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUser
+function EnableAzADUser {                                                                   # Function to Enable an Azure AD user account
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'EnableAZADUser'                                                 # Creates $CallingFunction
+        :EnableAzureADUser while ($true) {                                                  # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Enable account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -EnableAccount $true -ErrorAction 'Stop'                            # Enables the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break EnableAzureADUser                                                 # Breaks :EnableAzureADUser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been enabled'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break EnableAzureADUser                                                     # Breaks :EnableAzureADUser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :EnableAzureADUser while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function EnableAzADUser
+function DisableAzADUser {                                                                  # Function to disable an Azure AD user account
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'DisableAZADUser'                                                # Creates $CallingFunction
+        :DisableAzureADUser while ($true) {                                                 # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Disable account'$ADUserObject.UserPrincipalName                     # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to disable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -EnableAccount $false -ErrorAction 'Stop'                           # Disables the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break DisableAzureADUser                                                # Breaks :DisableAzureADUser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been disabled'               # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break DisableAzureADUser                                                    # Breaks :DisableAzureADUser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :DisableAzureADUser while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function DisableAzADUser
+function UpdateAzADUserDName {                                                              # Function to update an Azure AD user account display name
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserDName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserDName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new display name'                       # Operator input for the new display name
+                    Write-Host $UpdatedName' is correct'                                    # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserDName                                        # Breaks :UpdateAzureADUserDName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Update-AzADUser -UPNOrObjectId $ADUserObject.UserPrincipalName `
+                        -DisplayName $UpdatedName -ErrorAction 'Stop'                       # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserDName                                            # Breaks :UpdateAzureADUserDName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserDName                                                # Breaks :UpdateAzureADUserDName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserDName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserDName
+function UpdateAzADUserGName {                                                              # Function to update an Azure AD user account given name
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserGName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserGName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new given (First) name'                 # Operator input for the new display name
+                    Write-Host $UpdatedName'is correct'                                     # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of new name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserGName                                        # Breaks :UpdateAzureADUserGName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                        $ADUSERObject.GivenName = $UpdatedName                              # Changes the $ADUserObject.GivenName to $Updated name
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -GivenName `
+                        $ADUserObject.GivenName -ErrorAction 'Stop'                         # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserGName                                            # Breaks :UpdateAzureADUserGName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserGName                                                # Breaks :UpdateAzureADUserGName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserGName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserGName
+function UpdateAzADUserSName {                                                              # Function to update an Azure AD user account surname
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserSName'                                            # Creates $CallingFunction
+        :UpdateAzureADUserSName while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                :UpdateAzureADUserName while ($true) {                                      # Inner loop for setting the display name
+                    $UpdatedName = Read-Host 'Enter new surname (Last)'                     # Operator input for the new display name
+                    Write-Host $UpdatedName' is correct'                                    # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break UpdateAzureADUserSName                                        # Breaks :UpdateAzureADUserSName    
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                        $ADUSERObject.Surname = $UpdatedName                                # Changes the $ADUserObject.GivenName to $Updated name
+                        Break UpdateAzureADUserName                                         # Breaks :UpdateAzureADUserName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :UpdateAzureADUserName while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -SurName `
+                        $ADUserObject.SurName -ErrorAction 'Stop'                           # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserSName                                            # Breaks :UpdateAzureADUserSName
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserSName                                                # Breaks :UpdateAzureADUserSName
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserSName while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserSName
+function UpdateAzADUserDept {                                                               # Function to update an Azure AD user account department
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'UpdateAzADUserDept'                                             # Creates $CallingFunction
+        :UpdateAzureADUserDept while ($true) {                                              # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Update account'$ADUserObject.UserPrincipalName                      # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to Enable account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                [System.Collections.ArrayList]$DeptArray = @()                              # Creates the dept array
+                $DeptList = @('IT','HR','MT','MK','SL','BL','EX')                           # Creates a list of items to load into $DeptArray
+                $DeptNumber = 1                                                             # Sets the base number for the $DeptArray
+                foreach ($_ in $DeptList) {                                                 # For each item in $DeptList
+                    $DeptInput = [PSCustomObject]@{'Name' = $_;'Number' `
+                        = $DeptNumber}                                                      # Creates the item to loaded into array
+                    $DeptArray.Add($DeptInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                    $DeptNumber = $DeptNumber + 1                                           # Increments $DeptNumber up 1
+                }                                                                           # End foreach ($_ in $DeptList)
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                foreach ($_ in $DeptArray) {                                                # For each item in $DeptArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    Write-Host "[$Number]" $_.Name                                          # Write message to screen
+                }                                                                           # End foreach ($_ in $DeptArray)
+                :SelectDept while ($true) {                                                 # Inner loop for selecting the dept
+                    $OpSelect = Read-Host 'Dept [#]'                                        # Operator selection of the dept
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect -eq 0
+                        Break UpdateAzureADUserDept                                         # Breaks :UpdateAzureADUserDept
+                    }                                                                       # End ($OpSelect -eq '0')
+                    if ($OpSelect -in $DeptArray.Number) {                                  # If $OpSelect is in $DeptArray.Number
+                        $DeptObject = $DeptArray | Where-Object {$_.Number -eq $OpSelect}   # $DeptObject equals $DeptArray where $DeptArray.Number is equal to $OpSelect
+                        $DeptObject = $DeptObject.Name                                      # Sets $DeptObject to $DeptObject.Name
+                        Break SelectDept                                                    # Breaks :SelectDept
+                    }                                                                       # End if ($OpSelect -in $DeptArray.Number)
+                    else {                                                                  # If $DeptObject does not have a value
+                        Write-Host "That was not a valid option"                            # Write message to screen
+                    }                                                                       # End else (if ($OpSelect -in $DeptArray.Number))
+                }                                                                           # End :SelectDept while ($true)
+                Try {                                                                       # Try the following
+                    Set-AzureADUser -ObjectId $ADUserObject.ID -Department `
+                        $DeptObject -ErrorAction 'Stop'                                     # Updates the account
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'No changes made'                                            # Write message to screen
+                    Start-Sleep(3)                                                          # Pauses all actions for 3 seconds
+                    Break UpdateAzureADUserDept                                             # Breaks :UpdateAzureADUserDept
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been updated'                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No changes made'                                                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break UpdateAzureADUserDept                                                 # Breaks :UpdateAzureADUserDept
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :UpdateAzureADUserDept while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function UpdateAzADUserDept
+function RemoveAzADUser {                                                                   # Function to remove an Azure AD
+    Begin {                                                                                 # Begin function
+        $CallingFunction = 'RemoveAzADUser'                                                 # Creates $CallingFunction
+        :RemoveAzureADUser while ($true) {                                                  # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject does not have a value
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Remove'$ADUserObject.UserPrincipalName                              # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the account
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm is equal to 'y'
+                try {                                                                       # Try the following
+                    Remove-AzADUser -ObjectId $ADUserObject.ID -Force -ErrorAction 'Stop'   # Removes the selected account
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Start-Sleep(2)                                                          # Pauses all actions for 2 seconds
+                    Break RemoveAzureADuser                                                 # End Break RemoveAzureADuser
+                }                                                                           # End catch
+                Write-Host $ADUserObject.UserPrincipalName'has been removed'                # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm is not equal to 'y'
+                Write-Host 'No changes has been made'                                       # Write message to screen
+                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
+                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureADUser while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzADUser
+# Additional functions for UpdateAzADUser
 function GetAzADUser {                                                                      # Function to get an Azure AD user account
     Begin {                                                                                 # Begin function
         :GetAzureADUser while ($true) {                                                     # Outer loop for managing function
@@ -10912,37 +11299,4 @@ function GetAzADUser {                                                          
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzADUser
-function RemoveAzADUser {                                                                   # Function to remove an Azure AD
-    Begin {                                                                                 # Begin function
-        $CallingFunction = 'RemoveAzADUser'                                                 # Creates $CallingFunction
-        :RemoveAzureADUser while ($true) {                                                  # Outer loop for managing function
-            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
-            if (!$ADUserObject) {                                                           # If $ADUserObject does not have a value
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End if (!$ADUserObject)
-            Write-Host 'Remove'$ADUserObject.UserPrincipalName                              # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the account
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm is equal to 'y'
-                try {                                                                       # Try the following
-                    Remove-AzADUser -ObjectId $ADUserObject.ID -Force -ErrorAction 'Stop'   # Removes the selected account
-                }                                                                           # End try
-                Catch {                                                                     # If try fails
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Start-Sleep(2)                                                          # Pauses all actions for 2 seconds
-                    Break RemoveAzureADuser                                                 # End Break RemoveAzureADuser
-                }                                                                           # End catch
-                Write-Host $ADUserObject.UserPrincipalName'has been removed'                # Write message to screen
-                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End if ($OpConfirm -eq 'y')
-            else {                                                                          # If $OpConfirm is not equal to 'y'
-                Write-Host 'No changes has been made'                                       # Write message to screen
-                Start-Sleep(2)                                                              # Pauses all actions for 2 seconds
-                Break RemoveAzureADuser                                                     # End Break RemoveAzureADuser
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :RemoveAzureADUser while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzADUser
 # End ManageAzADAccounts
