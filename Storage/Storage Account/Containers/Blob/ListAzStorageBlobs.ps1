@@ -17,16 +17,15 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    ListAzStorageBlob {
-        :ListAzureBlobs             Outer loop for managing function
-        $StorageConObject:          Storage container holding the blobs
-        $StorageAccObject:          Storage account for the container holding the blobs
-        $ObjectList:                List of all blobs in $StorageConObject
-        $ObjectArray:               Array containing blob info
-        $OjbjectInput:              $var used to load info into $ObjectArray
-        GetAzStorageContainer{}     Gets $StorageConObject
-            GetAzStorageAccount{}       Gets $StorageAccObject
-                GetAzResourceGroup{}        Gets $RGObject
+    :ListAzureBlobs             Outer loop for managing function
+    $StorageConObject:          Storage container holding the blobs
+    $StorageAccObject:          Storage account for the container holding the blobs
+    $ObjectList:                List of all blobs in $StorageConObject
+    $ObjectArray:               Array containing blob info
+    $OjbjectInput:              $var used to load info into $ObjectArray
+    GetAzStorageContainer{}     Gets $StorageConObject
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
