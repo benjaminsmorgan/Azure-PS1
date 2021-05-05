@@ -17,21 +17,20 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    SetAzStorageBlobContent {
-        :SetAzureBlobContent        Outer loop for managing function
-        :SetAzureBlobTier           Inner loop for setting a new blob access tier
-        :SetLocalFileName           Inner loop for setting the local machine file path
-        :SetAzureBlobName           Inner loop for setting the file name and ext in azure
-        $CallingFunction:           Name of this function
-        $StorageConObject:          Storage container holding the blobs
-        $StorageAccObject:          Storage account for the container holding the blobs
-        $BlobTier:                  Operator input for the access tier
-        $LocalFileName:             Operator input for the local file path and file name
-        $OpConfirm:                 Operator confirmation that info is correct
-        $BlobFileName:              Operator input for the blob name in azure
-        GetAzStorageContainer{}     Gets $StorageConObject
-            GetAzStorageAccount{}       Gets $StorageAccObject
-                GetAzResourceGroup{}        Gets $RGObject
+    :SetAzureBlobContent        Outer loop for managing function
+    :SetAzureBlobTier           Inner loop for setting a new blob access tier
+    :SetLocalFileName           Inner loop for setting the local machine file path
+    :SetAzureBlobName           Inner loop for setting the file name and ext in azure
+    $CallingFunction:           Name of this function
+    $StorageConObject:          Storage container holding the blobs
+    $StorageAccObject:          Storage account for the container holding the blobs
+    $BlobTier:                  Operator input for the access tier
+    $LocalFileName:             Operator input for the local file path and file name
+    $OpConfirm:                 Operator confirmation that info is correct
+    $BlobFileName:              Operator input for the blob name in azure
+    GetAzStorageContainer{}     Gets $StorageConObject
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
