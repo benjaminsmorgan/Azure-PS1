@@ -14,32 +14,20 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    NewAzStorageShare {
-        :NewAzureStorageShare       Outer loop for managing function
-        :SetAzureShareName          Inner loop for setting the name of the new share
-        $StorageAccObject:          Storage account object
-        $ShareNameInput:            Operator input for the share name
-        $ShareNameSplit:            List of names for each space in $ShareNameInput
-        $OperatorConfirm:           Operator confirmation on provided values
-        $StorageShareObject:        Storage share object 
-        GetAzStorageAccount{
-            :GetAzureStorageAccByName   Outer loop for managing funciton
-            :GetAzureStorageAcc         Inner loop for getting the storage account
-            $RGObject:                  Resource group object
-            $StorageAccObjectInput:     Operator input for the name of the storage account
-            $SAList:                    List of all storage accounts within $RGObject
-            $StorageAccObject:          Storage account object    
-            GetAzResourceGroup {
-                $RGObject:                  Resource group object
-                $RGObjectInput:             Operator input for the resource group name
-                $RGList:                    Variable used for printing all resource groups to screen if needed
-            } End GetAzResourceGroup
-        } End GetAzStorageAccount
-    } End NewAzStorageShare
+    :NewAzureStorageShare       Outer loop for managing function
+    :SetAzureShareName          Inner loop for setting the share name
+    $CallingFunction:           Name of this function, or the one that called it
+    $StorageAccObject:          Storage account object
+    $ValidArray:                Array of valid characters for share name
+    $ShareNameInput:            Operator input of the share name
+    $ShareNameArray:            $ShareNameInput converted to array
+    $OpConfirm:                 Operator confirmation of the share name
+    GetAzStorageAccount{}       Gets $StorageAccObject
+        GetAzResourceGroup{}        Gets $RGObject 
 } #>
 <# Process Flow {
     function
-        Call NewAzStorageShare > Get $StorageShareObject
+        Call NewAzStorageShare > Get $null
             Call GetAzStorageAccount > Get $StorageAccObject
                 Call GetAzResourceGroup > Get $RGObject
                 End GetAzResourceGroup
@@ -47,57 +35,71 @@
             End GetAzStorageAccount
                 Return NewAzStorageShare > Send $StorageAccObject
         End NewAzStorageShare      
-            Return Function > Send $StorageShareObject
+            Return Function > Send $null
 }#>
-function NewAzStorageShare { # Creates a new storage share
-    Begin {
-        :NewAzureStorageShare while ($true) { # Outer loop for managing function
-            if (!$StorageAccObject) { # If $var is $null
-                $StorageAccObject = GetAzStorageAccount ($RGObject) # Calls function and assigns to $var
-                if (!$StorageAccObject) { # If $var is $null
-                    Break NewAzureStorageShare # Breaks :NewAzureStorageShare
-                } # End if (!$StorageAccObject)
-            } # End if (!$StorageAccObject)
-            :SetAzureShareName while ($true) { # Inner loop for setting the name of the new share
-                Try { # First validation of the storage share name
-                    Write-Host "Storage share name must be atleast 3 characters and made up of letters and numbers only" # Write message to screen
-                    [ValidatePattern('^[a-z,0-9,\s]+$')]$ShareNameInput = [string](Read-Host "New Storage share name").ToLower() # Operator input for the share name
-                } # End Try 
-                catch { # Catch for failing to meet character validation of the share name
-                    Write-Host "***Error***"  # Write message to screen
-                    Write-Host "The provided name was not valid, accepted inputs are letters and numbers only" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                    $ShareNameInput = '0' # Sets $ShareNameInput value to a failed check to reset loop
-                } # End Catch
-                if ($ShareNameInput.Length -le 2) { # If $ShareNameInput is less than 3 charaters
-                    Write-Host "***Error***" # Write message to screen
-                    Write-Host "The name entered is invalid, the minimum length of a name is 3 characters" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                    $ShareNameInput = '0' # Sets $ShareNameInput value to a failed check to reset loop
-                } # End if ($ShareNameInput.Length -le 2)
-                $ShareNameSplit = $ShareNameInput.split() # Creates $ShareNameSplit, a list of entries for each space in $ShareNameInput
-                if ($ShareNameSplit.Count -gt 1) { # If $ShareNameSplit is greater than 1 value
-                    Write-Host "***Error***" # Write message to screen
-                    Write-Host "The name entered is invalid, no spaces are allowed in the name" # Write message to screen
-                    Write-Host "***Error***" # Write message to screen
-                    $ShareNameInput = '0' # Sets $ShareNameInput value to a failed check to reset loop
-                } # End if ($ShareNameSplit.Count -gt 1)
-                $ShareNameSplit = $null  # Sets $StorageConNameSplit to $null
-                if ($ShareNameInput -eq '0') { # If $ShareNameInput is 0 (failed check)
-                    Write-Host " " # Writes a message to screen, last action before restarting loop
-                } # End if ($ShareNameInput -eq '0')
-                else { # All checks on $ShareNameInput passed
-                    Write-Host "This will be the share name" # Write message to screen
-                    Write-Host $ShareNameInput # Write message to screen
-                    $OperatorConfirm = Read-Host "[Y] or [N]" # Operator confirmation on using this name
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfrim is equal to 'y' or 'yes'
-                        Break SetAzureShareName # Breaks :SetAzureShareName
-                    } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                } # End else (if ($ShareNameInput.Length -le 2))
-            } # End :SetAzureShareName while ($true)
-            $StorageShareObject = New-AzStorageShare -Name $ShareNameInput -Context $StorageAccObject.Context # Creates the storage share and assigns to $StorageShareObject
-            Return $StorageShareObject # Returns to calling function with $StorageShareObject
-        } # End :NewAzureStorageShare while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function NewAzStorageShare
+function NewAzStorageShare {                                                                # Function to create a new storage share
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzStorageShare'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :NewAzureStorageShare while ($true) {                                               # Outer loop for managing function
+            $StorageAccObject = GetAzStorageAccount ($CallingFunction)                      # Calls function and assigns output to $var
+            if (!$StorageAccObject) {                                                       # If $StorageAccObject is $null
+                Break NewAzureStorageShare                                                  # Breaks :NewAzureStorageShare
+            }                                                                               # End if (!$StorageAccObject)
+            :SetAzureShareName while ($true) {                                              # Inner loop for setting the name of the new share
+                $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789'                        # Creates a string of valid characters
+                $ValidArray = $ValidArray.ToCharArray()                                     # Loads all valid characters into array
+                Write-Host 'Storage share name must be atleast 3 characters'                # Write message to screen
+                Write-Host 'and made up of letters and numbers only'                        # Write message to screen
+                $ShareNameArray = $null                                                     # Clears $ShareNameArray
+                $ShareNameInput = Read-Host 'Share name'                                    # Operator input for the share name
+                $ShareNameInput = $ShareNameInput.ToLower()                                 # Recreates $ShareNameInput in lower
+                $ShareNameArray = $ShareNameInput.ToCharArray()                             # Creates $ShareNameInput
+                foreach ($_ in $ShareNameArray) {                                           # For each item in $ShareNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Share name cannot include any spaces'               # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $ShareNameInput = $null                                             # Clears $ShareNameInput
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $ShareNameArray)
+                if (!$ShareNameInput) {                                                     # If $ShareNameInput is $null
+                    Pause                                                                   # Pauses for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if ($ShareNameInput -eq '0')
+                else {                                                                      # If $ShareNameInput not equal to '0'
+                    Write-Host $ShareNameInput 'is correct'                                 # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of share name input
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureStorageShare                                          # Breaks NewAzureStorageShare
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm is equal to 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break SetAzureShareName                                             # Breaks :SetAzureShareName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End else (if (!$ShareNameInput))
+            }                                                                               # End :SetAzureShareName while ($true)
+            Try {                                                                           # Try the following
+                New-AzStorageShare -Name $ShareNameInput -Context `
+                    $StorageAccObject.Context -ErrorAction 'Stop'                           # Creates the storage share
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'Check you permissions'                                          # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break NewAzureStorageShare                                                  # Breaks NewAzureStorageShare
+            }                                                                               # End catch
+            Write-Host 'The share has been created'                                         # Write message to screen
+            Pause                                                                           # Pauses for operator input
+            Break NewAzureStorageShare                                                      # Breaks NewAzureStorageShare
+        }                                                                                   # End :NewAzureStorageShare while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzStorageShare
