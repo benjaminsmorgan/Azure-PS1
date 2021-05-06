@@ -14,15 +14,19 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {      
-        :GetAzureStorageShare       Outer loop for managing function
-        :GetAzureStorageShareNumber Inner loop for getting the named storage share
-        $StorageAccObject:          Storage account object
-        $StorageShareList:          List of all storage shares in storage account
-        $StorageShareListNumber:    Number used for generating list
-        $StorageShareListSelect:    Operator input for which list number to use
-        $StorageShareObject:        Storage Share object
-        GetAzStorageAccount{}       Gets $StorageAccObject    
-            GetAzResourceGroup{}        Gets $RGObject
+    :GetAzureStorageShare       Outer loop for managing function
+    :SelectAzureStorageShare    Inner loop for selecting the storage share
+    $StorageAccObject:          Storage account object
+    $ObjectList:                List of all shares in $StorageAccObject
+    $ObjectNumber:              Number used for listing and selecting share
+    $ObjectArray:               Array holding share information
+    $ObjectInput:               $var used to load share info into $ObjectArray
+    $Number:                    Current item .number, used for formatting
+    $CallingFunction:           Name of the function that called this one
+    $OpSelect:                  Operator input for selecting the share
+    $StorageShareObject:        Storage Share object
+    GetAzStorageAccount{}       Gets $StorageAccObject    
+        GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
@@ -34,47 +38,76 @@
             End GetAzStorageAccount
                 Return NewAzStorageShare > Send $StorageAccObject
         End GetAzStorageShare      
-            Return Function > Send $StorageShareObject
+            Return Function > Send $StorageShareObject, $StorageAccObject
 }#>
-Function GetAzStorageShare { # Gets a storage share
-    Begin {
-        :GetAzureStorageShare while ($true) { # Outer loop for managing function
-            if (!$StorageAccObject) { # If $var is $null
-                $StorageAccObject = GetAzStorageAccount ($RGObject) # Calls function and assigns to $var
-                if (!$StorageAccObject) { # If $var is $null
-                    Break GetAzureStorageShare # Breaks :GetAzureStorageShare
-                } # End if (!$StorageAccObject) 
-            } # End if (!$StorageAccObject) {
-            $StorageShareList = Get-AzStorageShare -Context $StorageAccObject.Context # Collects all shares in selected storage account
-            if (!$StorageShareList) { # If $StorageSharelist returns empty
-                Write-Host "No storage shares found" # Message write to screen
-                Break GetAzureStorageShare # Ends :GetAzureStorageShare
-            } # End if (!$StorageShareList)
-            $StorageShareListNumber = 1 # Sets the base value of $StorageShareListNumber
-            Write-Host "0. Exit" # Writes exit option to screen
-            foreach ($_ in $StorageShareList) { # For each item in $StorageShareList
-                Write-Host $StorageShareListNumber"." $_.Name # Writes $StorageShareList to screen
-                $StorageShareListNumber = $StorageShareListNumber+1 # Adds 1 to $StorageShareListNumber
-            } # End foreach ($_ in $StorageShareList)
-            :GetAzureStorageShareNumber while ($true) {
-                $StorageShareListNumber = 1 # Sets the base value of $StorageShareListNumber
-                $StorageShareListSelect = Read-Host "Please enter the number of the storage share" # Operator input for the storage share selection
-                if ($StorageShareListSelect -eq '0') { # If $StorageShareList is '0'
-                    Break :GetAzureStorageShare # Ends :GetAzureStorageShare
-                } # if ($StorageShareListSelect -eq '0')
-                foreach ($_ in $StorageShareList) { # For each item in $StorageShareList
-                    if ($StorageShareListSelect -eq $StorageShareListNumber) { # If the operator input matches the current $StorageShareListNumber
-                        $StorageShareObject = $_ # Assigns current item in $StorageShareList to $StorageShareObject
-                        Break GetAzureStorageShareNumber # Breaks :GetAzureStorageShare
-                    } # End if ($StorageShareListSelect -eq $StorageShareListNumber)
-                    else { # If user input does not match the current $StorageShareListNumber
-                        $StorageShareListNumber = $StorageShareListNumber+1 # Adds 1 to $StorageShareListNumber
-                    } # End else (if ($StorageShareListSelect -eq $StorageShareListNumber))
-                } # End foreach ($_ in $StorageShareList)
-                Write-Host "That was not a valid entry" # Write message to screen
-            } # End :GetAzureStorageShare while ($true) {
-            Return $StorageShareObject # Returns to calling function with $StorageShareObject
-        } # End :GetAzureStorageShare while ($true)
-        Return # Returns $null
-    } # End Begin
-} # End Function GetAzStorageShare
+Function GetAzStorageShare {                                                                # Function to get a storage share
+    Begin {                                                                                 # Begin function
+        :GetAzureStorageShare while ($true) {                                               # Outer loop for managing function
+            $StorageAccObject = GetAzStorageAccount ($CallingFunction)                      # Calls function and assigns output to $var
+            if (!$StorageAccObject) {                                                       # If $StorageAccObject is $null
+                Break GetAzureStorageShare                                                  # Breaks :GetAzureStorageShare
+            }                                                                               # End if (!$StorageAccObject) 
+            $ObjectList = Get-AzStorageShare -Context $StorageAccObject.Context             # Collects all shares in selected storage account
+            if (!$ObjectList) {                                                             # If $ObjectList returns empty
+                Write-Host 'No storage shares found'                                        # Message write to screen
+                Write-Host 'on storage account'$StorageAccObject.StorageAccountName         # Message write to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break GetAzureStorageShare                                                  # Breaks :GetAzureStorageShare
+            }                                                                               # End if (!$ObjectList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber
+            [System.Collections.ArrayList]$ObjectArray=@()                                  # Creates $ObjectArray
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $ObjectInput = [PSCustomObject]@{'Number'=$ObjectNumber;'Name'=$_.Name;`
+                    'QU'=$_.Quota;'LM'=$_.LastModified;'IsSnap'=$_.IsSnapshot;`
+                    'SST'=$_.SnapShotTime}                                                  # Creates $ObjectInput
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads content of $ObjectInput into $ObjectArray
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
+            }                                                                               # End foreach ($_ in $OpSelect)
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                $Number = $_.Number                                                         # $Number is equal to current item .Number
+                if ($Number -le 9) {                                                        # If $Number is 9 or less
+                    Write-Host "[$Number]:         " $_.Name                                # Write message to screen
+                }                                                                           # End if ($Number -le 9)
+                else {                                                                      # If $Number is 10 or more
+                    Write-Host "[$Number]:        " $_.Name                                 # Write message to screen
+                }                                                                           # End else (if ($Number -le 9))
+                Write-Host 'QuotaGiB:    '$_.QU                                             # Write message to screen
+                Write-Host 'Last Mod:    '$_.LM                                             # Write message to screen
+                if ($_.IsSnap -eq 'True') {                                                 # If current item .IsSnap is equal to true
+                    Write-Host 'SnapshotTime:'$_.SST                                        # Write message to screen
+                }                                                                           # End if ($_.IsSnap -eq 'True')
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureStorageShare while ($true) {                                        # Inner loop for selecting the storage share
+                if ($CallingFunction) {                                                     # If $Calling function has a value
+                    Write-Host 'You are selecting the storage share for:'$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Enter the storage share [#]'                         # Operator input for the storage share selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect is equal to '0'
+                    Break GetAzureStorageShare                                              # Breaks :GetAzureStorageShare
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $StorageShareObject = Get-AzStorageShare -Name $OpSelect.Name -Context `
+                    $StorageAccObject.Context                                               # Collects the full storage share object
+                    if ($StorageShareObject) {                                              # If $StorageShareObject has a value
+                        Clear-Host                                                          # Clears screen
+                        Return $StorageShareObject, $StorageAccObject                       # Returns to $CallingFunction with $vars
+                    }                                                                       # End if ($StorageShareObject)
+                    else {                                                                  # If $StorageShareObject does not have a value
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Pause                                                               # Pauses for operator input
+                        Break GetAzureStorageShare                                          # End Break GetAzureStorageShare
+                    }                                                                       # End else (if ($StorageShareObject))
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End if ($OpSelect -eq '0')
+            }                                                                               # End :SelectAzureStorageShare while ($true) 
+        }                                                                                   # End :GetAzureStorageShare while ($true)
+        Clear-Host                                                                          # Clears Screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End Function GetAzStorageShare
