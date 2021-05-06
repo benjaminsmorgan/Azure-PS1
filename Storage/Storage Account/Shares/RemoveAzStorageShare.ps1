@@ -17,32 +17,14 @@
     GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
-    RemoveAzStorageShare {
-        $StorageAccObject:          Storage account object
-        $StorageShareObject:        Storage share object
-        $OperatorConfirm:           Operator confirmation
-        GetAzStorageShare {               
-            :GetAzureStorageShare       Outer loop for managing function
-            :GetAzureStorageShareName   Inner loop for getting the named storage share
-            $StorageAccObject:          Storage account object
-            $ShareNameInput:            Operator input for the share name
-            $StorageShareObject:        Storage share object
-            $StorageShareList:          List of all storage shares in storage account
-            GetAzStorageAccount{
-                :GetAzureStorageAccByName   Outer loop for managing funciton
-                :GetAzureStorageAcc         Inner loop for getting the storage account
-                $RGObject:                  Resource group object
-                $StorageAccObjectInput:     Operator input for the name of the storage account
-                $SAList:                    List of all storage accounts within $RGObject
-                $StorageAccObject:          Storage account object    
-                GetAzResourceGroup {
-                    $RGObject:                  Resource group object
-                    $RGObjectInput:             Operator input for the resource group name
-                    $RGList:                    Variable used for printing all resource groups to screen if needed
-                } End GetAzResourceGroup
-            } End GetAzStorageAccount
-        } End GetAzStorageShare
-    } End RemoveAzStorageShare
+    :RemoveAzureStorageShare    Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
+    $StorageAccObject:          Storage account object
+    $StorageShareObject:        Storage share object
+    $OpConfirm:                 Operator confirmation to remove the share
+    GetAzStorageShare{}         Gets $StorageShareObject      
+        GetAzStorageAccount{}       Gets $StorageAccObject
+            GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
@@ -55,43 +37,46 @@
                 End GetAzStorageAccount
                     Return NewAzStorageShare > Send $StorageAccObject
             End GetAzStorageShare
+                Return RemoveAzStorageShare > Send $StorageShareObject, $StorageAccObject
         End RemoveAzStorageShare      
             Return Function > Send $null
 }#>
-function RemoveAzStorageShare { # Removes a storage share
-    Begin {
-        if (!$StorageAccObject) { # If $StorageAccObject is $null
-            $StorageAccObject = GetAzStorageAccount # Call function and assign result to $var
-            if (!$StorageAccObject) { # If $StorageAccObject is $null
-                Return # Returns to calling function with $null
-            } # End if (!$StorageAccObject)
-        } # End if (!$StorageShareObject)
-        if (!$StorageShareObject) { # If $StorageShareObject is $null 
-            $StorageShareObject = GetAzStorageShare ($StorageAccObject) # Call function and assign result to $var
-            if (!$StorageShareObject) { # If $StorageShareObject is $null 
-                Return # Returns to calling function with $null
-            } # End if (!$StorageShareObject)
-        } # End if (!$StorageShareObject)
-        Write-Host "Remove the storage share:"$StorageShareObject.Name"in storage account:"$StorageAccObject.StorageAccountName # Write message to screen
-        $OperatorConfirm = Read-Host "[Y] or [N]" # Operator confirmation to remove storage share
-        if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-            Try { # Try to do the following
-                Remove-AzStorageShare -Name $StorageShareObject.Name -Context $StorageAccObject.Context # Remove the selected share
-            } # End Try
-            Catch { # If try fails
-                Write-Host "" # Write message to screen
-                Write-Host "The storage share was not removed, you may not have the permissions to do so" # Write message to screen
-                Write-Host "" # Write message to screen
-                Return # Returns to calling function with $null
-            } # End Catch
-            Write-Host "" # Write message to screen
-            Write-Host "The storage share was removed" # Write message to screen
-            Write-Host "" # Write message to screen
-            Return # Returns to calling function with $null
-        } # End if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-        else { # Returns to calling function with $null
-            Write-Host "No action taken, returning to menu" # Write message to screen
-            Return # Returns to calling function with $null
-        } # End else (if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes'))
-    } # End Begin
-} # End function RemoveAzStorageShare
+function RemoveAzStorageShare {                                                             # Function to remove a storage share
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables error reporting
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'RemoveAzStorageShare'                                       # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureStorageShare while ($true) {                                            # Outer loop for managing function
+            $StorageShareObject, $StorageAccObject = GetAzStorageShare ($CallingFunction)   # Calls function and assigns output to $vars
+            if (!$StorageShareObject) {                                                     # If $StorageShareObject is $null
+                Break RemoveAzureStorageShare                                               # Breaks :RemoveAzureStorageShare
+            }                                                                               # End if (!$StorageShareObject)
+            Write-Host 'Remove the share:    '$StorageShareObject.Name                      # Write message to screen
+            Write-Host 'From storage account:'$StorageAccObject.StorageAccountName          # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the share
+            if ($OpConfirm -eq 'y') {                                                       # If OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzStorageShare -Name $StorageShareObject.Name -Context `
+                        $StorageAccObject.Context -ErrorAction 'Stop'                       # Removes the share
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'Check you permissions'                                      # Write message to screen
+                    Write-Host 'A lock or policy may'                                       # Write message to screen
+                    Write-Host 'have prevented this action'                                 # Write message to screen
+                    Pause                                                                   # Pauses action for operator input
+                    Break RemoveAzureStorageShare                                           # Breaks :RemoveAzureStorageShare
+                }                                                                           # End catch
+                Write-Host 'The selected share has been removed'                            # Write message to screen
+                Pause                                                                       # Pauses action for operator input
+                Break RemoveAzureStorageShare                                               # Breaks :RemoveAzureStorageShare
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Break RemoveAzureStorageShare                                               # Breaks :RemoveAzureStorageShare
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureStorageShare while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzStorageShare
