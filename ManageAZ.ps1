@@ -4999,6 +4999,146 @@ function RemoveAzStorageShare {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzStorageShare
+function NewAzStorageDirectory {                                                            # Function for creating a folder in storage share
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'NewAzStorageDirectory'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)  
+        :NewAzureSFolder while ($true) {                                                    # Outer loop for managing function
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] New root folder'                                                # Write message to screen
+            Write-Host '[2] New sub folder'                                                 # Write message to screen
+            Clear-Host                                                                      # Clears screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the folder type
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break NewAzureSFolder                                                       # Breaks :NewAzureSFolder
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                $StorageShareObject, $StorageAccObject = GetAzStorageShare `
+                    ($CallingFunction)                                                      # Calls function and assigns output to $vars
+                if (!$StorageShareObject) {                                                 # If $StorageShareObject does not have a value
+                    Break NewAzureSFolder                                                   # Breaks :NewAzureSFolder
+                }                                                                           # End if (!$StorageShareObject)
+                :SetAzureSFolderName while ($true) {                                        # Inner loop for setting the folder name
+                    $FolderName = Read-Host 'Enter the new folder name'                     # Operator input of the new folder name
+                    Write-Host 'Use the name:'$FolderName                                   # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the new folder name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureSFolder                                               # Breaks :NewAzureSFolder
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm equals 'y'
+                        Break SetAzureSFolderName                                           # Breaks :SetAzureSFolderName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :SetAzureSFolderName while ($true)
+                Try {                                                                       # Try the following
+                    New-AzStorageDirectory -Path $FolderName -ShareName `
+                        $StorageShareObject.Name -Context $StorageAccObject.Context `
+                        -ErrorAction 'Stop'                                                 # Creates the new folder
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The share maybe locked'                                     # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Break NewAzureSFolder                                                   # Breaks :NewAzureSFolder
+                }                                                                           # End catch
+                Write-Host 'The folder has been created'                                    # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break NewAzureSFolder                                                       # Breaks :NewAzureSFolder
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                $StorageShareFolderObject, $StorageShareObject, $StorageAccObject = `
+                    NavAzStorageShare ($CallingFunction)                                    # Calls function and assigns output to $vars
+                if (!$StorageShareFolderObject) {                                           # If $StorageShareFolderObject does not have a value
+                    Break NewAzureSFolder                                                   # Breaks :NewAzureSFolder
+                }                                                                           # End if (!$StorageShareObject)
+                :SetAzureSFolderName while ($true) {                                        # Inner loop for setting the new folder name
+                    $FolderName = Read-Host 'Enter the new folder name'                     # Operator input of the name
+                    Write-Host 'Use the name:'$FolderName                                   # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the name
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureSFolder                                               # Breaks :NewAzureSFolder
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm equals 'y'
+                        Break SetAzureSFolderName                                           # Breaks :SetAzureSFolderName
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End :SetAzureSFolderName while ($true)
+                Try {                                                                       # Try the following
+                    Get-AzStorageFile -Path $StorageShareFolderObject -ShareName `
+                        $StorageShareObject.Name -Context $StorageAccObject.Context | `
+                        New-AzStorageDirectory -Path $FolderName -ErrorAction 'Stop'        # Creates folder
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The share maybe locked'                                     # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Break NewAzureSFolder                                                   # Breaks :NewAzureSFolder
+                }                                                                           # End catch
+                Write-Host 'The folder has been created'                                    # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break NewAzureSFolder                                                       # Breaks :NewAzureSFolder
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :NewAzureSFolder while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzStorageDirectory
+function RemoveAzStorageDirectory {                                                         # Function to remove a folder from file share
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzStorageDirectory'                                   # Creates $Calling function
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureSFolder while ($true) {                                                 # Outer loop for managing function
+            $StorageShareFolderObject, $StorageShareObject, $StorageAccObject = `
+                NavAzStorageShare ($CallingFunction)                                        # Calls function and assigns output to $var
+            if (!$StorageShareFolderObject) {                                               # If $StorageShareFolderObject is $null
+                Break RemoveAzureSFolder                                                    # Breaks :RemoveAzureSFolder
+            }                                                                               # End if (!$StorageShareFolderObject)
+            $SubObjects = Get-AzStorageFile -Path $StorageShareFolderObject -ShareName `
+                    $StorageShareObject.Name -Context $StorageAccObject.Context | `
+                    Get-AzStorageFile                                                       # Gets a list of files or folders in StorageShareFolderObject
+            if ($SubObjects) {                                                              # If $SubObjects has a value
+                Write-Host 'Unable to remove:'$StorageShareFolderObject                     # Write message to screen
+                Write-Host 'From file share: '$StorageShareObject.name                      # Write message to screen
+                Write-Host 'From storage acc:'$StorageAccObject.StorageAccountName          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'The directory is not empty'                                     # Write message to screen
+                Write-Host 'No action has been taken'                                       # Write message to screen
+                Pause                                                                       # Pauses for operator input
+                Break RemoveAzureSFolder                                                    # Breaks :RemoveAzureSFolder
+            }                                                                               # End if ($SubObjects)
+            Write-Host 'Remove the folder:'$StorageShareFolderObject                        # Write message to screen
+            Write-Host 'From file share:  '$StorageShareObject.name                         # Write message to screen
+            Write-Host 'From storage acc: '$StorageAccObject.StorageAccountName             # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the folder
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzStorageDirectory -ShareName $StorageShareObject.Name -Path `
+                        $StorageShareFolderObject -Context $StorageAccObject.Context `
+                        -ErrorAction 'Stop'                                                 # Removes the folder
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The source folder may be locked'                            # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureSFolder                                                # Breaks :RemoveAzureSFolder
+                }                                                                           # End catch
+                Write-Host 'The folder has been removed'                                    # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureSFolder                                                    # Breaks :RemoveAzureSFolder
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureSFolder                                                    # Breaks :RemoveAzureSFolder
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureSFolder while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function RemoveAzStorageDirectory
 function GetAzStorageFileContent {                                                          # Function to download a file from file share
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -5006,7 +5146,7 @@ function GetAzStorageFileContent {                                              
         }                                                                                   # End if (!$CallingFunction)
         :GetAzureSFileContent while ($true) {                                               # Outer loop for managing function
             $StorageShareFileObject, $StorageShareObject, $StorageAccObject = `
-                GetAzStorageFile ($CallingFunction)                                         # Calls function and assigns output to $var
+                NavAzStorageShare ($CallingFunction)                                        # Calls function and assigns output to $var
             if (!$StorageShareFileObject) {                                                 # If $StorageShareFileObject is $null
                 Break GetAzureSFileContent                                                  # Breaks :GetAzureSFileContent
             }                                                                               # End if (!$StorageShareFileObject)
@@ -5070,10 +5210,52 @@ function GetAzStorageFileContent {                                              
             Pause                                                                           # Pauses all actions for operator input
             Break GetAzureSFileContent                                                      # Breaks :GetAzureSFileContent
         }                                                                                   # End :GetAzureSFileContent while ($true)
+        Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzStorageFileContent
-Function GetAzStorageFile {                                                                 # Function get a storage share file path
+function RemoveAzStorageFile {                                                              # Function to remove a file from file share
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzStorageFile'                                        # Creates $Calling function
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureSFile while ($true) {                                                   # Outer loop for managing function
+            $StorageShareFileObject, $StorageShareObject, $StorageAccObject = `
+                NavAzStorageShare ($CallingFunction)                                        # Calls function and assigns output to $var
+            if (!$StorageShareFileObject) {                                                 # If $StorageShareFileObject is $null
+                Break RemoveAzureSFile                                                      # Breaks :RemoveAzureSFile
+            }                                                                               # End if (!$StorageShareFileObject)
+            Write-Host 'Remove the file: '$StorageShareFileObject                           # Write message to screen
+            Write-Host 'From file share: '$StorageShareObject.name                          # Write message to screen
+            Write-Host 'From storage acc:'$StorageAccObject.StorageAccountName              # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the file
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Remove-AzStorageFile -ShareName $StorageShareObject.Name -Path `
+                        $StorageShareFileObject -Context $StorageAccObject.Context `
+                        -ErrorAction 'Stop'                                                 # Removes the file
+                }                                                                           # End try
+                catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The source file may be locked'                              # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureSFile                                                  # Breaks :RemoveAzureSFile
+                }                                                                           # End catch
+                Write-Host 'The file has been removed'                                      # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureSFile                                                      # Breaks :RemoveAzureSFile
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureSFile                                                      # Breaks :RemoveAzureSFile
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureSFile while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function RemoveAzStorageFile
+Function NavAzStorageShare {                                                                # Function get a storage share file path
     Begin {                                                                                 # Begin function
         $StorageShareObject, $StorageAccObject = GetAzStorageShare                          # Calls function and assigns output to $vars
         :SelectAzureShareFolder while ($true) {                                             # Outer loop for managing function
@@ -5164,10 +5346,11 @@ Function GetAzStorageFile {                                                     
                 }                                                                           # End else (if ($ObjectArray3))
                 Write-Host ''                                                               # Write message to screen
                 Write-Host '[0]  Exit'                                                      # Write message to screen
-                Write-Host '[1]  Go to sub folder'                                          # Write message to screen
+                Write-Host '[1]  Go down a folder'                                          # Write message to screen
                 Write-Host '[2]  Go up a folder'                                            # Write message to screen
-                Write-Host '[3]  Select new root folder'                                    # Write message to screen
-                Write-Host '[4]  Select a file'                                             # Write message to screen
+                Write-Host '[3]  Select current folder for action'                          # Write message to screen
+                Write-Host '[4]  Select a file in folder for action'                        # Write message to screen
+                Write-Host '[5]  Select new root folder'                                    # Write message to screen
                 $OpSelect = Read-Host 'Select option [#]'                                   # Operator input to select action
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -5209,8 +5392,15 @@ Function GetAzStorageFile {                                                     
                         $Path = Split-Path $Path                                            # Updates the path by removing the last item
                     }                                                                       # End else (if ($Path -in $ObjectArray.Name))
                 }                                                                           # End elseif ($OpSelect -eq '2')
-                elseif ($OpSelect -eq '3') {                                                # If $OpSelect equals '3'
-                    Break SelectSubFolder                                                   # Breaks :SelectSubFolder
+                elseif ($OpSelect -eq '3') {                                                # If $OpSelect equals '4'
+                    Write-Host 'Take action on:'$Path                                       # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator input to return to calling function
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        $StorageShareFolderObject = $Path                                   # $StorageShareFolderObject equals $Path                                   
+                        Clear-Host                                                          # Clears screen
+                            Return $StorageShareFolderObject, $StorageShareObject, `
+                                $StorageAccObject                                           # Returns to $CallingFunction with $vars
+                    }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End elseif ($OpSelect -eq '3')
                 elseif ($OpSelect -eq '4') {                                                # If $OpSelect equals '4'
                     :SelectShareFile while ($true) {                                        # Inner loop for selecting the file
@@ -5224,6 +5414,9 @@ Function GetAzStorageFile {                                                     
                                 Write-Host "[$Number]"$_.Name                               # Write message to screen
                             }                                                               # End else (if ($Number -le 9))
                         }                                                                   # End foreach ($_ in $ObjectArray3)
+                        if ($CallingFunction) {                                             # If $CallingFunction has a value
+                            Write-Host 'You are selecting the file for:'$CallingFunction    # Write message to screen
+                        }                                                                   # End if ($CallingFunction)
                         $OpSelect = Read-Host 'Select file [#]'                             # Operator input for selecting the file                           
                         if ($OpSelect -eq '0') {                                            # If $OpSelect equals '0'
                             Break SelectAzureShareFolder                                    # Breaks :SelectAzureShareFolder
@@ -5242,6 +5435,10 @@ Function GetAzStorageFile {                                                     
                         }                                                                   # End else (if ($OpSelect -eq '0'))
                     }                                                                       # End :SelectShareRoot while ($true)
                 }                                                                           # End elseif ($OpSelect -eq '4')
+                elseif ($OpSelect -eq '5') {                                                # If $OpSelect equals '5'
+                    Break SelectSubFolder                                                   # Breaks :SelectSubFolder
+                }                                                                           # End elseif ($OpSelect -eq '5')
+                
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid option'                                # Write message to screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
@@ -5250,7 +5447,7 @@ Function GetAzStorageFile {                                                     
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzStorageFile
+}                                                                                           # End function NavAzStorageShare
 # End ManageAzStorageShare
 function ManageAzKeyVault { # Script for managing Azure
     Begin {
