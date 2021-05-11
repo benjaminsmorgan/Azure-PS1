@@ -6,14 +6,14 @@
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
-    GetAzStorageFile:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageFile.ps1
+    NavAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NavAzStorageShare.ps1
     GetAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShare.ps1
     GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
     GetAzStorageFileContent:    Downloads a storage share file
-    GetAzStorageFile:           Gets a storage share file path
+    NavAzStorageShare:          Gets a storage share file path
     GetAzStorageShare:          Gets a storage share object
     GetAzStorageAccount:        Gets the storage account object
     GetAzResourceGroup:         Gets resource group object
@@ -28,7 +28,7 @@
     $StorageAccObject:          Storage account object
     $OpSelect:                  Operator input for selecting the download path
     $UserName:                  Current user name
-    GetAzStorageFile{}          Gets $StorageShareFileObject
+    NavAzStorageShare{}         Gets $StorageShareFileObject
         GetAzStorageShare{}         Gets $StorageShareObject 
             GetAzStorageAccount{}       Gets $StorageAccObject
                 GetAzResourceGroup{}        Gets $RGObject
@@ -36,7 +36,7 @@
 <# Process Flow {
     function
         Call GetAzStorageFileContent > Get $null
-            Call GetAzStorageShareFile > Get $StorageShareFileObject
+            Call NavAzStorageShare > Get $StorageShareFileObject
                 Call GetAzStorageShare > Get $$StorageShare
                     Call GetAzStorageAccount > Get $StorageAccObject
                         Call GetAzResourceGroup > Get $RGObject
@@ -45,8 +45,8 @@
                     End GetAzStorageAccount 
                         Return GetAzStorageShare > Send $StorageAccObject
                 End GetAzStorageShare 
-                    Return GetAzStorageShareFile > Send $StorageShare, $StorageAccObject
-            End GetAzStorageShareFile
+                    Return NavAzStorageShare > Send $StorageShare, $StorageAccObject
+            End NavAzStorageShare
                 Return GetAzStorageFileContent > Send StorageShareFileObject, $StorageShareObject, $StorageAccObject
         End GetAzStorageFileContent
             Return function > Send $null 
@@ -58,7 +58,7 @@ function GetAzStorageFileContent {                                              
         }                                                                                   # End if (!$CallingFunction)
         :GetAzureSFileContent while ($true) {                                               # Outer loop for managing function
             $StorageShareFileObject, $StorageShareObject, $StorageAccObject = `
-                GetAzStorageFile ($CallingFunction)                                         # Calls function and assigns output to $var
+                NavAzStorageShare ($CallingFunction)                                        # Calls function and assigns output to $var
             if (!$StorageShareFileObject) {                                                 # If $StorageShareFileObject is $null
                 Break GetAzureSFileContent                                                  # Breaks :GetAzureSFileContent
             }                                                                               # End if (!$StorageShareFileObject)
