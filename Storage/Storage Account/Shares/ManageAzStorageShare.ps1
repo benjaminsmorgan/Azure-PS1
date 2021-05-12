@@ -3,45 +3,97 @@
     New-AzStorageShare:         https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageshare?view=azps-5.3.0
     Get-AzStorageShare:         https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageshare?view=azps-5.3.0
     Remove-AzStorageShare:      https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageshare?view=azps-5.3.0
+    New-AzStorageDirectory:     https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstoragedirectory?view=azps-5.9.0
+    Get-AzStorageFile:          https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragefile?view=azps-5.9.0
+    Get-AzStorageFileContent:   https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstoragefilecontent?view=azps-5.9.0
+    Remove-AzStorageFileContent:https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstoragefilecontent?view=azps-5.9.0
     Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
     NewAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NewAzStorageShare.ps1
     GetAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShare.ps1
-    GetAzStorageShareAll:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShareAll.ps1
+    ListAzStorageShare:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/ListAzStorageShare.ps1
     RemoveAzStorageShare:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/RemoveAzStorageShare.ps1
-    ManageAzStorageShareItems:  TBD
+    ManageAzStorageDirectory:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/ManageAzStorageDirectory.ps1
+        NewAzStorageDirectory:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NewAzStorageDirectory.ps1
+        RemoveAzStorageDirectory:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/RemoveAzStorageDirectory.ps1
+        NavAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NavAzStorageShare.ps1
+        GetAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShare.ps1
+        GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    ManageAzStorageFile:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/ManageAzStorageFile.ps1    
+        GetAzStorageFileContent:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageFileContent.ps1
+        RemoveAzStorageFile:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/RemoveAzStorageFile.ps1
+        NavAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/NavAzStorageShare.ps1
+        GetAzStorageShare:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/Shares/GetAzStorageShare.ps1
+        GetAzStorageAccount:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     GetAzStorageAccObject:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Storage%20Account/GetAzStorageAccount.ps1
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
     ManageAzStorageShare:       Manages all functions for storage shares
-        NewAzStorageShare:          Creates a new storage share
-        GetAzStorageShare:          Gets a storage share
-        GetAzStorageShareAll:       Lists all storage shares in a subscription
-        RemoveAzStorageShare:       Removes a storage share
-        ManageAzStoreShareItems:    Management function for storage share items
+    NewAzStorageShare:          Creates a new storage share
+    GetAzStorageShare:          Gets a storage share
+    ListAzStorageShare:         Lists all storage shares in a subscription
+    RemoveAzStorageShare:       Removes a storage share
+        ManageAzStorageDirectory:   Management function for storage share folders
+        NewAzStorageDirectory:      Creates a storage share folder
+        RemoveAzStorageDirectory:   Removes a storage share folder
+        NavAzStorageShare:          Gets a storage share folder path
+        GetAzStorageShare:          Gets a storage share object
+        GetAzStorageAccount:        Gets the storage account object
+        GetAzResourceGroup:         Gets resource group object
         GetAzStorageAccount:        Collects the storage account object
-        GetAzResourceGroup:         Collects resource group object
+    ManageAzStorageFile:        Management function for storage share files
+        GetAzStorageFileContent:    Downloads a storage share file
+        RemoveAzStorageFile:        Removes a storage share file
+        NavAzStorageShare:          Gets a storage share file path
+        GetAzStorageShare:          Gets a storage share object
+        GetAzStorageAccount:        Gets the storage account object
+        GetAzResourceGroup:         Gets resource group object    
+    GetAzResourceGroup:         Collects resource group object
 } #>
 <# Variables: {
     :ManageAzureStorageShare    Outer loop for managing function
-    $OpSelect:      Operator input for selecting function
-    $RGObject:                  Resource group object
-    $StorageAccObject:          Storage account object
-    $StorageShareObject:        Storage share object
-    NewAzStorageShare{}         Function to create new storage share
+    $OpSelect:                  Operator input for selecting function
+    NewAzStorageShare{}         Creates $StorageShareObject
         GetAzStorageAccount{}       Gets $StorageAccObject
             GetAzResourceGroup{}        Gets $RGObject
     GetAzStorageShare{}         Gets $StorageShareObject               
         GetAzStorageAccount{}       Gets $StorageAccObject
-            GetAzResourceGroup {}        Gets $RGObject
-    GetAzStorageShareAll{}      Gets all storage shares
+            GetAzResourceGroup{}        Gets $RGObject
+    ListAzStorageShare{}        Gets all storage shares
     RemoveAzStorageShare{}      Removes $StorageShareObject
         GetAzStorageShare{}         Gets $StorageShareObject
             GetAzStorageAccount{}       Gets $StorageAccObject
                 GetAzResourceGroup{}        Gets $RGObject
+    ManageAzStorageDirectory{}  Manages $StorageShareFolderObject
+        NewAzStorageDirectory{}     Creates $StorageShareFolderObject
+            GetAzStorageShare{}         Gets $StorageShareObject 
+                GetAzStorageAccount{}       Gets $StorageAccObject
+                    GetAzResourceGroup{}        Gets $RGObject
+            NavAzStorageShare{}         Gets $StorageShareFolderObject
+                GetAzStorageShare{}         Gets $StorageShareObject 
+                    GetAzStorageAccount{}       Gets $StorageAccObject
+                        GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzStorageDirectory{}  Removes $StorageShareFolderObject
+            NavAzStorageShare{}         Gets $StorageShareFolderObject
+                GetAzStorageShare{}         Gets $StorageShareObject 
+                    GetAzStorageAccount{}       Gets $StorageAccObject
+                        GetAzResourceGroup{}        Gets $RGObject
+    ManageAzStorageFileContent{}Manages $StorageShareFileObject 
+        GetAzStorageFileContent{}   Downloads $StorageShareFileObject
+            NavAzStorageShare{}         Gets $StorageShareFileObject
+                GetAzStorageShare{}         Gets $StorageShareObject 
+                    GetAzStorageAccount{}       Gets $StorageAccObject
+                        GetAzResourceGroup{}        Gets $RGObject
+        RemoveAzStorageFile{}       Removes $StorageShareFileObject  
+            NavAzStorageShare{}         Gets $StorageShareFileObject
+                GetAzStorageShare{}         Gets $StorageShareObject 
+                    GetAzStorageAccount{}       Gets $StorageAccObject
+                        GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
@@ -54,7 +106,7 @@
                 End GetAzStorageAccount
                     Return NewAzStorageShare > Send $StorageAccObject
             End NewAzStorageShare      
-                Return Function > Send $StorageShareObject
+                Return ManageAzStorageShare > Send $StorageShareObject
             Call GetAzStorageShare > Get $StorageShareObject
                 Call GetAzStorageAccount > Get $StorageAccObject
                     Call GetAzResourceGroup > Get $RGObject
@@ -63,10 +115,10 @@
                 End GetAzStorageAccount
                     Return NewAzStorageShare > Send $StorageAccObject
             End GetAzStorageShare      
-                Return Function > Send $StorageShareObject
-            Call GetAzStorageShareAll > Get $null
-            End GetAzStorageShareAll 
-                Return Function > Send $null
+                Return ManageAzStorageShare > Send $StorageShareObject
+            Call ListAzStorageShare > Get $null
+            End ListAzStorageShare 
+                Return ManageAzStorageShare > Send $null
             Call RemoveAzStorageShare > Get $null
                 Call GetAzStorageShare > Get $StorageShareObject
                     Call GetAzStorageAccount > Get $StorageAccObject
@@ -78,6 +130,81 @@
                 End GetAzStorageShare
             End RemoveAzStorageShare      
                 Return ManageAzStorageShare > Send $null            
+            Call ManageAzStorageDirectory > Get $null
+                Call NewAzStorageDirectory > Get $null
+                    Call GetAzStorageShare > Get $$StorageShare
+                        Call GetAzStorageAccount > Get $StorageAccObject
+                            Call GetAzResourceGroup > Get $RGObject
+                            End GetAzResourceGroup
+                                Return GetAzStorageAccount > Send $RGObject
+                        End GetAzStorageAccount 
+                            Return GetAzStorageShare > Send $StorageAccObject
+                    End GetAzStorageShare 
+                        Return NewAzStorageDirectory > Send $StorageShare, $StorageAccObject
+                    Call NavAzStorageShare > Get $StorageShareFolderObject
+                        Call GetAzStorageShare > Get $$StorageShare
+                            Call GetAzStorageAccount > Get $StorageAccObject
+                                Call GetAzResourceGroup > Get $RGObject
+                                End GetAzResourceGroup
+                                    Return GetAzStorageAccount > Send $RGObject
+                            End GetAzStorageAccount 
+                                Return GetAzStorageShare > Send $StorageAccObject
+                        End GetAzStorageShare 
+                            Return NavAzStorageShare > Send $StorageShare, $StorageAccObject
+                    End NavAzStorageShare
+                        Return RemoveAzStorageDirectory > Send StorageShareFolderObject, $StorageShareObject, $StorageAccObject
+                End NewAzStorageDirectory
+                    Return ManageAzStorageDirectory > Send $null 
+                Call RemoveAzStorageDirectory > Get $null
+                    Call NavAzStorageShare > Get $StorageShareFolderObject
+                        Call GetAzStorageShare > Get $$StorageShare
+                            Call GetAzStorageAccount > Get $StorageAccObject
+                                Call GetAzResourceGroup > Get $RGObject
+                                End GetAzResourceGroup
+                                    Return GetAzStorageAccount > Send $RGObject
+                            End GetAzStorageAccount 
+                                Return GetAzStorageShare > Send $StorageAccObject
+                        End GetAzStorageShare 
+                            Return NavAzStorageShare > Send $StorageShare, $StorageAccObject
+                    End NavAzStorageShare
+                        Return RemoveAzStorageDirectory > Send StorageShareFolderObject, $StorageShareObject, $StorageAccObject
+                End RemoveAzStorageDirectory
+                    Return ManageAzStorageDirectory > Send $null
+            End ManageAzStorageDirectory
+                Return ManageAzStorageShare > Send $null 
+            Call ManageAzStorageFile > Get $null
+                Call GetAzStorageFileContent > Get $null
+                    Call NavAzStorageShare > Get $StorageShareFileObject
+                        Call GetAzStorageShare > Get $$StorageShare
+                            Call GetAzStorageAccount > Get $StorageAccObject
+                                Call GetAzResourceGroup > Get $RGObject
+                                End GetAzResourceGroup
+                                    Return GetAzStorageAccount > Send $RGObject
+                            End GetAzStorageAccount 
+                                Return GetAzStorageShare > Send $StorageAccObject
+                        End GetAzStorageShare 
+                            Return NavAzStorageShare > Send $StorageShare, $StorageAccObject
+                    End NavAzStorageShare
+                        Return GetAzStorageFileContent > Send StorageShareFileObject, $StorageShareObject, $StorageAccObject
+                End GetAzStorageFileContent
+                    Return ManageAzStorageFile > Send $null 
+                Call RemoveAzStorageFile > Get $null
+                    Call NavAzStorageShare > Get $StorageShareFileObject
+                        Call GetAzStorageShare > Get $$StorageShare
+                            Call GetAzStorageAccount > Get $StorageAccObject
+                                Call GetAzResourceGroup > Get $RGObject
+                                End GetAzResourceGroup
+                                    Return GetAzStorageAccount > Send $RGObject
+                            End GetAzStorageAccount 
+                                Return GetAzStorageShare > Send $StorageAccObject
+                        End GetAzStorageShare 
+                            Return NavAzStorageShare > Send $StorageShare, $StorageAccObject
+                    End NavAzStorageShare
+                        Return RemoveAzStorageFile > Send StorageShareFileObject, $StorageShareObject, $StorageAccObject
+                End RemoveAzStorageFile
+                    Return ManageAzStorageFile > Send $null 
+            End ManageAzStorageFile
+                Return ManageAzStorageShare > Send $null
         End ManageAzStorageShare
             Return function > Send $null
 }#>
@@ -88,7 +215,8 @@ function ManageAzStorageShare {                                                 
             Write-Host '[1] New Storage Share'                                              # Write message to screen
             Write-Host '[2] List Storage Shares'                                            # Write message to screen
             Write-Host '[3] Remove Storage Share'                                           # Write message to screen
-            Write-Host '[4] Manage Storage Share Contents'                                  # Write message to screen
+            Write-Host '[4] Manage Storage Share Folders'                                   # Write message to screen
+            Write-Host '[5] Manage Storage Share Files'                                     # Write message to screen
             Write-Host '[Exit] to return'                                                   # Write message to screen
             $OpSelect = Read-Host "Option?"                                                 # Operator input for selecting the management function
             if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
@@ -107,9 +235,13 @@ function ManageAzStorageShare {                                                 
                 RemoveAzStorageShare                                                        # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host 'Manage Storage Share Contents'                                  # Write message to screen
-                ManageAzStorageShareContent                                                 # Calls function
+                Write-Host 'Manage Storage Share Folders'                                   # Write message to screen
+                ManageAzStorageDirectory                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Manage Storage Share Files'                                     # Write message to screen
+                ManageAzStorageFile                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid option'                                    # Write message to screen
             }                                                                               # End else (if ($OpSelect -eq 'exit'))
@@ -352,6 +484,32 @@ function RemoveAzStorageShare {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzStorageShare
+function ManageAzStorageDirectory {                                                         # Function to manage folders in storage share
+    Begin {                                                                                 # Begin function
+        :ManageAzureSFolder while ($true) {                                                 # Outer loop for managing function
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Create new folder'                                              # Write message to screen
+            Write-Host '[2] Remove folder'                                                  # Write message to screen   
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break ManageAzureSFolder                                                    # Breaks :ManageAzureSFolder
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Clear-Host                                                                  # Clears screen
+                NewAzStorageDirectory                                                       # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '2'
+                Clear-Host                                                                  # Clears screen
+                RemoveAzStorageDirectory                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureSFolder while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzStorageDirectory
 function NewAzStorageDirectory {                                                            # Function for creating a folder in storage share
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
@@ -492,6 +650,32 @@ function RemoveAzStorageDirectory {                                             
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function RemoveAzStorageDirectory
+function ManageAzStorageFile {                                                              # Function to manage files in storage share
+    Begin {                                                                                 # Begin function
+        :ManageAzureSFile while ($true) {                                                   # Outer loop for managing function
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Download file'                                                  # Write message to screen
+            Write-Host '[2] Remove file'                                                    # Write message to screen   
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break ManageAzureSFile                                                      # Breaks :ManageAzureSFile
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Clear-Host                                                                  # Clears screen
+                GetAzStorageFileContent                                                     # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '2'
+                Clear-Host                                                                  # Clears screen
+                RemoveAzStorageFile                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureSFolder while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}
 function GetAzStorageFileContent {                                                          # Function to download a file from file share
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
