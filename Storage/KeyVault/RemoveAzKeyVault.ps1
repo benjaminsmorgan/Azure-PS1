@@ -2,56 +2,69 @@
 <# Ref: { Mircosoft docs links
     Remove-AzKeyVault:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvault?view=azps-5.3.0
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.3.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
     GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
     RemoveAzKeyVault:           Removes $KeyVaultObject
     GetAzKeyVault:              Gets $KeyVaultObject
-    GetAzResourceGroup:         Gets $RGObject
 } #>
 <# Variables: {      
     :RemoveAzureKeyVault        Outer loop for managing function
-    $KVObject:                  Key vault object
-    $ConfirmDelete              Operator confirmation to delete $KeyVaultObject
+    $KeyVaultObject:            Key vault object
+    $OpConfirm                  Operator confirmation to delete $KeyVaultObject
     GetAzKeyVaul{}              Gets $KeyVaultObject
-        GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     function
         Call RemoveAzKeyVault > Get $null
             Call GetAzKeyVault > Get $KeyVaultObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return GetAzStorageAccount > Send $RGObject
-            End GetAzKeyVault > Send $StorageKeyVaultObject
+            End GetAzKeyVault 
+            Return RemoveAzKeyVault> Send $StorageKeyVaultObject
         End RemoveAzKeyVault
             Return Function > Send $null
 }#>
-function RemoveAzKeyVault { # Removes $KeyVaultObject
-    Begin {
-        :RemoveAzureKeyVault while ($true) { # Outer loop for managing function
-            if (!$KeyVaultKeyObject) { # If $KeyVaultKeyObject is empty
-                $KeyVaultKeyObject = GetAzKeyVault # Calls function and assigns output to $var
-                if (!$KeyVaultKeyObject) { # If $KeyVaultKeyObject is still empty after returning
-                    Break RemoveAzureKeyVault # Breaks :RemoveAzureKeyVault
-                } # End if (!$KeyVaultKeyObject)
-            } # End if (!$KeyVaultKeyObject)
-            Write-Host "Remove Vault "$KeyVaultKeyObject.VaultName "in resource group "$KeyVaultKeyObject.ResourceGroupName # Write message to screen
-            $ConfirmDelete = Read-Host "[Y] or [N]" # Operator confirmation to delete the key vault
-            if (!($ConfirmDelete -eq 'y')) { # If Confirm delete is not 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break RemoveAzureKeyVault # Breaks :RemoveAzureKeyVault
-            } # End if (!($ConfirmDelete -eq 'y'))
-            else { # IF $ConfrimDelete is not 'y'
-                Write-Host "Deleting "$KeyVaultKeyObject.VaultName # Write message to screen
-                Remove-AzKeyVault -VaultName $KeyVaultKeyObject.VaultName -ResourceGroupName $KeyVaultKeyObject.ResourceGroupName -force # Removes the key vault
-                Break RemoveAzureKeyVault # Breaks :RemoveAzureKeyVault
-            } # End else if (!($ConfirmDelete -eq 'y'))
-        } # End :RemoveAzureKeyVault while ($true)
-        Return # Returns to calling function
-    } # End Begin
-} # End function RemoveAzKeyVault
+function RemoveAzKeyVault {                                                                 # Function to remove a key vault object
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'RemoveAzKeyVault'                                           # Creates $Calling function
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureKeyVault while ($true) {                                                # Outer loop for managing function
+            $KeyVaultKeyObject = GetAzKeyVault                                              # Calls function and assigns output to $var
+            if (!$KeyVaultKeyObject) {                                                      # If $KeyVaultKeyObject is $null
+                Break RemoveAzureKeyVault                                                   # Breaks :RemoveAzureKeyVault
+            }                                                                               # End if (!$KeyVaultKeyObject)
+            Write-Host 'Remove Vault: '$KeyVaultKeyObject.VaultName                         # Write message to screen
+            Write-Host 'from resource group: '$KeyVaultKeyObject.ResourceGroupName          # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Write message to screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Write-Host 'Removing:'$KeyVaultKeyObject.VaultName                          # Write message to screen
+                Try {                                                                       # Try the following
+                    Remove-AzKeyVault -VaultName $KeyVaultKeyObject.VaultName `
+                        -ResourceGroupName $KeyVaultKeyObject.ResourceGroupName -force `
+                        -ErrorAction 'Stop'                                                 # Removes the key vault
+                }                                                                           # End try
+                catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'This resource maybe locked'                                 # Write message to screen
+                    Write-Host 'The resource group maybe locked'                            # Write message to screen
+                    Write-Host 'You may not have the permissions'                           # Write message to screen
+                    Write-Host 'To perform a remove action'                                 # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Break RemoveAzureKeyVault                                               # Breaks :RemoveAzureKeyVault
+                }                                                                           # End catch
+                Write-Host $KeyVaultKeyObject.VaultName 'has been removed'                  # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break RemoveAzureKeyVault                                                   # Breaks :RemoveAzureKeyVault
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break RemoveAzureKeyVault                                                   # Breaks :RemoveAzureKeyVault
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureKeyVault while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzKeyVault
