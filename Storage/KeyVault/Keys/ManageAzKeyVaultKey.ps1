@@ -29,7 +29,7 @@
 } #>
 <# Variables: {
     :ManageAzureKeyVaultKey     Outer loop for managing function
-    $ManageAzKeyVaultKeySel:    Additional azure object needed to get main object
+    $OpSelect:    Additional azure object needed to get main object
     $RGObject:                  Resource group object
     $KeyVaultObject:            Key vault object
     $KeyVaultKeyObject:         Key vault Key object
@@ -100,163 +100,230 @@
         End ManageAzKeyVaultKey
             Return Function > Send $KeyVaultKeyObject
 }#>
-function ManageAzKeyVaultKey { # Script for managing Azure
-    Begin {
-        :ManageAzureKeyVaultKey while ($true) { # Outer loop for managing function
-            if ($RGObject) { # If $RGObject has a value
-                Write-Host '$RGObject:' $RGObject.ResourceGroupName # Write message to screen 
-            } # End if ($RGObject)
-            if ($KeyVaultObject) { # If $KeyVaultObject has a value
-                Write-Host '$KeyVaultObject:' $KeyVaultObject.VaultName # Write message to screen
-            } # End if ($KeyVaultObject)
-            if ($KeyVaultKeyObject) { # If $KeyVaultObjectKey has a value
-                Write-Host '$KeyVaultObjectKey:' $KeyVaultKeyObject.Name # Write message to screen
-            } # End if ($KeyVaultKeyObject)
-            if ($RGObject -or $KeyVaultObject -or $KeyVaultKeyObject) { # If $RGObject, $KeyVaultObject, or $KeyVaultKeyObject has a value
-                Write-Host '0 to clear $RGObject, $KeyVaultObject $KeyVaultKeyObject' # Write message to screen
-            } # End if ($RGObject -or $KeyVaultObject)
-            Write-Host "1 New Key Vault Key" # Write message to screen
-            Write-Host "2 Add Key Vault Key" # Write message to screen
-            Write-Host "3 List All Key Vaults Keys" # Write message to screen
-            Write-Host "4 Get Key Vault Key" # Write message to screen
-            Write-Host "5 Download Key Vault Key" # Write message to screen
-            Write-Host "6 Remove Key Vault Key" # Write message to screen
-            Write-Host "'Exit' to end script" # Write option list to screen
-            $ManageAzKeyVaultKeySel = Read-Host "Chose option" # Operator input for which option they need to run
-            if ($ManageAzKeyVaultKeySel -eq '1') { # Elseif statement for option 1
-                Write-Host "New Key Vault Keys" # Option selection write to screen
-                $KeyVaultKeyObject = NewAzKeyVaultKey ($RGObject, $KeyVaultObject) # Calls function NewAzKeyVaultKey
-            } # End if statement
-            elseif ($ManageAzKeyVaultKeySel -eq '2') { # Elseif statement for option 2
-                Write-Host "Add Key Vault Key" # Option selection write to screen
-                AddAzKeyVaultKey # Calls function ListAzKeyVaultKey
-            } # End elseif statement
-            elseif ($ManageAzKeyVaultKeySel -eq '3') { # Elseif statement for option 3
-                Write-Host "List All Key Vaults Keys" # Option selection write to screen
-                ListAzKeyVaultKey # Calls function ListAzKeyVaultKey
-            } # End elseif statement
-            elseif ($ManageAzKeyVaultKeySel -eq '4') { # Elseif statement for option 4
-                Write-Host "Get Key Vault Key" # Option selection write to screen
-                $KeyVaultKeyObject = GetAzKeyVaultKey ($RGObject, $KeyVaultObject) # Calls function GetAzKeyVaultKey
-                $KeyVaultKeyObject
-            } # End elseif statement
-            elseif ($ManageAzKeyVaultKeySel -eq '5') { # Elseif statement for option 5
-                Write-Host "Download Key Vault Key" # Option selection write to screen
-                DownloadAzKeyVaultKey ($RGObject, $KeyVaultObject, $KeyVaultKeyObject) # Calls function DownloadAzKeyVaultKey
-            } # End elseif statement
-            elseif ($ManageAzKeyVaultKeySel -eq '6') { # Elseif statement for option 6
-                Write-Host "Remove Key Vault Key" # Option selection write to screen
-                RemoveAzKeyVaultKey ($RGObject, $KeyVaultObject) # Calls function RemoveAzKeyVaultKey
-            } # End elseif statement
-            elseif ($ManageAzKeyVaultKeySel -eq '0') { # Elseif statement for option 0
-                $RGObject = $null # Sets $var to $null
-                $KeyVaultObject = $null # Sets $var to $null
-                $KeyVaultKeyObject = $null # Sets $var to $null
-                Write-Host '$RGObject, $KeyVaultObject, and $KeyVaultKey have been cleared'
-            } # End elseif ($ManageAzKeyVaultKeySel -eq '0')
-            elseif ($ManageAzKeyVaultKeySel -eq 'exit') { # Elseif statement for ending the srcipt
-                Break ManageAzureKeyVaultKey # Breaks :ManageAzureKeyVaultKey
-            } # End elseif statement
-            else { # Esle statement for all other values
-                Write-Host "Invalid option" # Option selection write to screen
-            } # End else statement
-         } # End :ManageAzureKeyVaultKey while ($true)
-        Return # Returns to calling function with $null
-    } # End begin statemnt
-} # End ManageAzKeyVaultKey
-function NewAzKeyVaultKey { # Creates a new $KeyVaultKeyObject
-    Begin {
-        :NewAzureKeyVaultKey while ($true) { # Outer loop for managing function
-            if (!$KeyVaultObject) { # If $KeyVaultObject is $null 
-                $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
-                if (!$KeyVaultObject) { # If $var is still $null
-                    Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey    
-                } # End if (!$KeyVaultObject)
-            } # End if (!$KeyVaultObject)
-            :AzureKeyVaultKeyName while ($true) { # Inner loop for validating and setting $KeyVaultKeyObject name
-                $KeyVaultKeyNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
-                try { # Try statement for operator input of key name
-                    [ValidatePattern('^[a-z,0-9]+$')]$KeyVaultKeyNameInput = [string](Read-Host "New key name (less than 64 characters, letters and numbers only)") # Operator input for the key name, only allows letters and numbers. 
-                } # End try
-                catch {Write-Host "The key name can only include letters and numbers"} # Error message for failed try
-                if ($KeyVaultKeyNameInput -eq 'exit') { # $KeyVaultKeyNameInput is equal to exit
-                    Break NewAzureKeyVaultKey # Breaks NewAzureKeyVault loop
-                } # if ($KeyVaultKeyNameInput -eq 'exit')
-                elseif ($KeyVaultKeyNameInput.Length -ge 64) { # If $KeyVaultKeyNameInput is greater than 63 characters
-                    Write-Host "The key name must be between 1 and 63 characters in length" # Write message to screen
-                    $KeyVaultKeyNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
-                } # End elseif ($KeyVaultKeyNameInput.Length -ge 63
-                elseif ($KeyVaultKeyNameInput -eq '0') {}# Elseif when Try statement fails)
-                else { # If Try statement input has value not equal to exit
-                    Write-Host $KeyVaultKeyNameInput # Writes $var to screen
-                    $OperatorConfirm = Read-Host "Is this name correct [Y] or [N]" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break AzureKeyVaultKeyName # Breaks SetAzureKeyVaultName
-                    } # End If ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    else {} # If $OperatorConfirm is not -eq 'y' or 'yes;
-                } # End else (if ($KeyVaultKeyNameInput -eq 'exit'))
-            } # End :AzureKeyVaultKeyName while ($true)
-            $KeyNotBefore = $null # Clears all previous uses of this $var
-            $KeyExpiration = Read-Host "Set key expiration [Y] or [N]"
-            if ($KeyExpiration -eq 'y') { # If $KeyExpiration equals 'y'
-                :AzureKeyVaultKeyExpire while ($true) { # Inner loop for setting expiration date
-                    $StartDate = (Get-Date).Date # Gets current date
-                    $EndDate = Read-Host 'Key expiration date: YEAR-MO-DY' # Operator input for end date
-                    if ($EndDate -eq 'exit') { # If $EndDate equals 'exit'
-                        Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey
-                    } # End if ($EndDate -eq 'exit')
-                    $DateDiff = New-TimeSpan -Start $StartDate -End $EndDate # Gets count of days between current and end date
-                    if (!$DateDiff) { # If $DateDiff does not have a value (Result of bad $EndDate entry)
-                        Write-Host "The expiration date entry was not valid" # Write message to screen
-                        Write-Host "Please enter a date in the listed format" # Write message to screen
-                    } # End if (!$DateDiff)
-                    elseif ($DateDiff -le 0) { # $DateDiff is 0 or less
-                        Write-Host "The date entered was not in the future" # Write message to screen
-                        Write-Host "Please enter a future date" # Write message to screen
-                        $DateDiff = $null # Clears all previous uses of this $var
-                    } # End elseif ($DateDiff -le 0) 
-                    elseif ($DateDiff) { # If $DateDiff has a value of 1 or higher
-                        $KeyExpires = (Get-Date).AddDays($DateDiff.Days).ToUniversalTime() # Sets $KeyExpires to operator selected date
-                        $KeyNotBefore = (Get-Date).ToUniversalTime() # Sets $KeyNotBefore to current date
-                        Break AzureKeyVaultKeyExpire # Breaks :AzureKeyVaultKeyExpire
-                    } # End if ($DateDiff)
-                } # End AzureKeyVaultKeyExpire while ($true)
-            } # End if ($KeyExpiration -eq 'y')
-            :AzureKeyVaultKeyEncrypt while ($true) { # Inner loop for setting the encyption type
-                $KeyEncryptType = Read-Host "[HSM] or [Software]" # Operator input for the key encryption type
-                if ($KeyEncryptType -eq 'exit') { # If $KeyEncryptType is equal to 'exit'
-                    Break NewAzureKeyVaultKey # Breaks :NewAzureKeyVaultKey
-                } # End if ($KeyEncryptType -eq 'exit')
-                elseif ($KeyEncryptType -eq 'HSM') { # If $KeyEncryptType is equal to 'HSM'
-                    if ($KeyVaultObject.SKU -eq 'Standard') { # If $KeyEncryptType is equal to 'HSM' and $KeyVaultObject.SKU is equal to 'Standard'
-                        Write-Host "HSM is not supported on this key vault" # Write message to screen
-                        Write-Host "Please enter 'Software' if this vault is used" # Write message to screen
-                        Write-Host "Otherwise, enter 'exit' to leave this function" # Write message to screen
-                    } # End if ($KeyVaultObject.Sku -eq 'Standard')
-                    else { # If $KeyVaultObject.SKU does not equal 'standard'
-                        Break AzureKeyVaultKeyEncrypt # Breaks :AzureKeyVaultKeyEncrypt 
-                    } # End else (if ($KeyVaultObject.Sku -eq 'Standard'))
-                } # End elseif ($KeyEncryptType -eq 'HSM')
-                elseif ($KeyEncryptType -like 'Soft*') { # If $KeyEncryptType is equal to 'Soft*'
-                    $KeyEncryptType = 'Software' # Sets $KeyEncryptType to 'Software'
-                    Break AzureKeyVaultKeyEncrypt # Breaks :AzureKeyVaultKeyEncrypt
-                } # End elseif ($KeyEncryptType -like 'Soft*')
-                else { # If $KeyEncryptType is not HSM or Software
-                    Write-Host "That was not a valid input" # Write message to screen
-                } # End ese (if ($KeyEncryptType -eq 'exit'))
-            } # End :AzureKeyVaultKeyEncrypt while ($true)
-            if ($KeyNotBefore) { # If $KeyNotBefore has a value
-                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncryptType -Expires $KeyExpires -NotBefore $KeyNotBefore # Creates the new key and assgins object to #var
-                Return $KeyVaultKeyObject # Returns to calling function with $KeyVaultKeyObject
-            } # End if ($KeyNotBefore)
-            else { # If $KeyNotBefore is $null
-                $KeyVaultKeyObject = Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name $KeyVaultKeyNameInput -Destination $KeyEncryptType # Creates the new key and assgins object to #var
-                Return $KeyVaultKeyObject # Returns to calling function with $KeyVaultKeyObject
-            } # End else (if ($KeyNotBefore))
-        } # End :NewAzureKeyVaultKey while ($true)
-        Return # Returns with $null
-    } # End Begin
-} # End function NewAzKeyVaultKey
+function ManageAzKeyVaultKey {                                                              # Function for managing key vault keys
+    Begin {                                                                                 # Begin function
+        :ManageAzureKeyVaultKey while ($true) {                                             # Outer loop for managing function
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] New Key Vault Key'                                              # Write message to screen
+            Write-Host '[2] Add Key Vault Key'                                              # Write message to screen
+            Write-Host '[3] List All Key Vaults Keys'                                       # Write message to screen
+            Write-Host '[4] Get Key Vault Key'                                              # Write message to screen
+            Write-Host '[5] Download Key Vault Key'                                         # Write message to screen
+            Write-Host '[6] Remove Key Vault Key'                                           # Write message to screen
+            $OpSelect = Read-Host 'Chose option [#]'                                        # Operator selection for management function
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break ManageAzureKeyVaultKey                                                # Breaks :ManageAzureKeyVaultKey
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Elseif $OpSelect equals '1'
+                Write-Host 'New Key Vault Key'                                              # Write message to screen
+                NewAzKeyVaultKey                                                            # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Elseif $OpSelect equals '2'
+                Write-Host 'Add Key Vault Key'                                              # Write message to screen
+                AddAzKeyVaultKey                                                            # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Elseif $OpSelect equals '3'
+                Write-Host 'List All Key Vaults Keys'                                       # Write message to screen
+                ListAzKeyVaultKey                                                           # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Elseif $OpSelect equals '4'
+                Write-Host 'Get Key Vault Key'                                              # Write message to screen
+                GetAzKeyVaultKey                                                            # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Elseif $OpSelect equals '5'
+                Write-Host 'Download Key Vault Key'                                         # Write message to screen
+                DownloadAzKeyVaultKey                                                       # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Elseif $OpSelect equals '6'
+                Write-Host 'Remove Key Vault Key'                                           # Write message to screen
+                RemoveAzKeyVaultKey                                                         # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureKeyVaultKey while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin statemnt
+}                                                                                           # End function ManageAzKeyVaultKey
+function NewAzKeyVaultKey {                                                                 # Function to create a new key vault key
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not exist
+            $CallingFunction = 'NewAzKeyVaultKey'                                           # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :NewAzureKeyVaultKey while ($true) {                                                # Outer loop for managing function
+            $KeyVaultObject = GetAzKeyVault ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$KeyVaultObject) {                                                         # If $KeyVaultObject is $null
+                Break NewAzureKeyVaultKey                                                   # Breaks :NewAzureKeyVaultKey    
+            }                                                                               # End if (!$KeyVaultObject)
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789'                            # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array    
+            :AzureKeyVaultKeyName while ($true) {                                           # Inner loop for setting $KeyVaultKeyObject name
+                $KeyVaultKeyNameInput = $null                                               # Clears $KeyVaultKeyNameInput
+                Write-Host 'Key name may only include letters and numbers'                  # Write message to screen
+                Write-Host 'Key name cannot inlude any spaces'                              # Write message to screen
+                Write-Host 'Key name must be less that 64 characters'                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $KeyVaultKeyNameInput = Read-Host 'Key name'                                # Operator input for the key name
+                $KeyVaultKeyNameArray = $KeyVaultKeyNameInput.ToCharArray()                 # Creates an array from $KeyVaultKeyNameInput 
+                if ($KeyVaultKeyNameInput -eq 'exit') {                                     # $KeyVaultKeyNameInput is equal to exit
+                    Break NewAzureKeyVaultKey                                               # Breaks :NewAzureKeyVaultkey
+                }                                                                           # if ($KeyVaultKeyNameInput -eq 'exit')
+                if ($KeyVaultKeyNameInput.Length -ge 64) {                                  # If $KeyVaultKeyNameInput is greater than 63 characters
+                    Write-Host 'The key name must be less than 64 characters'               # Write message to screen
+                    $KeyVaultKeyNameInput = $null                                           # Clears $KeyVaultKeyNameInput                                   
+                }                                                                           # End if ($KeyVaultKeyNameInput.Length -ge 63)
+                foreach ($_ in $KeyVaultKeyNameArray) {
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Key name cannot include any spaces'                 # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $KeyVaultKeyNameInput = $null                                       # Clears $VaultNameInput
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $KeyVaultKeyNameArray)
+                if (!$KeyVaultKeyNameInput) {                                               # If $KeyVaultNameInput is $null
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if (!$KeyVaultKeyNameInput)
+                else {                                                                      # If $KeyVaultKeyNameInput has a value
+                    Write-Host 'Use:' $KeyVaultKeyNameInput 'as key name'                   # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator confirmation of key name
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm is equal to 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break AzureKeyVaultKeyName                                          # Breaks SetAzureKeyVaultName
+                    }                                                                       # End If ($OpConfirm -eq 'y')
+                }                                                                           # End else (if (!$KeyVaultKeyNameInput))
+            }                                                                               # End :AzureKeyVaultKeyName while ($true)
+            Write-Host 'Set an expiration date on this key'                                 # Write message to screen
+            $OpSelect = Read-Host '[Y] Yes [N] No [E] Exit'                                 # Operator input for setting a key expiration
+            if ($OpSelect -eq 'e') {                                                        # If $OpSelect equals 'e'
+                Break NewAzureKeyVaultKey                                                   # Breaks :NewAzureKeyVaultkey
+            }                                                                               # End if ($OpSelect -eq 'e')
+            if ($OpSelect -eq 'y') {                                                        # If $OpSelect equals 'y'
+                :AzureKeyVaultKeyExpire while ($true) {                                     # Inner loop for setting expiration date
+                    $StartDate = (Get-Date).Date                                            # Gets current date
+                    Write-Host 'Enter the date in the following format: YYYY-MM-DD'         # Write message to screen
+                    Write-Host 'Example: 2050-07-04 to have the key expire on 4 July 2050'  # Write message to screen
+                    $EndDate = Read-Host 'Key expiration date'                              # Operator input for end date
+                    if ($EndDate -eq 'exit') {                                              # If $EndDate equals 'exit'
+                        Break NewAzureKeyVaultKey                                           # Breaks :NewAzureKeyVaultKey
+                    }                                                                       # End if ($EndDate -eq 'exit')
+                    $DateDiff = New-TimeSpan -Start $StartDate -End $EndDate                # Gets count of days between current and end date
+                    if (!$DateDiff) {                                                       # If $DateDiff does not have a value (Result of bad $EndDate entry)
+                        Write-Host 'The expiration date entry was not valid'                # Write message to screen
+                        Write-Host 'Please enter a date in the listed format'               # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End if (!$DateDiff)
+                    elseif ($DateDiff -le 0) {                                              # $DateDiff is 0 or less
+                        Write-Host 'The date entered was not in the future'                 # Write message to screen
+                        Write-Host 'Please enter a future date'                             # Write message to screen
+                        $DateDiff = $null                                                   # Clears $DateDiff
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End elseif ($DateDiff -le 0) 
+                    elseif ($DateDiff) {                                                    # If $DateDiff has a value of 1 or higher
+                        $KeyExpires = (Get-Date).AddDays($DateDiff.Days).ToUniversalTime()  # Sets $KeyExpires to operator selected date
+                        $KeyNotBefore = (Get-Date).ToUniversalTime()                        # Sets $KeyNotBefore to current date
+                        Clear-Host                                                          # Clears screen
+                        Break AzureKeyVaultKeyExpire                                        # Breaks :AzureKeyVaultKeyExpire
+                    }                                                                       # End if ($DateDiff)
+                }                                                                           # End AzureKeyVaultKeyExpire while ($true)
+            }                                                                               # End if ($OpSelect -eq 'y')
+            :AzureKeyVaultKeyEncrypt while ($true) {                                        # Inner loop for setting the encyption type
+                Write-Host 'Select key encyption type'                                      # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] HSM'                                                        # Write message to screen
+                Write-Host '[2] Software'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for encryption type
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0' 
+                    Break NewAzureKeyVaultKey                                               # Breaks :NewAzureKeyVaultKey
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $KeyEncryptType = 'HSM'                                                 # Sets $KeyEncryptType to 'HSM'
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $KeyEncryptType = 'Software'                                            # Sets $KeyEncryptType to 'Software'
+                    Clear-Host                                                              # Clears screen
+                    Break AzureKeyVaultKeyEncrypt                                           # Breaks :AzureKeyVaultKeyEncrypt
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                    Break NewAzureKeyVaultKey                                               # Breaks :NewAzureKeyVaultKey
+                if ($KeyEncryptType -eq 'HSM') {                                            # If $KeyEncryptType is equal to 'HSM'
+                    if ($KeyVaultObject.SKU -eq 'Standard') {                               # If $KeyVaultObject.SKU is equal to 'Standard'
+                        Write-Host 'HSM is not supported on this key vault'                 # Write message to screen
+                        Write-Host '[0] Exit'                                               # Write message to screen
+                        Write-Host '[1] Chnage encryption to software'                      # Write message to screen
+                        $OpSelect = Read-Host 'Option [#]'                                  # Operator input on changing type or exiting
+                        if ($OpSelect -eq '0') {                                            # If $OpSelect equals '0'
+                            Break NewAzureKeyVaultKey                                       # Breaks :NewAzureKeyVaultKey
+                        }                                                                   # End if ($OpSelect -eq '0')
+                        elseif ($OpSelect -eq '1') {                                        # Else if $OpSelect equals '1'
+                            $KeyEncryptType = 'Software'                                    # Sets $KeyEncryptType to 'Software'
+                            Clear-Host                                                      # Clears screen
+                            Break AzureKeyVaultKeyEncrypt                                   # Breaks :AzureKeyVaultKeyEncrypt
+                        }                                                                   # End elseif ($OpSelect -eq '1')
+                        else {                                                              # All other inputs for $OpSelect
+                            Write-Host 'That was not a valid option'                        # Write message to screen
+                            Pause                                                           # Pauses all actions for operator input
+                            Clear-Host                                                      # Clears screen
+                        }                                                                   # End else (if ($OpSelect -eq '0'))
+                    }                                                                       # End if ($KeyVaultObject.Sku -eq 'Standard')
+                    else {                                                                  # If $KeyVaultObject.SKU does not equal 'standard'
+                        Clear-Host                                                          # Clears screen
+                        Break AzureKeyVaultKeyEncrypt                                       # Breaks :AzureKeyVaultKeyEncrypt 
+                    }                                                                       # End else (if ($KeyVaultObject.Sku -eq 'Standard'))
+                }                                                                           # End elseif ($KeyEncryptType -eq 'HSM')
+            }                                                                               # End :AzureKeyVaultKeyEncrypt while ($true)
+            if ($KeyNotBefore) {                                                            # If $KeyNotBefore has a value
+                Try {                                                                       # Try the following
+                    Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name `
+                        $KeyVaultKeyNameInput -Destination $KeyEncryptType -Expires `
+                        $KeyExpires -NotBefore $KeyNotBefore -ErrorAction 'Stop'            # Creates the new key
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the permissions to preform this action'    # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                    Break NewAzureKeyVaultKey                                               # Breaks :NewAzureKeyVaultKey
+                }                                                                           # End Catch
+                Write-Host 'The key has been created'                                       # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+                Break NewAzureKeyVaultKey                                                   # Breaks :NewAzureKeyVaultKey
+            }                                                                               # End if ($KeyNotBefore)
+            else {                                                                          # If $KeyNotBefore is $null
+                Try {                                                                       # Try the following
+                    Add-AzKeyVaultKey -VaultName $KeyVaultObject.VaultName -Name `
+                        $KeyVaultKeyNameInput -Destination $KeyEncryptType `
+                        -ErrorAction 'Stop'                                                 # Creates the new key
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the permissions to preform this action'    # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                    Break NewAzureKeyVaultKey                                               # Breaks :NewAzureKeyVaultKey
+                }                                                                           # End Catch
+                Write-Host 'The key has been created'                                       # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+                Break NewAzureKeyVaultKey                                                   # Breaks :NewAzureKeyVaultKey
+            }                                                                               # End else (if ($KeyNotBefore))
+        }                                                                                   # End :NewAzureKeyVaultKey while ($true)
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzKeyVaultKey
 function AddAzKeyVaultKey {
     Begin {
         :AddAzureKeyVaultKey while ($true) { # Outer loop for managing function
@@ -286,10 +353,10 @@ function AddAzKeyVaultKey {
                 } # End if ($LocalFileName -eq 'exit')
                 #$LocalfileName = $LocalFileName+'.pem' # Adds .pem to file name
                 Write-Host $LocalFileName # Write message to screen
-                $OperatorConfirm = Read-Host "Use this file name [Y] or [N]" # Operator confirmation of file name
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
+                $OpConfirm = Read-Host "Use this file name [Y] or [N]" # Operator confirmation of file name
+                if ($OpConfirm -eq 'y') { # If $OpConfirm equals 'y'
                     Break GetLocalFileName # Breaks :GetLocalFileName
-                } # End if ($OperatorConfirm -eq 'y')
+                } # End if ($OpConfirm -eq 'y')
             } # End :GetLocalFileName while ($true)
             $Fullpath = $LocalPath+$LocalFileName # Creates the full file path and name $var
             :AzureKeyVaultKeyName while ($true) { # Inner loop for validating and setting $KeyVaultKeyObject name
@@ -308,11 +375,11 @@ function AddAzKeyVaultKey {
                 elseif ($KeyVaultKeyNameInput -eq '0') {}# Elseif when Try statement fails)
                 else { # If Try statement input has value not equal to exit
                     Write-Host $KeyVaultKeyNameInput # Writes $var to screen
-                    $OperatorConfirm = Read-Host "Is this name correct [Y] or [N]" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
+                    $OpConfirm = Read-Host "Is this name correct [Y] or [N]" # Operator confirmation
+                    if ($OpConfirm -eq 'y' -or $OpConfirm -eq 'yes') { # If $OpConfirm is equal to 'y' or 'yes'
                         Break AzureKeyVaultKeyName # Breaks SetAzureKeyVaultName
-                    } # End If ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    else {} # If $OperatorConfirm is not -eq 'y' or 'yes;
+                    } # End If ($OpConfirm -eq 'y' -or $OpConfirm -eq 'yes')
+                    else {} # If $OpConfirm is not -eq 'y' or 'yes;
                 } # End else (if ($KeyVaultKeyNameInput -eq 'exit'))
             } # End :AzureKeyVaultKeyName while ($true)
             $KeyNotBefore = $null # Clears all previous uses of this $var
@@ -471,10 +538,10 @@ function DownloadAzKeyVaultKey { # Downloads a selected key vault key
                 } # End if ($LocalFileName -eq 'exit')
                 $LocalfileName = $LocalFileName+'.pem' # Adds .pem to file name
                 Write-Host $LocalFileName # Write message to screen
-                $OperatorConfirm = Read-Host "Use this file name [Y] or [N]" # Operator confirmation of file name
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
+                $OpConfirm = Read-Host "Use this file name [Y] or [N]" # Operator confirmation of file name
+                if ($OpConfirm -eq 'y') { # If $OpConfirm equals 'y'
                     Break SetLocalFileName # Breaks :SetLocalFileName
-                } # End if ($OperatorConfirm -eq 'y')
+                } # End if ($OpConfirm -eq 'y')
             } # End :SetLocalFileName while ($true)
             $Fullpath = $LocalPath+$LocalFileName # Creates the full download path and name $var
             Try { # Try the following
@@ -523,80 +590,101 @@ function RemoveAzKeyVaultKey {
         Return
     } # End Begin
 } # End function RemoveAzKeyVaultKey
-function GetAzKeyVault { # Collects a key vault object
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        :GetAzureKeyVault while ($true) { # Outer loop for managing function
-            if (!$RGObject) { # If $RGObject is empty
-                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
-                if (!$RGObject) { # If $RGObject is still empty after returning
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if (!$RGObject)
-            } # End if (!$RGObject)
-            $KVList = Get-AzKeyVault -ResourceGroupName $RGObject.ResourceGroupName # Gets all key vaults in resource group and assigns to $KVList
-            if (!$KVList) { # If $KVList returns empty
-                Write-Host "No key vaults found" # Message write to screen
-                Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-            } # End if (!$KVList)
-            $KVListNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Adds exit option to beginning of list
-            foreach ($_ in $KVList) { # For each item in list
-                Write-Host $KVListNumber"." $_.VaultName # Writes the option number and key vault name
-                $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-            } # End foreach ($_ in $KVList)
-            :SelectAzureKeyVault while ($true) { # Loop for selecting the key vault object
-                $KVListNumber = 1 # Resets list number to 1
-                $KVListSelect = Read-Host "Enter the option number" # Operator input for selecting which key vault
-                if ($KVListSelect -eq '0') { # If $KVListSelect is equal to 0
-                    Break GetAzureKeyVault # Breaks :GetAzureKeyVault
-                } # End if ($KVListSelect -eq '0')
-                foreach ($_ in $KVList) { # For each item in list
-                    if ($KVListSelect -eq $KVListNumber) { # If the operator input matches the current $KVListNumber
-                        $KeyVaultObject = Get-AzKeyVault -VaultName $_.VaultName # Currently selected item in $KVList is assigned to $KeyVaultObject
-                        Break SelectAzureKeyVault # Breaks :SelectAzureKeyVault
-                    } # End if ($KVListSelect -eq $KVListNumber)
-                    else { # If user input does not match the current $KVListNumber
-                        $KVListNumber = $KVListNumber+1 # Adds 1 to $KVListNumber
-                    } # End else (if ($KVListSelect -eq $KVListNumber))
-                } # End foreach ($_ in $KVList)
-                Write-Host "That was not a valid selection, please try again" # Write message to screen
-            } # End :SelectAzureKeyVault while ($true)
-            Return $KeyVaultObject # Returns $RGObject to calling function
-        } # End :GetAzureKeyVault while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function GetAzKeyVault
-function GetAzResourceGroup { # Function to get a resource group, can pipe $RGObject to another function
-    Begin {
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        $RGList = Get-AzResourceGroup # Gets all resource groups and assigns to $RGList
-        if (!$RGList) { # If $RGList returns empty
-            Write-Host "No resource groups found" # Message write to screen
-            Return # Returns to calling function with $null
-        } # End if (!$RGList)
-        $RGListNumber = 1 # Sets the base value of the list
-        Write-Host "0. Exit" # Adds exit option to beginning of list
-        foreach ($_ in $RGList) { # For each item in list
-            Write-Host $RGListNumber"." $_.ResourceGroupName # Writes the option number and resource group name
-            $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-        } # End foreach ($_ in $RGList)
-        :GetAzureResourceGroup while ($true) { # Loop for selecting the resource group object
-            $RGListNumber = 1 # Resets list number to 1
-            $RGListSelect = Read-Host "Enter the option number" # Operator input for selecting which resource group
-            if ($RGListSelect -eq '0') { # If $RGListSelect is equal to 0
-                Return # Returns to calling function with $null
-            } # End if ($RGListSelect -eq '0')
-            foreach ($_ in $RGList) { # For each item in list
-                if ($RGListSelect -eq $RGListNumber) { # If the operator input matches the current $RGListNumber
-                    $RGObject = $_ # Currently selected item in $RGList is assigned to $RGObject
-                    Break GetAzureResourceGroup # Breaks :GetAzureResourceGroup
-                } # End if ($RGListSelect -eq $RGListNumber)
-                else { # If user input does not match the current $RGListNumber
-                    $RGListNumber = $RGListNumber+1 # Adds 1 to $RGListNumber
-                } # End else (if ($RGListSelect -eq $RGListNumber))
-            } # End foreach ($_ in $RGList)
-            Write-Host "That was not a valid selection, please try again" # Write message to screen
-        } # End :GetAzureResourceGroup while ($true)
-        Return $RGObject # Returns $RGObject to calling function
-    } # End of begin statement
-} # End of function
+# Additional functions required for ManageAzKeyVaultKey
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host "[0]  Exit"                                                          # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9) )
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($RGSelect -eq '0')
+                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
+                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
+function GetAzKeyVault {                                                                    # Function to get a key vault object
+    Begin {                                                                                 # Begin function
+        :GetAzureKeyVault while ($true) {                                                   # Outer loop for managing function
+            $ObjectList = Get-AzKeyVault                                                    # Gets all key vaults and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Number' = $ObjectNumber; `
+                'Name'=$_.VaultName;'RG'=$_.ResourceGroupName;'Loc' = $_.Location}          # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host '[0]  Exit'                                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number] "$_.Name                                          # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]"$_.Name                                           # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9))
+                Write-Host 'RG Name: '$_.RG                                                 # Write message to screen
+                Write-Host 'Location:'$_.Loc                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureKeyVault while ($true) {                                            # Inner loop for selecting the key vault
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host 'You are selecting the key vault for:'$CallingFunction       # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Enter option[#]'                                     # Operator input for the key vault selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureKeyVault                                                  # Breaks :GetAzureKeyVault
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
+                    $KeyVaultKeyObject = Get-AzKeyVault -VaultName $OpSelect.Name `
+                        -ResourceGroupName $OpSelect.RG                                     # Pulls the full key vault object
+                    Clear-Host                                                              # Clears screen
+                    Return $KeyVaultKeyObject                                               # Returns to calling function with $KeyVaultKeyObject
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureKeyVault while ($true)
+        }                                                                                   # End :GetAzureKeyVault while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzKeyVault
