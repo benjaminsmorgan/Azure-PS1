@@ -18,13 +18,13 @@
     $Number:                    Current item .number, used for formating
     $CallingFunction:           Name of the function that called this one
     $OpSelect:                  Operator input to select the vault
-    $KeyVaultKeyObject:         Key vault object
+    $KeyVaultObject:            Key vault object
 } #>
 <# Process Flow {
     function
         Call GetAzKeyVault > Get $KeyVaultObject
         End GetAzKeyVault     
-            Return Function > Send $StorageKeyVaultObject
+            Return Function > Send $KeyVaultObject
 }#>
 function GetAzKeyVault {                                                                    # Function to get a key vault object
     Begin {                                                                                 # Begin function
@@ -62,10 +62,10 @@ function GetAzKeyVault {                                                        
                 }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
-                    $KeyVaultKeyObject = Get-AzKeyVault -VaultName $OpSelect.Name `
+                    $KeyVaultObject = Get-AzKeyVault -VaultName $OpSelect.Name `
                         -ResourceGroupName $OpSelect.RG                                     # Pulls the full key vault object
                     Clear-Host                                                              # Clears screen
-                    Return $KeyVaultKeyObject                                               # Returns to calling function with $KeyVaultKeyObject
+                    Return $KeyVaultObject                                                  # Returns to calling function with $KeyVaultObject
                 }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host "That was not a valid option"                                # Write message to screen
