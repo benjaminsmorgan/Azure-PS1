@@ -21,7 +21,7 @@
         Call RemoveAzKeyVault > Get $null
             Call GetAzKeyVault > Get $KeyVaultObject
             End GetAzKeyVault 
-            Return RemoveAzKeyVault> Send $StorageKeyVaultObject
+            Return RemoveAzKeyVault> Send $KeyVaultObject
         End RemoveAzKeyVault
             Return Function > Send $null
 }#>
@@ -31,18 +31,18 @@ function RemoveAzKeyVault {                                                     
             $CallingFunction = 'RemoveAzKeyVault'                                           # Creates $Calling function
         }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureKeyVault while ($true) {                                                # Outer loop for managing function
-            $KeyVaultKeyObject = GetAzKeyVault                                              # Calls function and assigns output to $var
-            if (!$KeyVaultKeyObject) {                                                      # If $KeyVaultKeyObject is $null
+            $KeyVaultObject = GetAzKeyVault ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$KeyVaultObject) {                                                         # If $KeyVaultObject is $null
                 Break RemoveAzureKeyVault                                                   # Breaks :RemoveAzureKeyVault
-            }                                                                               # End if (!$KeyVaultKeyObject)
-            Write-Host 'Remove Vault: '$KeyVaultKeyObject.VaultName                         # Write message to screen
-            Write-Host 'from resource group: '$KeyVaultKeyObject.ResourceGroupName          # Write message to screen
+            }                                                                               # End if (!$KeyVaultObject)
+            Write-Host 'Remove Vault: '$KeyVaultObject.VaultName                            # Write message to screen
+            Write-Host 'from resource group: '$KeyVaultObject.ResourceGroupName             # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Write message to screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                Write-Host 'Removing:'$KeyVaultKeyObject.VaultName                          # Write message to screen
+                Write-Host 'Removing:'$KeyVaultObject.VaultName                             # Write message to screen
                 Try {                                                                       # Try the following
-                    Remove-AzKeyVault -VaultName $KeyVaultKeyObject.VaultName `
-                        -ResourceGroupName $KeyVaultKeyObject.ResourceGroupName -force `
+                    Remove-AzKeyVault -VaultName $KeyVaultObject.VaultName `
+                        -ResourceGroupName $KeyVaultObject.ResourceGroupName -force `
                         -ErrorAction 'Stop'                                                 # Removes the key vault
                 }                                                                           # End try
                 catch {                                                                     # If Try fails
@@ -54,7 +54,7 @@ function RemoveAzKeyVault {                                                     
                     Pause                                                                   # Pauses all action for operator input
                     Break RemoveAzureKeyVault                                               # Breaks :RemoveAzureKeyVault
                 }                                                                           # End catch
-                Write-Host $KeyVaultKeyObject.VaultName 'has been removed'                  # Write message to screen
+                Write-Host $KeyVaultObject.VaultName 'has been removed'                     # Write message to screen
                 Pause                                                                       # Pauses all action for operator input
                 Break RemoveAzureKeyVault                                                   # Breaks :RemoveAzureKeyVault
             }                                                                               # End if ($OpConfirm -eq 'y')
