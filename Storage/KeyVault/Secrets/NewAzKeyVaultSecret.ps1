@@ -2,81 +2,94 @@
 <# Ref: { Mircosoft docs links
     Set-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-5.1.0
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
     GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
     NewAzKeyVaultSecret:        Creates a new key vault secret
     GetAzKeyVault:              Gets key vault object
-    GetAzResourceGroup:         Gets resource group object
 } #>
 <# Variables: {
-    :NewAzureKeyVaultSecret     Outer loop for managing function
-    :NewAzureKeyVaultSecretName Inner loop for setting the secret name
-    :NewAzureKeyVaultSecretVal  Inner loop for setting the secret value
-    $RGObject:                  Resource group object
+    :NewAzureKVSecret           Outer loop for managing function
+    :NewAzureKVSecretName       Inner loop for setting the secret name
+    :NewAzureKVSecretValue      Inner loop for setting the secret value
+    $CallingFunction:           The name of this function, or the one that called it
     $KeyVaultObject:            Key vault object
     $KeyVaultSecretName:        Operator input for the secret name
-    $OperatorConfirm:           Operator confirmation of name and value
+    $OpConfirm:                 Operator confirmation of name and value
     $KeyVaultSecretValue:       Operator input for the secret value
     $KeyVaultSecretHash:        Hashed version of $KeyVauleSecretValue
-    $KeyVaultSecretObject:      Key vault secret
     GetAzKeyVault{}             Gets $KeyVaultSecret
-        GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     Function
         Call NewAzKeyVaultSecret > Get $KeyVaultSecretObject
             Call GetAzKeyVault > Get $KeyVaultObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return GetAzKeyVault > Send $RGObject
             End GetAzKeyVault
                 Return NewAzKeyVaultSecret > Send $KeyVaultObject  
         End NewAzKeyVaultSecret
             Return Function > Send $KeyVaultSecretObject
 }#>
-function NewAzKeyVaultSecret { # Creates a new key vault secret
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :NewAzureKeyVaultSecret while ($true) { # Outer loop for managing function
-            if (!$KeyVaultObject) { # If $var is $null
-                $KeyVaultObject = GetAzKeyVault ($RGObject) # Calls function and assigns output to $Var
-                if (!$KeyVaultObject) { # If $var is $null
-                    Break NewAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
-                } # End if (!$KeyVaultObject)
-            } # End if (!$KeyVaultObject)
-            :NewAzureKeyVaultSecretName while ($true) { # Inner loop for setting the new key vault secret name
-                $KeyVaultSecretName = Read-Host "New key vault secret name" # Prompt for operator input for $KeyVaultSecretName
-                Write-Host $KeyVaultSecretName # Write message to screen
-                $OperatorConfirm = Read-Host "Use this as the secret name [Y] or [N]" # Operator confirmation of name
-                if ($OperatorConfirm -eq 'exit') { # If $OperatorConfirm is equal to 'exit'
-                    Break NewAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
-                } # End if ($OperatorConfirm -eq 'exit')
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
-                    Break :NewAzureKeyVaultSecretName # Breaks :NewAzureKeyVaultSecretName
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :NewAzureKeyVaultSecretName while ($true)
-            :NewAzureKeyVaultSecretValue while ($true) { # Inner loop for setting the new key vault secret value
-                $KeyVaultSecretValue = Read-Host "New key vault secret value" # Prompt for operator input for $KeyVaultSecretvalue
-                if ($KeyVaultSecretValue -eq 'exit') { # If $KeyVaultSecretValue is equal to 'exit'
-                    Break UpdateAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
-                } # End if ($KeyVaultSecretValue -eq 'exit')
-                Write-Host $KeyVaultSecretValue # Write message to screen
-                $OperatorConfirm = Read-Host "Use this as the secret value [Y] or [N]" # Operator confirmation of value
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
-                    Break :NewAzureKeyVaultSecretValue # Breaks :NewAzureKeyVaultSecretValue
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :NewAzureKeyVaultSecretValue while ($true)
-            $KeyVaultSecretHash = ConvertTo-SecureString -String $KeyVaultSecretValue -AsPlainText -Force # Converts the operator input to secure string
-            $KeyVaultSecretObject = Set-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $KeyVaultSecretName -SecretValue $KeyVaultSecretHash # Creates $KeyVaultSecretObject
-            Return $KeyVaultSecretObject # Returns to calling function with $KeyVaultSecretObject
-        } # End :NewAzureKeyVaultSecret while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function NewAzKeyVaultSecret
-
+function NewAzKeyVaultSecret {                                                              # Function to create a new key vault secret
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'NewAzKeyVaultSecret'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        :NewAzureKVSecret while ($true) {                                                   # Outer loop for managing function
+            $KeyVaultObject = GetAzKeyVault ($CallingFunction)                              # Calls function and assigns output to $Var
+            if (!$KeyVaultObject) {                                                         # If $KeyVaultObject is $null
+                Break NewAzureKVSecret                                                      # Breaks :NewAzureKVSecret
+            }                                                                               # End if (!$KeyVaultObject)
+            :NewAzureKVSecretName while ($true) {                                           # Inner loop for setting the new key vault secret name
+                Write-Host 'Please enter the name of the new secret'                        # Write message to screen
+                $KeyVaultSecretName = Read-Host 'Secret name'                               # Operator input for the secret name
+                Write-Host 'Use:'$KeyVaultSecretName 'as the secret name'                   # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of name
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm is equal to 'e'
+                    Break NewAzureKVSecret                                                  # Breaks :NewAzureKVSecret
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm is equal to 'y'
+                    Clear-Host                                                              # Clears screen
+                    Break NewAzureKVSecretName                                              # Breaks :NewAzureKVSecretName
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End :NewAzureKVSecretName while ($true)
+            :NewAzureKVSecretValue while ($true) {                                          # Inner loop for setting the new key vault secret value
+                Write-Host 'Please enter the value of the new secret'                       # Write message to screen
+                $KeyVaultSecretValue = Read-Host Read-Host 'Secret value'                   # Operator input for the secret value
+                Write-Host 'Use:'$KeyVaultSecretValue 'as the secret value'                 # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of name
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm is equal to 'e'
+                    Break NewAzureKVSecret                                                  # Breaks :NewAzureKVSecret
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm is equal to 'y'
+                    Clear-Host                                                              # Clears screen
+                    $KeyVaultSecretHash = ConvertTo-SecureString -String `
+                        $KeyVaultSecretValue -AsPlainText -Force                            # Converts the secret to a hashed value
+                    Break NewAzureKVSecretValue                                             # Breaks :NewAzureKVSecretValue
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End :NewAzureKVSecretValue while ($true)
+            Try {                                                                           # Try the following
+                Set-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name `
+                    $KeyVaultSecretName -SecretValue $KeyVaultSecretHash `
+                    -ErrorAction 'Stop'                                                     # Creates new secret
+            }                                                                               # End Try
+            catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'You may not have the'                                           # Write message to screen
+                Write-Host 'permissions to do this'                                         # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureKVSecret                                                      # Breaks :NewAzureKVSecret
+            }                                                                               # End Catch
+            Write-Host 'The secret has been created'                                        # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzureKVSecret                                                          # Breaks :NewAzureKVSecret
+        }                                                                                   # End :NewAzureKVSecret while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzKeyVaultSecret
