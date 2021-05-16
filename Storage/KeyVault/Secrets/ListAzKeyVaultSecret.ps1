@@ -7,11 +7,11 @@
     None
 } #>
 <# Functions Description: {
-    ListAzKeyVaultSecret:       Lists all key vault secrets
+    ListAzKeyVaultSecret:       Lists all key vault Keys
 } #>
 <# Variables: {
     $KVList:                    List of all key vaults in subscription
-    $KVSecretlist:              List of all secrets from current object in $KVList
+    $KVSecretlist:              List of all Keys from current object in $KVList
 } #>
 <# Process Flow {
     Function
@@ -19,26 +19,32 @@
         End ListAzKeyVaultSecret
             Return Function > Send $null
 }#>
-function ListAzKeyVaultSecret { # Lists all key vault secrets
-    Begin {
-        $KVList = Get-AzKeyVault # Creates lists of all key vaults
-        foreach ($VaultName in $KVList) { # For each key vault in $KVList
-            Write-Host "-----------------------------------" # Write message to screen
-            $KVSecretlist = Get-AzKeyVaultSecret -VaultName $VaultName.VaultName # Creates a list of all keys in current $VaultName
-            Write-Host "Vault Name: " $VaultName.VaultName # Write message to screen
-            Write-Host "" # Write message to screen
-            foreach ($Name in $KVSecretlist) { # For each secret name in $KVSecretList
-                Write-Host "Secret Name:" $Name.Name # Write message to screen
-                Write-Host "Enabled:    " $Name.Enabled # Write message to screen
-                Write-Host "Created:    " $Name.Created # Write message to screen
-                Write-Host "Updated:    " $Name.Updated # Write message to screen
-                if ($Name.Expires) { # If Selected key has an existing expiration
-                    Write-Host "Expires:    " $Name.Expires # Write message to screen
-                } # End if ($Name.Expires)
-                Write-Host "" # Write message to screen
-            } # End foreach ($Name in $KVSecretlist)
-        } # End foreach ($VaultName in $KVList)
-        Write-Host "-----------------------------------" # Write message to screen
-        Return # Retures to calling function with $null
-    } # End Begin 
-} # End function ListAzKeyVaultSecret
+function ListAzKeyVaultSecret {                                                             # Function to list all key vault secrets
+    Begin {                                                                                 # Begin function
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        $KVList = Get-AzKeyVault                                                            # Creates lists of all key vaults
+        foreach ($VaultName in $KVList) {                                                   # For each key vault in $KVList
+            Write-Host '------------------------------------------------------------------' # Write message to screen
+            $KVSecretlist = Get-AzKeyVaultSecret -VaultName $VaultName.VaultName            # Creates a list of all secrets in current $VaultName
+            Write-Host 'Vault Name: ' $VaultName.VaultName                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            if ($KVSecretlist) {                                                            # If $KVSecretList has a value
+                foreach ($Name in $KVSecretlist) {                                          # For each secret name in $KVSecretList
+                    Write-Host 'Secret Name:' $Name.Name                                    # Write message to screen
+                    Write-Host 'Secret ID:  ' $Name.ID                                      # Write message to screen
+                    Write-Host 'Enabled:    ' $Name.Enabled                                 # Write message to screen
+                    Write-Host 'Updated:    ' $Name.Updated                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($Name in $KVSecretlist)
+            }                                                                               # End if ($KVSecretlist)
+            else {                                                                          # If $KVSecretlist does not have a value
+                Write-Host 'No secrets in this vault'                                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End else (if ($KVSecretlist))
+        }                                                                                   # End foreach ($VaultName in $KVList)
+        Write-Host '------------------------------------------------------------------'     # Write message to screen
+        Pause                                                                               # Pauses all action for operator input
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin 
+}                                                                                           # End function ListAzKeyVaultSecret
