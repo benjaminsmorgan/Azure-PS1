@@ -43,7 +43,7 @@
             End GetAzKeyVault
                 Return AddAzKeyVaultKey > Send $KeyVaultObject  
         End AddAzKeyVaultKey
-            Return Function > Send $mull
+            Return Function > Send $null
 }#>
 function AddAzKeyVaultKey {                                                                 # Function to add an existing key to key vault
     Begin {                                                                                 # Begin function
