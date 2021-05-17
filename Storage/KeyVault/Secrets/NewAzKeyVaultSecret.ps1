@@ -24,12 +24,12 @@
 } #>
 <# Process Flow {
     Function
-        Call NewAzKeyVaultSecret > Get $KeyVaultSecretObject
+        Call NewAzKeyVaultSecret > Get $null
             Call GetAzKeyVault > Get $KeyVaultObject
             End GetAzKeyVault
                 Return NewAzKeyVaultSecret > Send $KeyVaultObject  
         End NewAzKeyVaultSecret
-            Return Function > Send $KeyVaultSecretObject
+            Return Function > Send $null
 }#>
 function NewAzKeyVaultSecret {                                                              # Function to create a new key vault secret
     Begin {                                                                                 # Begin function
