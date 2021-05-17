@@ -6605,6 +6605,7 @@ function RemoveAzKeyVaultKey {                                                  
         Return $null                                                                        # Returns to callign function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzKeyVaultKey
+# Functions for ManageAzKeyVaultSecret
 function ManageAzKeyVaultSecret {                                                           # Function for managing key vault secrets
     Begin {                                                                                 # Begin function
         :ManageAzureKeyVaultSecret while ($true) {                                          # Outer loop for managing function
@@ -6739,145 +6740,205 @@ function ListAzKeyVaultSecret {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin 
 }                                                                                           # End function ListAzKeyVaultSecret
-function GetAzKeyVaultSecret { # Function to get a key vault secret
-    Begin {
-        $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        $ErrorActionPreference = 'silentlyContinue' # Disables error reporting
-        :GetAzureKeyVaultSecret while ($true) { # Outer loop for managing function
-            if (!$KeyVaultObject) { # If $KeyVaultObject is $null 
-                $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
-                if (!$KeyVaultObject) { # If $var is still $null
-                    Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret    
-                } # End if (!$KeyVaultObject)
-            } # End if (!$KeyVaultObject)
-            $KVSecretlist = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName # Creates list of all secrets in vault
-            if (!$KVSecretlist) { # If $KVSecretlist returns empty
-                Write-Host "No secrets found" # Message write to screen
-                Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
-            } # End if (!$KVSecretlist)
-            $KVSecretlistNumber = 1 # Sets the base value of the list
-            Write-Host "0. Exit" # Write message to screen
-            foreach ($_ in $KVSecretlist) { # For each item in list
-                Write-Host $KVSecretlistNumber"." $_.Name # Writes list to screen
-                $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
-            } # End foreach ($_ in $KVSecretlist) 
-            $KVSecretlistNumber = 1 # Resets list number to 1
-            $KVSecretlistSelect = Read-Host "Enter the option number" # Operator input to select from list
-            if ($KVSecretlistSelect -eq '0') { # If $KVSecretListSelect is 0
-                Break GetAzureKeyVaultSecret # Breaks :GetAzureKeyVaultSecret
-            } # End if ($KVSecretlistSelect -eq '0')
-            :SelectAzureKeyVaultSecret foreach ($_ in $KVSecretlist) { # For each item in list
-                if ($KVSecretlistSelect -eq $KVSecretlistNumber) { # If the user input matches the current $KVSecretlistNumber
-                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name $_.Name # Collects the full $KeyVaultSecretObject
-                    Break SelectAzureKeyVaultSecret # Breaks :SelectAzureKeyVaultSecret
-                } # End if ($KVSecretlistSelect -eq $KVSecretlistNumber)
-                else { # If user input does not match the current $KVSecretlistNumber
-                    $KVSecretlistNumber = $KVSecretlistNumber+1 # Adds 1 to $KVSecretlistNumber
-                } # End else (if ($KVSecretlistSelect -eq $KVSecretlistNumber))
-            } # End :SelectAzureKeyVaultSecret
-            Return $KeyVaultSecretObject # Returns $KeyVaultSecretObject to calling function
-        } # End :GetAzureKeyVaultSecret while ($true) {
-        Return # Returns $null to calling function
-    } # End begin statement
-} # End GetAzKeyVaultSecret
-function GetAzKeyVaultSecretValue { # Function to return the value of a key vault secret
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :GetAzureKeyVaultSecretVal while ($true) { # Outer loop for managing function
-            if (!$KeyVaultSecretObject) { # If $var is $null
-                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
-                if (!$KeyVaultSecretObject) { # If $var is $null
-                    Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-                } # End if (!$KeyVaultSecretObject)
-            } # End if (!$KeyVaultSecretObject)
-            $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
-            $KeyVaultSecretHash = $null # Clears $KeyVaultSecretHash from all previous use
-            $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
-            try { # Provided by MS Azure
-                $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure
-            } # Provided by MS Azure
-            Catch { # Catch for try statement
-                Write-Host "An error has occured, you may not have permissions to this secret or vault" # Write message to screen
-                Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-            } # End catch
-            finally { # Provided by MS Azure
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KeyVaultSecretHash) # Provided by MS Azure
-            } # Provided by MS Azure # This code was provided by MS, at this time is not needed and has commented out
-            Write-Host "The value of"$KeyVaultSecretObject.Name "is:" $KeyVaultSecretValue # Prints secret name and value to screen
-            Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-        } # End :GetAzureKeyVaultSecretValue while ($true) 
-        Return # Returns to calling function with $null
-    } # End begin statement   
-} # End function GetAzKeyVaultSecretValue
-function UpdateAzKeyVaultSecret { # Updates the value of selected key
-    Begin { 
-        :UpdateAzureKeyVaultSecret while ($true) { # Outer loop for managing funciton
-            if (!$KeyVaultSecretObject) { # If $var is $null
-                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
-                if (!$KeyVaultSecretObject) { # If $var is $null
-                    Break UpdateAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
-                } # End if (!$KeyVaultSecretObject)
-            } # End if (!$KeyVaultSecretObject)
-            :UpdateAzureKVSecretValue while ($true) { # Inner loop for updating key vault secret value
-                $KeyVaultSecretValue = Read-Host "New key vault secret value for"$KeyVaultSecretObject.Name # Prompt for operator input for $KeyVaultSecretvalue
-                if ($KeyVaultSecretValue -eq 'exit') { # If $KeyVaultSecretValue is equal to 'exit'
-                    Break UpdateAzureKeyVaultSecret # Breaks :NewAzureKeyVaultSecret
-                } # End if ($KeyVaultSecretValue -eq 'exit')
-                Write-Host $KeyVaultSecretValue # Write message to screen
-                $OperatorConfirm = Read-Host "Use this as the secret value [Y] or [N]" # Operator confirmation of value
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm is equal to 'y'
-                    Break UpdateAzureKVSecretValue # Breaks :UpdateAzureKVSecretValue
-                } # End if ($OperatorConfirm -eq 'y')
-            } # End :UpdateAzureKVSecretValue while ($true)
-            $KeyVaultSecretHash = ConvertTo-SecureString -String $KeyVaultSecretValue -AsPlainText -Force # Converts the operator input to secure string
-            try { # Try to do the following
-                $KeyVaultSecretObject = Set-AzKeyVaultSecret -VaultName $KeyVaultSecretObject.VaultName -Name $KeyVaultSecretObject.Name -SecretValue $KeyVaultSecretHash # Updates $KeyVaultSecretObject
-            } # End Try
-            catch { # If try statement fails
-                Write-Host "There was an issue updating this secret" # Write message to screen
-                Write-Host "You may not have the permissions to modify this secret" # Write message to screen
-                Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue 
-            } # End catch
-            Write-Host $KeyVaultSecretObject.Name"has been updated with the new value" # Write message to screen
-            Break UpdateAzureKeyVaultSecret # Breaks :UpdateAzureKVSecretValue
-        } # End  :UpdateAzureKeyVaultSecret while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function UpdateAzKeyVaultSecret
-function RemoveAzKeyVaultSecret { # Removes a key vault secret
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables errors
-        $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :RemoveAzureKeyVaultSecret while ($true) { # Outer loop for managing function
-            if (!$KeyVaultSecretObject) { # If $var is $null
-                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
-                if (!$KeyVaultSecretObject) { # If $var is $null
-                    Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
-                } # End if (!$KeyVaultSecretObject)
-            } # End if (!$KeyVaultSecretObject)
-            Write-host "The selected secret for removal is:"$KeyVaultSecretObject.Name"in vault:"$KeyVaultSecretObject.VaultName # Write message to screen
-            $ConfirmDelete = Read-Host "Remove this secret [Y] or [N]" # Operator confirmation for deletion
-            if (!($ConfirmDelete -eq 'y')) { # $Confirm delete is not equal to 'y'
-                Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
-            } # End if (!($ConfirmDelete -eq 'y'))
-            else { # If $ConfirmDelete is equal to 'y'
-                Write-Host "Removing" $KeyVaultSecretObject.Name # Write message to screen
-                Try { # Try the following
-                    Remove-AzKeyVaultSecret -Name $KeyVaultSecretObject.Name -VaultName $KeyVaultSecretObject.VaultName -Force # Removes the selected key
-                } # End Try
-                catch { # If error on Try
-                    Write-Host "There was an issue removing the selected key" # Write message to screen
-                    Write-Host "You may not have the permissions to remove this key" # Write message to screen
-                    Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret 
-                } # End catch
-                Write-Host "This secret has been removed" # Write message to screen
-                Break RemoveAzureKeyVaultSecret # Breaks :RemoveAzureKeyVaultSecret
-            } # End else (if (!($ConfirmDelete -eq 'y')))
-        } # End :RemoveAzureKeyVaultSecret while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function RemoveAzKeyVaultSecret
+function GetAzKeyVaultSecret {                                                              # Function to get a key vault secret
+    Begin {                                                                                 # Begin function
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'GetAzKeyVaultSecret'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :GetAzureKeyVaultSecret while ($true) {                                             # Outer loop for managing function
+            $KeyVaultObject = GetAzKeyVault ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$KeyVaultObject) {                                                         # If $$KeyVaultObject is $null
+                Break GetAzureKeyVaultSecret                                                # Breaks :GetAzureKeyVaultSecret    
+            }                                                                               # End if (!$KeyVaultObject)
+            $ObjectList = Get-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName         # Creates list of all secrets in vault
+            if (!$ObjectList) {                                                             # If $ObjectList returns empty
+                Write-Host 'No secrets present in this vault'                               # Message write to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureKeyVaultSecret                                                # Breaks :GetAzureKeyVaultSecret
+            }                                                                               # End if (!$ObjectList)
+            $ObjectNumber = 1                                                               # Sets the base value of the list
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Number'=$ObjectNumber; `
+                'Name'=$_.Name;'ID'=$_.ID;'EN'=$_.Enabled;'CR'=$_.created; `
+                'UP'=$_.Updated;}                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host '[0]  Exit'                                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                $Number = $_.Number                                                         # Sets $Number to current item .number
+                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
+                    Write-Host "[$Number]     "$_.Name                                      # Write message to screen
+                }                                                                           # End if ($_.Number -le 9) 
+                else {                                                                      # If current item .number is greater then 9
+                    Write-Host "[$Number]    "$_.Name                                       # Write message to screen
+                }                                                                           # End else (if ($_.Number -le 9))
+                Write-Host 'Enabled:'$_.EN                                                  # Write message to screen
+                Write-Host 'Created:'$_.CR                                                  # Write message to screen
+                Write-Host 'Updated:'$_.UP                                                  # Write message to screen
+                Write-Host 'ID:     '$_.ID                                                  # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            :SelectAzureKeyVaultSecret while ($true) {                                      # Inner loop for selecting the secret
+                if ($CallingFunction -and $CallingFunction -ne 'GetAzKeyVaultSecret') {     # If $CallingFunction exists
+                    Write-Host 'You are selecting the secret for:'$CallingFunction          # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Enter option[#]'                                     # Operator input for the key vault selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureKeyVaultSecret                                            # Breaks :GetAzureKeyVaultSecret
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
+                    $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName `
+                        $KeyVaultObject.VaultName -Name $OpSelect.Name                      # Pulls the full secret object
+                    Return $KeyVaultSecretObject, $KeyVaultObject                           # Returns to calling function with $vars
+                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host "That was not a valid option"                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureKeyVaultSecret
+        }                                                                                   # End :GetAzureKeyVaultSecret while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzKeyVaultSecret
+function GetAzKeyVaultSecretValue {                                                         # Function to return the value of a key vault secret
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'GetAzKeyVaultSecretValue'                                   # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :GetAzureKeyVaultSecretVal while ($true) {                                          # Outer loop for managing function
+            $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret ($CallingFunction) # Calls function and assigns output to $Var
+            if (!$KeyVaultSecretObject) {                                                   # If $KeyVaultSecretObject is $null
+                Break GetAzureKeyVaultSecretVal                                             # Breaks :GetAzureKeyVaultSecretVal
+            }                                                                               # End if (!$KeyVaultSecretObject)
+            $KVSO = $KeyVaultSecretObject                                                   # KVSO is equal to $KeyVaultSecretObject
+            $KVSV = $null                                                                   # Clears $KVSV from all previous use
+            $KVSH = $null                                                                   # Clears $KVSH from all previous use
+            $KVSH = `
+            [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KVSO.SecretValue) # $KVSH is equal to to $KVSO.SecretValue
+            try {                                                                           # Try the following
+                $KVSV = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KVSH)    # KVSV is equal to $KVSH
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'you may not have permissions'                                   # Write message to screen
+                Write-Host 'to this secret or vault'                                        # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureKeyVaultSecretVal                                             # Breaks :GetAzureKeyVaultSecretVal
+            }                                                                               # End catch
+            finally {                                                                       # If try succeeds
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KVSV)               # Finishes unhashing $KVSV
+            }                                                                               # End finally
+            Write-Host 'Secret Name: '$KVSO.Name                                            # Write message to screen
+            Write-Host 'Secret Value:'$KVSV                                                 # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break GetAzureKeyVaultSecretVal                                                 # Breaks :GetAzureKeyVaultSecretVal
+        }                                                                                   # End :GetAzureKeyVaultSecretValue while ($true) 
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin statement   
+}                                                                                           # End function GetAzKeyVaultSecretValue
+function UpdateAzKeyVaultSecret {                                                           # Function to update the value of selected key
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'UpdateAzKeyVaultSecret'                                     # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :UpdateAzureKeyVaultSecret while ($true) {                                          # Outer loop for managing funciton
+            $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret ($CallingFunction) # Calls function and assigns output to $Var
+            if (!$KeyVaultSecretObject) {                                                   # If $KeyVaultSecretObject is $null
+                Break UpdateAzureKeyVaultSecret                                             # Breaks :UpdateAzureKeyVaultSecret
+            }                                                                               # End if (!$KeyVaultSecretObject)
+            :UpdateAzureKVSecretValue while ($true) {                                       # Inner loop for updating key vault secret value
+                Write-Host 'Please enter a new value for:'$KeyVaultSecretObject.Name        # Write message to screen
+                $KeyVaultSecretValue = Read-Host 'New value'                                # Operator input for the new secret value
+                Write-Host 'Use:'$KeyVaultSecretValue'as the new value'                     # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of value
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm is equal to 'e'
+                    Break UpdateAzureKeyVaultSecret                                         # Breaks :NewAzureKeyVaultSecret
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OConfirm is equal to 'y'
+                    Clear-Host                                                              # Clears screen
+                    Break UpdateAzureKVSecretValue                                          # Breaks :UpdateAzureKVSecretValue
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                else {                                                                      # All other inputs for $OpConfirm
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
+            }                                                                               # End :UpdateAzureKVSecretValue while ($true)
+            $KeyVaultSecretHash = ConvertTo-SecureString -String $KeyVaultSecretValue `
+                -AsPlainText -Force                                                         # Converts the operator input to secure string
+            try {                                                                           # Try to do the following
+                Set-AzKeyVaultSecret -VaultName $KeyVaultObject.VaultName -Name `
+                    $KeyVaultSecretObject.Name -SecretValue $KeyVaultSecretHash `
+                    -ErrorAction 'Stop'                                                     # Updates $KeyVaultSecretObject
+            }                                                                               # End Try
+            catch {                                                                         # If try statement fails
+                Write-Host 'There was an issue updating this secret'                        # Write message to screen
+                Write-Host 'You may not have the permissions to modify this secret'         # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break UpdateAzureKeyVaultSecret                                             # Breaks :UpdateAzureKVSecretValue 
+            }                                                                               # End catch
+            Write-Host $KeyVaultSecretObject.Name'has been updated'                         # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break UpdateAzureKeyVaultSecret                                                 # Breaks :UpdateAzureKVSecretValue
+        }                                                                                   # End :UpdateAzureKeyVaultSecret while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzKeyVaultSecret
+function RemoveAzKeyVaultSecret {                                                           # Function to remove a key vault secret
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables errors
+        $WarningPreference = 'silentlyContinue'                                             # Disables key vault warnings
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'RemoveAzKeyVaultSecret'                                     # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureKeyVaultSecret while ($true) {                                          # Outer loop for managing function
+            $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret ($CallingFunction) # Calls function and assigns output to $Var
+            if (!$KeyVaultSecretObject) {                                                   # If $KeyVaultSecretObject is $null
+                Break RemoveAzureKeyVaultSecret                                             # Breaks :RemoveAzureKeyVaultSecret
+            }                                                                               # End if (!$KeyVaultSecretObject)
+            Write-host ''                                                                   # Write message to screen
+            Write-host 'Remove:    '$KeyVaultSecretObject.Name                              # Write message to screen
+            Write-Host 'From vault:'$KeyVaultSecretObject.VaultName                         # Write message to screen
+            Write-host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to delete 
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Write-Host 'Removing' $KeyVaultSecretObject.Name                            # Write message to screen
+                Try {                                                                       # Try the following
+                    Remove-AzKeyVaultSecret -Name $KeyVaultSecretObject.Name -VaultName `
+                        $KeyVaultSecretObject.VaultName -Force -ErrorAction 'Stop'          # Removes the selected key
+                }                                                                           # End Try
+                catch {                                                                     # If try fails
+                    Write-Host 'There was an issue removing the selected key'               # Write message to screen
+                    Write-Host 'You may not have the permissions to remove this key'        # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureKeyVaultSecret                                         # Breaks :RemoveAzureKeyVaultSecret 
+                }                                                                           # End catch
+                Write-Host 'The secret has been removed'                                    # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureKeyVaultSecret                                             # Breaks :RemoveAzureKeyVaultSecret
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm is not equal to 'y'
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureKeyVaultSecret                                             # Breaks :RemoveAzureKeyVaultSecret
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureKeyVaultSecret while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzKeyVaultSecret
+# End ManageAzKeyVaultSecret
 # End ManageAzKeyVault
 function ManageAzDisk { # Script for managing Azure
     Begin {
