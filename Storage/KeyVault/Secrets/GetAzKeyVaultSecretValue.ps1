@@ -3,72 +3,76 @@
     Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
     Convert value to plain txt: https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-powershell
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
     GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
-        GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-            GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
 } #>
 <# Functions Description: {
     GetAzKeyVaultSecretValue:   Returns the value of a key vault secret
     GetAzKeyVaultSecret:        Gets the key vault secret object
     GetAzKeyVault:              Gets key vault object
-    GetAzResourceGroup:         Gets resource group object
 } #>
 <# Variables: {
     :GetAzureKeyVaultSecretVal  Outer loop for managing function
-    $RGObject:                  Resource group object
-    $KeyVaultObject:            Key vault object
+    $CallingFunction:           Name of this function
     $KeyVaultSecretObject:      Key vault secret object
-    $KeyVaultSecretHash:        Hashed version of $KeyVaultSecretValue
-    $KeyVaultSecretValue:       Plain text value of $KeyVaultSecretObject
+    $KeyVaultObject:            Key vault object
+    $KVSO:                      $KeyVaultSecretObject
+    $KVSH:                      Allocates an unmanaged binary string (BSTR) and copies the contents of a managed SecureString object into it.
+    $KVSV:                      Allocates a managed String and copies a binary string (BSTR) stored in unmanaged memory into it.
+    $KVSV:                      Frees a BSTR using the COM SysFreeString function.
     GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
         GetAzKeyVault{}             Gets $KeyVaultSecret
-            GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
     Function
         Call GetAzKeyVaultSecretValue > Get $null
             Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
                 Call GetAzKeyVault > Get $KeyVaultObject
-                    Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGroup
-                        Return GetAzKeyVault > Send $RGObject
                 End GetAzKeyVault
                     Return GetAzKeyVaultSecret > Send $KeyVaultObject
             End GetAzKeyVaultSecret
-                Return GetAzKeyVaultSecretValue > Send $KeyVaultSecretObject  
+                Return GetAzKeyVaultSecretValue > Send $KeyVaultSecretObject, $KeyVaultObject  
         End GetAzKeyVaultSecretValue
             Return Function > Send $null
 }#>
-function GetAzKeyVaultSecretValue { # Function to return the value of a key vault secret
-    Begin {
-        $ErrorActionPreference='silentlyContinue' # Disables Errors
-        $WarningPreference = "silentlyContinue" # Disables key vault warnings
-        :GetAzureKeyVaultSecretVal while ($true) { # Outer loop for managing function
-            if (!$KeyVaultSecretObject) { # If $var is $null
-                $KeyVaultSecretObject = GetAzKeyVaultSecret ($RGObject, $KeyVaultObject) # Calls function and assigns output to $Var
-                if (!$KeyVaultSecretObject) { # If $var is $null
-                    Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-                } # End if (!$KeyVaultSecretObject)
-            } # End if (!$KeyVaultSecretObject)
-            $KeyVaultSecretValue = $null # Clears $KeyVaultSecretValue from all previous use
-            $KeyVaultSecretHash = $null # Clears $KeyVaultSecretHash from all previous use
-            $KeyVaultSecretHash = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KeyVaultSecretObject.SecretValue) # Provided by MS Azure
-            try { # Provided by MS Azure
-                $KeyVaultSecretValue = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KeyVaultSecretHash) # Provided by MS Azure
-            } # Provided by MS Azure
-            Catch { # Catch for try statement
-                Write-Host "An error has occured, you may not have permissions to this secret or vault" # Write message to screen
-                Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-            } # End catch
-            finally { # Provided by MS Azure
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KeyVaultSecretHash) # Provided by MS Azure
-            } # Provided by MS Azure # This code was provided by MS, at this time is not needed and has commented out
-            Write-Host "The value of"$KeyVaultSecretObject.Name "is:" $KeyVaultSecretValue # Prints secret name and value to screen
-            Break GetAzureKeyVaultSecretVal # Breaks :GetAzureKeyVaultSecretVal
-        } # End :GetAzureKeyVaultSecretValue while ($true) 
-        Return # Returns to calling function with $null
-    } # End begin statement   
-} # End function GetAzKeyVaultSecretValue
+function GetAzKeyVaultSecretValue {                                                         # Function to return the value of a key vault secret
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
+        $WarningPreference = "silentlyContinue"                                             # Disables key vault warnings
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'GetAzKeyVaultSecretValue'                                   # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :GetAzureKeyVaultSecretVal while ($true) {                                          # Outer loop for managing function
+            $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret ($CallingFunction) # Calls function and assigns output to $Var
+            if (!$KeyVaultSecretObject) {                                                   # If $KeyVaultSecretObject is $null
+                Break GetAzureKeyVaultSecretVal                                             # Breaks :GetAzureKeyVaultSecretVal
+            }                                                                               # End if (!$KeyVaultSecretObject)
+            $KVSO = $KeyVaultSecretObject                                                   # KVSO is equal to $KeyVaultSecretObject
+            $KVSV = $null                                                                   # Clears $KVSV from all previous use
+            $KVSH = $null                                                                   # Clears $KVSH from all previous use
+            $KVSH = `
+            [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($KVSO.SecretValue) # $KVSH is equal to to $KVSO.SecretValue
+            try {                                                                           # Try the following
+                $KVSV = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($KVSH)    # KVSV is equal to $KVSH
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host 'you may not have permissions'                                   # Write message to screen
+                Write-Host 'to this secret or vault'                                        # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureKeyVaultSecretVal                                             # Breaks :GetAzureKeyVaultSecretVal
+            }                                                                               # End catch
+            finally {                                                                       # If try succeeds
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($KVSV)               # Finishes unhashing $KVSV
+            }                                                                               # End finally
+            Write-Host 'Secret Name: '$KVSO.Name                                            # Write message to screen
+            Write-Host 'Secret Value:'$KVSV                                                 # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break GetAzureKeyVaultSecretVal                                                 # Breaks :GetAzureKeyVaultSecretVal
+        }                                                                                   # End :GetAzureKeyVaultSecretValue while ($true) 
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin statement   
+}                                                                                           # End function GetAzKeyVaultSecretValue
