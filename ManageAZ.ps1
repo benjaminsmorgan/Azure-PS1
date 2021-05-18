@@ -7217,7 +7217,6 @@ function RemoveAzDisk { # Removes a disk object
     } # End Begin 
 } # End function RemoveAzDisk
 # End ManageAzStorage
-# End ManageAzStorage
 # Manage Compute
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
