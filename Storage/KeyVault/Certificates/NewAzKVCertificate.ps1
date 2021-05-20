@@ -1,3 +1,41 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Add-AzKeyVaultCertificate:  https://docs.microsoft.com/en-us/powershell/module/az.keyvault/add-azkeyvaultcertificate?view=azps-5.9.0
+    New-AzKeyVaultCertificatePolicy:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/new-azkeyvaultcertificatepolicy?view=azps-5.9.0
+    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
+} #>
+<# Required Functions Links: {
+    NewAzKVCertificatePolicy:   https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/NewAzKVCertificatePolicy.ps1
+    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
+} #>
+<# Functions Description: {
+    NewAzKVCertificate:         Creates a new key vault certificate
+    NewAzKVCertificatePolicy:   Creates a new key vault certificate policy
+    GetAzKeyVault:              Gets key vault object
+} #>
+<# Variables: {
+    :NewAzureKVCert             Outer loop for managing function
+    :SetAzureKVCertName         Inner loop for setting the cert name
+    $CallingFunction:           Name of this function or the one that called it
+    $KeyVaultObject:            Key vault object
+    $Policy:                    Certificate policy object
+    $CertName:                  Name of the cert
+    $OpConfirm:                 Operator confirmation of the cert name
+    GetAzKeyVault{}             Gets $KeyVaultSecret
+    NewAzKVCertificatePolicy{}  Gets $Policy
+} #>
+<# Process Flow {
+    Function
+        Call NewAzKVCertificate > Get $null
+            Call GetAzKeyVault > Get $KeyVaultObject
+            End GetAzKeyVault
+                Return NewAzKVCertificate > Send $KeyVaultObject 
+            Call  NewAzKVCertificatePolicy > Get $Policy
+            End NewAzKVCertificatePolicy
+                Return NewAzKVCertificate > Send $Policy
+        End NewAzKVCertificate
+            Return Function > Send $null
+}#>
 function NewAzKVCertificate {                                                               # Function to create a certificate
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
