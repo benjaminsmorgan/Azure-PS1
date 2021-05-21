@@ -391,7 +391,7 @@ function RemoveAzKeyVaultSecret {                                               
                 Write-Host 'Removing' $KeyVaultSecretObject.Name                            # Write message to screen
                 Try {                                                                       # Try the following
                     Remove-AzKeyVaultSecret -Name $KeyVaultSecretObject.Name -VaultName `
-                        $KeyVaultSecretObject.VaultName -Force -ErrorAction 'Stop'          # Removes the selected key
+                        $KeyVaultSecretObject.VaultName -Force -ErrorAction 'Stop'          # Removes the selected secret
                 }                                                                           # End Try
                 catch {                                                                     # If try fails
                     Write-Host 'There was an issue removing the selected key'               # Write message to screen
