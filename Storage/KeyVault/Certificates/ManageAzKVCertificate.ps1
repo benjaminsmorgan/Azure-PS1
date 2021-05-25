@@ -1,23 +1,123 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
+    Add-AzKeyVaultCertificate:  https://docs.microsoft.com/en-us/powershell/module/az.keyvault/add-azkeyvaultcertificate?view=azps-5.9.0
+    New-AzKeyVaultCertificatePolicy:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/new-azkeyvaultcertificatepolicy?view=azps-5.9.0
+    Import-AzKeyVaultCertificate    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/import-azkeyvaultcertificate?view=azps-5.9.0
+    Get-AzKeyVaultCertificate:  https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultcertificate?view=azps-5.1.0
+    Update-AzKeyVaultCertificate:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/update-azkeyvaultcertificate?view=azps-5.1.0
+    Remove-AzKeyVaultCertificate:    https://docs.microsoft.com/en-us/powershell/module/az.keyvault/remove-azkeyvaultcertificate?view=azps-5.1.0
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
+    Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
+    Convert value to plain txt: https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-powershell    
 } #>
 <# Required Functions Links: {
+    NewAzKVCertificate:         https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/NewAzKVCertificate.ps1        
+    NewAzKVCertificatePolicy:   https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/NewAzKVCertificatePolicy.ps1
+    ImportAzKVCertificate:      https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/ImportAzKVCertificate.ps1      
+    ListAzKVCertificate:        https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/ListAzKVCertificate.ps1        
+    UpdateAzKVCertificate:      https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/UpdateAzKVCertificate.ps1      
+    GetAzKVCertificate:         https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/GetAzKVCertificate.ps1         
+    DownloadAzKVCertificate:    https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/DownloadAzKVCertificate.ps1    
+    RemoveAzKVCertificate:      https://github.com/benjaminsmorgan/Azure-Powershell/tree/main/Storage/KeyVault/Certificates/RemoveAzKVCertificate.ps1      
     GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
+    GetAzKeyVaultSecretValue:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecretValue.ps1
 } #>
 <# Functions Description: {
     ManageAzKVCertificate:      Management function for key vault certs
-    
+    NewAzKVCertificate:         Creates a new key vault certificate
+    NewAzKVCertificatePolicy:   Creates a new key vault certificate policy
+    ImportAzKVCertificate:      Imports a key vault certificate
+    ListAzKVCertificate:        Lists all key vault certificates
+    UpdateAzKVCertificate:      Updates key vault certificate
+    GetAzKVCertificate:         Gets a key vault certificate object
+    DownloadAzKVCertificate:    Downloads a key vault certificate
+    RemoveAzKVCertificate:      Removes key vault certificate
+    GetAzKeyVault:              Gets key vault object
+    GetAzKeyVaultSecretValue:   Gets key vault secret value
+    GetAzKeyVault:              Gets key vault object      
 } #>
 <# Variables: {
-    :ManageAzureKeyVaultCert  Outer loop for managing function
+    :ManageAzureKeyVaultCert    Outer loop for managing function
     $OpSelect:                  Operator input to select function
-
+    NewAzKVCertificate{}        Creates $KeyVaultCertObject
+        GetAzKeyVault{}             Gets $KeyVaultObject
+        NewAzKVCertificatePolicy{}  Gets $Policy
+    ImportAzKVCertificate{}     Imports $KeyVaultCertObject
+        GetAzKeyVault{}             Gets $KeyVaultObject
+        GetAzKeyVaultSecretValue{}  Gets $KVSV
+    UpdateAzKVCertificate{}     Gets $null
+        GetAzKVCertificate{}        Gets $KeyVaultCertObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+    DownloadAzKVCertificate{}   Gets $null
+        GetAzKVCertificate{}        Gets KeyVaultCertObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+        GetAzKeyVaultSecretValue{}  Gets $KVSV
+            GetAzKeyVault{}             Gets $KeyVaultObject
+    RemoveAzKVCertificate{}     Gets $null
+        GetAzKVCertificate{}        Gets $KeyVaultCertObject
+            GetAzKeyVault{}             Gets $KeyVaultObject  
 } #>
 <# Process Flow {
     Function
         Call ManageAzKVCertificate > Get $null
-
+            Call NewAzKVCertificate > Get $null
+                Call GetAzKeyVault > Get $KeyVaultObject
+                End GetAzKeyVault
+                    Return NewAzKVCertificate > Send $KeyVaultObject 
+                Call  NewAzKVCertificatePolicy > Get $Policy
+                End NewAzKVCertificatePolicy
+                    Return NewAzKVCertificate > Send $Policy
+            End NewAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+            Call ImportAzKVCertificate > Get $null
+                Call GetAzKeyVault > Get $KeyVaultObject
+                End GetAzKeyVault
+                    Return ImportAzKVCertificate > Send $KeyVaultObject 
+                Call GetAzKeyVaultSecretValue > Get $KVSV
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKeyVaultSecretValue > Send $KeyVaultObject
+                End GetAzKeyVaultSecretValue
+                    Return ImportAzKVCertificate > Send $KVSV
+            End ImportAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+            Call NewAzKVCertificate > Get $null
+            End NewAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+            Call UpdateAzKVCertificate > Get $null
+                Call GetAzKVCertificate > Get $KeyVaultCertObject
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKVCertificate > Send $KeyVaultObject
+                End GetAzKVCertificate
+                    Return UpdateAzKVCertificate > Send $KeyVaultCertObject, $KeyVaultObject  
+            End UpdateAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+            Call DownloadAzKVCertificate > Get $null
+                GetAzKVCertificate > Get KeyVaultCertObject
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKVCertificate > Send $KeyVaultObject 
+                End GetAzKVCertificate
+                    Return DownloadAzKVCertificate > Send KeyVaultCertObject
+                Call GetAzKeyVaultSecretValue > Get $KVSV
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKeyVaultSecretValue > Send $KeyVaultObject
+                End GetAzKeyVaultSecretValue
+                    Return DownloadAzKVCertificate > Send $KVSV
+            End DownloadAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+            Call RemoveAzKVCertificate > Get $null
+                Call GetAzKVCertificate > Get $KeyVaultCertObject
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKVCertificate > Send $KeyVaultObject
+                End GetAzKVCertificate
+                    Return RemoveAzKVCertificate > Send $KeyVaultCertObject, $KeyVaultObject  
+            End RemoveAzKVCertificate
+                Return ManageAzKVCertificate > Send $null
+        End ManageAzKVCertificate
             Return Function > Send $null
 }#>
 function ManageAzKVCertificate {                                                            # Function for managing key vault certs
@@ -25,7 +125,7 @@ function ManageAzKVCertificate {                                                
         :ManageAzureKeyVaultCert while ($true) {                                            # Outer loop for managing function
             Write-Host '[0] To exit'                                                        # Write message to screen
             Write-Host '[1] New Key Vault Cert'                                             # Write message to screen
-            Write-Host '[2] Add Key Vault Cert'                                             # Write message to screen
+            Write-Host '[2] Import Key Vault Cert'                                          # Write message to screen
             Write-Host '[3] List All Key Vaults Certs'                                      # Write message to screen
             Write-Host '[4] Download Key Vault Cert'                                        # Write message to screen
             Write-Host '[5] Update Key Vault Cert'                                          # Write message to screen
@@ -39,8 +139,8 @@ function ManageAzKVCertificate {                                                
                 NewAzKVCertificate                                                          # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1')
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'            
-                Write-Host 'Add Key Vault Cert'                                             # Write message to screen
-                # Calls function
+                Write-Host 'Import Key Vault Cert'                                          # Write message to screen
+                ImportAzKVCertificate                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'            
                 Write-Host 'List All Key Vaults Certs'                                      # Write message to screen
@@ -389,6 +489,140 @@ function NewAzKVCertificatePolicy {                                             
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzKVCertificatePolicy
+function ImportAzKVCertificate {                                                            # Function to import an existing certificate
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction does not have a value
+            $CallingFunction = 'ImportAzKVCertificate'                                      # Creates $CallingFunction 
+        }                                                                                   # End if (!$CallingFunction)
+        :AddAzureKVCert while ($true) {                                                     # Outer loop for managing function
+            $KeyVaultObject = GetAzKeyVault ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$KeyVaultObject) {                                                         # If $KeyVaultObject does not have a value
+                Break AddAzureKVCert                                                        # Breaks :AddAzureKVCert
+            }                                                                               # End if (!$KeyVaultObject)
+            :GetLocalfilepath while ($true) {                                               # Inner loop for locating the cert to import
+                Write-Host 'Enter the full file path, name, and extenstion'                 # Write message to screen
+                Write-Host 'Example c:\users\admin\downloads\cert.pfx'                      # Write message to screen
+                Write-Host '"Exit" to leave this function'                                  # Write message to screen
+                $LocalFilePath = Read-Host 'Path'                                           # Operator input for the local file path
+                Clear-Host                                                                  # Clears screen
+                if ($LocalFilePath -eq 'exit') {                                            # If $LocalFilePath equals 'exit'
+                    Break AddAzureKVCert                                                    # Breaks :AddAzureKVCert
+                }                                                                           # End if ($LocalFilePath -eq 'exit')
+                if (Test-Path -Path $LocalFilePath) {                                       # If $LocalFilePath is valid
+                    Write-Host 'Import the following:'$LocalFilePath                        # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No'                                 # Operator confirmation of the file
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break GetLocalfilepath                                              # Breaks :GetLocalfilepath
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if (Test-Path -Path $LocalFilePath)
+                else {                                                                      # If $LocalFilePath is not valid
+                    Write-Host 'Unable to locate file'                                      # Write message to screen
+                    Write-Host 'Please re-enter the path'                                   # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if (Test-Path -Path $LocalFilePath)
+            }                                                                               # End :GetLocalfilepath while ($true)
+            :GetLocalFilePassword while ($true) {                                           # Inner loop for getting the cert password
+                Write-Host 'Certificate password'                                           # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Manually enter password'                                    # Write message to screen
+                Write-Host '[2] Get key vault secret'                                       # Write message to screen
+                Write-Host '[3] No password'                                                # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator selection to provide password
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break AddAzureKVCert                                                    # Breaks :AddAzureKVCert
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
+                    Write-Host 'Please enter the password for the certificate'              # Write message to screen
+                    Write-Host '"Exit" to leave this function'                              # Write message to screen
+                    $LocalFilePassword = Read-Host 'Password'                               # Operator input for the cert password
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'Confirm the password for the certificate'                   # Write message to screen
+                    $LocalFilePassword2 = Read-Host 'Password'                              # Operator input for the cert password
+                    Clear-Host                                                              # Clears screen
+                    if ($LocalFilePassword -eq $LocalFilePassword2) {                       # If $LocalFilePassword equals $LocalFilePassword2
+                        $Password = ConvertTo-SecureString -String $LocalFilePassword `
+                            -AsPlainText -Force                                             # Converts $LocalFilePassword to secure string $Password
+                        Break GetLocalFilePassword                                          # Breaks :GetLocalFilePassword
+                    }                                                                       # End if ($LocalFilePassword -eq $LocalFilePassword2)
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $KVSV = GetAzKeyVaultSecretValue ($CallingFunction)                     # Calls function and assigns output to $var
+                    if (!$KVSV) {                                                           # If $KVSV does not have a value
+                        Break AddAzureKVCert                                                # Breaks :AddAzureKVCert
+                    }                                                                       # End if (!$KVSV)
+                    else {                                                                  # If $KVSV has a value
+                        $Password = ConvertTo-SecureString -String $KVSV `
+                            -AsPlainText -Force                                             # Converts $KVSV to secure string $Password
+                        Break GetLocalFilePassword                                          # Breaks :GetLocalFilePassword
+                    }                                                                       # End else (if (!$KVSV))
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                elseif ($OpSelect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $Password = $null                                                       # Clears $Password
+                    Break GetLocalFilePassword                                              # Breaks :GetLocalFilePassword
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen   
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetLocalFilePassword while ($true)   
+            :SetAzureKVCertName while ($true) {                                             # Inner loop for setting the cert name
+                Write-Host 'Enter the name of the certificate'                              # Write message to screen
+                $CertName = Read-Host 'Name'                                                # Operator input of the cert name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$CertName'as the certificate name?'                        # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the cert name
+                if ($OpConfirm -eq 'e') {                                                   # If $OpSelect equals 'e'
+                    Break AddAzureKVCert                                                    # Breaks :NewAzureKVCert
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                elseif ($OpConfirm -eq 'y') {                                               # Else if $OpSelect equals 'y'
+                    Break SetAzureKVCertName                                                # Breaks :SetAzureKVCertName
+                }                                                                           # End elseif ($OpConfirm -eq 'y') 
+                else {                                                                      # All other inputs for $OpSelect
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpConfirm -eq 'e'))
+            }                                                                               # End :SetAzureKVCertName while ($true)
+            if ($Password) {                                                                # If $Password has a value
+                Try {                                                                       # Try the following
+                    Import-AzKeyVaultCertificate -VaultName $KeyVaultObject.VaultName `
+                        -Name $CertName -FilePath $LocalFilePath -Password $Password 
+                        -ErrorAction 'Stop'                                                 # Imports the certificate
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The certicate was not imported'                             # Write message to screen
+                    Write-Host 'There maybe an issue with the certificate'                  # Write message to screen
+                    Write-Host 'The password provided may not be valid'                     # Write message to screen
+                    Write-Host 'You may not have the permissions to do this'                # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break AddAzureKVCert                                                    # Breaks :AddAzureKVCert 
+                }                                                                           # End catch
+            }                                                                               # End if ($Password)
+            else {                                                                          # If $Password does not have a value
+                Try {
+                    Import-AzKeyVaultCertificate -VaultName $KeyVaultObject.VaultName `
+                        -Name $CertName -FilePath $LocalFilePath -ErrorAction 'Stop'        # Imports the certificate
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The certicate was not imported'                             # Write message to screen
+                    Write-Host 'There maybe an issue with the certificate'                  # Write message to screen
+                    Write-Host 'You may not have the permissions to do this'                # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break AddAzureKVCert                                                    # Breaks :AddAzureKVCert 
+                }                                                                           # End catch    
+            }                                                                               # End else (if ($Password))
+            Write-Host 'The certificate has been imported successfully'                     # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break AddAzureKVCert                                                            # Breaks :AddAzureKVCert                                    
+        }                                                                                   # End :AddAzureKVCert while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ImportAzKVCertificate
 function ListAzKVCertificate {                                                              # Function to list key vault certs
     Begin {                                                                                 # Begin function
         $KVList = Get-AzKeyVault                                                            # Pulls a list of all key vaults
@@ -496,80 +730,6 @@ function GetAzKVCertificate {                                                   
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzKVCertificate
-function DownloadAzKVCertificate {                                                          # Function to download a key vault certificate
-    Begin {                                                                                 # Begin function
-        if ($CallingFunction) {                                                             # If $CallingFunction is $null
-            $CallingFunction = 'DownloadAzKVCertificate'                                    # Creates $CallingFunction
-        }                                                                                   # End if ($CallingFunction)
-        :DownloadAzureKVCert while ($true) {                                                # Outer loop for managing function
-            $KeyVaultCertObject, $KeyVaultObject = GetAzKVCertificate ($CallingFunction)    # Calls function and assigns output to $var
-            if (!$KeyVaultCertObject) {                                                     # If $KeyVaultCertObject is $null
-                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
-            }                                                                               # End if (!$KeyVaultCertObject)
-            Write-Host 'Certificate selected'                                               # Write message to screen
-            Write-Host 'Please locate the matching key vault secret'                        # Write message to screen
-            Pause
-            $KVSV = GetAzKeyVaultSecretValue ($CallingFunction)                             # Calls function and assigns output to $var
-            if (!$KVSV) {                                                                   # If $KVSV does not have a value
-                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
-            }                                                                               # End if (!$KVSV)
-            Write-Host 'Secret selected'                                                    # Write message to screen
-            :GetDownloadPath while ($True) {                                                # Inner loop for setting the download path
-                Write-Host 'Please enter the download path'                                 # Write message to screen
-                Write-Host 'Example: C:\users\Admin\Downloads\'                             # Write message to screen
-                $Localdownloadpath = Read-Host 'Path'                                       # Operator input for download path
-                if ($Localdownloadpath -notlike '*\') {                                     # If $LocalDownloadPath does not end in '\'
-                    $Localdownloadpath = $Localdownloadpath+'\'                             # Adds '\' to end of $LocalDownloadPath
-                    if (Test-Path -Path $Localdownloadpath) {                               # If $LocalDownloadPath is valud
-                        Break GetDownloadPath                                               # Breaks :GetDownloadPath
-                    }                                                                       # End if (Test-Path -Path $Localdownloadpath)     
-                    else {                                                                  # If $Localdownload path is not valid
-                        Write-Host 'The path:'$Localdownloadpath                            # Write message to screen
-                        Write-Host 'was not valid'                                          # Write message to screen
-                        Pause                                                               # Pauses all actions for operator input
-                        Clear-Host                                                          # Clears screen
-                    }                                                                       # End else (if (Test-Path -Path $Localdownloadpath))
-                }                                                                           # End if ($Localdownloadpath -notlike '*\')
-            }                                                                               # End :GetDownloadPath while ($True)
-            :GetDownloadName while ($true) {                                                # Inner loop for setting download name
-                Write-Host 'Enter the filename'                                             # Write message to screen
-                Write-Host 'Example: downloadedcert'                                        # Write message to screen
-                $DownloadName = Read-Host 'Name'                                            # Operator input for file name
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'Use:'$DownloadName 'as the file name'                           # Write message to screen
-                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the file name
-                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
-                    Break DownloadAzureKVCert                                               # Breaks :DownloadAzureKVCert
-                }                                                                           # End if ($OpConfirm -eq 'e')
-                elseif ($OpConfirm -eq 'y') {                                               # Else if $OpConfirm equals 'y'
-                    Break GetDownloadName                                                   # Breaks :GetDownloadName
-                }                                                                           # End elseif ($OpConfirm -eq 'y')
-                else {                                                                      # All other inputs for $OpConfirm
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($OpConfirm -eq 'e'))
-            }                                                                               # End :GetDownloadName while ($true)
-            $FullDownloadPath = $Localdownloadpath+$DownloadName+'.pfx'                     # Creates $FullDownloadPath
-            Try {                                                                           # Try the following
-                $secretByte = [Convert]::FromBase64String($KVSV)
-                $x509Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($secretByte, "", "Exportable,PersistKeySet")
-                $type = [System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx
-                $pfxFileByte = $x509Cert.Export($type, $password)
-                [System.IO.File]::WriteAllBytes($FullDownloadPath, $pfxFileByte)            # Writes cert to file
-            }                                                                               # End try
-            catch {                                                                         # If Try fails
-                Write-Host 'An error has occured'                                           # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
-            }                                                                               # End catch
-            Write-Host 'Download complete'                                                  # Write message to screen
-            Write-Host 'Path:'$FullDownloadPath                                             # Write message to screen
-            Pause                                                                           # Pauses all actions for operator input
-            Break DownloadAzureKVCert                                                       # Breaks :DownloadAzureKVCert
-        }                                                                                   # End :DownloadAzureKVCert while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function DownloadAzKVCertificate
 function UpdateAzKVCertificate {                                                            # Function to update a key vault certificate
     Begin {                                                                                 # Begin function
         $ErrorActionPreference='silentlyContinue'                                           # Disables errors
@@ -759,6 +919,113 @@ function UpdateAzKVCertificate {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function UpdateAzKVCertificate
+function DownloadAzKVCertificate {                                                          # Function to download a key vault certificate
+    Begin {                                                                                 # Begin function
+        if ($CallingFunction) {                                                             # If $CallingFunction is $null
+            $CallingFunction = 'DownloadAzKVCertificate'                                    # Creates $CallingFunction
+        }                                                                                   # End if ($CallingFunction)
+        :DownloadAzureKVCert while ($true) {                                                # Outer loop for managing function
+            $KeyVaultCertObject, $KeyVaultObject = GetAzKVCertificate ($CallingFunction)    # Calls function and assigns output to $var
+            if (!$KeyVaultCertObject) {                                                     # If $KeyVaultCertObject is $null
+                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
+            }                                                                               # End if (!$KeyVaultCertObject)
+            Write-Host 'Certificate selected'                                               # Write message to screen
+            Write-Host 'Please locate the matching key vault secret'                        # Write message to screen
+            Pause
+            $KVSV = GetAzKeyVaultSecretValue ($CallingFunction)                             # Calls function and assigns output to $var
+            if (!$KVSV) {                                                                   # If $KVSV does not have a value
+                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
+            }                                                                               # End if (!$KVSV)
+            Write-Host 'Secret selected'                                                    # Write message to screen
+            :GetDownloadPath while ($True) {                                                # Inner loop for setting the download path
+                Write-Host 'Please enter the download path'                                 # Write message to screen
+                Write-Host 'Example: C:\users\Admin\Downloads\'                             # Write message to screen
+                $Localdownloadpath = Read-Host 'Path'                                       # Operator input for download path
+                if ($Localdownloadpath -notlike '*\') {                                     # If $LocalDownloadPath does not end in '\'
+                    $Localdownloadpath = $Localdownloadpath+'\'                             # Adds '\' to end of $LocalDownloadPath
+                    if (Test-Path -Path $Localdownloadpath) {                               # If $LocalDownloadPath is valud
+                        Break GetDownloadPath                                               # Breaks :GetDownloadPath
+                    }                                                                       # End if (Test-Path -Path $Localdownloadpath)     
+                    else {                                                                  # If $Localdownload path is not valid
+                        Write-Host 'The path:'$Localdownloadpath                            # Write message to screen
+                        Write-Host 'was not valid'                                          # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if (Test-Path -Path $Localdownloadpath))
+                }                                                                           # End if ($Localdownloadpath -notlike '*\')
+                else {                                                                      # If $LocalDownloadPath ends with '\'
+                    if (Test-Path -Path $Localdownloadpath) {                               # If $LocalDownloadPath is valud
+                        Break GetDownloadPath                                               # Breaks :GetDownloadPath
+                    }                                                                       # End if (Test-Path -Path $Localdownloadpath)     
+                    else {                                                                  # If $Localdownload path is not valid
+                        Write-Host 'The path:'$Localdownloadpath                            # Write message to screen
+                        Write-Host 'was not valid'                                          # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if (Test-Path -Path $Localdownloadpath))
+                }                                                                           # End else (if ($Localdownloadpath -notlike '*\'))
+            }                                                                               # End :GetDownloadPath while ($True)
+            :GetDownloadName while ($true) {                                                # Inner loop for setting download name
+                Write-Host 'Enter the filename'                                             # Write message to screen
+                Write-Host 'Example: downloadedcert'                                        # Write message to screen
+                $DownloadName = Read-Host 'Name'                                            # Operator input for file name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$DownloadName 'as the file name'                           # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the file name
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
+                    Break DownloadAzureKVCert                                               # Breaks :DownloadAzureKVCert
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                elseif ($OpConfirm -eq 'y') {                                               # Else if $OpConfirm equals 'y'
+                    Break GetDownloadName                                                   # Breaks :GetDownloadName
+                }                                                                           # End elseif ($OpConfirm -eq 'y')
+                else {                                                                      # All other inputs for $OpConfirm
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpConfirm -eq 'e'))
+            }                                                                               # End :GetDownloadName while ($true)
+            :GetLocalFilePassword while ($true) {                                           # Inner loop for getting the cert password
+                Write-Host 'Please create a password for the certificate'                   # Write message to screen
+                $LocalFilePassword = Read-Host 'Password'                                   # Operator input for the cert password
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Confirm the password for the certificate'                       # Write message to screen
+                $LocalFilePassword2 = Read-Host 'Password'                                  # Operator input for the cert password
+                Clear-Host                                                                  # Clears screen
+                if ($LocalFilePassword -eq $LocalFilePassword2) {                           # If $LocalFilePassword equals $LocalFilePassword2
+                    $Password = ConvertTo-SecureString -String $LocalFilePassword `
+                        -AsPlainText -Force                                                 # Converts $LocalFilePassword to secure string $Password
+                    Break GetLocalFilePassword                                              # Breaks :GetLocalFilePassword
+                }                                                                           # End if ($LocalFilePassword -eq $LocalFilePassword2)
+                else {                                                                      # If $LocalFilePassword does not equal $LocalFulePassword2
+                    Write-Host 'Passwords did not match'                                    # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($LocalFilePassword -eq $LocalFilePassword2))
+            }                                                                               # End :GetLocalFilePassword while ($true)   
+            $FullDownloadPath = $Localdownloadpath+$DownloadName+'.pfx'                     # Creates $FullDownloadPath
+            Try {                                                                           # Try the following
+                $secretByte = [Convert]::FromBase64String($KVSV)                            # Converts key vault secret
+                $x509Cert = New-Object `
+                    System.Security.Cryptography.X509Certificates.X509Certificate2 `
+                    ($secretByte, "", "Exportable,PersistKeySet")                           # Creates X509 cer
+                $type = `
+                    [System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx
+                $pfxFileByte = $x509Cert.Export($type, $password)                           # Converts to PFX
+                [System.IO.File]::WriteAllBytes($FullDownloadPath, $pfxFileByte)            # Writes cert to file
+            }                                                                               # End try
+            catch {                                                                         # If Try fails
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break DownloadAzureKVCert                                                   # Breaks :DownloadAzureKVCert
+            }                                                                               # End catch
+            Write-Host 'Download complete'                                                  # Write message to screen
+            Write-Host 'Path:'$FullDownloadPath                                             # Write message to screen
+            Write-Host 'Password:'$LocalFilePassword                                        # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break DownloadAzureKVCert                                                       # Breaks :DownloadAzureKVCert
+        }                                                                                   # End :DownloadAzureKVCert while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function DownloadAzKVCertificate
 function RemoveAzKVCertificate {                                                            # Function to remove a key vault certificate
     Begin {                                                                                 # Begin function
         $ErrorActionPreference='silentlyContinue'                                           # Disables errors
@@ -803,7 +1070,6 @@ function RemoveAzKVCertificate {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzKVCertificate
-
 # Additional functions for ManageAzKVCertificate
 function GetAzKeyVault {                                                                    # Function to get a key vault object
     Begin {                                                                                 # Begin function
