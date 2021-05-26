@@ -77,146 +77,230 @@
         End NewAzDisk
             Return Function > Send $DiskObject
 }#>
-function NewAzDisk {
-    Begin {
-        :NewAzureDisk while ($true) { 
-            if (!$RGObject) { # IF $RGObject is $null 
-                $RGObject = GetAzResourceGroup # Calls function and assigns output to $var
-                if (!$RGObject) { # IF $RGObject is $null
-                    Break NewAzureDisk # Breaks :NewAzureDisk
-                } # End if (!$RGObject) 
-            } # End if (!$RGObject)
-            $LocationObject = Get-AzLocation | Where-Object {$_.Location -eq $RGObject.Location} # Pulls location from $RGObject 
-            :SetAzureDiskName while ($true) { # Inner loop for setting the disk name
-                $DiskNameInput = '0' # Assigns a value for elseif statement if operator input is invalid
-                try { # Try statement for operator input of disk name
-                    [ValidatePattern('^[a-z,0-9]+$')]$DiskNameInput = [string](Read-Host "New disk name (3-24 letters and numbers only)") # Operator input for the disk name, only allows letters and numbers. 
-                } # End try
-                catch {Write-Host "The disk name can only include letters and numbers"} # Error message for failed try
-                if ($DiskNameInput -eq 'exit') { # $DiskNameInput is equal to exit
-                    Break NewAzureDisk # Breaks :NewAzureDisk loop
-                } # if ($DiskNameInput -eq 'exit')
-                elseif ($DiskNameInput -eq '0') {}# Elseif when Try statement fails
-                elseif ($DiskNameInput.Length -le 2 -or $DiskNameInput.Length -ge 25) { # If $DiskNameInput is not between 3 and 24 characters
-                    Write-Host "The disk name must be between 3 and 24 characters in length" # Write message to screen
-                } # End elseif ($DiskNameInput.Length -le 2 -or $DiskNameInput.Length -ge 25)
-                else { # If Try statement input has value not equal to exit
-                    Write-Host $DiskNameInput # Writes $var to screen
-                    $OperatorConfirm = Read-Host "Is this name correct [Y] or [N]" # Operator confirmation
-                    if ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes') { # If $OperatorConfirm is equal to 'y' or 'yes'
-                        Break SetAzureDiskName # Breaks SetAzureDiskName
-                    } # End If ($OperatorConfirm -eq 'y' -or $OperatorConfirm -eq 'yes')
-                    else {} # If $OperatorConfirm is not -eq 'y' or 'yes;
-                } # End else (if ($DiskNameInput -eq 'exit'))
-            } # End :SetAzureDiskName while ($true)
-            :SetAzureDiskSku while ($true) { # Inner loop for configuring the new disk sku
-                [System.Collections.ArrayList]$ValidSku = @() # Creates the valid sku array
-                $ValidSkuList = @('Standard_LRS','Premium_LRS','StandardSSD_LRS','UltraSSD_LRS') # Creates a list of items to load into $ValidSku Array
-                $SkuNumber = 1 # Sets the base number for the valid sku array
-                foreach ($_ in $ValidSkuList) { # For each item in $ValidSkuList
-                    $SkuInput = [PSCustomObject]@{'Name' = $_;'Number' = $SkuNumber} # Creates the item to loaded into array
-                    $ValidSku.Add($SkuInput) | Out-Null # Loads item into array, out-null removes write to screen
-                    $SkuNumber = $SkuNumber + 1 # Increments $SkuNumber up 1
-                } # End foreach ($_ in $ValidSkuList)
-                foreach ($_ in $ValidSku) { # For each item in $ValidSkut
-                    Write-Host $_.Number $_.Name # Write message to screen
-                } # End foreach ($_ in $ValidSku)
-                :SelectAzureDiskSku while ($true) { # Inner loop for selecting object from list
-                    $SkuObjectSelect = Read-Host "Please enter the number of the sku" # Operator input for the selection
-                    if ($SkuObjectSelect -eq '0') { # If $$SkuObjectSelect is 0
-                        Break NewAzureDisk # Breaks :NewAzureDisk
-                    } # End if ($_Select -eq '0')
-                    $SkuObject = $ValidSku | Where-Object {$_.Number -eq $SkuObjectSelect} # Isolates selected object 
-                    $SkuObject = $SkuObject.Name # Pulls just the .name value
-                    if ($SkuObject) { # If $SkuObject has a value
-                        Break SetAzureDiskSku # Breaks :SetAzureDiskSku
-                    } # End if ($SetAzureDiskSku)
-                    Write-Host "That was not a valid selection" # Write message to screen 
-                } # End :SelectAzureDiskSku while ($true)
-            } #End :SetAzureDiskSku while ($true)
-            :SetAzureDiskSize while ($true) { # Inner loop for configuring the new disk size
-                $DiskSizeObject = -1 # Sets $var to non-break value
-                Try{ # Try the following
-                    [int]$DiskSizeObject = Read-Host "Size in GB of the Disk [0] to exit" # Operator input for the disk size
-                } # End Try
-                catch {} # If Try fails
-                if ($DiskSizeObject -eq 0) { # If $DiskSizeObject equals 0
-                    Break NewAzureDisk # Breaks :NewAzureDisk
-                } # End if ($DiskSizeObject -eq 0)
-                if ($DiskSizeObject -ge 1) { # If $DiskSizeObject has a value greater than 1
-                    Break SetAzureDiskSize # Breaks :SetAzureDiskSize
-                } # End if ($DiskSizeObject)
-                else { # All other inputs
-                    Write-Host "Please enter a positive integer" # Write message to screen
-                } # End else (if ($DiskSizeObject -ge 1))
-            } # End :SetAzureDiskSize while ($true)
-            :SetAzureDiskOSType while ($true) { # ***COMPLETE****
-                Write-Host "1 Windows" # Write message to screen
-                Write-Host "2 Linux" # Write message to screen
-                $DiskOSObject = Read-Host "[1] or [2]" # Operator input for disk os type
-                if ($DiskOSObject -eq 'exit') { # If $DiskOSObject equals 'exit'
-                    Break NewAzureDisk # Breaks :NewAzureDisk
-                } #End if ($DiskOSObject -eq 'exit') 
-                elseif ($DiskOSObject -eq '1') { # If $DiskOSObject equals '1'
-                    $DiskOSObject = 'Windows' # Changes $DiskOSObject to 'Windows'
-                    Break SetAzureDiskOSType # Breaks :SetAzureDiskOSType
-                } # End elseif ($DiskOSObject -eq '1')
-                elseif ($DiskOSObject -eq '2') { # If $DiskOSObject equals '2'
-                    $DiskOSObject = 'Linux' # Changes $DiskOSObject to 'Linux'
-                    Break SetAzureDiskOSType # Breaks :SetAzureDiskOSType
-                } # End elseif ($DiskOSObject -eq '2')
-                else { # All other inputs for $DiskOSType
-                    Write-Host "That was not a valid option" # Write message to screen
-                } # End else (if ($DiskOSObject -eq 'exit') )
-            } # End :SetAzureDiskOSType while ($true)
-            :EnableAzureDiskEncrypt while ($true) { # Inner loop for configuring the new disk encyption
-                $UseEncryptOption = Read-Host "Encypt this disk [Y] or [N]" # Operator input for adding disk encyption
-                if ($UseEncryptOption -eq 'exit') { # If $UseEncyptOption equals 'exit'
-                    Break NewAzureDisk # Breaks :NewAzureDisk
-                } # End if ($UseEncryptOption -eq 'exit')
-                elseif ($UseEncryptOption -eq 'n') { # If $UseEncyptOption equals 'n'
-                    Break EnableAzureDiskEncrypt # Breaks :EnableAzureDiskEncrypt 
-                } # End elseif ($UseEncryptOption -eq 'n')
-                elseif ($UseEncryptOption -eq 'y') { # If $UseEncyptOption equals 'y'
-                    if (!$KeyVaultObject) { # If $KeyVaultObject has no value
-                        $KeyVaultObject = GetAzKeyVault # Calls function and assigns output to $var
-                        if (!$KeyVaultObject) { # If $KeyVaultObject has no value
-                            Break NewAzureDisk # Breaks :NewAzureDisk
-                        } # End if (!$KeyVaultObject)
-                    } # End if (!$KeyVaultObject)
-                    if (!$KeyVaultKeyObject) { # If $KeyVaultKeyObject has no value
-                        $KeyVaultKeyObject = GetAzKeyVaultKey ($KeyVaultObject) # Calls function and assigns output to $var
-                        if (!$KeyVaultKeyObject) { # If $KeyVaultKeyObject has no value
-                            Break NewAzureDisk # Breaks :NewAzureDisk
-                        } # End if (!$KeyVaultKeyObject)
-                    } # End if (!$KeyVaultKeyObject)
-                    if (!$KeyVaultSecretObject) { # If $KeyVaultSecretObject has no value
-                        $KeyVaultSecretObject = GetAzKeyVaultSecret ($KeyVaultObject) # Calls function and assigns output to $var
-                        if (!$KeyVaultSecretObject) { # If $KeyVaultSecretObject has no value
-                            Break NewAzureDisk # Breaks :NewAzureDisk
-                        } # End if (!$KeyVaultSecretObject)
-                    } # End if (!$KeyVaultSecretObject)
-                    Break EnableAzureDiskEncrypt # Breaks :EnableAzureDiskEncrypt
-                } # End elseif ($UseEncryptOption -eq 'y')
-                else { # All other options for if ($UseEncryptOption -eq 'exit')
-                    Write-Host "That was not a valid option" # Write message to screen
-                } # End else (if ($UseEncryptOption -eq 'exit'))
-            } # End :EnableAzureDiskEncrypt while ($true)
-            if ($UseEncryptOption -eq 'y') { # If $UseEncyptOption equals 'y'
-                $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $true # Starts the disk configuration
-                $KeyVaultSecretUrl = $KeyVaultSecretObject.ID # Assigns secret URL for later use
-                $KeyVaultKeyUrl = $KeyVaultKeyObject.ID # Assigns key URL for later use
-                $KeyVaultID = $KeyVaultObject.ResourceID # Assigns key vault ID for later use
-                $DiskConfig = Set-AzDiskDiskEncryptionKey -Disk $DiskConfig -SecretUrl $KeyVaultSecretUrl -SourceVaultId $KeyVaultID # Sets the disk encyption secret
-                $DiskConfig = Set-AzDiskKeyEncryptionKey -Disk $DiskConfig -KeyUrl $KeyVaultKeyUrl -SourceVaultId $KeyVaultID # Sets the disk encyption key
-                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName $DiskNameInput -Disk $DiskConfig # Creates the disk
-            } # End if ($UseEncryptOption -eq 'y') 
-            elseif ($UseEncryptOption -eq 'n') { # If $UseEncyptOption equals 'n'
-                $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $false # Sets the disk settings
-                $DiskObject = New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName $DiskNameInput -Disk $DiskConfig # Creates the disk
-            } # End elseif ($UseEncryptOption -eq 'n')
-            Return $DiskObject # Returns to calling function with $DiskObject
-        } # End :NewAzureDisk while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin
-} # End function NewAzDisk
+function NewAzDisk {                                                                        # Function for creating a new disk
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzDisk'                                                  # Creates $CallingFunction 
+        }                                                                                   # End if (!$CallingFunction)
+        :NewAzureDisk while ($true) {                                                       # Outer loop for managing function
+            $RGObject = GetAzResourceGroup ($CallingFunction)                               # Calls function and assigns output to $var
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                Break NewAzureDisk                                                          # Breaks :NewAzureDisk
+            }                                                                               # End if (!$RGObject) 
+            $LocationObject = GetAzLocation ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$LocationObject) {                                                         # If $LocationObject is $null
+                Break NewAzureDisk                                                          # Breaks :NewAzureDisk    
+            }                                                                               # End if (!$LocationObject)
+            :SetAzureDiskName while ($true) {                                               # Inner loop for setting the disk name
+                $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789'                        # Creates a string of valid characters
+                $ValidArray = $ValidArray.ToCharArray()                                     # Loads all valid characters into array
+                Write-Host 'Storage Disk name must be atleast 3 characters'                 # Write message to screen
+                Write-Host 'and made up of letters and numbers only'                        # Write message to screen
+                $DiskNameArray = $null                                                      # Clears $DiskNameArray
+                $DiskNameInput = Read-Host 'Disk name'                                      # Operator input for the Disk name
+                $DiskNameInput = $DiskNameInput.ToLower()                                   # Recreates $DiskNameInput in lower
+                $DiskNameArray = $DiskNameInput.ToCharArray()                               # Creates $DiskNameInput
+                foreach ($_ in $DiskNameArray) {                                            # For each item in $DiskNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Disk name cannot include any spaces'                # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $DiskNameInput = $null                                              # Clears $DiskNameInput
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $DiskNameArray)
+                if (!$DiskNameInput) {                                                      # If $DiskNameInput is $null
+                    Pause                                                                   # Pauses for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if ($DiskNameInput -eq '0')
+                else {                                                                      # If $DiskNameInput not equal to '0'
+                    Write-Host $DiskNameInput 'is correct'                                  # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of Disk name input
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureDisk                                                  # Breaks NewAzureDisk
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm is equal to 'y'
+                        Clear-Host                                                          # Clears screen
+                        Break SetAzureDiskName                                              # Breaks :SetAzureDiskName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End else (if (!$DiskNameInput))
+            }                                                                               # End :SetAzureDiskName while ($true)
+            :SetAzureDiskSku while ($true) {                                                # Inner loop for configuring the new disk sku
+                Write-Host 'Available disk skus'                                            # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Standard_LRS'                                               # Write message to screen
+                Write-Host '[2] Premium_LRS'                                                # Write message to screen
+                Write-Host '[3] StandardSSD_LRS'                                            # Write message to screen
+                Write-Host '[4] UltraSSD_LRS'                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the sku
+                Clear-Host                                                                  # Clear host
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureDisk                                                      # Breaks NewAzureDisk
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $SkuObject = 'Standard_LRS'                                             # Sets $SkuObject
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $SkuObject = 'Premium_LRS'                                              # Sets $SkuObject
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                elseif ($OpSelect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $SkuObject = 'StandardSSD_LRS'                                          # Sets $SkuObject
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                elseif ($OpSelect -eq '4') {                                                # Else if $OpSelect equals '4'
+                    $SkuObject = 'UltraSSD_LRS'                                             # Sets $SkuObject
+                }                                                                           # End elseif ($OpSelect -eq '4')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid option'                                # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                if ($SkuObject) {                                                           # If $SkuObject has a value
+                    Break SetAzureDiskSku                                                   # Breaks :SetAzureDiskSku
+                }                                                                           # End if ($SkuObject)
+            }                                                                               # End :SetAzureDiskSku while ($true)
+            :SetAzureDiskSize while ($true) {                                               # Inner loop for configuring the new disk size
+                $DiskSizeObject = -1                                                        # Sets $var to non-break value
+                Try{                                                                        # Try the following
+                    Write-Host 'Enter the requested size of the disk in GB'                 # Write message to screen
+                    Write-Host 'Enter "0" to exit this function'                            # Write message to screen
+                    [int]$DiskSizeObject = Read-Host 'Disk size'                            # Operator input for the disk size
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End Try
+                catch {                                                                     # End catch
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # If Try fails
+                if ($DiskSizeObject -eq 0) {                                                # If $DiskSizeObject equals '0'
+                    Break NewAzureDisk                                                      # Breaks :NewAzureDisk
+                }                                                                           # End if ($DiskSizeObject -eq 0)
+                if ($DiskSizeObject -ge 1) {                                                # If $DiskSizeObject has a value greater than 1
+                    Break SetAzureDiskSize                                                  # Breaks :SetAzureDiskSize
+                }                                                                           # End if ($DiskSizeObject)
+                else {                                                                      # All other inputs for $DiskSizeNumber
+                    Write-Host 'Please enter a positive number'                             # Write message to screen
+                }                                                                           # End else (if ($DiskSizeObject -ge 1))
+            }                                                                               # End :SetAzureDiskSize while ($true)
+            :SetAzureDiskOSType while ($true) {                                             # Inner loop for setting the disk OS
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Windows'                                                    # Write message to screen
+                Write-Host '[2] Linux'                                                      # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the disk os
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureDisk                                                      # Breaks :NewAzureDisk
+                }                                                                           # End if ($OpSelect -eq '0') 
+                elseif ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
+                    $DiskOSObject = 'Windows'                                               # Sets $DiskOSObject to 'Windows'
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # If $OpSelect equals '2'
+                    $DiskOSObject = 'Linux'                                                 # Sets $DiskOSObject to 'Linux'
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                if ($DiskOSObject) {                                                        # If $DiskOSObject has a value
+                    Break SetAzureDiskOSType                                                # Breaks :SetAzureDiskOSType
+                }                                                                           # End if ($DiskOSObject)
+            }                                                                               # End :SetAzureDiskOSType while ($true)
+            :EnableAzureDiskEncrypt while ($true) {                                         # Inner loop for configuring the new disk encyption
+                Write-Host 'Encrypt this disk'                                              # Write message to screen
+                $UseEncryptOption = Read-Host '[Y] Yes [N] No [E] Exit'                     # Operator input for adding disk encyption
+                Clear-Host                                                                  # Clears screen
+                if ($UseEncryptOption -eq 'e') {                                            # If $UseEncyptOption equals 'e'
+                    Break NewAzureDisk                                                      # Breaks :NewAzureDisk
+                }                                                                           # End if ($UseEncryptOption -eq 'e')
+                elseif ($UseEncryptOption -eq 'n') {                                        # If $UseEncyptOption equals 'n'
+                    Break EnableAzureDiskEncrypt                                            # Breaks :EnableAzureDiskEncrypt 
+                }                                                                           # End elseif ($UseEncryptOption -eq 'n')
+                elseif ($UseEncryptOption -eq 'y') {                                        # If $UseEncyptOption equals 'y'
+                    $KeyVaultKeyObject, $KeyVaultObject = GetAzKeyVaultKey `
+                        ($CallingFunction)                                                  # Calls function and assigns output to $var
+                    if (!$KeyVaultKeyObject) {                                              # If $KeyVaultKeyObject has no value
+                        Write-Host 'No key selected'                                        # Write messsage to screen
+                        Write-Host 'Continue building disk without encryption?'             # Write messsage to screen
+                        $OpSelect = Read-Host '[Y] Yes [N]'                                 # Operator input to continue without encryption
+                        Clear-Host                                                          # Clears screen
+                        if ($OpSelect -eq 'y') {                                            # If $OpSelect equals 'y'
+                            $UseEncryptOption = 'n'                                         # Sets $UseEncryptOption to 'n'
+                            Break EnableAzureDiskEncrypt                                    # Breaks :EnableAzureDiskEncrypt 
+                        }                                                                   # End if ($OpSelect -eq 'y')
+                        else {                                                              # All other inputs for $OpSelect
+                            Break NewAzureDisk                                              # Breaks :NewAzureDisk
+                        }                                                                   # End else (if ($OpSelect -eq 'y'))
+                    }                                                                       # End if (!$KeyVaultKeyObject)
+                    $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret `
+                        ($CallingFunction)                                                  # Calls function and assigns output to $var
+                    if (!$KeyVaultSecretObject) {                                           # If $KeyVaultSecretObject has no value
+                        Write-Host 'No secret selected'                                     # Write messsage to screen
+                        Write-Host 'Continue building disk without encryption?'             # Write messsage to screen
+                        $OpSelect = Read-Host '[Y] Yes [N]'                                 # Operator input to continue without encryption
+                        Clear-Host                                                          # Clears screen
+                        if ($OpSelect -eq 'y') {                                            # If $OpSelect equals 'y'
+                            $UseEncryptOption = 'n'                                         # Sets $UseEncryptOption to 'n'
+                            Break EnableAzureDiskEncrypt                                    # Breaks :EnableAzureDiskEncrypt 
+                        }                                                                   # End if ($OpSelect -eq 'y')
+                        else {                                                              # All other inputs for $OpSelect
+                            Break NewAzureDisk                                              # Breaks :NewAzureDisk
+                        }                                                                   # End else (if ($OpSelect -eq 'y'))
+                    }                                                                       # End if (!$KeyVaultSecretObject)
+                    Break EnableAzureDiskEncrypt                                            # Breaks :EnableAzureDiskEncrypt
+                }                                                                           # End elseif ($UseEncryptOption -eq 'y')
+                else {                                                                      # All other options for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($UseEncryptOption -eq 'e'))
+            }                                                                               # End :EnableAzureDiskEncrypt while ($true)
+            if ($UseEncryptOption -eq 'y') {                                                # If $UseEncyptOption equals 'y'
+                Try {                                                                       # Try the following
+                    $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName `
+                        -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType `
+                        $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled $true  # Starts the disk configuration
+                    $KeyVaultSecretUrl = $KeyVaultSecretObject.ID                           # Assigns secret URL
+                    $KeyVaultKeyUrl = $KeyVaultKeyObject.ID                                 # Assigns key URL 
+                    $KeyVaultID = $KeyVaultObject.ResourceID                                # Assigns key vault ID 
+                    $DiskConfig = Set-AzDiskDiskEncryptionKey -Disk $DiskConfig -SecretUrl `
+                        $KeyVaultSecretUrl -SourceVaultId $KeyVaultID -ErrorAction 'Stop'   # Sets the disk encyption secret
+                    $DiskConfig = Set-AzDiskKeyEncryptionKey -Disk $DiskConfig -KeyUrl `
+                        $KeyVaultKeyUrl -SourceVaultId $KeyVaultID -ErrorAction 'Stop'      # Sets the disk encyption key
+                    New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName `
+                        $DiskNameInput -Disk $DiskConfig -ErrorAction 'Stop'                # Creates the disk
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the correct'                               # Write message to screen
+                    Write-Host 'permissions to do this action'                              # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break NewAzureDisk                                                      # Breaks :NewAzureDisk
+                }                                                                           # End catch
+                Write-Host 'The disk has been created'                                      # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureDisk                                                          # Breaks :NewAzureDisk
+            }                                                                               # End if ($UseEncryptOption -eq 'y') 
+            elseif ($UseEncryptOption -eq 'n') {                                            # If $UseEncyptOption equals 'n'
+                Try {                                                                       # Try the following
+                    $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName `
+                        -DiskSizeGB $DiskSizeObject -SkuName $SkuObject -OsType `
+                        $DiskOSObject -CreateOption Empty -EncryptionSettingsEnabled `
+                        $false -ErrorAction 'Stop'                                          # Sets the disk settings
+                    New-AzDisk -ResourceGroupName $RGObject.ResourceGroupName -DiskName `
+                        $DiskNameInput -Disk $DiskConfig -ErrorAction 'Stop'                # Creates the disk
+                }                                                                           # End try
+                catch {                                                                     # If Try fails
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'You may not have the correct'                               # Write message to screen
+                    Write-Host 'permissions to do this action'                              # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break NewAzureDisk                                                      # Breaks :NewAzureDisk
+                }                                                                           # End catch
+                Write-Host 'The disk has been created'                                      # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureDisk                                                          # Breaks :NewAzureDisk
+            }                                                                               # End elseif ($UseEncryptOption -eq 'n')
+        }                                                                                   # End :NewAzureDisk while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzDisk
