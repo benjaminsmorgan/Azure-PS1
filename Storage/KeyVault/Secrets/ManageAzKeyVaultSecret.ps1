@@ -270,10 +270,13 @@ function GetAzKeyVaultSecret {                                                  
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
                     $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName `
                         $KeyVaultObject.VaultName -Name $OpSelect.Name                      # Pulls the full secret object
+                    Clear-Host                                                              # Clears screen
                     Return $KeyVaultSecretObject, $KeyVaultObject                           # Returns to calling function with $vars
                 }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host "That was not a valid option"                                # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                    Pause                                                                   # Pauses all actions for operator input
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureKeyVaultSecret
         }                                                                                   # End :GetAzureKeyVaultSecret while ($true)
