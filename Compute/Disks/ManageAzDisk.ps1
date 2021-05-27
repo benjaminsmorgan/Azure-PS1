@@ -1,47 +1,49 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
     New-AzDisk:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azdisk?view=azps-5.4.0
-        Set-AzDiskDiskEncryptionKey:https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azdiskdiskencryptionkey?view=azps-5.4.0
-        Set-AzDiskKeyEncryptionKey: https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azdiskkeyencryptionkey?view=azps-5.4.0
-        Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
-        Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
-        Get-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultkey?view=azps-5.4.0
-        Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzDisk:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azdisk?view=azps-5.4.0
     Remove-AzDisk:              https://docs.microsoft.com/en-us/powershell/module/az.compute/remove-azdisk?view=azps-5.4.0
+    Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
+    Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
+    Get-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultkey?view=azps-5.4.0
+    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.2.0
 } #>
 <# Required Functions Links: { 
-    NewAzDisk:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
-        GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
-        GetAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/GetAzKeyVaultKey.ps1
-    ListAzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/ListAzDisk.ps1
-    Get-AzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/GetAzDisk.ps1
-    RemoveAzDisk:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/Disks/RemoveAzDisk.ps1
+    NewAzDisk:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Disks/NewAzDisk.ps1
+    ListAzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Disks/ListAzDisk.ps1
+    Get-AzDisk:                 https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Disks/GetAzDisk.ps1
+    RemoveAzDisk:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Disks/RemoveAzDisk.ps1
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
+    GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
+    GetAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/GetAzKeyVaultKey.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
 } #>
 <# Functions Description: {
     ManageAzDisk:               Management function for disks
-        NewAzDisk:                  Creates a new disk
-            GetAzResourceGroup:         Gets a resource group
-            GetAzKeyVault:              Gets a key vault
-            GetAzKeyVaultSecret:        Gets a key vault secret
-            GetAzKeyVaultKey:           Gets a key vault key
-        ListAzDisk:                 Lists all disks
-        GetAzDisk:                  Gets a disk
-        RemoveAzDisk:               Removes a selected disk
+    NewAzDisk:                  Creates a new disk
+    ListAzDisk:                 Lists all disks
+    GetAzDisk:                  Gets a disk
+    RemoveAzDisk:               Removes a selected disk
+    GetAzResourceGroup:         Gets a resource group
+    GetAzKeyVault:              Gets a key vault
+    GetAzKeyVaultSecret:        Gets a key vault secret
+    GetAzKeyVaultKey:           Gets a key vault key
+    GetAzLocation:              Gets a list of azure locations
 } #>
 <# Variables: {
     :ManageAzureDisk            Outer loop for managing function
     $RgObject:                  Resource group object
     $DiskObject:                Disk object
-    $OpSelect:           Operator input for the management function
+    $OpSelect:                  Operator input for the management function
     NewAzDisk{}                 Creates $DiskObject           
         GetAzResourceGroup{}        Gets $RGObject
-        GetAzKeyVault{}             Gets $KeyVaultObject
-            GetAzResourceGroup{}        Gets $RGObject
-        GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+        GetAzLocation{}             Gets $LocationObject
         GetAzKeyVaultKey{}          Gets $KeyVaultKeyObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
+        GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+            GetAzKeyVault{}             Gets $KeyVaultObject
     ListAzDisk{}                Lists disks
     GetAzDisk{}                 Gets $DiskObject
     RemoveAzDisk{}              Removes $DiskObject
@@ -49,30 +51,31 @@
 } #>
 <# Process Flow {
     Function
-            Call NewAzDisk > Get $DiskObject
+        Call ManageAzDisk > Get $null
+            Call NewAzDisk > Get $null
                 Call GetAzResourceGroup > Get $RGObject
                 End GetAzResourceGoup
                     Return NewAzDisk > Send $RGObject
-                Call GetAzKeyVault > Get $KeyVaultObject
-                    Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGoup
-                        Return GetAzKeyVault > Send $RGObject
-                End GetAzKeyVault
-                    Return NewAzDisk > Send $KeyVaultObject
-                Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
-                End GetAzKeyVaultSecret
-                    Return *** > Send $KeyVaultSecretObject
+                Call GetAzLocation > Get $LocationObject
+                End GetAzLocation
+                    Return NewAzDisk > Send $LocationObject
                 Call GetAzKeyVaultKey > Get $KeyVaultKeyObject
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKeyVaultKey > Send $KeyVaultObject
                 End GetAzKeyVaultKey
-                    Return NewAzDisk > Send $KeyVaultKeyObject
+                    Return NewAzDisk > Send $KeyVaultKeyObject, $KeyVaultObject
+                Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
+                    Call GetAzKeyVault > Get $KeyVaultObject
+                    End GetAzKeyVault
+                        Return GetAzKeyVaultSecret > Send $KeyVaultObject
+                End GetAzKeyVaultSecret
+                    Return NewAzDisk > Send $KeyVaultSecretObject, $KeyVaultObject
             End NewAzDisk
-                Return ManageAzDisk > Return $DiskObject
+                Return ManageAzDisk > Send $null
             Call ListAzDisk > Get $null
             End ListAzDisk
                 Return ManageAzDisk > Return $null
-            Call GetAzDisk > Get $DiskObject
-            End GetAzDisk
-                Return ManageAzDisk > Return $DiskObject
             Call RemoveAzDisk > Get $null
                 Call GetAzDisk > Get $DiskObject
                 End GetAzDisk
@@ -268,6 +271,7 @@ function NewAzDisk {                                                            
                             Break NewAzureDisk                                              # Breaks :NewAzureDisk
                         }                                                                   # End else (if ($OpSelect -eq 'y'))
                     }                                                                       # End if (!$KeyVaultKeyObject)
+                    $KeyVaultObject2 = $KeyVaultObject                                      # Moves vault object holding $KeyVaultObject to $KeyVaultObject2
                     $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret `
                         ($CallingFunction)                                                  # Calls function and assigns output to $var
                     if (!$KeyVaultSecretObject) {                                           # If $KeyVaultSecretObject has no value
@@ -283,7 +287,36 @@ function NewAzDisk {                                                            
                             Break NewAzureDisk                                              # Breaks :NewAzureDisk
                         }                                                                   # End else (if ($OpSelect -eq 'y'))
                     }                                                                       # End if (!$KeyVaultSecretObject)
-                    Break EnableAzureDiskEncrypt                                            # Breaks :EnableAzureDiskEncrypt
+                    if ($KeyVaultObject.ResourceID -ne $KeyVaultObject2.ResourceID) {       # If $KeyVaultObject.ResourceID not equal KeyVaultObject2.ResourceID
+                        :EncryptError while ($true) {                                       # Inner loop for dealing with 2 vaults
+                            Write-Host 'The key and secret used to encypt'                  # Write message to screen
+                            Write-Host 'this drive must reside in the same vault'           # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-Host '[0] Exit'                                           # Write message to screen
+                            Write-Host '[1] Select new key and secret'                      # Write message to screen
+                            Write-Host '[2] Continue without encyption'                     # Write message to screen
+                            $OpSelect = Read-Host 'Option [#]'                              # Operator input for selecting next action
+                            Clear-Host                                                      # Clears screen
+                            if ($OpSelect -eq '0') {                                        # If $OpSelect equals '0'
+                                Break NewAzureDisk                                          # Breaks :NewAzureDisk
+                            }                                                               # End if ($OpSelect -eq '0')
+                            elseif ($OpSelect -eq '1') {                                    # Else if $OpSelect equals '1'
+                                Break EncryptError                                          # Breaks :EncryptError  
+                            }                                                               # End elseif ($OpSelect -eq '1')
+                            elseif ($OpSelect -eq '2') {                                    # Else if $OpSelect equals '2'
+                                $UseEncryptOption = 'n'                                     # Sets $UseEncryptOption to 'n'
+                                Break EnableAzureDiskEncrypt                                # Breaks :EnableAzureDiskEncrypt 
+                            }                                                               # End elseif ($OpSelect -eq '2')
+                            else {                                                          # All other inputs for $OpSelect
+                                Write-Host 'That was not a valid input'                     # Write message to screen
+                                Pause                                                       # Pauses all actions for operator input
+                                Clear-Host                                                  # Clears screen
+                            }                                                               # End else (if ($OpSelect -eq '0'))
+                        }                                                                   # End :EncryptError while ($true)
+                    }                                                                       # End if ($KeyVaultObject -ne $KeyVaultObject2)
+                    else {
+                        Break EnableAzureDiskEncrypt                                        # Breaks :EnableAzureDiskEncrypt
+                    }
                 }                                                                           # End elseif ($UseEncryptOption -eq 'y')
                 else {                                                                      # All other options for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
@@ -291,6 +324,8 @@ function NewAzDisk {                                                            
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($UseEncryptOption -eq 'e'))
             }                                                                               # End :EnableAzureDiskEncrypt while ($true)
+            Write-Host 'Building disk'                                                      # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
             if ($UseEncryptOption -eq 'y') {                                                # If $UseEncyptOption equals 'y'
                 Try {                                                                       # Try the following
                     $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName `
@@ -342,91 +377,127 @@ function NewAzDisk {                                                            
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzDisk
-function ListAzDisk { # Collects disk object
-    Begin {
-        :ListAzureDisk while ($true) { # Outer loop for managing function
-            $DiskList = Get-AzDisk # Gets a list of all disks
-            foreach ($_ in $DiskList) { # Writes all objects to screen
-                Write-Host "Name:    " $_.Name               # Write message to screen
-                Write-Host "RG:      " $_.ResourceGroupName  # Write message to screen
-                Write-Host "OS:      " $_.OsType             # Write message to screen
-                Write-Host "Size GB: " $_.DiskSizeGB         # Write message to screen
-                Write-Host "State:   " $_.DiskState          # Write message to screen
-                Write-Host "Location:" $_.Location           # Write message to screen
-                Write-Host""                                # Write space at end of each foreach
-            } # End foreach ($_ in $DiskList)
-            Return # Returns to calling function with $null
-        } # End :ListAzureDisk while ($true) 
-    } # End Begin
+function ListAzDisk {                                                                       # Function to list all disk objects
+    Begin {                                                                                 # Begin function
+        :ListAzureDisk while ($true) {                                                      # Outer loop for managing function
+            $DiskList = Get-AzDisk                                                          # Gets a list of all disks
+            foreach ($_ in $DiskList) {                                                     # For each item in $DiskList
+                Write-Host 'Disk Name: ' $_.Name                                            # Write message to screen
+                Write-Host 'RG:        ' $_.ResourceGroupName                               # Write message to screen
+                Write-Host 'OS:        ' $_.OsType                                          # Write message to screen
+                Write-Host 'Size (GB): ' $_.DiskSizeGB                                      # Write message to screen
+                Write-Host 'State:     ' $_.DiskState                                       # Write message to screen
+                Write-Host 'Location:  ' $_.Location                                        # Write message to screen
+                Write-Host 'Created:   ' $_.TimeCreated                                     # Write message to screen
+                Write-Host 'Net Access:' $_.NetworkAccessPolicy                             # Write message to screen    
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $DiskList)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureDisk                                                             # Breaks :ListAzureDisk
+        }                                                                                   # End :ListAzureDisk while ($true)
+        Return $null                                                                        # Returns to calling function with $null 
+    }                                                                                       # End Begin
 }                                                                                           # End function ListAzDisk
-function GetAzDisk { # Collects disk object
-    Begin {
-        :GetAzureDisk while ($true) { # Outer loop for managing function
-            $DiskList = Get-AzDisk # Gets a list of all disks
-            $DiskListNumber = 1 # $Var for setting $DiskList.Number
-            foreach ($_ in $DiskList) { # For each item in $DiskList
-                $_ | Add-Member -NotePropertyName 'Number' -NotePropertyValue $DiskListNumber # Adds number property to each item in list
-                $DiskListNumber = $DiskListNumber + 1 # Increments $DiskListNumber by 1
-            } # End foreach ($_ in $DiskList)
-            Write-Host "Option:  0 [Exit]" # Write message to screen
-            Write-Host"" # Write message to screen
-            foreach ($_ in $DiskList) { # Writes all objects to screen
-                Write-Host "Option: "$_.Number # Write message to screen
-                Write-Host "Name:   " $_.Name # Write message to screen
-                Write-Host "RG:     " $_.ResourceGroupName # Write message to screen
-                Write-Host "State:  " $_.DiskState # Write message to screen
-                Write-Host"" # Write message to screen
-            } # End foreach ($_ in $DiskList)
-            :SelectAzureDisk while ($true) { # Inner loop for selecting object from list
-                $DiskSelect = Read-Host "Please enter the number of the disk" # Operator input for the selection
-                if ($DiskSelect -eq '0') { # If $DiskSelect is 0
-                    Break GetAzureDisk # Breaks :GetAzureDisk
-                } # End if ($_Select -eq '0')
-                $DiskListSelect = $DiskList | Where-Object {$_.Number -eq $DiskSelect} # Isolates selected object 
-                if ($DiskListSelect) { # If $DiskListSelect has a valud
-                    Break SelectAzureDisk # Breaks SelectAzureDisk
-                } # End if ($DiskListSelect)
-                Write-Host "That was not a valid selection" # Write message to screen 
-            } # End :SelectAzureDisk while ($true)
-            $DiskObject = Get-AzDisk | Where-Object {$_.Name -eq $DiskListSelect.Name} # Pulls the full list object
-            Return $DiskObject # Returns $Object to calling function
-        } # End :GetAzureDisk while ($true)
-        Return # Returns to calling function with $null 
-    } # End Begin
+function GetAzDisk {                                                                        # Function to get a disk object
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'GetAzDisk'                                                  # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :GetAzureDisk while ($true) {                                                       # Outer loop for managing function
+            $ObjectList = Get-AzDisk                                                        # Gets a list of all disks
+            $ObjectNumber = 1                                                               # $Var for setting $ObjectList.Number
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Number' = $ObjectNumber;`
+                'Name'=$_.Name;'RG'=$_.ResourceGroupName;'OS'=$_.OsType;`
+                'Size'=$_.DiskSizeGB;'State'=$_.DiskState;'Loc'=$_.Location;`
+                'TC'=$_.TimeCreated;'Sku'=$_.Sku.Name}                                      # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SelectAzureDisk while ($true) {                                                # Inner loop for selecting object from list
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number]       "$_.Name                                # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]      "$_.Name                                 # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) 
+                    Write-Host 'Location: '$_.loc                                           # Write message to screen
+                    Write-Host 'Sku Name: '$_.Sku                                           # Write message to screen
+                    Write-Host 'RG:       '$_.RG                                            # Write message to screen
+                    Write-Host 'OS:       '$_.Os                                            # Write message to screen
+                    Write-Host 'State:    '$_.State                                         # Write message to screen
+                    Write-Host 'Created:  '$_.TC                                            # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction -and $CallingFunction -ne 'GetAzDisk') {               # If $CallingFunction has a value and not equal to 'GetAzDisk'
+                    Write-Host 'You are selecting the disk for:'$CallingFunction            # Write message to screen
+                }                                                                           # End if ($CallingFunction -and $CallingFunction -ne 'GetAzDisk')
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the disk
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                   Break GetAzureDisk                                                       # Breaks :GetAzureDisk
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $OpSelect equals $ObjectArray.Number
+                    $DiskObject = Get-AzDisk -ResourceGroupName $OpSelect.RG `
+                        -DiskName $OpSelect.Name                                            # Gets full disk object
+                    Return $DiskObject                                                      # Returns $DiskObject to calling function
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                   Write-Host 'That was not a valid input'                                  # Write message to screen
+                   Pause                                                                    # Pauses all actions for operator input
+                   Clear-Host                                                               # Clears host
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureDisk while ($true)
+        }                                                                                   # End :GetAzureDisk while ($true)
+        Return $null                                                                        # Returns to calling function with $null 
+    }                                                                                       # End Begin
 }                                                                                           # End function GetAzDisk
-function RemoveAzDisk {
-    Begin {
-        :RemoveAzureDisk while ($true) { # Outer loop for managing function
-            if (!$DiskObject) { # If $DiskObject is $null
-                $DiskObject = GetAzDisk # Calls function and assigns output to $var
-                if (!$DiskObject) { # If $DiskObject is $null
-                    Break RemoveAzureDisk # Breaks :RemoveAzureDisk
-                } # End if (!$DiskObject)
-            } # End if (!$DiskObject)
-            Write-Host "Remove disk"$DiskObject.Name "in resource group"$DiskObject.ResourceGroupName # Write message to screen
-            $ConfirmDelete = Read-Host "[Y] or [N]" # Operator confirmation to delete the disk
-            if (!($ConfirmDelete -eq 'y')) { # If Confirm delete is not 'y'
-                Write-Host "No action taken" # Write message to screen
-                Break RemoveAzureDisk # Breaks :RemoveAzureDisk
-            } # End if (!($ConfirmDelete -eq 'y'))
-            else { # If $ConfirmDelete is 'y'
-                Write-Host "Deleting"$DiskObject.Name # Write message to screen
-                Try { # Try the following
-                    Remove-AzDisk -ResourceGroupName $DiskObject.ResourceGroupName -DiskName $DiskObject.Name -Force -ErrorAction 'Stop' # Removes selected disk
-                } # End Try
-                Catch { # If try fails
-                    Write-Host "An error has occured" # Write message to screen
-                    Write-Host "The disk may still be in use" # Write message to screen
-                    Write-Host "The resource group maybe locked" # Write message to screen
-                    Write-Host "You may not have the permissions to remove this disk" # Write message to screen
-                    Break RemoveAzureDisk # Breaks :RemoveAzureDisk
-                } # End catch
-                Write-Host "The selected disk has been deleted" # Write message to screen
-                Break RemoveAzureDisk # Breaks :RemoveAzureDisk
-            } # End else if (!($ConfirmDelete -eq 'y'))
-        } # End :RemoveAzureDisk while ($true)
-        Return # Returns to calling function with $null
-    } # End Begin 
+function RemoveAzDisk {                                                                     # Function to remove a disk object
+    Begin {                                                                                 # Begin function
+        :RemoveAzureDisk while ($true) {                                                    # Outer loop for managing function
+            $DiskObject = GetAzDisk                                                         # Calls function and assigns output to $var
+            if (!$DiskObject) {                                                             # If $DiskObject is $null
+                Break RemoveAzureDisk                                                       # Breaks :RemoveAzureDisk
+            }                                                                               # End if (!$DiskObject)
+            Write-Host 'Remove disk:        '$DiskObject.Name                               # Write message to screen
+            Write-Host 'from resource group:'$DiskObject.ResourceGroupName                  # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to delete the disk
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Deleting:'$DiskObject.Name                                      # Write message to screen
+                Try {                                                                       # Try the following
+                    Remove-AzDisk -ResourceGroupName $DiskObject.ResourceGroupName `
+                        -DiskName $DiskObject.Name -Force -ErrorAction 'Stop'               # Removes selected disk
+                }                                                                           # End Try
+                Catch {                                                                     # If try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host 'The disk may still be in use'                               # Write message to screen
+                    Write-Host 'The resource group maybe locked'                            # Write message to screen
+                    Write-Host 'You may not have the permissions to remove this disk'       # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureDisk                                                   # Breaks :RemoveAzureDisk
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The selected disk has been deleted'                             # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureDisk                                                       # Breaks :RemoveAzureDisk
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureDisk                                                       # Breaks :RemoveAzureDisk
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureDisk while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin 
 }                                                                                           # End function RemoveAzDisk
 # Additional functions for ManageAzDisk
 function GetAzResourceGroup {                                                               # Function to get a resource group
@@ -701,10 +772,13 @@ function GetAzKeyVaultSecret {                                                  
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
                     $KeyVaultSecretObject = Get-AzKeyVaultSecret -VaultName `
                         $KeyVaultObject.VaultName -Name $OpSelect.Name                      # Pulls the full secret object
+                    Clear-Host                                                              # Clears screen
                     Return $KeyVaultSecretObject, $KeyVaultObject                           # Returns to calling function with $vars
                 }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host "That was not a valid option"                                # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                    Pause                                                                   # Pauses all actions for operator input
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureKeyVaultSecret
         }                                                                                   # End :GetAzureKeyVaultSecret while ($true)

@@ -1,19 +1,18 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
     New-AzDisk:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azdisk?view=azps-5.4.0
-    Set-AzDiskDiskEncryptionKey:https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azdiskdiskencryptionkey?view=azps-5.4.0
-    Set-AzDiskKeyEncryptionKey: https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azdiskkeyencryptionkey?view=azps-5.4.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzKeyVault:             https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvault?view=azps-5.1.0
     Get-AzKeyVaultSecret:       https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultsecret?view=azps-5.1.0
     Get-AzKeyVaultKey:          https://docs.microsoft.com/en-us/powershell/module/az.keyvault/get-azkeyvaultkey?view=azps-5.4.0
-    
+    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.2.0
 } #>
 <# Required Functions Links: { 
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     GetAzKeyVault:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/GetAzKeyVault.ps1
     GetAzKeyVaultSecret:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Secrets/GetAzKeyVaultSecret.ps1
     GetAzKeyVaultKey:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Storage/KeyVault/Keys/GetAzKeyVaultKey.ps1
+    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
 } #>
 <# Functions Description: {
     NewAzDisk:                  Creates a new disk
@@ -23,59 +22,60 @@
     GetAzKeyVaultKey:           Gets a key vault key 
 } #>
 <# Variables: {
-    :NewAzureDisk               Outer loop for managing function 
+    :NewAzureDisk               Outer loop for managing function
     :SetAzureDiskName           Inner loop for setting the disk name
     :SetAzureDiskSku            Inner loop for setting the disk sku
-    :SelectAzureDiskSku         Inner loop for selection the disk sku
     :SetAzureDiskSize           Inner loop for setting the disk size
-    :SetAzureDiskOSType         Inner loop for setting the disk os type
-    :EnableAzureDiskEncrypt     Inner loop for setting the encyption settings 
+    :SetAzureDiskOSType         Inner loop for setting the disk OS
+    :EnableAzureDiskEncrypt     Inner loop for setting the disk encryption
+    :EncryptError               Inner loop for $KeyVaultObject not equaling $KeyVaultObject2
+    $CallingFunction:           Name of this function or the one that called it
     $RGObject:                  Resource group object
-    $LocationObject:            Location object
+    $LocationObject:            Azure location object
+    $ValidArray:                Array of valid characters for disk name
     $DiskNameInput:             Operator input for the disk name
-    $OperatorConfirm:           Operator confirmation of the disk name
-    $ValidSku:                  Empty array that is loaded by $ValidSkuList
-    $ValidSkuList:              Static list of disk skus          
-    $SkuNumber:                 $var used in the list and selection
-    $SkuObjectSelect:           Operator input for the sku selection
-    $SkuObject:                 Sku object          
-    $DiskSizeObject:            Disk size object
+    $DiskNameArray:             $DiskNameInput convert to array
+    $OpConfirm:                 Operator confirmation of action
+    $OpSelect:                  Operator selection of action
+    $SkuObject:                 Disk sku object
+    $DiskSizeObject:            Operator input for the disk size
     $DiskOSObject:              Disk OS object
-    $UseEncryptOption:          Operator input to use encrpytion
-    $KeyVaultObject:            Key vault object
+    $UseEncryptOption:          Operator input for the disk encrpytion setting
     $KeyVaultKeyObject:         Key vault key object
+    $KeyVaultObject:            Key vault object holding secret
+    $KeyVaultObject2:           Key vault object holding key
     $KeyVaultSecretObject:      Key vault secret object
-    $DiskConfig:                Settings for the disk before creation            
-    $KeyVaultSecretUrl:         Key vault secret url
-    $KeyVaultKeyUrl:            Key vault key url
-    $KeyVaultID:                Key vault resource ID
-    $DiskObject:                Created disk object            
+    $DiskConfig:                $var holding disk configuration
     GetAzResourceGroup{}        Gets $RGObject
-    GetAzKeyVault{}             Gets $KeyVaultObject
-        GetAzResourceGroup{}        Gets $RGObject
-    GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+    GetAzLocation{}             Gets $LocationObject
     GetAzKeyVaultKey{}          Gets $KeyVaultKeyObject
+        GetAzKeyVault{}             Gets $KeyVaultObject
+    GetAzKeyVaultSecret{}       Gets $KeyVaultSecretObject
+        GetAzKeyVault{}             Gets $KeyVaultObject
 } #>
 <# Process Flow {
     Function
-        Call NewAzDisk > Get $DiskObject
+        Call NewAzDisk > Get $null
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGoup
                 Return NewAzDisk > Send $RGObject
-            Call GetAzKeyVault > Get $KeyVaultObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGoup
-                    Return GetAzKeyVault > Send $RGObject
-            End GetAzKeyVault
-                Return NewAzDisk > Send $KeyVaultObject
-            Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
-            End GetAzKeyVaultSecret
-                Return *** > Send $KeyVaultSecretObject
+            Call GetAzLocation > Get $LocationObject
+            End GetAzLocation
+                Return NewAzDisk > Send $LocationObject
             Call GetAzKeyVaultKey > Get $KeyVaultKeyObject
+                Call GetAzKeyVault > Get $KeyVaultObject
+                End GetAzKeyVault
+                    Return GetAzKeyVaultKey > Send $KeyVaultObject
             End GetAzKeyVaultKey
-                Return NewAzDisk > Send $KeyVaultKeyObject
+                Return NewAzDisk > Send $KeyVaultKeyObject, $KeyVaultObject
+            Call GetAzKeyVaultSecret > Get $KeyVaultSecretObject
+                Call GetAzKeyVault > Get $KeyVaultObject
+                End GetAzKeyVault
+                    Return GetAzKeyVaultSecret > Send $KeyVaultObject
+            End GetAzKeyVaultSecret
+                Return NewAzDisk > Send $KeyVaultSecretObject, $KeyVaultObject
         End NewAzDisk
-            Return Function > Send $DiskObject
+            Return Function > Send $null
 }#>
 function NewAzDisk {                                                                        # Function for creating a new disk
     Begin {                                                                                 # Begin function
@@ -230,6 +230,7 @@ function NewAzDisk {                                                            
                             Break NewAzureDisk                                              # Breaks :NewAzureDisk
                         }                                                                   # End else (if ($OpSelect -eq 'y'))
                     }                                                                       # End if (!$KeyVaultKeyObject)
+                    $KeyVaultObject2 = $KeyVaultObject                                      # Moves vault object holding $KeyVaultObject to $KeyVaultObject2
                     $KeyVaultSecretObject, $KeyVaultObject = GetAzKeyVaultSecret `
                         ($CallingFunction)                                                  # Calls function and assigns output to $var
                     if (!$KeyVaultSecretObject) {                                           # If $KeyVaultSecretObject has no value
@@ -245,7 +246,36 @@ function NewAzDisk {                                                            
                             Break NewAzureDisk                                              # Breaks :NewAzureDisk
                         }                                                                   # End else (if ($OpSelect -eq 'y'))
                     }                                                                       # End if (!$KeyVaultSecretObject)
-                    Break EnableAzureDiskEncrypt                                            # Breaks :EnableAzureDiskEncrypt
+                    if ($KeyVaultObject.ResourceID -ne $KeyVaultObject2.ResourceID) {       # If $KeyVaultObject.ResourceID not equal KeyVaultObject2.ResourceID
+                        :EncryptError while ($true) {                                       # Inner loop for dealing with 2 vaults
+                            Write-Host 'The key and secret used to encypt'                  # Write message to screen
+                            Write-Host 'this drive must reside in the same vault'           # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-Host '[0] Exit'                                           # Write message to screen
+                            Write-Host '[1] Select new key and secret'                      # Write message to screen
+                            Write-Host '[2] Continue without encyption'                     # Write message to screen
+                            $OpSelect = Read-Host 'Option [#]'                              # Operator input for selecting next action
+                            Clear-Host                                                      # Clears screen
+                            if ($OpSelect -eq '0') {                                        # If $OpSelect equals '0'
+                                Break NewAzureDisk                                          # Breaks :NewAzureDisk
+                            }                                                               # End if ($OpSelect -eq '0')
+                            elseif ($OpSelect -eq '1') {                                    # Else if $OpSelect equals '1'
+                                Break EncryptError                                          # Breaks :EncryptError  
+                            }                                                               # End elseif ($OpSelect -eq '1')
+                            elseif ($OpSelect -eq '2') {                                    # Else if $OpSelect equals '2'
+                                $UseEncryptOption = 'n'                                     # Sets $UseEncryptOption to 'n'
+                                Break EnableAzureDiskEncrypt                                # Breaks :EnableAzureDiskEncrypt 
+                            }                                                               # End elseif ($OpSelect -eq '2')
+                            else {                                                          # All other inputs for $OpSelect
+                                Write-Host 'That was not a valid input'                     # Write message to screen
+                                Pause                                                       # Pauses all actions for operator input
+                                Clear-Host                                                  # Clears screen
+                            }                                                               # End else (if ($OpSelect -eq '0'))
+                        }                                                                   # End :EncryptError while ($true)
+                    }                                                                       # End if ($KeyVaultObject -ne $KeyVaultObject2)
+                    else {
+                        Break EnableAzureDiskEncrypt                                        # Breaks :EnableAzureDiskEncrypt
+                    }
                 }                                                                           # End elseif ($UseEncryptOption -eq 'y')
                 else {                                                                      # All other options for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
@@ -253,6 +283,8 @@ function NewAzDisk {                                                            
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($UseEncryptOption -eq 'e'))
             }                                                                               # End :EnableAzureDiskEncrypt while ($true)
+            Write-Host 'Building disk'                                                      # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
             if ($UseEncryptOption -eq 'y') {                                                # If $UseEncyptOption equals 'y'
                 Try {                                                                       # Try the following
                     $DiskConfig = New-AzDiskConfig -Location $LocationObject.DisplayName `
