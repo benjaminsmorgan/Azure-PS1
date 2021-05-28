@@ -52,7 +52,7 @@
 } #>
 <# Variables: {
     :ManageAzureVM              Outer loop for managing function
-    $ManageAzVM:                Operator input for management function
+    $OpSelect:                  Operator input for management function
     $RGObject:                  Resource group object
     $VMObject:                  Virtual machine object
     $LocationObject:            Location object
@@ -79,133 +79,70 @@
 <# Process Flow {
     Function
         Call ManageAzVM > Get $null
-            Call NewAzVMWin > Get $WinVMObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGoup
-                    Return NewAzVMWin > Send $RGObject
-                Call GetAzVMSize > Get $VMSizeObject
-                End GetAzVMSize
-                    Return NewAzVMWin > Send $VMSizeObject
-                Call NewAzNetworkInterface > Get $NicObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject
-                        Call GetAzVirtualNetwork > Get $Vnet
-                        End GetAzVirtualNetwork
-                            Return GetAzVNetSubnetConfig > Send $Vnet
-                    End GetAzVNetSubnetConfig
-                        Return NewAzNetworkInterface > Send $SubnetObject
-                End NewAzNetworkInterface
-                    Return NewAzVMWin > Send $ NicObject
-                Call GetAzNetworkInterface > Get $NicObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject
-                        Call GetAzVirtualNetwork > Get $Vnet
-                        End GetAzVirtualNetwork
-                            Return GetAzVNetSubnetConfig > Send $Vnet
-                    End GetAzVNetSubnetConfig
-                        Return NewAzNetworkInterface > Send $SubnetObject
-                End GetAzNetworkInterface
-                    Return NewAzVMWin > Send $NicObject
-                Call GetAzVMSize > Get $VMImageObject
-                End GetAzVMSize
-                    Return NewAzVMWin > Send $VMImageObject
-            End NewAzVMWin
-                Return ManageAzVM > Send $VMObject
-            Call GetAzVM > Get $VMObject
-            End GetAzVM
-                Return ManageAzVM > Send $VMObject
-            Call StartAzVM > Get $null
-                Call GetAzVM > Get $VMObject
-                End GetAzVM
-                    Return StartAzVM > Send $VMObject
-            End StartAzVM
-                Return ManageAzVM > Send $null
-            Call StopAzVM > Get $null
-                Call GetAzVM > Get $VMObject
-                End GetAzVM
-                    Return StopAzVM > Send $VMObject
-            End StopAzVM
-                Return ManageAzVM > Send $null
-            Call ReimageAzVM > Get $null
-                Call GetAzVM > Get $VMObject
-                End GetAzVM
-                    Return ReimageAzVM > Send $VMObject
-            End ReimageAzVM
-                Return ManageAzVM > Send $null
-            Call RemoveAzVM > Get $null
-                Call GetAzVM > Get $VMObject
-                End GetAzVM
-                    Return RemoveAzVM > Send $VMObject
-            End RemoveAzVM
-                Return ManageAzVM > Send $null
         End ManageAzVM
             Return Function > Send $null
 }#>
 function ManageAzVM {                                                                       # Function to manage VMs
     Begin {                                                                                 # Begin function
         :ManageAzureVM while ($true) {                                                      # Outer loop for managing function
-            if ($RGObject) {                                                                # If $var has a value
-                Write-Host "Current RG: "$RGObject.ResourceGroupName                        # Write message to screen
-            }                                                                               # End if ($RGObject) 
-            if ($LocationObject) {                                                          # If $var has a value
-                Write-Host "Current Loc: "$LocationObject.Location                          # Write message to screen
-            }                                                                               # End if ($LocationObject)
-            if ($VMObject) {                                                                # If $var has a value
-                Write-Host "Current VM:  "$VMObject.Name                                    # Write message to screen
-            }                                                                               # End if ($VMObject)
-            Write-Host "Azure VM Management"                                                # Write message to screen
-            Write-Host '0 Clear varibles'                                                   # Write message to screen
-            Write-Host "1 Create New VM"                                                    # Write message to screen
-            Write-Host "2 Get existing VM"                                                  # Write message to screen
-            Write-Host "3 Start VM"                                                         # Write message to screen
-            Write-Host "4 Stop VM"                                                          # Write message to screen
-            Write-Host "5 Reimage VM"                                                       # Write message to screen
-            Write-Host "6 Remove VM"                                                        # Write message to screen
-            Write-Host "'Exit to return'"                                                   # Write message to screen
-            $ManageAzVM = Read-Host "Option?"                                               # Collects operator input on $ManageAzVM option
-            if ($ManageAzVM -eq 'exit') {                                                   # Exit if statement for this function
+            Write-Host 'Azure VM Management'                                                # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Create New VM'                                                  # Write message to screen
+            Write-Host '[2] List VMs'                                                       # Write message to screen
+            Write-Host '[3] Start VM'                                                       # Write message to screen
+            Write-Host '[4] Stop VM'                                                        # Write message to screen
+            Write-Host '[5] Reimage VM'                                                     # Write message to screen
+            Write-Host '[6] Remove VM'                                                      # Write message to screen
+            $OpSelect = Read-Host "Option?"                                                 # Operator input on management option
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureVM                                                         # Ends :ManageAzureVM loop, leading to return statement
-            }                                                                               # End if ($ManageAzVM -eq 'exit')
-            elseif ($ManageAzVM -eq '1') {                                                  # Elseif statement for option 1
-                Write-Host "Create New VM"                                                  # Write message to screen
-                $VMObject = NewAzVM ($RGObject)                                             # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzVM -eq '1')
-            elseif ($ManageAzVM -eq '2') {                                                  # Elseif statement for option 2
-                Write-Host "Get existing VM"                                                # Write message to screen
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzVM -eq '2')
-            elseif ($ManageAzVM -eq '3') {                                                  # Elseif statement for option 3
-                Write-Host "Start VM"                                                       # Write message to screen
-                StartAzVM ($VMObject)                                                       # Calls function
-            }                                                                               # End elseif ($ManageAzVM -eq '3')
-            elseif ($ManageAzVM -eq '4') {                                                  # Elseif statement for option 4
-                Write-Host "Stop VM"                                                        # Write message to screen
-                StopAzVM ($VMObject)                                                        # Calls function
-            }                                                                               # End elseif ($ManageAzVM -eq '4')
-            elseif ($ManageAzVM -eq '5') {                                                  # Elseif statement for option 5
-                Write-Host "Reimage VM"                                                     # Write message to screen
-                ReimageAzVM ($VMObject)                                                     # Calls function
-            }                                                                               # End elseif ($ManageAzVM -eq '5')
-            elseif ($ManageAzVM -eq '6') {                                                  # Elseif statement for option 6
-                Write-Host "Remove VM"                                                      # Write message to screen
-                RemoveAzVM ($VMObject)                                                      # Calls function
-            }                                                                               # End elseif ($ManageAzVM -eq '6')
-            elseif ($ManageAzVM -eq '0') {                                                  # Elseif statement for option 0
-                Write-Host 'Clearing "$vars"'                                               # Write message to screen
-                $RGObject = $null                                                           # Clears $var
-                $LocationObject = $null                                                     # Clears $var
-                $VMObject = $null                                                           # Clears $var
-            }                                                                               # End elseif ($ManageAzVM -eq '0')
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $Opselect equals '1'
+                Write-Host 'Create New VM'                                                  # Write message to screen
+                NewAzVM                                                                     # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $Opselect equals '2'
+                Write-Host 'List VMs'                                                       # Write message to screen
+                ListAzVM                                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $Opselect equals '3'
+                Write-Host 'Start VM'                                                       # Write message to screen
+                StartAzVM:                                                                  # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $Opselect equals '4'
+                Write-Host 'Stop VM'                                                        # Write message to screen
+                StopAzVM                                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $Opselect equals '5'
+                Write-Host 'Reimage VM'                                                     # Write message to screen
+                ReimageAzVM                                                                 # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Else if $Opselect equals '6'
+                Write-Host 'Remove VM'                                                      # Write message to screen
+                RemoveAzVM                                                                  # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else(if ($OpSelect -eq '0'))
         }                                                                                   # End ManageAzureVM while ($true)
-        Return                                                                              # Returns to calling function if no search option is used
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVM
-function NewAzVM {                                                                          # Creates a new virtual machine
+function NewAzVM {                                                                          # Function to create a new virtual machine
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzVM'                                                    # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :NewAzureVM while ($true) {                                                         # Outer loop for managing function
             :SetAzureVMType while ($true) {                                                 # Inner loop for setting the VM type
-                Write-Host "[0] Exit"                                                       # Write message to screen
-                Write-Host "[1] Windows"                                                    # Write message to screen
-                Write-Host "[2] Linux"                                                      # Write message to screen
-                $ImageTypeObject = Read-Host "[0], [1], or [2]"                             # Operator input for the VM type
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Windows'                                                    # Write message to screen
+                Write-Host '[2] Linux'                                                      # Write message to screen
+                $ImageTypeObject = Read-Host 'Option [#]'                                   # Operator input for the VM type
+                Clear-Host                                                                  # Clears screen
                 if ($ImageTypeObject -eq '0') {                                             # If $ImageTypeObject equals 0
                     Break NewAzureVM                                                        # Breaks :NewAzVM
                 }                                                                           # End if ($VMType -eq 'exit')
@@ -213,60 +150,63 @@ function NewAzVM {                                                              
                     Break SetAzureVMType                                                    # Breaks :SetAzureVMType
                 }                                                                           # End if ($ImageTypeObject -eq '1' -or $ImageTypeObject -eq '2')
                 else {                                                                      # All other input
-                    Write-Host "That was not a valid selection"                             # Write message to screen
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($VMType -eq 'exit') )
             }                                                                               # End :SetAzureVMType while ($true)
+            $RGObject = GetAzResourceGroup ($CallingFunction)                               # Calls (Function) GetAzResourceGroup to get $RGObject
             if (!$RGObject) {                                                               # If $RGObject is $null
-                $CallingFunction = 'NewAzVM'                                                # Sets $Calling function to 'NewAzVM'
-                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls (Function) GetAzResourceGroup to get $RGObject
-                if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if (!$RGObject) 
-            }                                                                               # End if (!$RGObject)
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
+            }                                                                               # End if (!$RGObject) 
             $LocationObject = Get-AzLocation | Where-Object {$_.location -eq `
                 $RGObject.location}                                                         # Sets $Location object to match $RGObject.location
             :SetAzureVMName while ($true) {                                                 # Inner loop for setting the VM name
-                $VMNameObject = Read-Host "New VM Name"                                     # Operator input for the VM name
-                if ($VMNameObject -eq 'exit') {                                             # If $VMNameObject equals $null
+                $VMNameObject = Read-Host 'New VM Name'                                     # Operator input for the VM name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$VMNameObject' as the VM name'                             # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the VM name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if ($VMNameObject -eq 'exit')
-                Write-Host $VMNameObject                                                    # Writes message to screen
-                $OperatorConfirm = Read-Host "Use as the VM name? [Y] or [N]"               # Operator confirmation of the VM name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e') 
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureVMName                                                    # Breaks :SetAzureVMName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureVMName while ($true)
             :SetAzureVMUserName while ($true) {                                             # Inner loop for setting the VM username
-                $VMUserNameObject = Read-Host "VM Local username"                           # Operator input of the local admin user name
-                if ($VMUserNameObject -eq 'exit') {                                         # If $VMUsernameObject is $null
+                $VMUserNameObject = Read-Host 'VM Local username'                           # Operator input of the local admin user name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$VMUserNameObject' as the local username'                  # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the local admin user name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if ($VMUserNameObject -eq 'exit')
-                Write-Host $VMUserNameObject                                                # Writes message to screen
-                $OperatorConfirm = Read-Host "Use as the VM username? [Y] or [N]"           # Operator confirmation of the local admin user name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e') 
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureVMUserName                                                # Breaks :SetAzureVMUserName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureVMUserName while ($true)
             :SetAzureVMPassword while ($true) {                                             # Inner loop for setting the password
-                $VMPasswordObject = Read-Host "VM Local password"                           # Operator input for the password
-                if ($VMPasswordObject -eq 'exit') {                                         # If $VMPasswordObject equals 'exit'
+                $VMPasswordObject = Read-Host 'VM Local password'                           # Operator input for the password
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$VMPasswordObject' as the local username password'         # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the password
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
                     Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if ($VMPasswordObject -eq 'exit')
-                Write-Host $VMPasswordObject                                                # Write message to screen
-                $OperatorConfirm = Read-Host "Use as the VM password? [Y] or [N]"           # Operator confirmation of the password
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e') 
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     $VMPasswordObject = ConvertTo-SecureString $VMPasswordObject `
                         -AsPlainText -Force                                                 # Hashes $VMPasswordObject
                     Break SetAzureVMPassword                                                # Breaks :SetAzureVMPassword
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureVMPassword while ($true)
             $VMCredObject = New-Object System.Management.Automation.PSCredential `
                 ($VMUserNameObject, $VMPasswordObject)                                      # Builds credential object using $VMUsernameObject and $VMPasswordObject
+            $VMSizeObject = GetAzVMSize ($CallingFunction, $LocationObject)                 # Calls function and assigns output to $var
             if (!$VMSizeObject) {                                                           # If $VMSizeObject is $null
-                $VMSizeObject = GetAzVMSize ($LocationObject)                               # Calls function and assigns output to $var
-                if (!$VMSizeObject) {                                                       # If $VMSizeObject is $null
-                    Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if (!$VMSizeObject)
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End if (!$VMSizeObject)
             $VMBuildObject = New-AzVMConfig -VMName $VMNameObject -VMSize `
                 $VMSizeObject.Name                                                          # Starts $VMBuildObject
@@ -281,42 +221,51 @@ function NewAzVM {                                                              
             }                                                                               # End elseif ($ImageTypeObject -eq '2')
             :SetAzureNetwork while ($true) {                                                # Inner loop for creating or selecting NIC
                 if (!$NicObject) {                                                          # If $NicObject is $null
-                    Write-Host "1. New NIC"                                                 # Write message to screen
-                    Write-Host "2. Existing NIC"                                            # Write message to screen
-                    $OperatorSelect = Read-Host "[1] or [2]"                                # Operator input for getting the NIC
-                    if ($OperatorSelect -eq 'exit') {                                       # If $OperatorSelect equals exit
+                    Write-Host 'VM network configuration'                                   # Write message to screen
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] New NIC'                                                # Write message to screen
+                    Write-Host '[2] Existing NIC'                                           # Write message to screen
+                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input for getting the NIC
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
                         Break NewAzureVM                                                    # Breaks :NewAzureVM
-                    }                                                                       # End if ($OperatorSelect -eq 'exit')
-                    if ($OperatorSelect -eq '1') {                                          # If $OperatorSelect equals 1
-                        $NicObject = NewAzNetworkInterface ($RGObject, $LocationObject)     # Calls function and assigns output for $var
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    if ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
+                        Write-Host 'The current VM build'                                   # Write message to screen
+                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
+                        $NicObject = NewAzNetworkInterface `
+                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
                         if (!$NicObject) {                                                  # If $NicObject is $null
                             Break NewAzureVM                                                # Breaks :NewAzureVM
                         }                                                                   # End if (!$NicObject)
                         else {                                                              # If $NicObject has a value
                             Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
                         }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End if ($OperatorSelect -eq '1')
-                    elseif ($OperatorSelect -eq '2') {                                      # If $OperatorSelect equals 2
-                        $NicObject = GetAzNetworkInterface ($RGObject, $LocationObject)     # Calls function and assigns output for $var
+                    }                                                                       # End if ($OpSelect -eq '1')
+                    elseif ($OpSelect -eq '2') {                                            # If $OpSelect equals 2
+                        Write-Host 'The current VM build'                                   # Write message to screen
+                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
+                        $NicObject = GetAzNetworkInterface `
+                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
                         if (!$NicObject) {                                                  # If $NicObject is $null
                             Break NewAzureVM                                                # Breaks :NewAzureVM
                         }                                                                   # End if (!$NicObject)
                         else {                                                              # If $NicObject has a value
                             Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
                         }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End elseif ($OperatorSelect -eq '2')
+                    }                                                                       # End elseif ($OpSelect -eq '2')
                     else {                                                                  # All other inputs
-                        Write-Host "Invalid selection"                                      # Write message to screen
-                    }                                                                       # End else(if ($OperatorSelect -eq '1'))
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else(if ($OpSelect -eq '1'))
                 }                                                                           # End if (!$NicObject)
                 Break SetAzureNetwork                                                       # Breaks :SetAzureNetwork
             }                                                                               # End :SetAzureNetwork while ($true)
             $VMBuildObject = Add-AzVMNetworkInterface -VM $VMBuildObject -Id $NicObject.Id  # Adds NIC info to $VMBuildObject
-            if (!$VMImageObject) {                                                          # If $VMImageObject is $null
-                $VMImageObject = SetAzVMOS ($LocationObject, $ImageTypeObject)              # Calls function and assigns output to $var
-                if (!$VMImageObject){                                                       # If $VMImageObject is $null
-                    Break NewAzureVM                                                        # Breaks :NewAzureVM
-                }                                                                           # End if (!$VMImageObject)
+            $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
+            if (!$VMImageObject){                                                           # If $VMImageObject is $null
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End if (!$VMImageObject)
             if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version has a value
                 $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
@@ -329,17 +278,19 @@ function NewAzVM {                                                              
                 $VMImageObject.Skus -Version 'latest'                                       # Adds image setting to $VMBuildObject
             }                                                                               # End else (if ($VMImageObject.Version))
             Try {                                                                           # Try the following
-            $VMObject = New-AzVM -ResourceGroupName $RGObject.ResourceGroupName `
-                -Location $LocationObject.DisplayName -VM $VMBuildObject -Verbose           # Builds the new VM object
+                New-AzVM -ResourceGroupName $RGObject.ResourceGroupName -Location `
+                    $LocationObject.DisplayName -VM $VMBuildObject -Verbose `
+                    -ErrorAction 'Stop'                                                     # Builds the new VM object
             }                                                                               # End Try
-            Catch {                                                                         # If catch fails
+            Catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
-                Write-Host 'The VM was not created'
+                Write-Host 'The VM was not created'                                         # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End catch
-            $VMObject = Get-AzVM -ResourceGroupName $RGObject.ResourceGroupName `
-                -Name $VMNameObject                                                         # Pulls the VM Object prior to returning to calling function
-            Return $VMObject                                                                # Returns to calling function with $VMObject
+            Write-Host 'The VM has been created'                                            # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzureVM                                                                # Breaks :NewAzureVM
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
@@ -399,11 +350,11 @@ function StartAzVM {                                                            
                     Break StartAzureVM                                                      # Breaks :StartAzureVM
                 }                                                                           # End if (!$VMObject)
             }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"             # Operator confirmation to turn on the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+            $OpConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"             # Operator confirmation to turn on the VM
+            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
                 Write-Host "No action taken"                                                # Write message to screen
                 Break StartAzureVM                                                          # Breaks :StartAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            }                                                                               # End if (!($OpConfirm -eq 'y'))
             Write-Host "Attempting to power on" $VMObject.Name                              # Write message to screen
             Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName      # Starts the selected VM
             Break StartAzureVM                                                              # Breaks :StartAzureVM
@@ -420,11 +371,11 @@ function StopAzVM {                                                             
                     Break StopAzureVM                                                       # Breaks :StopAzureVM
                 }                                                                           # End if (!$VMObject)
             }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Shutdown"$VMObject.Name "[Y] or [N]"              # Operator input to shutdown the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+            $OpConfirm = Read-Host "Shutdown"$VMObject.Name "[Y] or [N]"              # Operator input to shutdown the VM
+            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
                 Write-Host "No action taken"                                                # Write message to screen
                 Break StopAzureVM                                                           # Breaks :StopAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            }                                                                               # End if (!($OpConfirm -eq 'y'))
             Write-Host "Attempting to shut off" $VMObject.Name                              # Write message to screen
             Stop-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
                 -force                                                                      # Stops the selected VM
@@ -443,11 +394,11 @@ function ReimageAzVM {                                                          
                     Break ReimageAzVM                                                       # Breaks :ReimageAzVM
                 }                                                                           # End if (!$VMObject)
             }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"               # Operator confirmation to reimage the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+            $OpConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"               # Operator confirmation to reimage the VM
+            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
                 Write-Host "No action taken"                                                # Write message to screen
                 Break ReimageAzVM                                                           # Breaks :ReimageAzVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            }                                                                               # End if (!($OpConfirm -eq 'y'))
             Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
             try {                                                                           # Try the following
                 Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
@@ -478,11 +429,11 @@ function RemoveAzVM {                                                           
                     Break RemoveAzureVM                                                     # Breaks :RemoveAzureVM
                 }                                                                           # End if (!$VMObject)
             }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Remove"$VMObject.Name "[Y] or [N]"                # Operator confirmation to remove the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
+            $OpConfirm = Read-Host "Remove"$VMObject.Name "[Y] or [N]"                # Operator confirmation to remove the VM
+            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
                 Write-Host "No action taken"                                                # Write message to screen
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
+            }                                                                               # End if (!($OpConfirm -eq 'y'))
             Write-Host "Attempting to remove" $VMObject.Name                                # Write message to screen
             Try {                                                                           # Try the following
             Remove-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
@@ -502,16 +453,17 @@ function RemoveAzVM {                                                           
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVM
 
-# Additional required functions specific to ManageAzVM
+# Additional functions required for ManageAzVM
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
         :GetAzureVMImage while ($true) {                                                    # Outer loop for managing function
             :GetAzureImagePublisher while ($true) {                                         # Inner loop for setting the publisher
                 if (!$ImageTypeObject) {                                                    # If $ImageTypeObject is $null
-                    Write-Host "[0] Exit"                                                   # Write message to screen
-                    Write-Host "[1] Windows"                                                # Write message to screen
-                    Write-Host "[2] Linux"                                                  # Write message to screen
-                    $ImageTypeObject = Read-Host '[0], [1], or [2]'                         # Operator input for the image type
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Windows'                                                # Write message to screen
+                    Write-Host '[2] Linux'                                                  # Write message to screen
+                    $ImageTypeObject = Read-Host 'Option [#]'                               # Operator input for the image type
+                    Clear-Host                                                              # Clears screen
                 }                                                                           # End if (!$ImageTypeObject)
                 if ($ImageTypeObject -eq '0') {                                             # If $ImageTypeObject equals 0
                     Break GetAzureVMImage                                                   # Breaks :GetAzureVMImage
@@ -532,22 +484,31 @@ function SetAzVMOS {                                                            
                             $ImagePublisherArray.Add($ImagePublisherInput) | Out-Null       # Loads item into array, out-null removes write to screen
                             $ImagePublisherNumber = $ImagePublisherNumber + 1               # Increments $ImagePublisherNumber up 1
                         }                                                                   # End foreach ($_ in $ImagePublisherList)
-                        Write-Host '0 Exit'                                                 # Write message to screen
-                        foreach ($_ in $ImagePublisherArray) {                              # For each item in $ImagePublisherArray
-                            Write-Host $_.Number $_.Name                                    # Write message to screen
-                        }                                                                   # End foreach ($_ in $ImagePublisherArray)
                         :SelectAzurePub while ($true) {                                     # Inner loop for selecting the publisher
-                            $PublisherSelect = Read-Host "Publisher number"                 # Operator selection of the publisher
-                            if ($PublisherSelect -eq '0') {                                 # If $Pubselect -eq 0
+                            Write-Host '[0] Exit'                                           # Write message to screen
+                            foreach ($_ in $ImagePublisherArray) {                          # For each item in $ImagePublisherArray
+                                $Number = $_.Number
+                                Write-Host "[$Number]" $_.Name                              # Write message to screen
+                            }                                                               # End foreach ($_ in $ImagePublisherArray)
+                            Write-Host ''                                                   # Write message to screen
+                            if ($CallingFunction) {                                         # If $CallingFunction has a value
+                                Write-Host `
+                                    'You are selecting the publisher for:'$CallingFunction  # Write message to screen
+                            }                                                               # End if ($CallingFunction)
+                            $OpSelect = Read-Host 'Option [#]'                              # Operator selection of the publisher
+                            Clear-Host                                                      # Clears screen
+                            if ($OpSelect -eq '0') {                                        # If $OpDelect -eq 0
                                 Break GetAzureVMImage                                       # Breaks :GetAzureVMImage
-                            }                                                               # End ($PublisherSelect -eq '0')
-                            $VMPublisherObject = $ImagePublisherArray | Where-Object `
-                                {$_.Number -eq $PublisherSelect}                            # $VMPublisherObject equals $ImagePublisherArray where $ImagePublisherArray.Number is equal to $PublisherSelect
-                            If ($VMPublisherObject) {                                       # If $VMPublisherObject has a value
+                            }                                                               # End ($OpSelect -eq '0')
+                            if ($OpSelect -in $ImagePublisherArray.Number) {                # If $OpSelect in $ImagePublisherArray.Number 
+                                $VMPublisherObject = $ImagePublisherArray | Where-Object `
+                                    {$_.Number -eq $OpSelect}                               # $VMPublisherObject equals $ImagePublisherArray where $ImagePublisherArray.Number is equal to $OpSelect
                                 Break SelectAzurePub                                        # Breaks :SelectAzurePub
-                            }                                                               # End If ($VMPublisherObject)
+                            }                                                               # End if ($OpSelect -in $ImagePublisherArray.Number)
                             else {                                                          # If $VMPublisherObject does not have a value
-                                Write-Host "That was not a valid option"                    # Write message to screen
+                                Write-Host 'That was not a valid input'                     # Write message to screen
+                                Pause                                                       # Pauses all actions for operator input
+                                Clear-Host                                                  # Clears screen
                             }                                                               # End else (# End If ($VMPublisherObject))
                         }                                                                   # End :SelectAzurePub while ($true)
                         if ($VMPublisherObject.Name -eq 'Ubuntu') {                         # If $VMPublisherObject equals this value
@@ -575,10 +536,12 @@ function SetAzVMOS {                                                            
                     }                                                                       # End GetAzureVMImage
                 }                                                                           # End elseif ($ImageTypeObject -eq '2')
                 else {                                                                      # All other inputs
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($ImageTypeObject -eq '0'))
             }                                                                               # End :GetAzureImagePublisher while ($true)
-            :GetAzureImageOffer while ($true) {
+            :GetAzureImageOffer while ($true) {                                             # Inner loop for setting the image offer
                 $ImageOfferList = Get-AzVMImageOffer -Location $LocationObject.Location `
                     -PublisherName $VMPublisherObject                                       # Generates the image offer list
                 $ImageOfferNumber = 1                                                       # Sets $ImageOfferNumber to 1
@@ -589,26 +552,40 @@ function SetAzVMOS {                                                            
                     $ImageOfferArray.Add($ImageOfferInput) | Out-Null                       # Loads item into array, out-null removes write to screen
                     $ImageOfferNumber = $ImageOfferNumber + 1                               # Increments $ImageofferNumber by 1
                 }                                                                           # End foreach ($Offer in $ImageOfferList)
-                Write-Host "0 Exit"                                                         # Write message to screen
-                foreach ($_ in $ImageOfferArray) {                                          # For each $_ in $ImageOfferArray
-                    Write-Host $_.Number $_.Name                                            # Writes offer number and name to screen
-                }                                                                           # End foreach ($_ in $ImageOfferArray)
                 :SelectAzureImageOffer while ($true) {                                      # Inner loop to select the image offer
-                    $OfferSelect = Read-Host "Enter the offer number"                       # Operator input for the offer selection
-                    if ($OfferSelect -eq '0') {                                             # If $OfferSelect equals 0
+                    Write-Host '[0]  Exit'                                                  # Write message to screen
+                    foreach ($_ in $ImageOfferArray) {                                      # For each $_ in $ImageOfferArray
+                        $Number = $_.Number                                                 # Number is equal to current item .Number
+                        if ($Number -le 9) {                                                # If $Number is 9 or less
+                            Write-Host "[$Number]  " $_.Name                                # Write message to screen
+                        }                                                                   # End if ($Number -le 9)
+                        else {                                                              # If $Number is more than 9
+                            Write-Host "[$Number] " $_.Name                                 # Write message to screen
+                        }                                                                   # End else (if ($Number -le 9))
+                    }                                                                       # End foreach ($_ in $ImageOfferArray)
+                    Write-Host ''                                                           # Write message to screen
+                    if ($CallingFunction) {                                                 # If $CallingFunction has a value
+                        Write-Host `
+                            'You are selecting the image offer for:'$CallingFunction        # Write message to screen
+                    }                                                                       # End if ($CallingFunction)
+                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input for the offer selection
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0')
-                    $VMOfferObject = $ImageOfferArray | Where-Object `
-                        {$_.Number -eq $OfferSelect}                                        # $VMOfferObject is equal to $ImageOfferArray where $ImageOfferArray.Number equals $OfferSelect
-                    if ($VMOfferObject) {                                                   # If $VMOfferObject has a value
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    if ($OpSelect -in $ImageOfferArray.Number) {                            # If $OpSelect in $ImageOfferArray.Number
+                        $VMOfferObject = $ImageOfferArray | Where-Object `
+                            {$_.Number -eq $OpSelect}                                       # $VMOfferObject is equal to $ImageOfferArray where $ImageOfferArray.Number equals $OpSelect
                         Break GetAzureImageOffer                                            # Breaks :SelectAzureImage
-                    }                                                                       # End if ($VMOfferObject)
-                    else {                                                                  # If $VMOfferObject does not have a value
-                        Write-Host "That was not a valid option"                            # Write message to screen
-                    }                                                                       # End else (if ($VMOfferObject))
+                    }                                                                       # End if ($OpSelect -in $ImageOfferArray.Number)
+                    else {                                                                  # All other inputs for $OpSelect
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpSelect -in $ImageOfferArray.Number)))
                 }                                                                           # End :SelectAzureImage while ($true)
             }                                                                               # End :GetAzureImageOffer while ($true)
-            :GetAzureImageSku while ($true) {                                               #
+            :GetAzureImageSku while ($true) {                                               # Inner loop for selecting the image sku
                 $VMOfferObject = Get-AzVMImageOffer -Location $LocationObject.Location `
                     -PublisherName $VMPublisherObject | Where-Object {$_.Offer `
                     -eq $VMOfferObject.Name}                                                # Pulls the full $VMOfferObject
@@ -622,25 +599,40 @@ function SetAzVMOS {                                                            
                     $ImageSkuArray.Add($ImageSkuInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                     $ImageSkuNumber = $ImageSkuNumber + 1                                   # Increments $ImageSkuNumber by 1
                 }                                                                           # End foreach ($Offer in $ImageOfferList)
-                Write-Host "0 Exit"                                                         # Write message to screen
-                foreach ($_ in $ImageSkuArray) {                                            # For each $_ in $ImageSkuArray
-                    Write-Host $_.Number $_.Name                                            # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
-                }                                                                           # End foreach ($_ in $ImageOfferArray)
                 :SelectAzureImageSku while ($true) {                                        # Inner loop for selecting the image sku
-                    $SkuSelect = Read-Host "Enter the sku number"                           # Operator input for selecting the image sku
-                    if ($SkuSelect -eq '0') {                                               # If $SkuSelect equals 0
+                    Write-Host '[0]  Exit'                                                  # Write message to screen
+                    foreach ($_ in $ImageSkuArray) {                                        # For each $_ in $ImageSkuArray
+                        $Number = $_.Number                                                 # Number is equal to current item .Number
+                        if ($Number -le 9) {                                                # If $Number is 9 or less
+                            Write-Host "[$Number]  " $_.Name                                # Write message to screen
+                        }                                                                   # End if ($Number -le 9)
+                        else {                                                              # If $Number is more than 9
+                            Write-Host "[$Number] " $_.Name                                 # Write message to screen
+                        }                                                                   # End else (if ($Number -le 9))
+                    }                                                                       # End foreach ($_ in $ImageOfferArray)
+                    Write-Host ''                                                           # Write message to screen
+                    if ($CallingFunction) {                                                 # If $CallingFunction has a value
+                        Write-Host `
+                            'You are selecting the image sku for:'$CallingFunction          # Write message to screen
+                    }                                                                       # End if ($CallingFunction)
+                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input for the offer selection
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
-                    }                                                                       # End if ($OfferSelect -eq '0') 
-                    $VMSkuObject = $ImageSkuArray | Where-Object {$_.Number -eq $SkuSelect} # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
-                    $VMSkuObject = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
-                        -Location $LocationObject.DisplayName -PublisherName `
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    if ($OpSelect -in $ImageSkuArray.Number) {                              # If $OpSelect in $imageSkuArray.Number
+                        $VMSkuObject = $ImageSkuArray | Where-Object `
+                            {$_.Number -eq $OpSelect}                                       # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $OpSelect
+                        $VMSkuObject = Get-AzVMImageSku -Offer $VMOfferObject.Offer `
+                            -Location $LocationObject.DisplayName -PublisherName `
                         $VMPublisherObject | Where-Object {$_.Skus -eq $VMSkuObject.Name}   # Gets the Sku object                                      
-                    if ($VMSkuObject) {                                                     # If $VMSkuObject has a value
                         Break GetAzureImageSku                                              # Break SelectAzureImageSku
-                    }                                                                       # End if ($VMOfferObject)
+                    }                                                                       # End if ($OpSelect -in $ImageSkuArray.Number) 
                     else {                                                                  # If $VMSkuObject does not have a value
-                        Write-Host "That was not a valid option"                            # Write message to screen
-                    }                                                                       # End else (if ($VMOfferObject))
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpSelect -in $ImageSkuArray.Number) )
                 }                                                                           # End :SelectAzureImage while ($true)
             }                                                                               # End :GetAzureImageSku while ($true)
             :GetAzureImageVersion while ($true) {                                           # Pulls the full $VMOfferObject
@@ -648,15 +640,17 @@ function SetAzVMOS {                                                            
                     Write-Host '[0] Exit'                                                   # Write message to screen
                     Write-Host '[1] Use current version'                                    # Write message to screen
                     Write-Host '[2] Select version'                                         # Write message to screen
-                    $ImageVersionOption = Read-Host '[0], [1], or [2]'                      # Operator input for version selection type
+                    $ImageVersionOption = Read-Host 'Option [#]'                            # Operator input for version selection type
                     if ($ImageVersionOption -eq '0') {                                      # If $ImageVersionOption equals 0
                         Break GetAzureVMImage                                               # Breaks :GetAzureVMImage
                     }                                                                       # End if ($ImageVersionOption -eq '0')            
-                    elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2') {  # If $ImageVersionOption equals 1 or 2
+                    elseif ($ImageVersionOption -eq '1' -or '2') {                          # If $ImageVersionOption equals 1 or 2
                         Break SelectAzureImageVerType                                       # Breaks :SelectAzureImageVerType
-                    }                                                                       # End elseif ($ImageVersionOption -eq '1' -or $ImageVersionOption -eq '2')
+                    }                                                                       # End elseif ($ImageVersionOption -eq '1' -or '2')
                     else {                                                                  # If $ImageVersionOption is not equal to 0, 1, or 2
-                        Write-Host "That was not a valid option"                            # Write message to screen
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
                     }                                                                       # End else (if ($ImageVersionOption -eq '0'))
                 }                                                                           # End :SelectAzureImageVerType while ($true)
                 if ($ImageVersionOption -eq '1') {                                          # If $ImageVersionOption equals 1
@@ -675,32 +669,48 @@ function SetAzVMOS {                                                            
                         $ImageVersionArray.Add($ImageVersionInput) | Out-Null               # Loads item into array, out-null removes write to screen
                         $ImageVersionNumber = $ImageVersionNumber + 1                       # Increments $ImageSkuNumber by 1
                     }                                                                       # End foreach ($Offer in $ImageOfferList)
-                    Write-Host "0 Exit"                                                     # Write message to screen
-                    foreach ($_ in $ImageVersionArray) {                                    # For each $_ in $ImageSkuArray
-                        Write-Host $_.Number $_.Name                                        # Writes $ImageSkuArray.number and $ImageSkuArray.Name to screen
-                    }                                                                       # End foreach ($_ in $ImageVersionArray)
-                    :SelectAzureImageVersion while ($true) {                                # Inner loop for selecting the image sku
-                        $VersionSelect = Read-Host "Enter the Version number"               # Operator input for selecting the image sku
-                        if ($VersionSelect -eq '0') {                                       # If $SkuSelect equals 0
+                    :SelectAzureImageVersion while ($true) {                                # Inner loop for selecting the image sku version
+                        Write-Host '[0]  Exit'                                              # Write message to screen
+                        foreach ($_ in $ImageVersionArray) {                                # For each $_ in $ImageSkuArray
+                            $Number = $_.Number                                             # Number is equal to current item .Number
+                            if ($Number -le 9) {                                            # If $Number is 9 or less
+                                Write-Host "[$Number]  " $_.Name                            # Write message to screen
+                            }                                                               # End if ($Number -le 9)
+                            else {                                                          # If $Number is more than 9
+                                Write-Host "[$Number] " $_.Name                             # Write message to screen
+                            }                                                               # End else (if ($Number -le 9))
+                        }                                                                   # End foreach ($_ in $ImageVersionArray)
+                        Write-Host ''                                                       # Write message to screen    
+                        if ($CallingFunction) {                                             # If $CallingFunction has a value
+                            Write-Host `
+                                'You are selecting the image version for:'$CallingFunction  # Write message to screen
+                        }                                                                   # End if ($CallingFunction)    
+                        $OpSelect = Read-Host 'Option [#]'                                  # Operator input for selecting the image version
+                        Clear-Host                                                          # Clears screen
+                        if ($OpSelect -eq '0') {                                            # If $OpSelect equals 0
                             Break GetAzureVMImage                                           # Breaks :GetAzureVMImage
-                        }                                                                   # End if ($OfferSelect -eq '0')                                           
-                        $VMVersionObject = $ImageVersionArray | `
-                            Where-Object {$_.Number -eq $VersionSelect}                     # $VMSkuObject equals $ImageSkuArray where $ImageSkuArray.Number equals $SkuSelect
-                        if ($VMVersionObject) {                                             # If $VMSkuObject has a value
+                        }                                                                   # End if ($OpSelect -eq '0')                                           
+                        if ($OpSelect -in $ImageVersionArray.Number) {                      # if $OpSelect is in $ImageVersionArray.Number
+                            $VMVersionObject = $ImageVersionArray | `
+                                Where-Object {$_.Number -eq $OpSelect}                      # $VMSkuObject equals $ImageVersionArray where $ImageVersionArray.Number equals $OpSelect
                             $VMImageObject = Get-AzVMImage -Location `
-                            $LocationObject.Location -PublisherName $VMPublisherObject `
-                            -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus -Version `
-                            $VMVersionObject.Name                                           # If #VMVersionObject has a value, pull the full object and assign to $var
+                                $LocationObject.Location -PublisherName $VMPublisherObject `
+                                -Offer $VMOfferObject.Offer -Skus $VMSkuObject.Skus `
+                                -Version $VMVersionObject.Name                              # Pulls the full object and assign to $var
                             Break GetAzureImageVersion                                      # Break SelectAzureImageSku
                         }                                                                   # End if ($VMOfferObject)
                         else {                                                              # If $VMSkuObject does not have a value
-                            Write-Host "That was not a valid option"                        # Write message to screen
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                            Pause                                                           # Pauses all actions for operator input
+                            Clear-Host                                                      # Clears screen
                         }                                                                   # End else (if ($VMOfferObject))
                     }                                                                       # End :SelectAzureImageVersion while ($true)
                 }                                                                           # End else(if ($ImageVersionOption -eq '1'))
             }                                                                               # End :GetAzureImageVersion while ($true)
+            Clear-Host                                                                      # Clears screen
             Return $VMImageObject                                                           # Returns #VMImageObject
         }                                                                                   # End :GetAZVMImage while ($true)
+        Clear-Host                                                                          # Clears screen
         Return                                                                              # Returns to calling function with null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzVMOS
@@ -729,10 +739,10 @@ function GetAzVMSize {                                                          
                 elseif ($CoreCount -in $ValidCore.Number) {                                 # If $CoreCoint in $ValidCore.Number list
                     $CoreCount = $ValidCore | Where-Object {$_.Number -eq $CoreCount}       # $CoreCount is equal to $ValidCore where $ValidCore.Number equals $CoreCount
                     $CoreCount = $CoreCount.Count                                           # CoreCount is equal to $CoreCount.Count
-                    $OperatorConfirm = Read-Host "Confirm:"$CoreCount" cores? [Y] or [N]"   # Operator confirmation of core count
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                    $OpConfirm = Read-Host "Confirm:"$CoreCount" cores? [Y] or [N]"   # Operator confirmation of core count
+                    if ($OpConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
                         Break SetAzureVMCoreCount                                           # Breaks :SetAzureVMCoreCount
-                    }                                                                       # End if ($OperatorConfirm -eq 'y') 
+                    }                                                                       # End if ($OpConfirm -eq 'y') 
                 }                                                                           # End elseif ($CoreCount -in $ValidCore.Number)
                 else {                                                                      # All other values
                     Write-Host "That was not a valid option"                                # Write message to screen
@@ -760,11 +770,11 @@ function GetAzVMSize {                                                          
                 elseif ($RamCount -in $ValidRam.Number) {                                   # If $Ramcount is in $ValidRam.Number list
                     $RamCount = $ValidRam | Where-Object {$_.Number -eq $RamCount}          # $RamCount equals $ValidRam where $ValidRam.Number equals $RamCount 
                     $RamCount = $RamCount.Count                                             # $RamCount equals $RamCount.Count
-                    $OperatorConfirm = Read-Host "Confirm:" `
+                    $OpConfirm = Read-Host "Confirm:" `
                     $RamCount" MB of Ram? [Y] or [N]"                                       # Operator confirmation on ram count
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                    if ($OpConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
                         Break SetAzureVMRamCount                                            # Breaks :SetAzureRamCount
-                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                    }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End elseif ($RamCount -in $ValidRam.Number) 
                 else {                                                                      # All other values
                     Write-Host "That was not a valid option"                                # Write message to screen
@@ -792,11 +802,11 @@ function GetAzVMSize {                                                          
                 elseif ($DiskCount -in $ValidDisk.Number) {                                 # Else if $DiskCount is in $ValidDisk.Number list
                     $DiskCount = $ValidDisk | Where-Object {$_.Number -eq $DiskCount}       # $DiskCount equals $ValidDisk where $ValidDisk.Number equals $DiskCount
                     $DiskCount = $DiskCount.Count                                           # $DiskCount equals $DiskCount.Count
-                    $OperatorConfirm = Read-Host `
+                    $OpConfirm = Read-Host `
                     "Confirm"$DiskCount" max disks? [Y] or [N]"                             # Operator confirmation of the disk count
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                    if ($OpConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
                         Break SetAzureVMDiskCount                                           # Breaks :SetAzureVMDiskCount
-                    }                                                                       # End if ($OperatorConfirm -eq 'y')
+                    }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End elseif ($DiskCount -in $ValidDisk.Number)
                 else {                                                                      # All other values
                     Write-Host "That was not a valid option"                                # Write message to screen
@@ -869,10 +879,10 @@ function NewAzNetworkInterface { # Creates a new network interface
                 if ($NicName -eq 'exit') { # If $NicName is 'exit'
                     Break NewAzureNic # Breaks :NewAzureNic
                 } # End if ($NicName -eq 'exit')
-                $OperatorConfirm = Read-Host "Set" $NicName "as the Nic name [Y] or [N]" # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') { # If $OperatorConfirm equals 'y'
+                $OpConfirm = Read-Host "Set" $NicName "as the Nic name [Y] or [N]" # Operator confirmation of the name
+                if ($OpConfirm -eq 'y') { # If $OpConfirm equals 'y'
                     Break SetAzureNicName # Breaks :SetAzureNicName
-                } # End if ($OperatorConfirm -eq 'y')
+                } # End if ($OpConfirm -eq 'y')
             } # End :SetAzureNicName while ($true)
             Try { # Try the following
                 $NICObject = New-AzNetworkInterface -Name $NicName -ResourceGroupName $RGObject.ResourceGroupName -Location $LocationObject.DisplayName -SubnetId $SubnetObject.ID # Creates the object and assigns to $var
