@@ -25,6 +25,7 @@
     :SelectAzureImageVersion    Inner loop for selecting the image version
     $LocationObject:            Location object
     $OpSelect:                  Operator selection of items
+    $Number:                    Current item .Number
     $ImageTypeObject:           Object determining if image will be windows or linux            
     $ImagePublisherList:        List of linux publishers
     $ImagePublisherNumber:      $var used in list
