@@ -12,8 +12,9 @@
 } #>
 <# Variables: {
     :StartAzureVM               Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
     $VMObject:                  Virtual machine object
-    $OperatorConfirm:           Operator confirmation to Start the VM
+    $OpConfirm:                 Operator confirmation to Start the VM
 } #>
 <# Process Flow {
     Function
@@ -26,22 +27,40 @@
 }#>
 function StartAzVM {                                                                        # Function to start a VM
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'StartAzVM'                                                  # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :StartAzureVM while ($true) {                                                       # Outer loop for managing function
+            $VMObject = GetAzVM ($CallingFunction)                                          # Calls function and assigns output to $var
             if (!$VMObject) {                                                               # If $VMObject is $null
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-                if (!$VMObject) {                                                           # If $VMObject is $null
-                    Break StartAzureVM                                                      # Breaks :StartAzureVM
-                }                                                                           # End if (!$VMObject)
-            }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Power on "$VMObject.Name "[Y] or [N]"             # Operator confirmation to turn on the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken"                                                # Write message to screen
                 Break StartAzureVM                                                          # Breaks :StartAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to power on" $VMObject.Name                              # Write message to screen
-            Start-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName      # Starts the selected VM
-            Break StartAzureVM                                                              # Breaks :StartAzureVM
+            }                                                                               # End if (!$VMObject)
+            Write-Host 'Power on:'$VMObject.name                                            # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn on the VM
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Attempting to power on:'$VMObject.Name                      # Write message to screen
+                    Start-AzVM -Name $VMObject.Name -ResourceGroup `
+                    $VMObject.ResourceGroupName -ErrorAction 'Stop'                         # Starts the selected VM
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error occured while'                                     # Write message to screen
+                    Write-Host 'attempting to power on the vm'                              # Write message to screen
+                    Write-Host 'The VM may already be on'                                   # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break StartAzureVM                                                      # Breaks :StartAzureVM
+                }                                                                           # End catch
+                Write-Host $VMObject.Name 'has been powered on'                             # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StartAzureVM                                                          # Breaks :StartAzureVM
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StartAzureVM                                                          # Breaks :StartAzureVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))                                                                
         }                                                                                   # End :StartAzureVM while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function StartAzVM
