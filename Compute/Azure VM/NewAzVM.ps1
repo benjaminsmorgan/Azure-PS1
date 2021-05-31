@@ -2,6 +2,7 @@
 <# Ref: { Mircosoft docs links
     New-Object:                 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-object?view=powershell-7.1
     Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.4.0
+    Get-AzComputeResourceSku:   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azcomputeresourcesku?view=azps-6.0.0
     New-AzVMConfig:             https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmconfig?view=azps-5.4.0
     Set-AzVMOperatingSystem:    https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmoperatingsystem?view=azps-5.4.0
     Add-AzVMNetworkInterface:   https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmnetworkinterface?view=azps-5.4.0
@@ -128,6 +129,7 @@ function NewAzVM {                                                              
             }                                                                               # End if (!$RGObject) 
             $LocationObject = Get-AzLocation | Where-Object {$_.location -eq `
                 $RGObject.location}                                                         # Sets $Location object to match $RGObject.location
+            Write-Host $LocationObject.Location
             :SetAzureVMName while ($true) {                                                 # Inner loop for setting the VM name
                 $VMNameObject = Read-Host 'New VM Name'                                     # Operator input for the VM name
                 Clear-Host                                                                  # Clears screen
@@ -200,7 +202,7 @@ function NewAzVM {                                                              
                     if ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
                         Write-Host 'The current VM build'                                   # Write message to screen
                         Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject = NewAzNetworkInterface `
+                        $NicObject,$VnetObject,$SubnetObject = NewAzNetworkInterface `
                             ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
                         if (!$NicObject) {                                                  # If $NicObject is $null
                             Break NewAzureVM                                                # Breaks :NewAzureVM
@@ -212,7 +214,7 @@ function NewAzVM {                                                              
                     elseif ($OpSelect -eq '2') {                                            # If $OpSelect equals 2
                         Write-Host 'The current VM build'                                   # Write message to screen
                         Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject = GetAzNetworkInterface `
+                        $NicObject,$VnetObject,$SubnetObject = GetAzNetworkInterface `
                             ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
                         if (!$NicObject) {                                                  # If $NicObject is $null
                             Break NewAzureVM                                                # Breaks :NewAzureVM
@@ -245,20 +247,26 @@ function NewAzVM {                                                              
                 $VMImageObject.Skus -Version 'latest'                                       # Adds image setting to $VMBuildObject
             }                                                                               # End else (if ($VMImageObject.Version))
             Try {                                                                           # Try the following
-                New-AzVM -ResourceGroupName $RGObject.ResourceGroupName -Location `
-                    $LocationObject.DisplayName -VM $VMBuildObject -Verbose `
+                Write-Host 'Attempting to build the VM'                                     # Write message to screen
+                Write-Host 'This may take a few minutes'                                    # Write message to screen
+                New-AzVM -ResourceGroupName $RGObject.ResourceGroupName -VM $VMBuildObject `
+                -Location $LocationObject.Location -Verbose  
                     -ErrorAction 'Stop'                                                     # Builds the new VM object
             }                                                                               # End Try
             Catch {                                                                         # If try fails
+                Write-Host ''                                                               # Write message to screen
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host 'The VM was not created'                                         # Write message to screen
+                Write-Host 'The image and VM may'                                           # Write message to screen
+                Write-host 'be different generations'                                       # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End catch
+            Write-Host ''                                                                   # Write message to screen
             Write-Host 'The VM has been created'                                            # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
             Break NewAzureVM                                                                # Breaks :NewAzureVM
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzVM     
+}                                                                                           # End function NewAzVM  
