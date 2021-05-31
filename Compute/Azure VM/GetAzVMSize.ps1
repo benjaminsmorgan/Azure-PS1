@@ -1,6 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.5.0     
+    Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.5.0    
+    Get-AzComputeResourceSku:   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azcomputeresourcesku?view=azps-6.0.0 
 } #>
 <# Required Functions Links: {
     None:                       In order for this function to work, another function will need to pass $LocationObject.DisplayName
@@ -18,8 +19,9 @@
     :SelectAzureVMDiskCount     Inner loop for selecting the max disk count
     :SetAzureVMName             Inner loop for gelecting the VM
     :SelectAzureVMName          Inner loop for selecting the VM
-    $VMSizeList:                List of all VM sizes in location
-    $OpSelectList:              List of all VM sizes core counts
+    $NotAvailable:              List of all compute objects not available in region
+    $VMSizeList:                List of all VM sizes in region
+    $CoreCountList:             List of all VM sizes core counts
     $ValidCore:                 Array used for selecting a valid core count
     $CoreNumber:                List number
     $CoreInput:                 Loads items into array
@@ -50,7 +52,11 @@
 function GetAzVMSize {                                                                      # Function for setting the VM size
     Begin {                                                                                 # Begin function
         :GetAzureVMSize while ($true) {                                                     # Outer loop for managing function
-            $VMSizeList = Get-AzVMSize -Location $LocationObject.Location                   # Gets a list of all VM sizes in location
+            $NotAvailable = Get-AzComputeResourceSku -Location $LocationObject.Location `
+                | Where-Object {$_.Restrictions.Reasoncode  -eq `
+                'NotAvailableForSubscription'}                                              # Gets a list of all unavailble compute objects
+            $VMSizeList = Get-AzVMSize -Location $LocationObject.Location `
+                | Where-Object {$_.Name -notin $NotAvailable.Name}                          # Gets a list of all available VM sizes in location
             :SetAzureVMCoreCount while ($true) {                                            # Inner loop for setting the core count
                 $CoreCountList = $VMSizeList                                                # Passes original list to loop list
                 $CoreCountList = $CoreCountList.NumberOfCores | Sort-Object | Get-Unique    # Retains only the core count values, sorts them and only keeps unique 
