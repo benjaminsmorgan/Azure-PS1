@@ -12,6 +12,7 @@
 } #>
 <# Variables: {
     :StopAzureVM                Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
     $VMObject:                  Virtual machine object
     $OperatorConfirm:           Operator confirmation to stop the VM
     
@@ -27,23 +28,40 @@
 }#>
 function StopAzVM {                                                                         # Function to deallocate a VM
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'StopAzVM'                                                   # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :StopAzureVM while ($true) {                                                        # Outer loop for managing function
+            $VMObject = GetAzVM ($CallingFunction)                                          # Calls function and assigns output to $var
             if (!$VMObject) {                                                               # If $VMObject is $null
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-                if (!$VMObject) {                                                           # If $VMObject is $null
-                    Break StopAzureVM                                                       # Breaks :StopAzureVM
-                }                                                                           # End if (!$VMObject)
-            }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Shutdown"$VMObject.Name "[Y] or [N]"              # Operator input to shutdown the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken"                                                # Write message to screen
                 Break StopAzureVM                                                           # Breaks :StopAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to shut off" $VMObject.Name                              # Write message to screen
-            Stop-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
-                -force                                                                      # Stops the selected VM
-            Break StopAzureVM                                                               # Breaks :StopAzureVM
+            }                                                                               # End if (!$VMObject)
+            Write-Host 'Power off:'$VMObject.name                                           # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn off the VM
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Attempting to power off:'$VMObject.Name                     # Write message to screen
+                    Stop-AzVM -Name $VMObject.Name -ResourceGroup `
+                    $VMObject.ResourceGroupName -force -ErrorAction 'Stop'                  # Stops the selected VM
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error occured while'                                     # Write message to screen
+                    Write-Host 'attempting to power off the vm'                             # Write message to screen
+                    Write-Host 'The VM may already be off'                                  # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break StopAzureVM                                                       # Breaks :StopAzureVM
+                }                                                                           # End catch
+                Write-Host $VMObject.Name 'has been powered off'                            # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StopAzureVM                                                           # Breaks :StopAzureVM
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StopAzureVM                                                           # Breaks :StopAzureVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
         }                                                                                   # End :StopAzureVM while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function StopAzVM
