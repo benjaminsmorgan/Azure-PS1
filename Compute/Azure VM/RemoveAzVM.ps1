@@ -12,8 +12,9 @@
 } #>
 <# Variables: {
     :RemoveAzureVM              Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
     $VMObject:                  Virtual machine object
-    $OperatorConfirm:           Operator confirmation to remove the VM
+    $OpConfirm:                 Operator confirmation to remove the VM
     
 } #>
 <# Process Flow {
@@ -27,34 +28,42 @@
 }#>
 function RemoveAzVM {                                                                       # Function to remove a VM
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Disables powershell reporting
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzVM'                                                 # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureVM while ($true) {                                                      # Outer loop for managing function
+            $VMObject = GetAzVM ($CallingFunction)                                          # Calls function and assigns output to $var
             if (!$VMObject) {                                                               # If $VMObject is $null
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-                if (!$VMObject) {                                                           # If $VMObject is $null
-                    Break RemoveAzureVM                                                     # Breaks :RemoveAzureVM
-                }                                                                           # End if (!$VMObject)
+                Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
             }                                                                               # End if (!$VMObject)
-            $OperatorConfirm = Read-Host "Remove"$VMObject.Name "[Y] or [N]"                # Operator confirmation to remove the VM
-            if (!($OperatorConfirm -eq 'y')) {                                              # If OperatorConfirm does not equal 'y'
-                Write-Host "No action taken"                                                # Write message to screen
+            Write-Host 'Remove:'$VMObject.name                                              # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn on the VM
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Attempting to remove:'$VMObject.Name                        # Write message to screen
+                    Remove-AzVM -Name $VMObject.Name -ResourceGroup `
+                    $VMObject.ResourceGroupName -Force -ErrorAction 'Stop'                  # Removes the selected VM
+                }                                                                           # End try
+                Catch {                                                                     # If Try fails
+                    Write-Host 'An error occured while'                                     # Write message to screen
+                    Write-Host 'attempting to remove the vm'                                # Write message to screen
+                    Write-Host 'The VM or resource group'                                   # Write message to screen
+                    Write-Host 'Maybe locked or you may'                                    # Write message to screen
+                    Write-Host 'not have the permissions'                                   # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureVM                                                     # Breaks :RemoveAzureVM
+                }                                                                           # End catch
+                Write-Host $VMObject.Name 'has been removed'                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
-            }                                                                               # End if (!($OperatorConfirm -eq 'y'))
-            Write-Host "Attempting to remove" $VMObject.Name                                # Write message to screen
-            Try {                                                                           # Try the following
-            Remove-AzVM -Name $VMObject.Name -ResourceGroup $VMObject.ResourceGroupName `
-                -force -ErrorAction 'Stop'                                                  # Removes the selected VM
-            }                                                                               # End Try
-            Catch {                                                                         # If try fails
-                Write-host ''                                                               # Write message to screen
-                Write-Host 'An error has occured'                                           # Write message to screen
-                Write-Host 'The VM was not removed'                                         # Write message to screen
-                Write-Host 'You may not have the permissions'                               # Write message to screen
-                Write-host ''                                                               # Write message to screen
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No action taken'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
-            }                                                                               # End catch
-            Break RemoveAzureVM                                                             # Breaks :RemoveAzureVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))                                                                
         }                                                                                   # End :RemoveAzureVM while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVM
