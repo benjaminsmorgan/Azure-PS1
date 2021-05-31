@@ -652,17 +652,17 @@ function GetAzResourceGroup {                                                   
             foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
                 $Number = $_.Number                                                         # Sets $Number to current item .number
                 if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
-                    Write-Host "[$Number] "$_.Name "|" $_.Location                          # Write message to screen
+                    Write-Host "[$Number] "$_.Name '|' $_.Location                          # Write message to screen
                 }                                                                           # End if ($_.Number -le 9) 
                 else {                                                                      # If current item .number is greater then 9
-                    Write-Host "[$Number]"$_.Name "|" $_.Location                           # Write message to screen
+                    Write-Host "[$Number]"$_.Name '|' $_.Location                           # Write message to screen
                 }                                                                           # End else (if ($_.Number -le 9) )
             }                                                                               # End foreach ($_ in $ObjectArray)
             :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
                 if ($CallingFunction) {                                                     # If $CallingFunction exists
-                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                    Write-Host 'You are selecting the resource group for:'$CallingFunction  # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
+                $RGSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
                 if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
                     Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
                 }                                                                           # End if ($RGSelect -eq '0')
