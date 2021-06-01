@@ -48,22 +48,16 @@
     $VMNameObject:              VM name object
     $VMUserNameObject:          VM user name object
     $VMPasswordObject:          VM password object
-    $OperatorConfirm:           Operator confirmation of VM name, username, and password
+    $OpConfirm:                 Operator confirmation of VM name, username, and password
     $VMCredObject:              Combined $VMUsernameObject and $VMpasswordObject
     $VMBuildObject:             $Var that VM parameters are loaded into
     $VMSizeObject:              VM size object
-    $OperatorSelect:            Operator input of selecting NIC
     $NicObject:                 Network interface card object
     $VMImageObject:             Azure marketplace image object
     $VMObject:                  New VM
     GetAzResourceGroup{}        Gets $RGObject
     GetAzVMSize{}               Gets $VMSizeObject
-    NewAzNetworkInterface{}     Gets $NicObject
-        GetAzVNetSubnetConfig{} Gets $SubnetObject
-            GetAzVirtualNetwork{}       Gets $VnetObject
-    GetAzNetworkInterface{}     Gets $NicObject 
-        GetAzVNetSubnetConfig{} Gets $SubnetObject
-            GetAzVirtualNetwork{}       Gets $VnetObject
+    GetAzNetworkInterface{}     Gets $NicObject,  
     SetAzVMOS{}                 Gets $VMImageObject
 } #>
 <# Process Flow {
@@ -75,24 +69,9 @@
             Call GetAzVMSize > Get $VMSizeObject
             End GetAzVMSize
                 Return NewAzVMWin > Send $VMSizeObject
-            Call NewAzNetworkInterface > Get $NicObject
-                Call GetAzVNetSubnetConfig > Get $SubnetObject
-                    Call GetAzVirtualNetwork > Get $Vnet
-                    End GetAzVirtualNetwork
-                        Return GetAzVNetSubnetConfig > Send $Vnet
-                End GetAzVNetSubnetConfig
-                    Return NewAzNetworkInterface > Send $SubnetObject
-            End NewAzNetworkInterface
-                Return NewAzVMWin > Send $ NicObject
             Call GetAzNetworkInterface > Get $NicObject
-                Call GetAzVNetSubnetConfig > Get $SubnetObject
-                    Call GetAzVirtualNetwork > Get $Vnet
-                    End GetAzVirtualNetwork
-                        Return GetAzVNetSubnetConfig > Send $Vnet
-                End GetAzVNetSubnetConfig
-                    Return NewAzNetworkInterface > Send $SubnetObject
             End GetAzNetworkInterface
-                Return NewAzVMWin > Send $NicObject
+                Return NewAzVMWin > Send $NicObject,$SubnetObject,$VnetObject
             Call GetAzVMSize > Get $VMImageObject
             End GetAzVMSize
                 Return NewAzVMWin > Send $VMImageObject
@@ -188,49 +167,14 @@ function NewAzVM {                                                              
                 $VMBuildObject = Set-AzVMOperatingSystem -VM $VMBuildObject -Linux `
                     -ComputerName $VMNameObject -Credential $VMCredObject                   # Adds VM info to $VMBuildObject
             }                                                                               # End elseif ($ImageTypeObject -eq '2')
-            :SetAzureNetwork while ($true) {                                                # Inner loop for creating or selecting NIC
-                if (!$NicObject) {                                                          # If $NicObject is $null
-                    Write-Host 'VM network configuration'                                   # Write message to screen
-                    Write-Host '[0] Exit'                                                   # Write message to screen
-                    Write-Host '[1] New NIC'                                                # Write message to screen
-                    Write-Host '[2] Existing NIC'                                           # Write message to screen
-                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input for getting the NIC
-                    Clear-Host                                                              # Clears screen
-                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
-                        Break NewAzureVM                                                    # Breaks :NewAzureVM
-                    }                                                                       # End if ($OpSelect -eq '0')
-                    if ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
-                        Write-Host 'The current VM build'                                   # Write message to screen
-                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject,$VnetObject,$SubnetObject = NewAzNetworkInterface `
-                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
-                        if (!$NicObject) {                                                  # If $NicObject is $null
-                            Break NewAzureVM                                                # Breaks :NewAzureVM
-                        }                                                                   # End if (!$NicObject)
-                        else {                                                              # If $NicObject has a value
-                            Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
-                        }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End if ($OpSelect -eq '1')
-                    elseif ($OpSelect -eq '2') {                                            # If $OpSelect equals 2
-                        Write-Host 'The current VM build'                                   # Write message to screen
-                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject,$VnetObject,$SubnetObject = GetAzNetworkInterface `
-                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
-                        if (!$NicObject) {                                                  # If $NicObject is $null
-                            Break NewAzureVM                                                # Breaks :NewAzureVM
-                        }                                                                   # End if (!$NicObject)
-                        else {                                                              # If $NicObject has a value
-                            Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
-                        }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End elseif ($OpSelect -eq '2')
-                    else {                                                                  # All other inputs
-                        Write-Host 'That was not a valid input'                             # Write message to screen
-                        Pause                                                               # Pauses all actions for operator input
-                        Clear-Host                                                          # Clears screen
-                    }                                                                       # End else(if ($OpSelect -eq '1'))
-                }                                                                           # End if (!$NicObject)
+            $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface `
+                ($CallingFunction, $LocationObject)                                         # Calls function and assigns output for $var
+            if (!$NicObject) {                                                              # If $NicObject is $null
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
+            }                                                                               # End if (!$NicObject)
+            else {                                                                          # If $NicObject has a value
                 Break SetAzureNetwork                                                       # Breaks :SetAzureNetwork
-            }                                                                               # End :SetAzureNetwork while ($true)
+            }                                                                               # End else (if (!$NicObject))
             $VMBuildObject = Add-AzVMNetworkInterface -VM $VMBuildObject -Id $NicObject.Id  # Adds NIC info to $VMBuildObject
             $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
             if (!$VMImageObject){                                                           # If $VMImageObject is $null
@@ -269,4 +213,4 @@ function NewAzVM {                                                              
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzVM  
+}                                                                                           # End function NewAzVM   
