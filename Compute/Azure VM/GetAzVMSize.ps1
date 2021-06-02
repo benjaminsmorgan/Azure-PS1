@@ -20,12 +20,15 @@
     :SetAzureVMName             Inner loop for gelecting the VM
     :SelectAzureVMName          Inner loop for selecting the VM
     $NotAvailable:              List of all compute objects not available in region
+    $GenSupported:              List of all compute objects supporting the selected generation
     $VMSizeList:                List of all VM sizes in region
     $CoreCountList:             List of all VM sizes core counts
     $ValidCore:                 Array used for selecting a valid core count
     $CoreNumber:                List number
     $CoreInput:                 Loads items into array
     $CoreCount:                 Selected core count
+    $Number:                    Currrent item .number, used for formatting
+    $Count:                     Currrent item .count, used for formatting
     $OpSelect:                  Operator input for selecting values
     $OpConfirm:                 Operator confirmation of selected values
     $RamCountList:              List of all vm sizes ram counts
@@ -41,6 +44,8 @@
     $ValidVMSize:               Array used for selecting the VM name
     $VMSizeInput:               Loads items into array
     $VMSizeNumber:              List number
+    $OSDiskSize:                Current item .OSDiskSize, used for formatting
+    $RSDiskSize:                Current item .RSDiskSize, used for formatting
     $VMSizeObject:              VM size object
 } #>
 <# Process Flow {
@@ -52,11 +57,39 @@
 function GetAzVMSize {                                                                      # Function for setting the VM size
     Begin {                                                                                 # Begin function
         :GetAzureVMSize while ($true) {                                                     # Outer loop for managing function
+            if (!$HVGen) {                                                                  # IF $HVGen is $null
+                :SetHyperVGen while ($true) {                                               # Inner loop for setting the hyper v generation
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Gen 1'                                                  # Write message to screen
+                    Write-Host '[2] Gen 2'                                                  # Write message to screen
+                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input to select the generation
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
+                        Break GetAzureVMSize                                                # Breaks :GetAzureVMSize
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    elseif ($OpSelect -eq '1') {                                            # Else if $OpSelect equals '1'
+                        $HVGen = '*V1*'                                                     # Sets $HVGen
+                        Break SetHyperVGen                                                  # Breaks :SetHyperVGen
+                    }                                                                       # End elseif ($OpSelect -eq '1')
+                    elseif ($OpSelect -eq '2') {                                            # Else if $OpSelect equals '2'
+                        $HVGen = '*V2*'                                                     # Sets $HVGen
+                        Break SetHyperVGen                                                  # Breaks :SetHyperVGen
+                    }                                                                       # End elseif ($OpSelect -eq '2')
+                    else {                                                                  # All other inputs for $OpSelect
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpSelect -eq '0'))
+                }                                                                           # End :SetHyperVGen while ($true)
+            }                                                                               # End if (!$HVGen)
             $NotAvailable = Get-AzComputeResourceSku -Location $LocationObject.Location `
                 | Where-Object {$_.Restrictions.Reasoncode  -eq `
                 'NotAvailableForSubscription'}                                              # Gets a list of all unavailble compute objects
+            $GenSupported  = Get-AzComputeResourceSku -Location $LocationObject.Location `
+                | Where-Object {$_.Capabilities[4].Value -like $HVGen}                      # Gets a list of all VMs with the supported gen value
             $VMSizeList = Get-AzVMSize -Location $LocationObject.Location `
                 | Where-Object {$_.Name -notin $NotAvailable.Name}                          # Gets a list of all available VM sizes in location
+            $VMSizeList = $VMSizeList | Where-Object {$_.Name -in $GenSupported.Name}
             :SetAzureVMCoreCount while ($true) {                                            # Inner loop for setting the core count
                 $CoreCountList = $VMSizeList                                                # Passes original list to loop list
                 $CoreCountList = $CoreCountList.NumberOfCores | Sort-Object | Get-Unique    # Retains only the core count values, sorts them and only keeps unique 
@@ -269,14 +302,38 @@ function GetAzVMSize {                                                          
                     Write-Host ''                                                           # Write message to screen
                     foreach ($_ in $ValidVMSize) {                                          # For each item in $ValidVMSize
                         $Number = $_.Number                                                 # $Number is equal to current item .number
+                        $OSDiskSize = $_.OSDiskSize                                         # $OSDiskSize is equal to current item .OSDiskSize
+                        $RSDiskSize = $_.RSDiskSize                                         # $RSDiskSize is equal to current item .RSDiskSize
                         if ($Number -le 9) {                                                # If $Number is 9 or less
                             Write-Host "[$Number]"  $_.Name                                 # Write message to screen    
                         }                                                                   # End if ($Number -le 9)
                         else {                                                              # If $Number is more than 9
                             Write-Host "[$Number]" $_.Name                                  # Write message to screen
                         }                                                                   # End else if ($Number -le 9)
-                        Write-Host 'OS disk size: '$_.OSDiskSize'MB'                        # Write message to screen
-                        Write-Host 'Res disk size:'$_.RSDiskSize'MB'                        # Write message to screen
+                        if ($OSDiskSize -le 99999) {                                        # if $OSDiskSize is 99999 or less
+                            Write-Host 'OS disk size: '$_.OSDiskSize'   MB'                 # Write message to screen
+                        }                                                                   # End if ($OSDiskSize -le 99999)
+                        elseif ($OSDiskSize -ge 100000 -and $OSDiskSize -le 999999) {       # Else if $OSDiskSize is between 100000 and 999999
+                            Write-Host 'OS disk size: '$_.OSDiskSize'  MB'                  # Write message to screen
+                        }                                                                   # End elseif ($OSDiskSize -ge 100000 -and $OSDiskSize -le 999999)
+                        elseif ($OSDiskSize -ge 1000000 -and $OSDiskSize -le 9999999) {     # Else if $OSDiskSize is between 1000000 and 9999999
+                            Write-Host 'OS disk size: '$_.OSDiskSize' MB'                   # Write message to screen
+                        }                                                                   # End elseif ($OSDiskSize -ge 1000000 -and $OSDiskSize -le 9999999)
+                        elseif ($OSDiskSize -ge 10000000 -and $OSDiskSize -le 99999999) {   # Else if $OSDiskSize is between 10000000 and 99999999
+                            Write-Host 'OS disk size: '$_.OSDiskSize'MB'                    # Write message to screen
+                        }                                                                   # End elseif ($OSDiskSize -ge 10000000 -and $OSDiskSize -le 99999999)
+                        if ($RSDiskSize -le 99999) {                                        # if $RSDiskSize is 99999 or less
+                            Write-Host 'Res disk size:'$_.RSDiskSize'   MB'                 # Write message to screen
+                        }                                                                   # End if ($RSDiskSize -le 99999)
+                        elseif ($RSDiskSize -ge 100000 -and $RSDiskSize -le 999999) {       # Else if $RSDiskSize is between 100000 and 999999
+                            Write-Host 'Res disk size:'$_.RSDiskSize'  MB'                  # Write message to screen
+                        }                                                                   # End elseif ($RSDiskSize -ge 100000 -and $RSDiskSize -le 999999)
+                        elseif ($RSDiskSize -ge 1000000 -and $RSDiskSize -le 9999999) {     # Else if $RSDiskSize is between 1000000 and 9999999
+                            Write-Host 'Res disk size:'$_.RSDiskSize' MB'                   # Write message to screen
+                        }                                                                   # End elseif ($RSDiskSize -ge 1000000 -and $RSDiskSize -le 9999999)
+                        elseif ($RSDiskSize -ge 10000000 -and $RSDiskSize -le 99999999) {   # Else if $RSDiskSize is between 10000000 and 99999999
+                            Write-Host 'Res disk size:'$_.RSDiskSize'MB'                    # Write message to screen
+                        }                                                                   # End elseif ($RSDiskSize -ge 10000000 -and $RSDiskSize -le 99999999)
                         Write-Host ''                                                       # Write message to screen
                     }                                                                       # End foreach ($_ in $ValidVMSize)
                     if ($CallingFunction) {                                                 # If $CallingFunction has a value
