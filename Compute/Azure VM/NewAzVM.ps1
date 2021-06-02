@@ -10,13 +10,11 @@
     Get-AzVMImage:              https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage?view=azps-5.4.0
     Set-AzVMSourceImage:        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmsourceimage?view=azps-5.4.0
     New-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-5.4.0     
-    New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
-    NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
     GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
     GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
     GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1 
@@ -26,7 +24,6 @@
 } #>
 <# Functions Description: {
     NewAzVM:                    Creates a new virtual machine
-    NewAzNetworkInterface:      Creates a new network interface
     GetAzVNetSubnetConfig:      Gets a vnet subnet
     GetAzVirtualNetwork:        Gets a virtual network
     GetAzNetworkInterface:      Gets a network interface
@@ -66,15 +63,15 @@
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGoup
                 Return NewAzVMWin > Send $RGObject
+            Call SetAzVMOS > Get $VMImageObject
+            End  SetAzVMOS
+                Return NewAzVMWin > Send $VMImageObject
             Call GetAzVMSize > Get $VMSizeObject
             End GetAzVMSize
                 Return NewAzVMWin > Send $VMSizeObject
             Call GetAzNetworkInterface > Get $NicObject
             End GetAzNetworkInterface
                 Return NewAzVMWin > Send $NicObject,$SubnetObject,$VnetObject
-            Call GetAzVMSize > Get $VMImageObject
-            End GetAzVMSize
-                Return NewAzVMWin > Send $VMImageObject
         End NewAzVMWin
             Return Function > Send $VMObject
 }#>
@@ -152,7 +149,13 @@ function NewAzVM {                                                              
             }                                                                               # End :SetAzureVMPassword while ($true)
             $VMCredObject = New-Object System.Management.Automation.PSCredential `
                 ($VMUserNameObject, $VMPasswordObject)                                      # Builds credential object using $VMUsernameObject and $VMPasswordObject
-            $VMSizeObject = GetAzVMSize ($CallingFunction, $LocationObject)                 # Calls function and assigns output to $var
+            $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
+            if (!$VMImageObject){                                                           # If $VMImageObject is $null
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
+            }                                                                               # End if (!$VMImageObject)
+            $HVGen = $VMImageObject.HyperVGeneration
+            $HVGen = '*'+$HVGen+'*'
+            $VMSizeObject = GetAzVMSize ($CallingFunction, $LocationObject, $HVGen)         # Calls function and assigns output to $var
             if (!$VMSizeObject) {                                                           # If $VMSizeObject is $null
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End if (!$VMSizeObject)
@@ -172,30 +175,15 @@ function NewAzVM {                                                              
             if (!$NicObject) {                                                              # If $NicObject is $null
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End if (!$NicObject)
-            else {                                                                          # If $NicObject has a value
-                Break SetAzureNetwork                                                       # Breaks :SetAzureNetwork
-            }                                                                               # End else (if (!$NicObject))
             $VMBuildObject = Add-AzVMNetworkInterface -VM $VMBuildObject -Id $NicObject.Id  # Adds NIC info to $VMBuildObject
-            $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
-            if (!$VMImageObject){                                                           # If $VMImageObject is $null
-                Break NewAzureVM                                                            # Breaks :NewAzureVM
-            }                                                                               # End if (!$VMImageObject)
-            if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version has a value
-                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
+            $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
                 $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
                 $VMImageObject.Skus -Version $VMImageObject.Version                         # Adds image setting to $VMBuildObject
-            }                                                                               # End if ($VMImageObject.Version)
-            else {                                                                          # If $VMImageObject.Version does not have a value
-                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
-                $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
-                $VMImageObject.Skus -Version 'latest'                                       # Adds image setting to $VMBuildObject
-            }                                                                               # End else (if ($VMImageObject.Version))
             Try {                                                                           # Try the following
                 Write-Host 'Attempting to build the VM'                                     # Write message to screen
                 Write-Host 'This may take a few minutes'                                    # Write message to screen
                 New-AzVM -ResourceGroupName $RGObject.ResourceGroupName -VM $VMBuildObject `
-                -Location $LocationObject.Location -Verbose  
-                    -ErrorAction 'Stop'                                                     # Builds the new VM object
+                    -Location $LocationObject.Location -Verbose -ErrorAction 'Stop'         # Builds the new VM object
             }                                                                               # End Try
             Catch {                                                                         # If try fails
                 Write-Host ''                                                               # Write message to screen
@@ -213,4 +201,4 @@ function NewAzVM {                                                              
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzVM   
+}                                                                                           # End function NewAzVM  
