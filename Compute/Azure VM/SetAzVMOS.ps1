@@ -42,13 +42,11 @@
     $ImageSkuArray:             Array used for selecting the sku
     $ImageSkuInput:             $Var that loads items into array
     $VMSkuObject:               The sku name object
-    $ImageVersionOption:        Operator input for selecting either the current version or other
     $ImageVersionList:          List of all versions 
     $ImageVersionNumber:        $var used in list 
     $ImageVersionArray:         Array used to select the version
     $ImageVersionInput:         $Var used to load items into array
-    $VMVersionObject:           Version name object
-    $VMImageObject:             Object used to select the image for VM creation
+    $VMImageObject:             VM image object
 } #>
 <# Process Flow {
     function
