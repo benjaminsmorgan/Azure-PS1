@@ -19,6 +19,7 @@
     :SelectAzureVMDiskCount     Inner loop for selecting the max disk count
     :SetAzureVMName             Inner loop for gelecting the VM
     :SelectAzureVMName          Inner loop for selecting the VM
+    $HVGen:                     VM image generation
     $NotAvailable:              List of all compute objects not available in region
     $GenSupported:              List of all compute objects supporting the selected generation
     $VMSizeList:                List of all VM sizes in region
