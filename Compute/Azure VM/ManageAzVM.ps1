@@ -440,37 +440,43 @@ function StopAzVM {                                                             
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function StopAzVM
-function ReimageAzVM {                                                                      # Function to remove a VM
+function ReimageAzVM {                                                                      # Function to reimage a VM
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Disables powershell error reporting
+        #$ErrorActionPreference='silentlyContinue'                                           # Disables powershell error reporting
         :ReimageAzVM while ($true) {                                                        # Outer loop for managing function
+            $VMObject = GetAzVM                                                             # Calls function and assigns output to $var
             if (!$VMObject) {                                                               # If $VMObject is $null
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-                if (!$VMObject) {                                                           # If $VMObject is $null
-                    Break ReimageAzVM                                                       # Breaks :ReimageAzVM
-                }                                                                           # End if (!$VMObject)
+                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
             }                                                                               # End if (!$VMObject)
-            $OpConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"               # Operator confirmation to reimage the VM
-            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
-                Write-Host "No action taken"                                                # Write message to screen
+            Write-Host 'Reimage:'$VMObject.name
+            Write-Host 'RG:     '$VMObject.ResourceGroupName
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to reimage the VM
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {
+                Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
+                #try {                                                                           # Try the following
+                    Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
+                        $VMObject.ResourceGroupName -ErrorAction 'stop'                         # Reimages the selected VM
+                #}                                                                               # End Try
+                #catch {                                                                         # If try fails
+                #    Write-Host ""                                                               # Write message to screen
+                #    Write-Host "***An Error Has Occured***"                                     # Write message to screen
+                #    Write-Host "Un-able to reimage the selected VM"                             # Write message to screen
+                #    Write-Host "Auto OS upgrades may not be enabled"                            # Write message to screen
+                #    Write-Host "You may not have permission to this VM"                         # Write message to screen
+                #    Write-Host "The VM or group may be locked"                                  # Write message to screen
+                #    Write-Host ""                                                               # Write message to screen
+                #    Break ReimageAzVM                                                           # Breaks :ReimageAzVM
+                #}                                                                               # End Catch
+                Pause
+                Break ReimageAzVM                                                               # Breaks :ReimageAzVM
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # If OpConfirm does not equal 'y'
+                Write-Host 'No action taken'                                                # Write message to screen
+                pause                                                                       # Pauses all actions for operator input
                 Break ReimageAzVM                                                           # Breaks :ReimageAzVM
-            }                                                                               # End if (!($OpConfirm -eq 'y'))
-            Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
-            try {                                                                           # Try the following
-                Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
-                    $VMObject.ResourceGroupName -ErrorAction 'stop'                         # Reimages the selected VM
-            }                                                                               # End Try
-            catch {                                                                         # If try fails
-                Write-Host ""                                                               # Write message to screen
-                Write-Host "***An Error Has Occured***"                                     # Write message to screen
-                Write-Host "Un-able to reimage the selected VM"                             # Write message to screen
-                Write-Host "Auto OS upgrades may not be enabled"                            # Write message to screen
-                Write-Host "You may not have permission to this VM"                         # Write message to screen
-                Write-Host "The VM or group may be locked"                                  # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
-            }                                                                               # End Catch
-            Break ReimageAzVM                                                               # Breaks :ReimageAzVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+            
         }                                                                                   # End :ReimageAzVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
