@@ -11411,169 +11411,81 @@ function GetAzVMSize {                                                          
 function ManageAzNetwork {                                                                  # Function for managing azure network resources
     Begin {                                                                                 # Begin function   
         :ManageAzureNetwork while ($true) {                                                 # Outer loop for managing function
-            if ($RGObject) {                                                                # If $RGObject has a value
-                Write-Host 'The currently selected resource group is:'`
-                    $RGObject.ResourceGroupName                                             # Write message to screen
-            }                                                                               # End if ($RGObject)
-            if ($VnetObject) {                                                              # If $VnetObject has a value
-                Write-Host 'The currently selected virtual network is:'`
-                    $VnetObject.Name                                                        # Write message to screen
-            }                                                                               # End if ($VnetObject)
-            if ($SubnetObject) {                                                            # If $SubnetObject has a value
-                Write-Host 'The currently selected subnet is:'`
-                    $SubnetObject.Name                                                      # Write message to screen
-            }                                                                               # End if ($SubnetObject)
-            if ($NicObject) {                                                               # If $NicObject has a value
-                Write-Host 'The currently selected network interface is:'`
-                    $NicObject.Name                                                         # Write message to screen
-            }                                                                               # End if ($NicObject)
-            if ($PublicIPObject) {                                                          # If $PublicIPObject has a value
-                Write-Host 'The currently selected public IP is:'`
-                    $PublicIPObject.Name                                                    # Write message to screen
-            }                                                                               # End if ($PublicIPObject)
-            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
-                Write-Host 'The currently selected load balancer is:'`
-                    $LoadBalancerObject.Name                                                # Write message to screen
-            }                                                                               # End if ($LoadBalancerObject)
-            Write-Host "Azure Network Management"                                           # Write message to screen
-            Write-Host '0 Clear "$vars"'                                                    # Write message to screen
-            Write-Host '1 Manage virtual network'                                           # Write message to screen
-            Write-Host '2 Manage subnets'                                                   # Write message to screen
-            Write-Host '3 Manage network interfaces'                                        # Write message to screen
-            Write-Host '4 Manage public IPs'                                                # Write message to screen
-            Write-Host '5 Manage load balancers'                                            # Write message to screen
-            Write-Host "'Exit to return'"                                                   # Write message to screen
-            $ManageAzNetwork = Read-Host "Option?"                                          # Collects operator input on $ManageAzNetwork option
-            if ($ManageAzNetwork -eq 'exit') {                                              # If $ManageAzNetwork equals 'exit'
-                Break ManageAzureAksCluster                                                 # Breaks :ManageAzureAksCluster
-            }                                                                               # End if ($ManageAzNetwork -eq 'exit')
-            elseif ($ManageAzNetwork -eq '0') {                                             # Elseif $ManageAzNetwork equals 0
-                if ($RGObject) {                                                            # If $var has a value
-                    Write-Host 'Clearing $RGObject'                                         # Write message to screen
-                    $RGObject = $null                                                       # Clears $var
-                }                                                                           # End if ($RGObject)
-                else {                                                                      # If $RGObject does not have a value
-                    Write-Host '$RGObject is already clear'                                 # Write message to screen
-                }                                                                           # End else (if ($RGObject))
-                if ($VnetObject) {                                                          # If $VnetObject has a value
-                    Write-Host 'Clearing $VnetObject'                                       # Write message to screen
-                    $VnetObject = $null                                                     # Clears $VnetObject
-                }                                                                           # End if ($VnetObject)
-                else {                                                                      # If $VnetObject does not have a value
-                    Write-Host '$VnetObject is already clear'                               # Write message to screen
-                }                                                                           # End else (if ($VnetObject))
-                if ($SubnetObject) {                                                        # If $var has a value
-                    Write-Host 'Clearing $SubnetObject'                                     # Write message to screen
-                    $SubnetObject = $null                                                   # Clears $var
-                }                                                                           # End if ($SubnetObject)
-                else {                                                                      # If $SubnetObject does not have a value
-                    Write-Host '$SubnetObject is already clear'                             # Write message to screen
-                }                                                                           # End else (if ($SubnetObject))
-                if ($NicObject) {                                                           # If $var has a value
-                    Write-Host 'Clearing $NicObject'                                        # Write message to screen
-                    $NicObject = $null                                                      # Clears $var
-                }                                                                           # End if ($NicObject)
-                else {                                                                      # If $NicObject does not have a value
-                    Write-Host '$NicObject is already clear'                                # Write message to screen
-                }                                                                           # End else (if ($NicObject))
-                if ($LoadBalancerObject) {                                                  # If $var has a value
-                    Write-Host 'Clearing $LoadBalancerObject'                               # Write message to screen
-                    $LoadBalancerObject = $null                                             # Clears $var
-                }                                                                           # End if ($LoadBalancerObject)
-                else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host '$LoadBalancerObject is already clear'                       # Write message to screen
-                }                                                                           # End else (if ($LoadBalancerObject))
-            }                                                                               # End elseif ($ManageAzNetwork -eq '0')
-            elseif ($ManageAzNetwork -eq '1') {                                             # Elseif $ManageAzNetwork equals 1
+            Write-Host 'Azure Network Management'                                           # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Manage virtual network'                                         # Write message to screen
+            Write-Host '[2] Manage subnets'                                                 # Write message to screen
+            Write-Host '[3] Manage network interfaces'                                      # Write message to screen
+            Write-Host '[4] Manage public IPs'                                              # Write message to screen
+            Write-Host '[5] Manage load balancers'                                          # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break ManageAzureNetwork                                                    # Breaks :ManageAzureNetwork
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Elseif $OpSelect equals '1'
                 Write-Host 'Manage virtual network'                                         # Write message to screen
-                $VNetObject = ManageAzVirtualNetwork ($RGObject)                            # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '1')
-            elseif ($ManageAzNetwork -eq '2') {                                             # Elseif $ManageAzNetwork equals 2
+                ManageAzVirtualNetwork                                                      # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Elseif $OpSelect equals '2'
                 Write-Host 'Manage subnets'                                                 # Write message to screen
-                $SubnetObject, $VnetObject = `
-                    ManageAzVNetSubnetConfig ($RGObject, $VnetObject)                       # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '2')
-            elseif ($ManageAzNetwork -eq '3') {                                             # Elseif $ManageAzNetwork equals 3
+                ManageAzVNetSubnetConfig                                                    # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Elseif $OpSelect equals '3'
                 Write-Host 'Manage network interfaces'                                      # Write message to screen
-                $NicObject, $VnetObject, $SubnetObject = ManageAzNetworkInterface `
-                    ($RGObject, $SubnetObject)                                              # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '3')
-            elseif ($ManageAzNetwork -eq '4') {                                             # Elseif $ManageAzNetwork equals 4
+                ManageAzNetworkInterface                                                    # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Elseif $OpSelect equals '4'
                 Write-Host 'Manage public IPs'                                              # Write message to screen
-                $PublicIPObject = ManageAzPublicIPAddress                                   # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '4')
-            elseif ($ManageAzNetwork -eq '5') {                                             # Elseif $ManageAzNetwork equals 5
+                ManageAzPublicIPAddress                                                     # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Elseif $OpSelect equals '5'
                 Write-Host 'Manage load balancers'                                          # Write message to screen
-                $LoadBalancerObject = ManageAzLoadBalancer                                  # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzNetwork -eq '5')
-            else {                                                                          # If $ManageAzNetwork do not match any if or elseif     
-                Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End else (if ($ManageAzNetwork -eq 'exit'))
+                ManageAzLoadBalancer                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            else {                                                                          # All other inputs for $OpSelect     
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureNetwork while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzNetwork
 # Functions for ManageAzVirtualNetwork
 function ManageAzVirtualNetwork {                                                           # Function for managing azure virtual networks
     Begin {                                                                                 # Begin function
         :ManageAzureVirtualNetwork while($true) {                                           # Outer loop for managing function
-            if ($RGObject) {                                                                # If $RGObject has a value
-                Write-Host 'The current RG is:' $RGObject.ResourceGroupName                 # Write message to screen
-            }                                                                               # End if ($RGObject)
-            if ($VNetObject) {                                                              # If $VNetObject has a value
-                Write-Host 'The current Vnet is:' $VNetObject.name                          # Write message to screen
-            }                                                                               # End if ($VNetObject)
-            Write-Host "Azure Virtual Network Management"                                   # Write message to screen
-            Write-Host '0 Clear "$VNetObject"'                                              # Write message to screen
-            Write-Host '00 Clear $RGObject'                                                 # Write message to screen
-            Write-Host '1 New virtual network'                                              # Write message to screen
-            Write-Host '2 List virtual networks'                                            # Write message to screen
-            Write-Host '3 Get virtual network'                                              # Write message to screen
-            Write-Host '4 Remove virtual network'                                           # Write message to screen
-            Write-Host "'Exit to return'"                                                   # Write message to screen
-            $ManageAzVirtualNetwork = Read-Host "Option?"                                   # Collects operator input on $ManageAzContainerGroup option
-            if ($ManageAzVirtualNetwork -eq 'exit') {                                       # If $ManageAzureVirtualNetwork equals 'exit'
+            Write-Host 'Azure Virtual Network Management'                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] New virtual network'                                            # Write message to screen
+            Write-Host '[2] List virtual networks'                                          # Write message to screen
+            Write-Host '[3] Remove virtual network'                                         # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the management option
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If OpSelect equals '0'
                 Break ManageAzureVirtualNetwork                                             # End Break ManageAzureVirtualNetwork
-            }                                                                               # End if ($ManageAzVirtualNetwork -eq 'exit')
-            if ($ManageAzVirtualNetwork -eq '0') {                                          # If $ManageAzVirtualNetwork equals '0'
-                if ($VNetObject) {                                                          # If $VNetObject has a value
-                    $VNetObject = $null                                                     # Clears $VNetObject
-                    Write-Host '"$VNetObject" has been cleared'                             # Write message to screen
-                }                                                                           # End if ($VNetObject)
-                else {                                                                      # If $VNetObject does not have a value
-                    Write-Host '"$VNetObject is already $null'                              # Write message to screen
-                }                                                                           # End else (if ($VNetObject))
-            }                                                                               # End if ($ManageAzVirtualNetwork -eq '0')
-            elseif ($ManageAzVirtualNetwork -eq '00') {                                     # Else if $ManageAzVirtualNetwork equals '00'
-                if ($RGObject) {                                                            # If $RGObject has a value
-                    $RGObject = $null                                                       # Clears $RGObject
-                    Write-Host '"$RGObject" has been cleared'                               # Write message to screen
-                }                                                                           # End if ($RGObject)
-                else {                                                                      # If $RGObject does not have a value
-                    Write-Host '"$RGObject is already $null'                                # Write message to screen
-                }                                                                           # End else (if ($RGObject))
-            }                                                                               # End elseif ($ManageAzVirtualNetwork -eq '00')
-            elseif ($ManageAzVirtualNetwork -eq '1') {                                      # Else if $ManageAzVirtualNetwork equals '1'
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host 'New virtual network'                                            # Write message to screen
-                $VNetObject = NewAzVirtualNetwork ($RGObject)                               # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzVirtualNetwork -eq '1')
-            elseif ($ManageAzVirtualNetwork -eq '2') {                                      # Else if $ManageAzVirtualNetwork equals '2'
+                NewAzVirtualNetwork                                                         # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
                 Write-Host 'List virtual networks'                                          # Write message to screen
                 ListAzVirtualNetwork                                                        # Calls function
-            }                                                                               # End elseif ($ManageAzVirtualNetwork -eq '2')
-            elseif ($ManageAzVirtualNetwork -eq '3') {                                      # Else if $ManageAzVirtualNetwork equals '3'
-                Write-Host 'Get virtual network'                                            # Write message to screen
-                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
-            }                                                                               # End elseif ($ManageAzVirtualNetwork -eq '3')
-            elseif ($ManageAzVirtualNetwork -eq '4') {                                      # Else if $ManageAzVirtualNetwork equals '4'
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove virtual network'                                         # Write message to screen
-                RemoveAzVirtualNetwork ($VNetObject)                                        # Calls function
-            }                                                                               # End elseif ($ManageAzVirtualNetwork -eq '4')
-            else {                                                                          # Else for all other inputs for $ManageAzVirtualNetwork
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($ManageAzVirtualNetwork -eq '0'))
+                RemoveAzVirtualNetwork                                                      # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureVirtualNetwork while($true)
-        Return $VNetObject                                                                  # Returns to calling function with $VNetObject
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzNetwork
 function NewAzVirtualNetwork {                                                              # Creates a new Vnet
@@ -11597,18 +11509,18 @@ function NewAzVirtualNetwork {                                                  
                 if ($VNetName -eq 'exit') {                                                 # If $VnetName is 'exit'
                     Break NewAzureVNet                                                      # Breaks :NewAzureVnet
                 }                                                                           # End if ($VNetName -eq 'exit')
-                $OperatorConfirm = Read-Host "Set" $VNetName "as the VNet name [Y] or [N]"  # Operator confirmation of the name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                $OpConfirm = Read-Host "Set" $VNetName "as the VNet name [Y] or [N]"  # Operator confirmation of the name
+                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
                     Break SetAzureVNetName                                                  # Breaks :SetAzureVNetName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureVNetName while ($true)
             :SetAzureVnetAddress while ($true) {                                            # Inner loop for setting the vnet prefix
                 $AddressPrefix = Read-Host "Address Prefix (E.X. 10.0.0.0/16)"              # Operator input for the Vnet prefix
-                $OperatorConfirm = Read-Host `
+                $OpConfirm = Read-Host `
                     "Use" $AddressPrefix "as the Vnet address prefix [Y] or [N]"            # Operator confirmation of the address prefix
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
                     Break SetAzureVnetAddress                                               # Breaks :SetAzureVnetAddress
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureVnetAddress while ($true)
             $VNetObject = New-AzVirtualNetwork -Name $VNetName -ResourceGroupName `
                 $RGObject.ResourceGroupName -Location $LocationObject.location `
@@ -11624,15 +11536,26 @@ function NewAzVirtualNetwork {                                                  
 }                                                                                           # End function NewAzVirtualNetwork
 function ListAzVirtualNetwork {                                                             # Function to list all virtual networks
     Begin {                                                                                 # Begin function
-        $VNetList = Get-AzVirtualNetwork                                                    # Gets a list of all virtual networks
-        foreach ($_ in $VNetList) {                                                         # For each item in $VNetList
-            Write-Host 'Name:    '$_.Name                                                   # Write message to screen
-            Write-Host 'RG:      '$_.ResourceGroupName                                      # Write message to screen
-            Write-Host 'Loc:     '$_.Location                                               # Write message to screen
-            Write-Host 'A Space: '$_.AddressSpace.AddressPrefixes                           # Write message to screen
+        :ListAzureVNetwork while ($true) {                                                  # Outer loop for managing function
+            $VNetList = Get-AzVirtualNetwork                                                # Gets a list of all virtual networks
+            if (!$VNetList) {                                                               # If $VNetList is $null
+                Write-Host 'No virtual networks in this subscription'                       # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureVNetwork                                                     # Breaks ListAzureVNetwork
+            }                                                                               # End if (!$VNetList)
+            foreach ($_ in $VNetList) {                                                     # For each item in $VNetList
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Name:    '$_.Name                                               # Write message to screen
+                Write-Host 'RG:      '$_.ResourceGroupName                                  # Write message to screen
+                Write-Host 'Loc:     '$_.Location                                           # Write message to screen
+                Write-Host 'A Space: '$_.AddressSpace.AddressPrefixes                       # Write message to screen
+            }                                                                               # End foreach ($_ in $VNetList)
             Write-Host ''                                                                   # Write message to screen
-        }                                                                                   # End foreach ($_ in $VNetList)
-        return                                                                              # Returns to calling function with $null
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureVNetwork                                                         # Breaks ListAzureVNetwork
+        }                                                                                   # End :ListAzureVNetwork while ($true)
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzVirtualNetwork
 function GetAzVirtualNetwork {                                                              # Function for getting an Azure virtual network
@@ -11648,50 +11571,65 @@ function GetAzVirtualNetwork {                                                  
                 $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads item into array, out-null removes write to screen
                 $ListNumber = $ListNumber + 1                                               # Increments $RGListNumber by 1
             }                                                                               # End foreach ($_ in $RGList)
-            Write-Host '[ 0  ]    Exit'                                                     # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            foreach ($_ in $ObjectArray) {                                                  # For each name in $ObjectList
-                Write-Host '['$_.Number']'                                                  # Write message to screen
-                Write-Host 'Name:    '$_.Name                                               # Write message to screen
-                Write-Host 'RG:      '$_.RG                                                 # Write message to screen
-                Write-Host 'Loc:     '$_.Location                                           # Write message to screen
-                Write-Host 'A Space: '$_.ASpace                                             # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-            }                                                                               # End foreach ($Name in $Array)
             :SelectAzureVNet while ($true) {                                                # Inner loop for selecting the Vnet
-                $VNetSelect = Read-Host `
-                    "Please enter the number of the virtual network"                        # Operator input for the VNet selection
-                if ($VNetSelect -eq '0') {                                                  # If $VNetSelect equals 0
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $number is 9 or less
+                        Write-Host "[$Number]      "$_.Name                                 # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # If $number is greater than 9
+                        Write-Host "[$Number]     "$_.Name                                  # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'RG:      '$_.RG                                             # Write message to screen
+                    Write-Host 'Loc:     '$_.Location                                       # Write message to screen
+                    Write-Host 'A Space: '$_.ASpace                                         # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($Name in $Array)    
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'Selecting the VNet for:'$CallingFunction                    # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the VNet selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureVNet                                                      # Breaks :GetAzureVNet
-                }                                                                           # End if ($VNetSelect -eq '0')
-                elseif ($VNetSelect -in $ObjectArray.Number) {                              # Else if $VNetSelect is in $ObjectArray.Number
-                    $VNetSelect = $ObjectArray | Where-Object {$_.Number -eq $VNetSelect}   # $VNetSelect is equal to $ObjectArray where $VNetSelect equals $ObjectArray.Number
-                    $VNetObject = Get-AzVirtualNetwork -Name $VNetSelect.Name `
-                        -ResourceGroupName $VNetSelect.RG                                   # Pulls the full object and assigns to $var
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect is in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $OpSelect equals $ObjectArray.Number
+                    $VNetObject = Get-AzVirtualNetwork -Name $OpSelect.Name `
+                        -ResourceGroupName $OpSelect.RG                                     # Pulls the full object and assigns to $var
                         Return $VNetObject                                                  # Returns to calling function with $var
-                }                                                                           # End elseif ($VNetSelect -in $ObjectArray.Number)
-                else {                                                                      # All other inputs for $VNetSelect
-                    Write-Host 'That was not a valid option'                                # Write message to screen
-                }                                                                           # End else (if ($VNetSelect -eq '0'))
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureVNet while ($true)
         }                                                                                   # End :GetAzureVnet while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzVirtualNetwork
 function RemoveAzVirtualNetwork {                                                           # Function to remove an Azure virtual network
     Begin {                                                                                 # Being function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzVirtualNetwork'                                     # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureVnet while ($true) {                                                    # Outer loop for managing function
+            $VNetObject = GetAzVirtualNetwork ($CallingFunction)                            # Calls function and assigns output to $var
             if (!$VNetObject) {                                                             # If $VNetObject is $null
-                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
-                if (!$VNetObject) {                                                         # If $VNetObject is $null
-                    Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
-                }                                                                           # End if (!$VNetObject)
+                Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
             }                                                                               # End if (!$VNetObject)
-            Write-Host 'Remove the virtual network named'$VNetObject.Name                   # Write message to screen
-            Write-Host 'from the resource group'$VNetObject.ResourceGroupName               # Write message to screen
-            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the selected VNet
-            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
+            Write-Host 'Remove the following:'                                              # Write message to screen
+            Write-Host 'virtual network name:'$VNetObject.Name                              # Write message to screen
+            Write-Host 'resource group:      '$VNetObject.ResourceGroupName                 # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the selected VNet
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
+                    Write-Host 'Removing:'$VNetObject.name                                  # Write message to screen
                     Remove-AzVirtualNetwork -Name $VNetObject.Name -ResourceGroupName `
                         $VNetObject.ResourceGroupName -Force -ErrorAction 'Stop'            # Removes the virtual network
                 }                                                                           # End Try
@@ -11700,17 +11638,21 @@ function RemoveAzVirtualNetwork {                                               
                     Write-Host 'You may not have the'                                       # Write message to screen 
                     Write-Host 'required permissions'                                       # Write message to screen
                     Write-Host 'No changes have been made'                                  # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
                     Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
                 }                                                                           # End catch
                 Write-Host 'The selected virtual network has been removed'                  # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
-            }                                                                               # End if ($OperatorConfirm -eq 'y')
-            else {                                                                          # If $OperatorConfirm does not equal 'y'
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
                 Write-Host 'No changes made'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
-            }                                                                               # End else (if ($OperatorConfirm -eq 'y'))
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
         }                                                                                   # End :RemoveAzureVnet while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVirtualNetwork
 # Functions for ManageAzVNetSubnetConfig
