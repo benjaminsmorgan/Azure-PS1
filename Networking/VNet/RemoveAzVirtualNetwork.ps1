@@ -12,8 +12,9 @@
 } #>
 <# Variables: {
     :RemoveAzureVnet            Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
     $VNetObject:                Virtual network object
-    $OperatorConfirm:           Operator confirmation to remove the Vnet
+    $OpConfirm:                 Operator confirmation to remove the Vnet
     GetAzVirtualNetwork{}       Gets $VNetObject 
 } #>
 <# Process Flow {
@@ -27,18 +28,22 @@
 }#>
 function RemoveAzVirtualNetwork {                                                           # Function to remove an Azure virtual network
     Begin {                                                                                 # Being function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzVirtualNetwork'                                     # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureVnet while ($true) {                                                    # Outer loop for managing function
+            $VNetObject = GetAzVirtualNetwork ($CallingFunction)                            # Calls function and assigns output to $var
             if (!$VNetObject) {                                                             # If $VNetObject is $null
-                $VNetObject = GetAzVirtualNetwork                                           # Calls function and assigns output to $var
-                if (!$VNetObject) {                                                         # If $VNetObject is $null
-                    Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
-                }                                                                           # End if (!$VNetObject)
+                Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
             }                                                                               # End if (!$VNetObject)
-            Write-Host 'Remove the virtual network named'$VNetObject.Name                   # Write message to screen
-            Write-Host 'from the resource group'$VNetObject.ResourceGroupName               # Write message to screen
-            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the selected VNet
-            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y'
+            Write-Host 'Remove the following:'                                              # Write message to screen
+            Write-Host 'virtual network name:'$VNetObject.Name                              # Write message to screen
+            Write-Host 'resource group:      '$VNetObject.ResourceGroupName                 # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the selected VNet
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
+                    Write-Host 'Removing:'$VNetObject.name                                  # Write message to screen
                     Remove-AzVirtualNetwork -Name $VNetObject.Name -ResourceGroupName `
                         $VNetObject.ResourceGroupName -Force -ErrorAction 'Stop'            # Removes the virtual network
                 }                                                                           # End Try
@@ -47,16 +52,20 @@ function RemoveAzVirtualNetwork {                                               
                     Write-Host 'You may not have the'                                       # Write message to screen 
                     Write-Host 'required permissions'                                       # Write message to screen
                     Write-Host 'No changes have been made'                                  # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
                     Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
                 }                                                                           # End catch
                 Write-Host 'The selected virtual network has been removed'                  # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
-            }                                                                               # End if ($OperatorConfirm -eq 'y')
-            else {                                                                          # If $OperatorConfirm does not equal 'y'
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # If $OpConfirm does not equal 'y'
                 Write-Host 'No changes made'                                                # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
-            }                                                                               # End else (if ($OperatorConfirm -eq 'y'))
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
         }                                                                                   # End :RemoveAzureVnet while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVirtualNetwork
