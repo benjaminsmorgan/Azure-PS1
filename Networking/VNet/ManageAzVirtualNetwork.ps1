@@ -246,9 +246,15 @@ function RemoveAzVirtualNetwork {                                               
                         $VNetObject.ResourceGroupName -Force -ErrorAction 'Stop'            # Removes the virtual network
                 }                                                                           # End Try
                 Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
                     Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Write-Host 'You may not have the'                                       # Write message to screen 
                     Write-Host 'required permissions'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'This resource or containing'                                # Write message to screen
+                    Write-Host 'resource group maybe locked'                                # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Write-Host 'No changes have been made'                                  # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Break RemoveAzureVnet                                                   # Breaks :RemoveAzureVnet
