@@ -17,7 +17,7 @@
     $ObjectInput:               $var used to load items into $RGListArray
     $CallingFunction:           Name of the calling function
     $Number:                    The current item in $ListArray.Number, used for write to screen
-    $RGSelect:                  Operator input for the resource group
+    $OpSelect:                  Operator input for the resource group
     $RGObject:                  Resource group object
 } #>
 <# Process Flow {
@@ -39,33 +39,33 @@ function GetAzResourceGroup {                                                   
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
             }                                                                               # End foreach ($_ in $ObjectList)
-            Write-Host "[0]  Exit"                                                          # Write message to screen
-            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
-                $Number = $_.Number                                                         # Sets $Number to current item .number
-                if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
-                    Write-Host "[$Number] "$_.Name '|' $_.Location                          # Write message to screen
-                }                                                                           # End if ($_.Number -le 9) 
-                else {                                                                      # If current item .number is greater then 9
-                    Write-Host "[$Number]"$_.Name '|' $_.Location                           # Write message to screen
-                }                                                                           # End else (if ($_.Number -le 9) )
-            }                                                                               # End foreach ($_ in $ObjectArray)
             :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name '|' $_.Location                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name '|' $_.Location                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction exists
                     Write-Host 'You are selecting the resource group for:'$CallingFunction  # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                $RGSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
-                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
-                }                                                                           # End if ($RGSelect -eq '0')
-                elseif ($RGSelect -in $ObjectArray.Number) {                                # If $RGSelect in $ObjectArray.Number
-                    $RGSelect = $ObjectArray | Where-Object {$_.Number -eq $RGSelect}       # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
                     $RGObject = Get-AzResourceGroup | Where-Object `
-                        {$_.ResourceGroupName -eq $RGSelect.Name}                           # Pulls the full resource group object
+                        {$_.ResourceGroupName -eq $OpSelect.Name}                           # Pulls the full resource group object
                     Clear-Host                                                              # Clears screen
                     Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End elseif ($RGSelect -in $ListArray.Number)
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number)
                 else {                                                                      # If $RGObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
                 }                                                                           # End else (if ($RGObject))
             }                                                                               # End :SelectAzureObjectList while ($true)
         }                                                                                   # End :GetAzureResourceGroup while ($true)
