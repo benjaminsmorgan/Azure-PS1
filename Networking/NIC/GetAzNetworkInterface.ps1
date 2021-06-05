@@ -25,6 +25,8 @@
     $SubnetPFX:                 The current subnet prefix
     $NicList:                   List of all nics under the current subnet
     $ObjectInput:               $var used to load info into $ObjectArray
+    $Number:                    Current item .Number, used for formatting
+    $VM:                        Current item .VM, used for formatting
     $CallingFunction:           Name of the function that called this function
     $OpSelect:                  Operator input to select the nic
     $SubnetObject:              SubnetObject
@@ -62,7 +64,8 @@ function GetAzNetworkInterface {                                                
                         $ObjectInput = [PSCustomObject]@{
                             'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
                             $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG
+                            'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
+                            'VM'=$_.VirtualMachine.ID
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
@@ -87,6 +90,15 @@ function GetAzNetworkInterface {                                                
                     Write-Host 'VNet Name:    '$_.VnetName                                  # Write message to screen
                     Write-Host 'VNet Prefix:  '$_.VnetPFX                                   # Write message to screen
                     Write-Host 'VNet RG:      '$_.VnetRG                                    # Write message to screen
+                    if ($_.VM) {                                                            # If $_.VM has a value
+                        $VM = $_.VM                                                         # VM is equal to current item .VM
+                        $VM = $VM.Split('/')[-1]                                            # Collects the VM name
+                        Write-Host 'Attached VM:  '$VM                                      # Write message to screen
+                        $VM = $null                                                         # Clears $VM                                            
+                    }                                                                       # End if ($_.VM)
+                    else {                                                                  # If $_.VM does not have a value
+                        Write-Host 'Attached VM:   N/A'                                     # Write message to screen
+                    }                                                                       # End else (if ($_.VM))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                     if ($CallingFunction) {                                                 # If $CallingFunction has a value
@@ -116,6 +128,7 @@ function GetAzNetworkInterface {                                                
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureNic while ($true)
         }                                                                                   # End :GetAzureNIC while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzNetworkInterface
