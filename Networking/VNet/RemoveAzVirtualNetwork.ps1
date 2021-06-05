@@ -14,6 +14,9 @@
     :RemoveAzureVnet            Outer loop for managing function
     $CallingFunction:           Name of this function or the one that called it
     $VNetObject:                Virtual network object
+    $SubnetList:                List of all subnets on $VNetObject
+    $Subnet:                    Current item .ID
+    $NicList:                   List of all NICs on $Subnet if present
     $OpConfirm:                 Operator confirmation to remove the Vnet
     GetAzVirtualNetwork{}       Gets $VNetObject 
 } #>
@@ -36,9 +39,21 @@ function RemoveAzVirtualNetwork {                                               
             if (!$VNetObject) {                                                             # If $VNetObject is $null
                 Break RemoveAzureVnet                                                       # Breaks :RemoveAzureVnet
             }                                                                               # End if (!$VNetObject)
-            Write-Host 'Remove the following:'                                              # Write message to screen
-            Write-Host 'virtual network name:'$VNetObject.Name                              # Write message to screen
-            Write-Host 'resource group:      '$VNetObject.ResourceGroupName                 # Write message to screen
+            $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNetObject      # Creates a list of subnets on the $VNetObject
+            foreach ($_ in $SubnetList) {                                                   # For each item in $SubnetList
+                $Subnet = $_.ID                                                             # $Subnet equals $currentitem.ID
+                $NicList = Get-AzNetworkInterface | Where-Object `
+                    {$_.IpConfigurations.Subnet.ID -eq $Subnet}                             # Gets a list of NIC in $Subnet if present
+                if ($NicList) {                                                             # If $NicList has a value
+                    Write-Host 'Please remove all network interfaces'                       # Write message to screen
+                    Write-Host 'from this virtual network before deletion'                  # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureVnet                                                   # Breaks RemoveAzureVnet
+                }                                                                           # End if ($NicList)
+            }                                                                               # End foreach ($_ in $SubnetList)
+            Write-Host 'Remove VNet:   '$VNetObject.Name                                    # Write message to screen
+            Write-Host 'resource group:'$VNetObject.ResourceGroupName                       # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the selected VNet
             Clear-Host                                                                      # Clears screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
