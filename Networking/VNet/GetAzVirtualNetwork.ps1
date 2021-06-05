@@ -30,6 +30,13 @@ function GetAzVirtualNetwork {                                                  
     Begin {                                                                                 # Begin function
         :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
             $ObjectList = Get-AzVirtualNetwork                                              # pulls all items into list for selection
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No virtual networks present in this subscription'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureVnet                                                          # Breaks :GetAzureVnet
+            }                                                                               # End if (!$ObjectList)
             $ListNumber = 1                                                                 # $var used for selecting the virtual network
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
             foreach ($_ in $ObjectList) {                                                   # For each $_ in $RGListList
