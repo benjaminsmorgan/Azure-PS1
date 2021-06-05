@@ -13,8 +13,9 @@
 <# Variables: {
     :RemoveAzureNic             Outer loop for managing function
     $NicObject:                 Network interface object
+    $VM:                        $NicObject.VirtualMachine if present
     $CallingFunction:           Name of the current function
-    $OperatorConfirm:           Operator confirmation for removing the nic
+    $OpConfirm:                 Operator confirmation for removing the nic
     GetAzNetworkInterface{}     Get $NicObject
 } #>
 <# Process Flow {
@@ -22,7 +23,7 @@
         Call RemoveAzNetworkInterface > Get $null
             Call GetAzNetworkInterface > Get $NicObject
             End GetAzNetworkInterface
-                Return RemoveAzNetworkInterface > Send $NicObject
+                Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
         End RemoveAzNetworkInterface
             Return function > Send $null
 }#>
@@ -31,16 +32,24 @@ function RemoveAzNetworkInterface {                                             
         :RemoveAzureNic while ($true) {                                                     # Outer loop for managing function
             if (!$NicObject) {                                                              # If $NicObject does not have a value
                 $CallingFunction = 'RemoveAzNetworkInterface'                               # Sets $CallingFunction
-                $NicObject,$VnetObject,$SubnetObject = `
+                $NicObject,$SubnetObject,$VnetObject = `
                     GetAzNetworkInterface ($CallingFunction)                                # Calls function and assigns output to $var
                 if (!$NicObject) {                                                          # If $NicObject does not have a value
                     Break RemoveAzureNic                                                    # Breaks :RemoveAzureNic
                 }                                                                           # End if (!$NicObject)
             }                                                                               # End if (!$NicObject)
-            Write-Host 'Remove the network interface named:'$NicObject.name                 # Write message to screen
-            Write-Host 'from the resource group:'$NicObject.ResourceGroupName               # Write message to screen
-            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation to remove the Nic
-            if ($OperatorConfirm -eq 'y') {                                                 # If $OperatorConfirm equals 'y;
+            If ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value
+                $VM = $NicObject.VirtualMachine.Id                                          # Pulls the VM info into $VM
+                $VM = $VM.Split('/')[-1]                                                    # Isolates the attached VM name
+                Write-Host 'The selected NIC is attached to:'$VM                            # Write message to screen
+                Write-Host 'Unable to delete the NIC while attached'                        # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureNic                                                        # Breaks :RemoveAzureNic
+            }                                                                               # End If ($NicObject.VirtualMachine)
+            Write-Host 'Remove the NIC:'$NicObject.name                                     # Write message to screen
+            Write-Host 'Resource group:'$NicObject.ResourceGroupName                        # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the Nic
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y;
                 Try {                                                                       # Try the following
                     Remove-AzNetworkInterface -Name $NicObject.Name -ResourceGroupName `
                         $NicObject.ResourceGroupName -Force -ErrorAction 'Stop'             # Removes the selected NIC
@@ -52,11 +61,12 @@ function RemoveAzNetworkInterface {                                             
                 }                                                                           # End catch
                 Write-Host 'The selected Nic has been removed'                              # Write message to screen
                 Break RemoveAzureNic                                                        # Breaks :RemoveAzureNic
-            }                                                                               # End if ($OperatorConfirm -eq 'y')
-            else {                                                                          # All other inputs for $OperatorConfirm
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
                 Break RemoveAzureNic                                                        # Breaks :RemoveAzureNic
-            }                                                                               # End else (If ($OperatorConfirm -eq 'y'))
+            }                                                                               # End else (If ($OpConfirm -eq 'y'))
         }                                                                                   # End :RemoveAzureNic while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNetworkInterface
