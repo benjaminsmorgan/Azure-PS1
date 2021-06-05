@@ -29,7 +29,7 @@
     Function
         Call GetAzVNetSubnetConfig > Get $SubnetObject
         End GetAzVNetSubnetConfig
-            Return Function > Send $SubnetObject
+            Return Function > Send $SubnetObject, $VNetObject
 }#>
 function GetAzVNetSubnetConfig {                                                            # Function to get a subnet
     Begin{                                                                                  # Begin function
@@ -62,7 +62,8 @@ function GetAzVNetSubnetConfig {                                                
                     Write-Host "[$Number]"   $_.name                                        # Write message to screen
                     Write-Host 'Sub Prefix: '$_.PFX                                         # Write message to screen
                     Write-Host 'VNet Name:  '$_.Vnet                                        # Write message to screen
-                    Write-Host 'Vnet Prefix:'$_.VnetPFX                                     # Write message to screen
+                    Write-Host 'VNet Prefix:'$_.VnetPFX                                     # Write message to screen
+                    Write-Host 'VNet RG:    '$_.RG                                          # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)    
                 if ($CallingFunction) {                                                     # If $Calling function exists
