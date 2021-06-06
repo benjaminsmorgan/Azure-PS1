@@ -288,24 +288,31 @@ function ListAzNetworkInterface {                                               
                 $VNet = $_.Name                                                             # Sets $Vnet as the current object Vnet name
                 $VnetPFX = $_.AddressSpace.AddressPrefixes                                  # Sets $VnetPFX as the current object Vnet prefix
                 $VNetRG = $_.ResourceGroupName                                              # Sets $VnetRG as the current object Vnet resource group
-                Write-Host 'Gathering subnets in:'$VNet' | '$VNet                           # Write message to screen
+                Write-Host 'Gathering subnets in:'$VNet                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $_           # Creates a list of subnets on the current object vnet
                 foreach ($_ in $SubnetList) {                                               # For each item in $SubnetList
                     $Subnet = $_.ID                                                         # $Subnet equals $currentitem.ID
                     $SubnetName = $_.Name                                                   # Pulls $CurrentItem.Name into $var
                     $SubnetPFX = $_.AddressPrefix                                           # Pulls $CurrentItem.AddressPrefix nto $var
-                    Write-Host 'Gathering NICs in:'$SubnetName                              # Write message to screen
+                    Write-Host 'Gathering NICs in:   '$SubnetName                           # Write message to screen
                     $NicList = Get-AzNetworkInterface | Where-Object `
                         {$_.IpConfigurations.Subnet.ID -eq $Subnet}                         # Gets a list of all nics on subnet
+                    if (!$NicList) {                                                        # If $NicList is $null
+                        Write-Host 'No NICs present'                                        # Write message to screen
+                    }                                                                       # End if (!$NicList)
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
                         $ObjectInput = [PSCustomObject]@{
                             'NicName'=$_.Name;'NicRG'=$_.ResourceGroupName;`
                             'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;'VNetName'=$VNet;`
-                            'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;'VM'=$_.VirtualMachine.ID
+                            'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;'VM'=$_.VirtualMachine.ID;`
+                            'IPCon'=$_.IpConfigurations
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                     }                                                                       # End foreach ($_ in $NicList)
+                    Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $SubnetList)
+                Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $VnetList)
             Clear-Host                                                                      # Clears screen
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null
@@ -315,22 +322,32 @@ function ListAzNetworkInterface {                                               
                 Pause                                                                       # Pauses all actions for operator input
                 Break ListAzureNIC                                                          # Breaks :ListAzureNIC
             }                                                                               # End if (!$ObjectArray) 
+            Write-Host                                                                      # Write message to screen
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
-                Write-Host 'NIC Name:     '$_.NicName                                       # Write message to screen
-                Write-Host 'NIC RG:       '$_.NicRG                                         # Write message to screen
-                Write-Host 'Subnet Name:  '$_.Subname                                       # Write message to screen
-                Write-Host 'Subnet Prefix:'$_.SubPFX                                        # Write message to screen
-                Write-Host 'VNet Name:    '$_.VnetName                                      # Write message to screen
-                Write-Host 'VNet Prefix:  '$_.VnetPFX                                       # Write message to screen
-                Write-Host 'VNet RG:      '$_.VnetRG                                        # Write message to screen
+                Write-Host 'NIC Name:       '$_.NicName                                     # Write message to screen
+                foreach ($IP in $_.IPCon) {                                                 # For each item in .IPCon
+                    Write-Host 'IP Config Name: '$IP.Name                                   # Write message to screen
+                    Write-Host 'Private Address:'$IP.PrivateIpAddress                       # Write message to screen
+                    if ($IP.publicIPAddress) {                                              # If current item .PublicAddres has a value
+                        $PubID = $IP.publicIPAddress.ID                                     # Isolates the public IP sku ID
+                        $PubIP = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubID}    # Gets the public IP sku
+                        Write-Host 'Public Address: '$PubIP.IpAddress                       # Write message to screen
+                    }                                                                       # End if ($IP.PublicAddress)
+                }                                                                           # End foreach ($IP in $_.IPCon)
+                Write-Host 'NIC RG:         '$_.NicRG                                       # Write message to screen
+                Write-Host 'Subnet Name:    '$_.Subname                                     # Write message to screen
+                Write-Host 'Subnet Prefix:  '$_.SubPFX                                      # Write message to screen
+                Write-Host 'VNet Name:      '$_.VnetName                                    # Write message to screen
+                Write-Host 'VNet Prefix:    '$_.VnetPFX                                     # Write message to screen
+                Write-Host 'VNet RG:        '$_.VnetRG                                      # Write message to screen
                 if ($_.VM) {                                                                # If $_.VM has a value
                     $VM = $_.VM                                                             # VM is equal to current item .VM
                     $VM = $VM.Split('/')[-1]                                                # Collects the VM name
-                    Write-Host 'Attached VM:  '$VM                                          # Write message to screen
+                    Write-Host 'Attached VM:    '$VM                                        # Write message to screen
                     $VM = $null                                                             # Clears $VM                                            
                 }                                                                           # End if ($_.VM)
                 else {                                                                      # If $_.VM does not have a value
-                    Write-Host 'Attached VM:   N/A'                                         # Write message to screen
+                    Write-Host 'Attached VM:     N/A'                                       # Write message to screen
                 }                                                                           # End else (if ($_.VM))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
@@ -367,7 +384,7 @@ function GetAzNetworkInterface {                                                
                             'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
                             $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
                             'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID
+                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
@@ -375,31 +392,42 @@ function GetAzNetworkInterface {                                                
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
             Clear-Host                                                                      # Clears screen
+            Write-Host ''                                                                   # Write message to screen
             :SelectAzureNic while ($true) {                                                 # Inner loop for selecting the nic
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
                     $Number = $_.Number                                                     # $Number is equal to current item .number
                     if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]           "$_.NicName                         # Write message to screen
+                        Write-Host "[$Number]             "$_.NicName                       # Write message to screen
                     }                                                                       # End if ($Number -le 9)
                     else {                                                                  # If $Number is greater then 9
-                        Write-Host "[$Number]          "$_.NicName                          # Write message to screen
+                        Write-Host "[$Number]            "$_.NicName                        # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'NIC RG:       '$_.NicRG                                     # Write message to screen
-                    Write-Host 'Subnet Name:  '$_.Subname                                   # Write message to screen
-                    Write-Host 'Subnet Prefix:'$_.SubPFX                                    # Write message to screen
-                    Write-Host 'VNet Name:    '$_.VnetName                                  # Write message to screen
-                    Write-Host 'VNet Prefix:  '$_.VnetPFX                                   # Write message to screen
-                    Write-Host 'VNet RG:      '$_.VnetRG                                    # Write message to screen
+                    foreach ($IP in $_.IPCon) {                                             # For each item in .IPCon
+                        Write-Host 'IP Config Name: '$IP.Name                               # Write message to screen
+                        Write-Host 'Private Address:'$IP.PrivateIpAddress                   # Write message to screen
+                        if ($IP.publicIPAddress) {                                          # If current item .PublicAddres has a value
+                            $PubID = $IP.publicIPAddress.ID                                 # Isolates the public IP sku ID
+                            $PubIP = Get-AzPublicIpAddress | Where-Object `
+                                {$_.ID -eq $PubID}                                          # Gets the public IP sku
+                            Write-Host 'Public Address: '$PubIP.IpAddress                   # Write message to screen
+                        }                                                                   # End if ($IP.PublicAddress)
+                    }                                                                       # End foreach ($IP in $_.IPCon)
+                    Write-Host 'NIC RG:         '$_.NicRG                                   # Write message to screen
+                    Write-Host 'Subnet Name:    '$_.Subname                                 # Write message to screen
+                    Write-Host 'Subnet Prefix:  '$_.SubPFX                                  # Write message to screen
+                    Write-Host 'VNet Name:      '$_.VnetName                                # Write message to screen
+                    Write-Host 'VNet Prefix:    '$_.VnetPFX                                 # Write message to screen
+                    Write-Host 'VNet RG:        '$_.VnetRG                                  # Write message to screen
                     if ($_.VM) {                                                            # If $_.VM has a value
                         $VM = $_.VM                                                         # VM is equal to current item .VM
                         $VM = $VM.Split('/')[-1]                                            # Collects the VM name
-                        Write-Host 'Attached VM:  '$VM                                      # Write message to screen
+                        Write-Host 'Attached VM:    '$VM                                    # Write message to screen
                         $VM = $null                                                         # Clears $VM                                            
                     }                                                                       # End if ($_.VM)
                     else {                                                                  # If $_.VM does not have a value
-                        Write-Host 'Attached VM:   N/A'                                     # Write message to screen
+                        Write-Host 'Attached VM:     N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.VM))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
@@ -479,65 +507,47 @@ function RemoveAzNetworkInterface {                                             
 }                                                                                           # End function RemoveAzNetworkInterface
 function AddAzNICIpConfig {                                                                 # Function to add a NIC IP config
     Begin {                                                                                 # Begin function
-        :AddAzureNicIPConfig while ($true) {                                                # Outer loop for managing function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
             $CallingFunction = 'AddAzNICIpConfig'                                           # Sets $CallingFunction
-            if (!$NicObject) {                                                              # If $NicObject
-                :SelectAzureNic while ($true) {                                             # Inner loop for selecting a NIC
-                    Write-Host '[0] Exit'                                                   # Write message to screen
-                    Write-Host '[1] New NIC'                                                # Write message to screen
-                    Write-Host '[2] Existing NIC'                                           # Write message to screen
-                    $OperatorSelect = Read-Host 'Select [#] option'                         # Operator input for a new or existing NIC
-                    if ($OperatorSelect -eq '0') {                                          # If $OperatorSelect equals '0'
-                        Break AddAzureNICIpConfig                                           # Breaks :AddAzureNICIpConfig
-                    }                                                                       # End if ($OperatorSelect -eq '0')
-                    elseif ($OperatorSelect -eq '1') {                                      # Else if $OperatorSelect equals '1'
-                        $NicObject, $SubnetObject, $VnetObject = NewAzNetworkInterface `
-                            ($CallingFunction)                                              # Calls function and assigns output to $var
-                        if (!$NicObject -or !$SubnetObject -or !$VnetObject) {              # If $NicObject, $SubnetObject, or $VnetObject is $null
-                            Break AddAzureNICIpConfig                                       # Breaks :AddAzureNICIpConfig
-                        }                                                                   # End if (!$NicObject -or !$SubnetObject -or !$VnetObject)
-                        else {                                                              # If $NicObject, $SubnetObject, and $VnetObject have a value
-                            Break SelectAzureNic                                            # Breaks :SelectAzureNic
-                        }                                                                   # End else (if (!$NicObject -or !$SubnetObject -or !$VnetObject))
-                    }                                                                       # End elseif ($OperatorSelect -eq '1')
-                    elseif ($OperatorSelect -eq '2') {                                      # Else if $OperatorSelect equals '1'
-                        $NicObject, $SubnetObject, $VnetObject = GetAzNetworkInterface `
-                            ($CallingFunction)                                              # Calls function and assigns output to $var
-                        if (!$NicObject -or !$SubnetObject -or !$VnetObject) {              # If $NicObject, $SubnetObject, or $VnetObject is $null
-                            Break AddAzureNICIpConfig                                       # Breaks :AddAzureNICIpConfig
-                        }                                                                   # End if (!$NicObject -or !$SubnetObject -or !$VnetObject)
-                        else {                                                              # If $NicObject, $SubnetObject, and $VnetObject have a value
-                            Break SelectAzureNic                                            # Breaks :SelectAzureNic
-                        }                                                                   # End else (if (!$NicObject -or !$SubnetObject -or !$VnetObject))
-                    }                                                                       # End elseif ($OperatorSelect -eq '2')
-                    else {                                                                  # All other inputs for $OperatorSelect
-                        Write-Host 'That was not a valid option'                            # Write message to screen
-                    }                                                                       # End else (if ($OperatorSelect -eq '0'))
-                }                                                                           # Inner loop for selecting a new or existing nic
+        }                                                                                   # End if (!$CallingFunction)
+        :AddAzureNicIPConfig while ($true) {                                                # Outer loop for managing function
+            $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface ($CallingFunction) # Calls function and assigns output to $var
+            if (!$NicObject) {                                                              # If $NicObject is $null
+                Break AddAzureNICIpConfig                                                   # Breaks :AddAzureNICIpConfig
             }                                                                               # End if (!$NicObject)
             :SetAzureIPConfigName while ($true) {                                           # Inner loop for setting the new IP config name
-                $NicIPConfigName = Read-Host 'Please enter the name of the IP config name'  # Operator input for the new IP config name
-                if ($NicIPConfigName -eq 'exit') {                                          # If $NicIPConfigName
-                    Break AddAzureNicIPConfig                                               # Breaks :AddAzureNicIPConfig
-                }                                                                           # End if ($NicIPConfigName -eq 'exit')
-                Write-Host 'Use'$NicIPConfigName                                            # Write message to screen
-                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation of the IP config name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                Write-Host 'Please enter the name of the IP config name'                    # Write message to screen
+                $NicIPConfigName = Read-Host 'Name'                                         # Operator input for the new IP config name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$NicIPConfigName' as the IP name'                          # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the IP config name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureIPConfigName                                              # Breaks :SetAzureIPConfigName  
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                elseif ($OpConfirm -eq 'e') {                                               # Else if $OpConfirm equals 'e'
+                    Break AddAzureNICIpConfig                                               # Breaks :AddAzureNICIpConfig
+                }                                                                           # End elseif ($OpConfirm -eq 'e')
             }                                                                               # End :SetAzureIPConfigName while ($true)
             Try {                                                                           # Try the following
+                Write-Host 'Addinging the IP config'                                        # Write message to screen
                 Add-AzNetworkInterfaceIpConfig -Name $NicIPConfigName -NetworkInterface `
                     $NicObject -SubnetId $SubnetObject.ID                                   # Adds the new config
                 $NicObject | Set-AzNetworkInterface                                         # Saves the changes
             }                                                                               # End try
             catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to the screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break AddAzureNicIPConfig                                                   # Breaks :AddAzureNicIPConfig
             }                                                                               # End catch
-            Return $NicObject                                                               # Returns $NicObject to calling function
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'IP config has been added to:'$NicObject.Name                        # Write message to the screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break AddAzureNicIPConfig                                                       # Breaks :AddAzureNicIPConfig
         }                                                                                   # End :AddAzureNicIPConfig while ($true)
-        return                                                                              # Returns to calling function with $null 
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null 
     }                                                                                       # End Begin
 }                                                                                           # End function AddAzNICIpConfig
 function ListAzNICIpConfig {                                                                # Function to list NIC IP configs
@@ -978,41 +988,99 @@ function GetAzPublicIpAddress {                                                 
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzPublicIpAddress
-function GetAzResourceGroup {                                                               # Function to get a resource group, can pipe $RGObject to another function
+# Additional functions required for ManageAzNetworkInterface
+function GetAzLocation {                                                                    # Function to get azure location
+    Begin {                                                                                 # Begin function
+        :GetAzureLocation while ($true) {                                                   # Outer loop for managing function
+            $ListObject = Get-AzLocation                                                    # Gets a list of all Azure locations
+            $ListNumber = 1                                                                 # $Var for selecting the location
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
+            foreach ($_ in $ListObject) {                                                   # For each $_ in $ListObject
+                $ListInput = [PSCustomObject]@{'Number' = $ListNumber; 'Location' `
+                = $_.DisplayName}                                                           # Creates the item to load into array
+                $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
+            }                                                                               # End foreach ($_ in $ListObject)
+            :SelectAzureLocation while ($true) {                                            # Inner loop for selecting location from list
+                Write-Host '[0]   Exit'                                                     # Write message to screen
+                foreach ($_ in $ListArray) {                                                # For each $_ in $ListArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $number is 9 or less
+                        Write-Host "[$Number]  "$_.Location                                 # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # If $Number is more than 9
+                        Write-Host "[$Number] "$_.Location                                  # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                }                                                                           # End foreach ($_ in $ListArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host 'You are selecting the location for:'$CallingFunction        # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect is '0'
+                    Break GetAzureLocation                                                  # Breaks :GetAzureLocation
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ListArray.Number) {                                  # If $OpSelect in $ListArray.Number
+                    $OpSelect = $ListArray | Where-Object {$_.Number -eq $OpSelect}         # OpSelect is equal to $ListArray where $OpSelect equals $ListArray.Number
+                    $LocationObject = Get-AzLocation | Where-Object {$_.DisplayName `
+                        -eq $OpSelect.Location} -ErrorAction 'Stop'                         # Pulls the full $LocationObject
+                    Return $LocationObject                                                  # Returns $LocationObject to calling function
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number) 
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen   
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureLocation while ($true)
+        }                                                                                   # End :GetAzureLocation while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns with $null 
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzLocation
+function GetAzResourceGroup {                                                               # Function to get a resource group
     Begin {                                                                                 # Begin function
         $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
         :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
-            $RGList = Get-AzResourceGroup                                                   # Gets all resource groups and assigns to $RGList
-            $RGListNumber = 1                                                               # Sets $RGListNumber to 1
-            [System.Collections.ArrayList]$RGListArray = @()                                # Creates the RG list array
-            foreach ($_ in $RGList) {                                                       # For each $_ in $RGListList
-                $RGListInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
-                    'Number' = $RGListNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
-                $RGListArray.Add($RGListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
-                $RGListNumber = $RGListNumber + 1                                           # Increments $RGListNumber by 1
-            }                                                                               # End foreach ($_ in $RGList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            foreach ($_ in $RGListArray) {                                                  # For each $_ in $RGListArray
-                Write-Host $_.Number $_.Name "|" $_.Location                                # Writes RG number, name, and location to screen
-            }                                                                               # End foreach ($_ in $RGListArray)
-            :SelectAzureRGList while ($true) {                                              # Inner loop to select the resource group
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name '|' $_.Location                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name '|' $_.Location                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction exists
-                    Write-Host "You are selecting the resource group for"$CallingFunction   # Write message to screen
+                    Write-Host 'You are selecting the resource group for:'$CallingFunction  # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                $RGSelect = Read-Host "Enter the resource group number"                     # Operator input for the RG selection
-                if ($RGSelect -eq '0') {                                                    # If $RGSelect equals 0
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
-                }                                                                           # End if ($RGSelect -eq '0')
-                $RGSelect = $RGListArray | Where-Object {$_.Number -eq $RGSelect}           # $RGSelect is equal to $RGArray where $RGArray.Number is equal to $RGSelect                                  
-                $RGObject = Get-AzResourceGroup | Where-Object `
-                    {$_.ResourceGroupName -eq $RGSelect.Name}                               # Pulls the full resource group object
-                if ($RGObject) {                                                            # If $RGObject has a value
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $OpSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
                     Return $RGObject                                                        # Returns to calling function with $RGObject
-                }                                                                           # End if ($RGObject)
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number)
                 else {                                                                      # If $RGObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
                 }                                                                           # End else (if ($RGObject))
-            }                                                                               # End :SelectAzureRGList while ($true)
+            }                                                                               # End :SelectAzureObjectList while ($true)
         }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzResourceGroup
