@@ -26,6 +26,8 @@
     $NicList:                   List of all nics under the current subnet
     $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .Number, used for formatting
+    $PubID:                     Current item .PublicIPAddress.ID
+    $PubIP:                     Public IP sku object 
     $VM:                        Current item .VM, used for formatting
     $CallingFunction:           Name of the function that called this function
     $OpSelect:                  Operator input to select the nic
@@ -65,7 +67,7 @@ function GetAzNetworkInterface {                                                
                             'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
                             $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
                             'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID
+                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
@@ -73,31 +75,42 @@ function GetAzNetworkInterface {                                                
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
             Clear-Host                                                                      # Clears screen
+            Write-Host ''                                                                   # Write message to screen
             :SelectAzureNic while ($true) {                                                 # Inner loop for selecting the nic
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
                     $Number = $_.Number                                                     # $Number is equal to current item .number
                     if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]           "$_.NicName                         # Write message to screen
+                        Write-Host "[$Number]             "$_.NicName                       # Write message to screen
                     }                                                                       # End if ($Number -le 9)
                     else {                                                                  # If $Number is greater then 9
-                        Write-Host "[$Number]          "$_.NicName                          # Write message to screen
+                        Write-Host "[$Number]            "$_.NicName                        # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'NIC RG:       '$_.NicRG                                     # Write message to screen
-                    Write-Host 'Subnet Name:  '$_.Subname                                   # Write message to screen
-                    Write-Host 'Subnet Prefix:'$_.SubPFX                                    # Write message to screen
-                    Write-Host 'VNet Name:    '$_.VnetName                                  # Write message to screen
-                    Write-Host 'VNet Prefix:  '$_.VnetPFX                                   # Write message to screen
-                    Write-Host 'VNet RG:      '$_.VnetRG                                    # Write message to screen
+                    foreach ($IP in $_.IPCon) {                                             # For each item in .IPCon
+                        Write-Host 'IP Config Name: '$IP.Name                               # Write message to screen
+                        Write-Host 'Private Address:'$IP.PrivateIpAddress                   # Write message to screen
+                        if ($IP.publicIPAddress) {                                          # If current item .PublicAddres has a value
+                            $PubID = $IP.publicIPAddress.ID                                 # Isolates the public IP sku ID
+                            $PubIP = Get-AzPublicIpAddress | Where-Object `
+                                {$_.ID -eq $PubID}                                          # Gets the public IP sku
+                            Write-Host 'Public Address: '$PubIP.IpAddress                   # Write message to screen
+                        }                                                                   # End if ($IP.PublicAddress)
+                    }                                                                       # End foreach ($IP in $_.IPCon)
+                    Write-Host 'NIC RG:         '$_.NicRG                                   # Write message to screen
+                    Write-Host 'Subnet Name:    '$_.Subname                                 # Write message to screen
+                    Write-Host 'Subnet Prefix:  '$_.SubPFX                                  # Write message to screen
+                    Write-Host 'VNet Name:      '$_.VnetName                                # Write message to screen
+                    Write-Host 'VNet Prefix:    '$_.VnetPFX                                 # Write message to screen
+                    Write-Host 'VNet RG:        '$_.VnetRG                                  # Write message to screen
                     if ($_.VM) {                                                            # If $_.VM has a value
                         $VM = $_.VM                                                         # VM is equal to current item .VM
                         $VM = $VM.Split('/')[-1]                                            # Collects the VM name
-                        Write-Host 'Attached VM:  '$VM                                      # Write message to screen
+                        Write-Host 'Attached VM:    '$VM                                    # Write message to screen
                         $VM = $null                                                         # Clears $VM                                            
                     }                                                                       # End if ($_.VM)
                     else {                                                                  # If $_.VM does not have a value
-                        Write-Host 'Attached VM:   N/A'                                     # Write message to screen
+                        Write-Host 'Attached VM:     N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.VM))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
