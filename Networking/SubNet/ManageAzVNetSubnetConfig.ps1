@@ -16,31 +16,31 @@
     AddAzVNetSubnetConfig:      Adds an azure virtual network subnet
     GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
     RemoveAzVNetSubnetConfig:   Removes an azure virtual network subnet
-    GetAzVirtualNetwork:        Gets an azure virtual network
+    GetAzVirtualNetwork:        Gets a virutal network
 } #>
 <# Variables: {
     :ManageAzureSubnet          Outer loop for managing function
     $VNetObject:                Virtual network object
     $SubnetObject:              Subnet object
-    $OpSelect:            Operator input for selecting function
+    $OpSelect:                  Operator input for selecting function
     AddAzVNetSubnetConfig{}     Creates $SubnetObject
         GetAzVirtualNetwork{}       Gets $VnetObject
-    GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
+    ListAzVNetSubnetConfig{}    Lists subnets
     RemoveAzVNetSubnetConfig{}  Removes $SubnetObject
         GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
 } #>
 <# Process Flow {
     Function
-        Call ManageAzVnetSubnetConfig > Get $SubnetObject
-            Call AddAzVNetSubnetConfig > Get $SubnetObject
+        Call ManageAzVnetSubnetConfig > Get $null
+            Call AddAzVNetSubnetConfig > Get $null
                 Call GetAzVirtualNetwork > Get $VNetObject
                 End GetAzVirtualNetwork
                     Return AddAzVNetSubnetConfig > Send $VNetObject
             End AddAzVNetSubnetConfig
-                Return ManageAzVnetSubnetConfig > Send $SubnetObject
-            Call GetAzVNetSubnetConfig > Get $SubnetObject
-            End GetAzVNetSubnetConfig
-                Return ManageAzVnetSubnetConfig > Send $SubnetObject
+                Return ManageAzVnetSubnetConfig > Send $null
+            Call ListAzVNetSubnetConfig > Get $null
+            End ListAzVNetSubnetConfig
+                Return ManageAzVnetSubnetConfig > Send $null
             Call RemoveAzVNetSubnetConfig > Get $null
                 Call GetAzVNetSubnetConfig > Get $SubnetObject
                 End GetAzVNetSubnetConfig
@@ -164,24 +164,23 @@ function ListAzVNetSubnetConfig {                                               
                 Pause                                                                       # Pauses all actions for operator input
                 Break ListAzureSubnet                                                       # Breaks :ListAzureSubnet 
             }                                                                               # End if (!$ObjectList)
-            Write-Host 'Gathering subnets, this may take a moment'                          # Write message to screen
             [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
             foreach ($_ in $ObjectList) {                                                   # For each object in $ObjectList
                 $VNet = $_.Name                                                             # Sets $Vnet as the current object Vnet name
                 $VnetPFX = $_.AddressSpace.AddressPrefixes                                  # Sets $VnetPFX as the current object Vnet prefix
                 $VNetRG = $_.ResourceGroupName                                              # Sets $VnetRG as the current object Vnet resource group
                 $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $_           # Creates a list of subnets on the current object vnet
+                Write-Host 'Gathering subnets in:'$VNet                                     # Write message to screen
                 if (!$SubnetList) {                                                         # If $SubnetList is $null
-                    Write-Host ''                                                           # Write message to screen
                     Write-Host 'No Subnets present in:'$VNet                                # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if (!$SubnetList)
                 foreach ($_ in $SubnetList) {                                               # For each $_ in $SubnetList
                     $ListInput = [PSCustomObject]@{
                         'Name'=$_.Name;'Vnet'=$VNet;'PFX'=$_.AddressPrefix;`
                         'VnetPFX'=$VnetPFX;'RG'=$VNetRG}                                    # Creates the item to loaded into array
                     $ObjectArray.Add($ListInput) | Out-Null                                 # Loads item into array, out-null removes write to screen
-                }                                                                           # End foreach ($_ in $SubnetList)                                        
+                }                                                                           # End foreach ($_ in $SubnetList)
+                Write-Host ''                                                               # Write message to screen                                        
             }                                                                               # End foreach ($_ in $ObjectList)
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null
                 Clear-Host                                                                  # Clears screen
@@ -272,33 +271,54 @@ function GetAzVNetSubnetConfig {                                                
 function RemoveAzVNetSubnetConfig {                                                         # Function to remove a subnet
     Begin {                                                                                 # Begin function
         :RemoveAzureSubnet while ($true) {                                                  # Outer loop for managing function
+            $SubnetObject, $VNetObject = GetAzVNetSubnetConfig                              # Call function and assign output to $var
             if (!$SubnetObject) {                                                           # If $SubnetObject is $null
-                $SubnetObject, $VNetObject = GetAzVNetSubnetConfig                          # Call function and assign output to $var
-                if (!$SubnetObject) {                                                       # If $SubnetObject is $null
-                    Break RemoveAzureSubnet                                                 # Breaks :RemoveAzureSubnet
-                }                                                                           # End if (!$SubnetObject)
+                Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
             }                                                                               # End if (!$SubnetObject)
-            Write-Host 'Remove the subnet'$SubnetObject.Name                                # Write message to screen
-            $OpConfirm = Read-Host '[Y] or [N]'                                       # Operator confirmation for removing the subnet
-            if ($OpConfirm -eq 'y') {                                                 # If $OpConfirm equals 'y'
+            $NICList = Get-AzNetworkInterface | Where-Object `
+                {$_.IpConfigurations.Subnet.ID -eq $SubnetObject.ID}                        # Gets a list of all NICs on this subnet if present
+            if ($NICList) {                                                                 # If $NICList has a value
+                Write-Host 'This subnet cannot be deleted'                                  # Write message to screen
+                Write-Host 'until all NICs are removed from it'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
+            }                                                                               # End if ($NICList)
+            Write-Host 'Remove Subnet: '$SubnetObject.Name                                  # Write message to screen
+            Write-Host 'From VNet:     '$VNetObject.Name                                    # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation for removing the subnet
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
+                    Write-Host 'Removing subnet:'$SubnetObject.Name                         # Write message to screen
                     Remove-AzVirtualNetworkSubnetConfig -Name $SubnetObject.Name `
                         -VirtualNetwork $VNetObject | Set-AzVirtualNetwork `
                         -ErrorAction 'Stop'                                                 # Removes the subnet
                 }                                                                           # End try
                 catch {                                                                     # If try fails
+                    Clear-Host                                                              # Clears screen
                     write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
                     Break RemoveAzureSubnet                                                 # Breaks :RemoveAzureSubnet
                 }                                                                           # End catch
-                Write-Host 'The subnet has been removed'                                    # Write message to screen
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The subnet:'$SubnetObject.Name' has been removed'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
             }                                                                               # End if ($OpConfirm -eq 'y') 
             else {                                                                          # If $OpConfirm does not equal 'y'
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureSubnet                                                     # Breaks :RemoveAzureSubnet
             }                                                                               # End else (if ($OpConfirm -eq 'y'))
         }                                                                                   # End :RemoveAzureSubnet while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVNetSubnetConfig
 # Additional functions required for ManageAzVNetSubnetConfig
