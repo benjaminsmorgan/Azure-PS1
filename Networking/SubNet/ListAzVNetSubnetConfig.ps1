@@ -38,24 +38,23 @@ function ListAzVNetSubnetConfig {                                               
                 Pause                                                                       # Pauses all actions for operator input
                 Break ListAzureSubnet                                                       # Breaks :ListAzureSubnet 
             }                                                                               # End if (!$ObjectList)
-            Write-Host 'Gathering subnets, this may take a moment'                          # Write message to screen
             [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
             foreach ($_ in $ObjectList) {                                                   # For each object in $ObjectList
                 $VNet = $_.Name                                                             # Sets $Vnet as the current object Vnet name
                 $VnetPFX = $_.AddressSpace.AddressPrefixes                                  # Sets $VnetPFX as the current object Vnet prefix
                 $VNetRG = $_.ResourceGroupName                                              # Sets $VnetRG as the current object Vnet resource group
                 $SubnetList = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $_           # Creates a list of subnets on the current object vnet
+                Write-Host 'Gathering subnets in:'$VNet                                     # Write message to screen
                 if (!$SubnetList) {                                                         # If $SubnetList is $null
-                    Write-Host ''                                                           # Write message to screen
                     Write-Host 'No Subnets present in:'$VNet                                # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if (!$SubnetList)
                 foreach ($_ in $SubnetList) {                                               # For each $_ in $SubnetList
                     $ListInput = [PSCustomObject]@{
                         'Name'=$_.Name;'Vnet'=$VNet;'PFX'=$_.AddressPrefix;`
                         'VnetPFX'=$VnetPFX;'RG'=$VNetRG}                                    # Creates the item to loaded into array
                     $ObjectArray.Add($ListInput) | Out-Null                                 # Loads item into array, out-null removes write to screen
-                }                                                                           # End foreach ($_ in $SubnetList)                                        
+                }                                                                           # End foreach ($_ in $SubnetList)
+                Write-Host ''                                                               # Write message to screen                                        
             }                                                                               # End foreach ($_ in $ObjectList)
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null
                 Clear-Host                                                                  # Clears screen
