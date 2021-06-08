@@ -11,13 +11,13 @@
 <# Variables: {      
     :GetAzurePublicIP           Outer loop for managing function
     :SelectAzurePublicIP        Inner loop for selecting the public IP
-    $PublicIPList:              List of all public IP objects
-    $PublicIPArray:             Array used to select the public IP
-    $PublicIPNumber:            List number used for selection
-    $PublicIPInput:             $var used to load items into array
+    $ObjectList:                List of all public IP objects
+    $ObjectArray:               Array used to select the public IP
+    $ObjectNumber:              List number used for selection
+    $ObjectInput:               $var used to load items into array
     $CallingFunction:           Name of the function that called this function
     $Number:                    Current item .Number, used for formatting output
-    $SelectPublicIP:            Operator input for IP selection
+    $OpSelect:                  Operator input for IP selection
     $PublicIPObject:            Public IP object
 } #>
 <# Process Flow {
@@ -29,64 +29,62 @@
 function GetAzPublicIpAddress {                                                             # Function for getting a public IP sku
     Begin {                                                                                 # Begin function
         :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
-            $PublicIPList = Get-AzPublicIpAddress                                           # Gets a list of all public IP address
-            [System.Collections.ArrayList]$PublicIPArray = @()                              # Creates array for list to be loaded into
-            $PublicIPNumber = 1                                                             # Creates #var used for list selection
-            foreach ($_ in $PublicIPList) {                                                 # For each item in list
+            $ObjectList = Get-AzPublicIpAddress                                             # Gets a list of all public IP address
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates array for list to be loaded into
+            $ObjectNumber = 1                                                               # Creates #var used for list selection
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 if ($_.IpConfiguration.Id) {                                                # If current item .IpConfiguration.Id has a value
                     $AttachedNIC = ($_.IpConfiguration.Id).Split('/')[-3]                   # Gets the attached NIC name
                     $AttachedNICIPConfig = ($_.IpConfiguration.Id).Split('/')[-1]           # Gets the attached NIC IP config name
                 }                                                                           # End if ($_.IpConfiguration.Id) 
-                $PublicIPInput = [PSCustomObject]@{'Number'=$PublicIPNumber;`
+                $ObjectInput = [PSCustomObject]@{'Number'=$ObjectNumber;`
                     'Name' = $_.Name;'RG'=$_.ResourceGroupName;'Sku'=$_.Sku.Name;`
                     'Allocation'=$_.PublicIpAllocationMethod;'Address'=$_.IPAddress;'NIC'=`
                     $AttachedNIC;'IPconfig'=$AttachedNICIPConfig}                           # Creates the item to loaded into array
-                $PublicIPArray.Add($PublicIPInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                $PublicIPNumber = $PublicIPNumber + 1                                       # Increments $var up by 1
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $var up by 1
                 $AttachedNIC = $null                                                        # Clears $var
                 $AttachedNICIPConfig = $null                                                # Clears $var
-            }                                                                               # End foreach ($_ in $PublicIPArray)
-            Write-Host "[0] to exit"                                                        # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            foreach ($_ in $PublicIPArray) {                                                # For each item in list
-                $Number = $_.Number                                                         # Creats $Number (Used for formating)
-                Write-Host "[$Number]         "$_.Name                                      # Write message to screen
-                Write-Host "RG Name:    "$_.RG                                              # Write message to screen
-                Write-Host "Allocation: "$_.Allocation                                      # Write message to screen
-                Write-Host "IP Address: "$_.address                                         # Write message to screen
-                Write-Host "SKU Type:   "$_.Sku                                             # Write message to screen
-                if ($_.Nic) {                                                               # If current item .Nic has a value
-                    Write-Host "NIC Name:   "$_.Nic                                         # Write message to screen
-                    Write-Host "NIC Config: "$_.IPConfig                                    # Write message to screen
-                }                                                                           # End if ($_.Nic)                                 
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $PublicIPArray) 
+            }                                                                               # End foreach ($_ in $ObjectList)
             :SelectAzurePublicIP while ($true) {                                            # Inner loop for selecting the public IP
+                Write-Host "[0] Exit"                                                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # Creats $Number (Used for formating)
+                    Write-Host "[$Number]         "$_.Name                                  # Write message to screen
+                    Write-Host 'RG Name:    '$_.RG                                          # Write message to screen
+                    Write-Host 'Allocation: '$_.Allocation                                  # Write message to screen
+                    Write-Host 'IP Address: '$_.address                                     # Write message to screen
+                    Write-Host 'SKU Type:   '$_.Sku                                         # Write message to screen
+                    if ($_.Nic) {                                                           # If current item .Nic has a value
+                        Write-Host 'NIC Name:   '$_.Nic                                     # Write message to screen
+                        Write-Host 'NIC Config: '$_.IPConfig                                # Write message to screen
+                    }                                                                       # End if ($_.Nic)                                 
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray) 
                 if ($CallingFunction) {                                                     # If $Calling function has a value
                     Write-Host 'You are selecting the Public IP Sku for:'$CallingFunction   # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                $SelectPublicIP = Read-Host "Enter the list number for public IP"           # Operator input for the public IP selection
-                if ($SelectPublicIP -eq '0') {                                              # If $var equals 0
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the public IP selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $var equals 0
                     Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
-                }                                                                           # End if ($SelectPublicIP -eq '0')
-                elseif ($SelectPublicIP -in $PublicIPArray.Number) {                        # If $SelectPublicIP in $PublicIPArray.Number list
-                    $SelectPublicIP = $PublicIPArray | Where-Object `
-                        {$_.Number -eq $SelectPublicIP}                                     # SelectPublicIP is equal to $PublicIPArray where $PublicIPArray.Number equals $SelectPublicIP
-                    $PublicIPObject = Get-AzPublicIpAddress -Name $SelectPublicIP.Name `
-                        -ResourceGroupName $SelectPublicIP.RG                               # Pulls $PublicIPObject
-                    if ($PublicIPObject) {                                                  # If $PublicIPObject has a value
-                        Return $PublicIPObject                                              # Returns to calling function with $PublicIPObject
-                    }                                                                       # End if ($PublicIPObject)
-                    else {                                                                  # If $PublicIPObject is $null
-                        Write-Host "An error has occured"                                   # Write message to screen
-                        Break GetAzurePublicIP                                              # Breaks :GetAzurePublicIP
-                    }                                                                       # End else (if ($PublicIPObject))
-                }                                                                           # End elseif ($SelectPublicIP -in $PublicIPArray.Number)
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number list
+                    $OpSelect = $ObjectArray | Where-Object `
+                        {$_.Number -eq $OpSelect}                                           # $OpSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $PublicIPObject = Get-AzPublicIpAddress -Name $OpSelect.Name `
+                        -ResourceGroupName $OpSelect.RG                                     # Pulls $PublicIPObject
+                    Return $PublicIPObject                                                  # Returns to calling function with $PublicIPObject
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other values
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($SelectPublicIP -eq '0'))
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzurePublicIP while ($true)
         }                                                                                   # End :GetAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzPublicIpAddress
