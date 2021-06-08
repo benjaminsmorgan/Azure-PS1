@@ -45,6 +45,7 @@ function GetAzNICIpConfig {                                                     
                     $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput
                         'Number'=$ObjectNumber;'Name'=$_.Name;`
                         'PrivIP'=$_.PrivateIPAddress;`
+                        'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
                         'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
                         'NICName'=$NICName;'NICRG'=$NicRG                                   # Collects the information for the array
                     }                                                                       # End $ObjectInput = [PSCustomObject]
@@ -58,19 +59,21 @@ function GetAzNICIpConfig {                                                     
                 foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
                     $Number = $_.Number                                                     # $Number is equal to current item .Number
                     if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]                "$_.Name                       # Write message to screen
+                        Write-Host "[$Number]                   "$_.Name                    # Write message to screen
                     }                                                                       # End if ($Number -le 9)
                     else {                                                                  # If $Number is more than 9
-                        Write-Host "[$Number]               "$_.Name                        # Write message to screen
+                        Write-Host "[$Number]                  "$_.Name                     # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'Private IP Address:'$_.PrivIP                               # Write message to screen
+                    Write-Host 'Private IP Address:   '$_.PrivIP                            # Write message to screen 
+                    Write-Host 'Private IP Allocation:'$_.PrivIPAllo                        # Write message to screen
                     if ($_.PubIP) {                                                         # If current item .PubIP has a value
                         $PubID = $_.PubIP.ID                                                # Isolates the public IP sku ID
                         $PubIP = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubID}    # Gets the public IP sku
-                        Write-Host 'Public IP Address: '$PubIP.IpAddress                    # Write message to screen
+                        Write-Host 'Public IP Address:    '$PubIP.IpAddress                 # Write message to screen
+                        Write-Host 'Public IP Allocation: '$PubIP.PublicIpAllocationMethod  # Write message to screen
                     }                                                                       # End if ($_.PubIP)
-                    Write-Host 'Is primary:        '$_.Pri                                  # Write message to screen
-                    Write-Host 'Nic Name:          '$_.NicName                              # Write message to screen
+                    Write-Host 'Is primary:           '$_.Pri                               # Write message to screen
+                    Write-Host 'Nic Name:             '$_.NicName                           # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
