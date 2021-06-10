@@ -1,6 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Set-AzNetworkInterfaceIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.0.0
+    Set-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
     Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
 } #>
 <# Required Functions Links: {
@@ -9,6 +10,8 @@
 } #>
 <# Functions Description: {
     SetAzNICIpConfigPublicIP:   Adds a public IP sku to a network interface config
+    GetAzNICIpConfig:           Gets a network interface IP config
+    GetAzPublicIpAddress:       Gets a public IP address sku  
 } #>
 <# Variables: {      
     :SetAzureNICIpConfig        Outer loop for managing function
@@ -31,12 +34,12 @@
         End SetAzNICIpConfigPublicIP
             Return SetAzNICIpConfigPublicIP > Send $null
 }#>
-function SetAzNICIpConfigPublicIP {                                                         # Function to add a public IP sku to a network interface config
+function SetAzNICIpConPublicIP {                                                            # Function to change the config public IP
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzNICIpConPublicIP'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
-            }                                                                               # End if (!$CallingFunction)
             $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
@@ -45,11 +48,24 @@ function SetAzNICIpConfigPublicIP {                                             
             if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$PublicIPObject)
+            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
+                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
+                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
+                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
+                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicObject.VirtualMachine)
             Try {                                                                           # Try the following
                 $NicObject | Set-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
                     -PublicIpAddressId $PublicIPObject.ID -SubnetId `
-                    $NicIPConfigObject.Subnet.ID -ErrorAction 'Stop'                        # Adds $PublicIPObject to $NicIPConfigObject
-                $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop'                     # Saves $NicObject config
+                    $NicIPConfigObject.Subnet.ID -ErrorAction 'Stop' | Out-Null             # Adds $PublicIPObject to $NicIPConfigObject
+                $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-Null          # Saves $NicObject config
             }                                                                               # End try
             catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
@@ -64,4 +80,4 @@ function SetAzNICIpConfigPublicIP {                                             
         Clear-Host                                                                          # Clears screen
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function SetAzNICIpConfigPublicIP
+}                                                                                           # End function SetAzNICIpConPublicIP
