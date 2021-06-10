@@ -942,7 +942,7 @@ function ManageAzNetworkInterface {                                             
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Elseif $OpSelect equals 4
                 Write-Host 'Manage NIC IP config'                                           # Write message to screen
-                ManageAddAzNICIpConfig                                                      # Calls function
+                ManageAzNICIpConfig                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect     
                 Write-Host 'That was not a valid input'                                     # Write message to screen
@@ -1249,7 +1249,7 @@ function RemoveAzNetworkInterface {                                             
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNetworkInterface
 # Functions for ManageAddAzNICIpConfig
-function ManageAddAzNICIpConfig {                                                           # Function for managing azure nic ip configs
+function ManageAzNICIpConfig {                                                              # Function for managing azure nic ip configs
     Begin {                                                                                 # Begin function   
         :ManageAzureNicIPConfig while ($true) {                                             # Outer loop for managing function
             Write-Host 'Azure Nic IP Config Management'                                     # Write message to screen
@@ -1258,8 +1258,9 @@ function ManageAddAzNICIpConfig {                                               
             Write-Host '[2] List Nic IP Configs'                                            # Write message to screen
             Write-Host '[3] Remove Nic IP Config'                                           # Write message to screen
             Write-Host '[4] Change Private IP Config'                                       # Write message to screen
-            Write-Host '[5] Add NIC Public IP config'                                       # Write message to screen
-            Write-Host '[6] Remove NIC Public IP config'                                    # Write message to screen
+            Write-Host '[5] Change Primary IP Config'                                       # Write message to screen
+            Write-Host '[6] Add NIC Public IP config'                                       # Write message to screen
+            Write-Host '[7] Remove NIC Public IP config'                                    # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
@@ -1282,13 +1283,17 @@ function ManageAddAzNICIpConfig {                                               
                 SetAzNICIpConfig                                                            # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Elseif $OpSelect equals '5'
-                Write-Host 'Add NIC Public IP config'                                       # Write message to screen
-                SetAzNICIpConPublicIP                                                       # Calls function 
+                Write-Host 'Change Primary IP Config'                                       # Write message to screen
+                SetAzNICPriIPConfig                                                         # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '5')
             elseif ($OpSelect -eq '6') {                                                    # Elseif $OpSelect equals '6'
+                Write-Host 'Add NIC Public IP config'                                       # Write message to screen
+                SetAzNICIpConPublicIP                                                       # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            elseif ($OpSelect -eq '7') {                                                    # Elseif $OpSelect equals '7'
                 Write-Host 'Remove NIC Public IP config'                                    # Write message to screen
                 RemoveAzNICIpConPublicIP                                                    # Calls function 
-            }                                                                               # End elseif ($OpSelect -eq '6')
+            }                                                                               # End elseif ($OpSelect -eq '7')
             else {                                                                          # All other inputs for $OpSelect     
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
@@ -1298,7 +1303,7 @@ function ManageAddAzNICIpConfig {                                               
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function ManageAddAzNICIpConfig
+}                                                                                           # End function ManageAzNICIpConfig
 function AddAzNICIpConfig {                                                                 # Function to add a NIC IP config
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -1483,16 +1488,29 @@ function GetAzNICIpConfig {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzNICIpConfig
-function SetAzNICIpConfig {                                                                 # Function to add a NIC IP config
+function SetAzNICIpConfig {                                                                 # Function to add change the config private IP
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzNICIpConfig'                                           # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
-            }                                                                               # End if (!$CallingFunction)
             $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject) 
+            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
+                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
+                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
+                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
+                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicObject.VirtualMachine)
             Write-Host 'Gathering current subnet info'                                      # Write message to screen
             $SubnetID = $NicIPConfigObject.Subnet.ID                                        # Isolates the subnet ID
             $VNetName = $SubnetID.Split('/')[8]                                             # Gets the virtual network name
@@ -1564,12 +1582,74 @@ function SetAzNICIpConfig {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzNICIpConfig
-function SetAzNICIpConPublicIP {                                                            # Function to add a public IP sku to a network interface config
+function SetAzNICPriIPConfig {                                                              # Function to set the primary config
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzNICPriIPConfig'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureNICIpConfig while ($true) {                                                # Outer loop for managing function
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
+            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if (!$NicIPConfigObject)
+            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
+                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
+                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
+                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
+                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicObject.VirtualMachine)
+            if ($NicIPConfigObject.Primary -eq 'True') {                                    # If $NicIPConfigObject.Primary equals 'True'
+                Write-Host 'This configuration is already the primary'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicIPConfigObject.Primary -eq 'True')
+            Write-Host 'Set the following as the primary config'                            # Write message to screen
+            Write-Host 'Config:'$NicIPConfigObject.Name                                     # Write message to screen
+            Write-Host 'On Nic:'$NicObject.Name                                             # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation of change
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -ne 'y') {                                                       # If $OpConfirm does not equal 'y'
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($OpConfirm -ne 'y')
+            $SubnetID = $NicIPConfigObject.Subnet.ID                                        # Isolates the subnet ID
+            Try {                                                                           # Try the following
+                Write-Host 'Updating primary config on:'$NicObject.Name                     # Write message to screen
+                $NicObject | Set-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
+                    -SubnetId $SubnetID -Primary -ErrorAction 'Stop' | Out-Null             # Changes the config
+                $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-Null          # Saves the config
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks SetAzureNICIpConfig
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The primary config has been changed'                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureNICIpConfig                                                       # Breaks :SetAzureNICIpConfig
+        }                                                                                   # End :SetAzureNICIpConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin       
+}                                                                                           # End function SetAzNICPriIPConfig
+function SetAzNICIpConPublicIP {                                                            # Function to change the config public IP
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzNICIpConPublicIP'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
-            }                                                                               # End if (!$CallingFunction)
             $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
@@ -1578,6 +1658,19 @@ function SetAzNICIpConPublicIP {                                                
             if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$PublicIPObject)
+            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
+                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
+                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
+                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
+                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicObject.VirtualMachine)
             Try {                                                                           # Try the following
                 $NicObject | Set-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
                     -PublicIpAddressId $PublicIPObject.ID -SubnetId `
@@ -1598,12 +1691,12 @@ function SetAzNICIpConPublicIP {                                                
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzNICIpConPublicIP
-function RemoveAzNICIpConPublicIP {                                                         # Function to remove a public IP sku to a network interface config
+function RemoveAzNICIpConPublicIP {                                                         # Function to remove the config public IP
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzNICIpConPublicIP'                                   # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            if (!$CallingFunction) {                                                        # If $CallingFunction is $null
-                $CallingFunction = 'SetAzNICIpConfig'                                       # Creates $CallingFunction
-            }                                                                               # End if (!$CallingFunction)
             $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
@@ -1615,6 +1708,19 @@ function RemoveAzNICIpConPublicIP {                                             
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End elseif (!$NicIPConfigObject.PublicIPAddress)
+            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
+                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
+                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
+                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
+                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
+            }                                                                               # End if ($NicObject.VirtualMachine)
             Write-Host 'Remove the public IP from'                                          # Write message to screen
             Write-Host ''                                                                   # Write message to screen 
             Write-Host 'Config:'$NicIPConfigObject.name                                     # Write message to screen
@@ -1628,10 +1734,11 @@ function RemoveAzNICIpConPublicIP {                                             
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if ($OpConfirm -ne 'y')
+            $SubnetID = $NicIPConfigObject.Subnet.ID                                        # Isolates the subnet ID
             Try {                                                                           # Try the following
                 $NicObject | Set-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
-                    -PublicIpAddressId $null -SubnetId $NicIPConfigObject.Subnet.ID `
-                    -ErrorAction 'Stop' | Out-Null                                          # Adds $PublicIPObject to $NicIPConfigObject
+                    -PublicIpAddressId $null -SubnetId $SubnetID -ErrorAction 'Stop' `
+                    | Out-Null                                                              # Removed $PublicIPObject to $NicIPConfigObject
                 $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-Null          # Saves $NicObject config
             }                                                                               # End try
             catch {                                                                         # If try fails
@@ -1645,7 +1752,7 @@ function RemoveAzNICIpConPublicIP {                                             
             Break SetAzureNICIpConfig                                                       # Breaks :SetAzureNICIpConfig
         }                                                                                   # End :SetAzureNICIpConfig while($true)
         Clear-Host                                                                          # Clears screen
-        Return                                                                              # Returns to calling function with $null
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNICIpConPublicIP
 function RemoveAzNICIpConfig {                                                              # Function to Remove a NIC IP config
@@ -1712,7 +1819,7 @@ function RemoveAzNICIpConfig {                                                  
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNICIpConfig
-# End ManageAddAzNICIpConfig
+# End ManageAzNICIpConfig
 # End ManageAzNetworkInterface
 # Functions for ManageAzPublicIPAddress
 function ManageAzPublicIPAddress {                                                          # Function to manage public IP address Skus
