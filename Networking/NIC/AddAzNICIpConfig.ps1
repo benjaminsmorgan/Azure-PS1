@@ -1,33 +1,20 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
+    Add-AzNetworkInterfaceIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-6.0.0
     Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
-    Get-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
-    New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
     Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
-    NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
     GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
-    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
 } #>
 <# Functions Description: {
     AddAzNICIpConfig:           Creates a NIC IP configuration
-    NewAzNetworkInterface:      Creates new network interfaces
     GetAzNetworkInterface:      Gets an existing network interface
-    RemoveAzNetworkInterface:   Removes a network interface   
-    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
-    GetAzResourceGroup:         Gets a resource group
-    GetAzLocation:              Gets an Azure location
 } #>
 <# Variables: {      
     :SetAzureNICIpConfig        Outer loop for managing function
-    :SelectAzureNic             Inner loop for getting or creating a nic
     :SetAzureIPConfigName       Inner loop for setting the IP config name
     $CallingFunction:           Name of this function
     $OperatorSelect:            Operator selection option
@@ -35,32 +22,16 @@
     $SubnetObject:              Subnet of the nic 
     $VnetObject:                Vnet holding the subnet (Not used)
     $NicIPConfigName:           Operator input for the IP config name
-    NewAzNetworkInterface{}     Creates $NicObject
-        GetAzResourceGroup{}        Gets $RGObject
-        GetAzLocation{}             Gets $LocationObject
-        GetAzVNetSubnetConfig{}     Gets $SubnetObject
     GetAzNetworkInterface{}     Gets $NicObject
 } #>
 <# Process Flow {
     function
-        Call AddAzNICIpConfig > Get $NicObject
-            Call NewAzNetworkInterface > Get $NicObject
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzNetworkInterface > Send $RGObject
-                Call GetAzLocation > Get $LocationObject
-                End GetAzLocation
-                    Return NewAzNetworkInterface > Send $LocationObject
-                Call GetAzVNetSubnetConfig > Get $SubnetObject
-                End GetAzVNetSubnetConfig
-                    Return NewAzNetworkInterface > Send $SubnetObject
-            End NewAzNetworkInterface
-                Return AddAzNICIpConfig > Send $NicObject
+        Call AddAzNICIpConfig > Get $null
             Call GetAzNetworkInterface > Get $NicObject
             End GetAzNetworkInterface
                 Return AddAzNICIpConfig > $NicObject
         End AddAzNICIpConfig
-            Return function > Send $NicObject
+            Return function > Send $null
 }#>
 function AddAzNICIpConfig {                                                                 # Function to add a NIC IP config
     Begin {                                                                                 # Begin function
