@@ -17,6 +17,8 @@
     $ObjectNumber:              $var used for listing and selecting
     $NICName:                   Current item .Name
     $NicRG:                     Current item .ResourceGroupName
+    $NicVM:                     Current item .VirtualMachine.ID
+    $VMObject:                  Virtual machine object if present
     $IPConfigList:              Current item .IPConfigurations
     $ObjectArray:               Array holding all NIC IP configs 
     $ObjectInput:               $var used to load items into $ObjectArray
@@ -39,15 +41,19 @@ function GetAzNICIpConfig {                                                     
             [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 $NICName = $_.Name                                                          # $NICName is equal to current item .Name
-                $NicRG = $_.ResourceGroupName
+                $NicRG = $_.ResourceGroupName                                               # Gets the NIC resource group
+                $NicVM = $_.VirtualMachine.ID                                               # Gets the NIC VM if attached
+                if ($NicVM) {                                                               # If $NicVM has a value 
+                    $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}                  # Gets the currently attached VM
+                }                                                                           # End if ($NicVM)
                 $IPConfigList = $_.IPConfigurations                                         # IPConfigList is equal to current item .IPConfigurations
                 foreach ($_ in $IPConfigList) {                                             # For each item in $IPConfigList
-                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput            
                         'Number'=$ObjectNumber;'Name'=$_.Name;`
                         'PrivIP'=$_.PrivateIPAddress;`
                         'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
                         'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                        'NICName'=$NICName;'NICRG'=$NicRG                                   # Collects the information for the array
+                        'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name            # Collects the information for the array
                     }                                                                       # End $ObjectInput = [PSCustomObject]
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
                     $ObjectNumber = $ObjectNumber +1                                        # Increments $ObjectNumber up by 1
@@ -74,6 +80,9 @@ function GetAzNICIpConfig {                                                     
                     }                                                                       # End if ($_.PubIP)
                     Write-Host 'Is primary:           '$_.Pri                               # Write message to screen
                     Write-Host 'Nic Name:             '$_.NicName                           # Write message to screen
+                    if ($_.NICVM) {                                                         # If current item .NICVM has a value
+                        Write-Host 'Attached VM:          '$_.NicVM                         # Write message to screen
+                    }                                                                       # End if ($_.NICVM)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value

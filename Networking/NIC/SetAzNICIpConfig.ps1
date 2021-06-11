@@ -6,8 +6,6 @@
     Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
-    Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.0.0                
-
 } #>
 <# Required Functions Links: {
     GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
@@ -22,8 +20,6 @@
     $CallingFunction:           Name of this function or the one that called it
     $NicIPConfigObject:         Nic IP configuration object
     $NicObject:                 Nic object
-    $VMID:                      $NicIPConfigObject.VirtualMachine.ID, if present          
-    $VMObject:                  Attached virtual machine object if present
     $SubnetID:                  $NicIPConfigObject.Subnet.ID
     $VNetName:                  Name of virtual network
     $VNetObject:                Virtual network object
@@ -48,23 +44,10 @@ function SetAzNICIpConfig {                                                     
             $CallingFunction = 'SetAzNICIpConfig'                                           # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject) 
-            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
-                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
-                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
-                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
-                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
-            }                                                                               # End if ($NicObject.VirtualMachine)
             Write-Host 'Gathering current subnet info'                                      # Write message to screen
             $SubnetID = $NicIPConfigObject.Subnet.ID                                        # Isolates the subnet ID
             $VNetName = $SubnetID.Split('/')[8]                                             # Gets the virtual network name

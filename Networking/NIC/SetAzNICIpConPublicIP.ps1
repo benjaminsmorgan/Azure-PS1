@@ -40,7 +40,7 @@ function SetAzNICIpConPublicIP {                                                
             $CallingFunction = 'SetAzNICIpConPublicIP'                                      # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while($true) {                                                 # Outer loop for managing function
-            $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject)
@@ -48,31 +48,21 @@ function SetAzNICIpConPublicIP {                                                
             if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$PublicIPObject)
-            if ($NicObject.VirtualMachine) {                                                # If $NicObject.VirtualMachine has a value 
-                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
-                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
-                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
-                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'This NIC cannot be updated while attached'                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
-            }                                                                               # End if ($NicObject.VirtualMachine)
             Try {                                                                           # Try the following
+                Write-Host 'Adding the public IP'                                           # Write message to screen
                 $NicObject | Set-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
                     -PublicIpAddressId $PublicIPObject.ID -SubnetId `
                     $NicIPConfigObject.Subnet.ID -ErrorAction 'Stop' | Out-Null             # Adds $PublicIPObject to $NicIPConfigObject
                 $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-Null          # Saves $NicObject config
             }                                                                               # End try
             catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host 'You may not have the permissions to do this'                    # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
             Write-Host 'Nic IP configuration has been updated'                              # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
             Break SetAzureNICIpConfig                                                       # Breaks :SetAzureNICIpConfig

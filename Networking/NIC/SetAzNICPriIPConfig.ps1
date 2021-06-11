@@ -40,7 +40,7 @@ function SetAzNICPriIPConfig {                                                  
             $CallingFunction = 'SetAzNICPriIPConfig'                                        # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :SetAzureNICIpConfig while ($true) {                                                # Outer loop for managing function
-            $NicIPConfigObject,$NicObject = GetAzNICIpConfig                                # Calls function and assigns output to $vars
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $vars
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject)

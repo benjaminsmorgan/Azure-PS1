@@ -57,15 +57,22 @@ function AddAzNICIpConfig {                                                     
                     Break AddAzureNICIpConfig                                               # Breaks :AddAzureNICIpConfig
                 }                                                                           # End elseif ($OpConfirm -eq 'e')
             }                                                                               # End :SetAzureIPConfigName while ($true)
+            $SubnetID = $SubnetObject.ID                                                    # Isolates the subnet ID
             Try {                                                                           # Try the following
                 Write-Host 'Addinging the IP config'                                        # Write message to screen
                 Add-AzNetworkInterfaceIpConfig -Name $NicIPConfigName -NetworkInterface `
-                    $NicObject -SubnetId $SubnetObject.ID                                   # Adds the new config
-                $NicObject | Set-AzNetworkInterface                                         # Saves the changes
+                    $NicObject -SubnetId $SubnetID -ErrorAction 'Stop' | Out-Null           # Adds the new config
+                $NicObject | Set-AzNetworkInterface -erroraction'Stop' | Out-Null           # Saves the changes
             }                                                                               # End try
             catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
-                Write-Host 'An error has occured'                                           # Write message to the screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'You may not have the permissions'                               # Write message to screen
+                Write-Host 'to complete this action or'                                     # Write message to screen
+                Write-Host 'the resource or resource group'                                 # Write message to screen
+                Write-Host 'may be locked preventing changes'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break AddAzureNicIPConfig                                                   # Breaks :AddAzureNicIPConfig
             }                                                                               # End catch
