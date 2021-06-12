@@ -1,9 +1,9 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
-    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
-    Remove-AzPublicIpAddress:   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0    
+    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    Remove-AzPublicIpAddress:                   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0    
 } #>
 <# Required Functions Links: {
     NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1    
@@ -23,7 +23,7 @@
 <# Variables: {      
     :ManageAzurePublicIPAddress Outer loop for managing function
     $PublicIPObject:            Public IP Sku object
-    $OperatorSelect:            Operator input for selecting the management function
+    $OpSelect:            Operator input for selecting the management function
     NewAzPublicIPAddress{}      Creates $PublicIPObject
         GetAzResourceGroup{}        Gets $RGObject
     ListAzPublicIPAddress{}     Lists $PublicIPObject
@@ -58,109 +58,147 @@
 function ManageAzPublicIPAddress {                                                          # Function to manage public IP address Skus
     Begin {                                                                                 # Begin function
         :ManageAzurePublicIPAddress while ($true) {                                         # Outer loop for managing function
-            if ($PublicIPObject) {                                                          # If $PublicIPObject has a value
-                Write-Host 'The current public address is'$PublicIPObject.Name              # Write message to screen
-            }                                                                               # End if ($PublicIPObject)
-            Write-Host '[0] Clear "$PublicIPObject"'                                        # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New public IP sku'                                              # Write message to screen
             Write-Host '[2] List all public IP skus'                                        # Write message to screen
-            Write-Host '[3] Get a public IP sku'                                            # Write message to screen
-            Write-Host '[4] Remove a public IP sku'                                         # Write message to screen
-            $OperatorSelect = Read-Host 'Enter the option [#]'                              # Operator input for the function selection
-            if ($OperatorSelect -eq 'exit') {                                               # $OperatorSelect equals 'exit'    
+            Write-Host '[3] Remove a public IP sku'                                         # Write message to screen
+            $OpSelect = Read-Host 'Enter the option [#]'                                    # Operator input for the function selection
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
                 Break ManageAzurePublicIPAddress                                            # Breaks :ManageAzurePublicIPAddress
-            }                                                                               # End if ($OperatorSelect -eq 'exit')
-            elseif ($OperatorSelect -eq '0') {                                              # $OperatorSelect equals '0'
-                $PublicIPObject = $null                                                     # Clears $PublicIPObject
-            }                                                                               # elseif ($OperatorSelect -eq '0')
-            elseif ($OperatorSelect -eq '1') {                                              # $OperatorSelect equals '1'
-                $PublicIPObject = NewAzPublicIpAddress                                      # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '1')
-            elseif ($OperatorSelect -eq '2') {                                              # $OperatorSelect equals '2'
+            }                                                                               # End if ($OpSelect -eq 'exit')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'New public IP sku'                                              # Write message to screen
+                NewAzPublicIpAddress                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List all public IP skus'                                        # Write message to screen
                 ListAzPublicIpAddress                                                       # Calls function
-            }                                                                               # elseif ($OperatorSelect -eq '2')
-            elseif ($OperatorSelect -eq '3') {                                              # $OperatorSelect equals '3'
-                $PublicIPObject = GetAzPublicIpAddress                                      # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '3')
-            elseif ($OperatorSelect -eq '4') {                                              # $OperatorSelect equals '4'
-                RemoveAzPublicIpAddress ($PublicIPObject)                                   # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '4')
-            else {                                                                          # All other inputs for $OperatorSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OperatorSelect -eq 'exit'))
+            }                                                                               # elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Remove a public IP sku'                                         # Write message to screen
+                RemoveAzPublicIpAddress                                                     # Calls function 
+            }                                                                               # elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzurePublicIPAddress while ($true)
-        return $PublicIPObject                                                              # Returns to calling function with $PublicIPObject
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzPublicIPAddress
-function NewAzPublicIpAddress {                                                             # Creates a new public IP address
+function NewAzPublicIpAddress {                                                             # Function to create a new public IP address
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Turns off error reporting
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzPublicIpAddress'                                       # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :NewAzurePublicIP while ($true) {                                                   # Outer loop for managing function
+            $RGObject = GetAzResourceGroup                                                  # Calls function and assigns output to $var
             if (!$RGObject) {                                                               # If $RGObject is $null
-                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
-                if (!$RGObject) {                                                           # If $RGObject is $null
-                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if (!$RGObject)
+                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
             }                                                                               # End if (!$RGObject)
             :SetAzurePublicIPName while ($true) {                                           # Inner loop for setting the public IP name
-                Try {                                                                       # Try the following
-                    [ValidatePattern('^[a-z][a-z0-9-]{1,61}[a-z0-9]$')]$PublicIPNameObject `
-                    = [string](Read-Host "Enter the public IP name").ToLower()              # Operator input for the public IP name
-                }                                                                           # End try
-                catch {                                                                     # Error reporting for try statement
-                    Write-Host "! That enty was not valid"                                  # Write message to screen
-                    Write-Host "! Valid entries are 1-61 characters"                        # Write message to screen
-                    Write-Host "! The name must start with a letter"                        # Write message to screen
-                    Write-Host "! Special charaters are not allowed"                        # Write message to screen
-                    Write-Host ""                                                           # Write message to screen
-                }                                                                           # End catch
-                if ($PublicIPNameObject) {
-                    if ($PublicIPNameObject -eq 'exit') {                                   # IF $PublicIPNameObject equals 'exit'
+                $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789'                        # Creates a string of valid characters
+                $ValidArray = $ValidArray.ToCharArray()                                     # Loads all valid characters into array
+                $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz'                                # Creates a string of valid first character
+                $Valid1stChar = $Valid1stChar.ToCharArray()                                 # Loads all valid characters into array
+                Write-Host 'Public IP name must begin with a letter'                        # Write message to screen
+                Write-Host 'and made up of letters and numbers only'                        # Write message to screen
+                $PublicNameArray = $null                                                    # Clears $PublicNameArray
+                $PublicNameInput = Read-Host 'Public IP name'                               # Operator input for the public IP name
+                $PublicNameArray = $PublicNameInput.ToCharArray()                           # Loads $PublicNameInput into array
+                Clear-Host                                                                  # Clears screen
+                if ($PublicNameInput.Length -ge 81) {                                       # If $PublicNameInput.Length is greater or equal to 81
+                    Write-Host 'The public IP name is to long'                              # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End if ($PublicNameInput.Length -ge 62)
+                if ($PublicNameArray[0] -notin $Valid1stChar) {                             # If 0 position of $PublicNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter'           # Write message to screen
+                    $PublicNameInput = $null                                                # Clears $PublicNameInput
+                }                                                                           # End if ($PublicNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $PublicNameArray) {                                          # For each item in $PublicNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Public IP name cannot include any spaces'           # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $PublicNameInput = $null                                            # Clears $PublicNameInput
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $PublicNameArray)
+                if ($PublicNameInput) {                                                     # If $PublicNameInput has a value
+                    Write-Host 'Use:'$PublicNameInput' as the public IP name'               # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
                         Break NewAzurePublicIP                                              # Breaks :NewAzurePublicIP
-                    }                                                                       # End if ($PublicIPNameObject -eq 'exit')
-                    Write-Host $PublicIPNameObject                                          # Write message to screen
-                    $OperatorConfirm = Read-Host "Use this name [Y] or [N]"                 # Operator confirmation of the name
-                    if ($OperatorConfirm -eq 'y') {                                         # If $OperatorConfirm equals 'y'
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzurePublicIPName                                          # Breaks :SetAzurePublicIPName
-                    }                                                                       # End if ($OperatorConfirm -eq 'y')
-                    else {                                                                  # If $OperatorConfirm does not equal 'y'
-                        Remove-Variable PublicIPNameObject                                  # Removes $PublicIPNameObject
-                    }                                                                       # End else if ($OperatorConfirm -eq 'y')
-                }                                                                           # End if ($PublicIPNameObject) 
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                    else {                                                                  # If $OpConfirm does not equal 'y'
+                        $PublicNameInput = $null                                            # Clears $PublicNameInput
+                    }                                                                       # End else if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($PublicNameInput) 
+                else {                                                                      # If $PublicNameInput does not have a value
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($PublicNameInput))
             }                                                                               # End :SetAzurePublicIPName while ($true)
             :SetAzurePublicIPAlloc while ($true) {                                          # Inner loop for setting the public IP allocation method
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] Dynamic'                                                    # Write message to screen
                 Write-Host '[2] Static'                                                     # Write message to screen
-                $PublicIPAllocationObject = Read-Host "[0], [1], or [2]"                    # Operator input for the allocation method
-                if ($PublicIPAllocationObject -eq '0') {                                    # If $PublicIPAllocationObject equals '0'
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
                     Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
                 }                                                                           # End if ($PublicIPAllocationObject -eq '0')
-                elseif ($PublicIPAllocationObject -eq '1') {                                # Elseif $PublicIPAllocationObject equals 1
-                    $PublicIPAllocationObject = 'dynamic'                                   # Reassigns value of $PublicIPAllocationObject
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $PublicIPAllocationObject = 'dynamic'                                   # Creates $PublicIPAllocationObject
                     Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc    
                 }                                                                           # End elseif ($PublicIPAllocationObject -eq '1')
-                elseif ($PublicIPAllocationObject -eq '2') {                                # Elseif $PublicIPAllocationObject equals 2
-                    $PublicIPAllocationObject = 'static'                                    # Reassigns value of $PublicIPAllocationObject
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $PublicIPAllocationObject = 'static'                                    # Creates $PublicIPAllocationObject
                     Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc
                 }                                                                           # End elseif ($PublicIPAllocationObject -eq '2')
                 else {                                                                      # All other inputs
-                    Write-Host "That was not a valid option"                                # Write message to screen
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
                 }                                                                           # End else (($PublicIPAllocationObject -eq '0'))
             }                                                                               # End :SetAzurePublicIPAlloc while ($true)
-            $PublicIPObject = New-AzPublicIpAddress -Name $PublicIPNameObject `
-                -ResourceGroupName $RGObject.ResourceGroupName -Location `
-                $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
-                -DomainNameLabel $PublicIPNameObject -Force                                 # Creates the new public IP address
-            if ($PublicIPObject) {                                                          # If $PublicIPObject is not $null
-                Return $PublicIPObject                                                      # Returns to calling function with $PublicIPObject
-            }                                                                               # End if ($PublicIPObject)
-            else {                                                                          # If $PublicIPObject is $null 
-                Write-Host "An error has occured"                                           # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Creating the public IP'                                         # Write message to screen
+                New-AzPublicIpAddress -Name $PublicNameInput 
+                    -ResourceGroupName $RGObject.ResourceGroupName -Location `
+                    $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
+                    -DomainNameLabel $PublicIPNameObject -Force -ErrorAction 'Stop' `
+                    | Out-Null                                                              # Creates the new public IP address
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
-            }                                                                               # End else (if ($PublicIPObject))
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The public IP has been created'                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzurePublicIP                                                          # Breaks :NewAzurePublicIP
         }                                                                                   # End :NewAzurePublicIP while ($true)
-        Return                                                                              # Returns to calling function with # null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with # null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzPublicIpAddress
 function ListAzPublicIpAddress {                                                            # Function for listing all public IP address skus
@@ -288,8 +326,8 @@ function RemoveAzPublicIPAddress {                                              
             }                                                                               # End if ($PublicIPObject.IpConfiguration.Id)
             else {                                                                          # If PublicIPObject.IpConfiguration.Id does not have a value
                 Write-Host 'Remove the public IP'$PublicIPObject.name                       # Write message to screen
-                $OperatorConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation to remove the public IP
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                $OpConfirm = Read-Host '[Y] or [N]'                                   # Operator confirmation to remove the public IP
+                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
                     Try {                                                                   # Try the following
                         Remove-AzPublicIpAddress -Name $PublicIPObject.Name `
                             -ResourceGroupName $PublicIPObject.ResourceGroupName `
@@ -303,12 +341,60 @@ function RemoveAzPublicIPAddress {                                              
                     }                                                                       # End catch
                     Write-Host 'The selected public IP sku has been removed'                # Write message to screen
                     Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
-                else {                                                                      # If $OperatorConfirm does not equal 'y'
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                else {                                                                      # If $OpConfirm does not equal 'y'
                     Break RemoveAzurePublicIP                                               # Breaks :RemoveAzurePublicIP
-                }                                                                           # End else (if ($OperatorConfirm -eq 'y'))
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
             }                                                                               # End else (if ($PublicIPObject.IpConfiguration.Id))
         }                                                                                   # End :RemoveAzurePublicIP while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzPublicIPAddress
+# Additional functions required for ManageAzPublicIPAddress
+function GetAzResourceGroup {                                                               # Function to get a resource group
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureResourceGroup while ($true) {                                              # Outer loop for managing function
+            $ObjectList = Get-AzResourceGroup                                               # Gets all resource groups and assigns to $ObjectList
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{'Name' = $_.ResourceGroupName; `
+                    'Number' = $ObjectNumber; 'Location' = $_.Location}                     # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the resource group
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name '|' $_.Location                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name '|' $_.Location                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host 'You are selecting the resource group for:'$CallingFunction  # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureResourceGroup                                             # Breaks :GetAzureResourceGroup
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $OpSelect.Name}                           # Pulls the full resource group object
+                    Clear-Host                                                              # Clears screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number)
+                else {                                                                      # If $RGObject does not have a value
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                }                                                                           # End else (if ($RGObject))
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureResourceGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzResourceGroup
