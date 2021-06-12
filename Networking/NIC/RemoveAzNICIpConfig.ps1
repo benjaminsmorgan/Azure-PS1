@@ -1,9 +1,9 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Remove-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/Remove-aznetworkinterfaceipconfig?view=azps-5.6.0
-    Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
-    Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
-    Set-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Remove-AzNetworkInterfaceIPConfig:          https://docs.microsoft.com/en-us/powershell/module/az.network/Remove-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
+    Set-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
 } #>
 <# Required Functions Links: {
     GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1     
@@ -17,8 +17,6 @@
     $CallingFunction:           Name of this function or the one that called it
     $NicIPConfigObject:         NIC IP configuration object
     $NicObject:                 Network interface object
-    $VMID:                      $NicIPConfigObject.VirtualMachine.ID, if present          
-    $VMObject:                  Attached virtual machine object if present
     $OpConfirm:                 Operator confirmation to remove the IP configuration
     GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
 } #>
@@ -29,7 +27,7 @@
             End GetAzNICIpConfig
                 Return RemoveAzNICIpConfig > Send $NicIPConfigObject, $NicObject
         End RemoveAzNICIpConfig
-            Return RemoveAzNICIpConfig > Send $null
+            Return function > Send $null
 }#>
 function RemoveAzNICIpConfig {                                                              # Function to Remove a NIC IP config
     Begin {                                                                                 # Begin function
@@ -41,21 +39,14 @@ function RemoveAzNICIpConfig {                                                  
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break RemoveAzureNICIpConfig                                                # Breaks :RemoveAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject) 
-            <#if ($NicObject.VirtualMachine -and $NICIPConfigObject.Primary -eq 'true') {     # If $NicObject.VirtualMachine has a value and $NICIPConfigObject.Primary equals 'true'
-                $VMID = $NicObject.VirtualMachine.Id                                        # Isolates the VM ID
-                $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMID}                       # Gets the currently attached VM
+            if ($NICIPConfigObject.Primary -eq 'true') {                                    # If $NICIPConfigObject.Primary equals 'true'
                 Write-Host ''                                                               # Write message to screen
-                Write-Host 'This nic is currently attached to the following:'               # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'VM Name:'$VMObject.Name                                         # Write message to screen
-                Write-Host 'VM RG  :'$VMObject.ResourceGroupName                            # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'The primary config cannot be updated while attached'            # Write message to screen
+                Write-Host 'This config is primary and cannot be removed'                   # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureNICIpConfig                                                # Breaks :RemoveAzureNICIpConfig
-            }                                                                               # End if ($NicObject.VirtualMachine -and $NICIPConfigObject.Primary -eq 'true')
-            #>Write-Host 'Remove the following:'                                              # Write message to screen
+            }                                                                               # End if ($NICIPConfigObject.Primary -eq 'true')
+            Write-Host 'Remove the following:'                                              # Write message to screen
             Write-Host ''                                                                   # Write message to screen 
             Write-Host 'Config:'$NicIPConfigObject.name                                     # Write message to screen
             Write-Host 'NIC:   '$NicObject.Name                                             # Write message to screen
@@ -68,14 +59,14 @@ function RemoveAzNICIpConfig {                                                  
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureNICIpConfig                                                # Breaks :RemoveAzureNICIpConfig
             }                                                                               # End if ($OpConfirm -ne 'y')
-            #Try {                                                                           # Try the following
+            Try {                                                                           # Try the following
                 Write-Host 'Removing the IP configuration'                                  # Write message to screen
                 Remove-AzNetworkInterfaceIpConfig -Name $NicIPConfigObject.Name `
                     -NetworkInterface $NicObject -ErrorAction 'Stop' | Out-Null             # Removes the selected configuration
                 $NicObject | Set-AzNetworkInterface  -ErrorAction 'Stop' | Out-Null         # Saves the settings
-            #}                                                                               # End try
-            #Catch {                                                                         # If try fails
-            #    Clear-Host                                                                  # Clears host
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears host
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'You may not have the permissions'                               # Write message to screen
@@ -85,7 +76,7 @@ function RemoveAzNICIpConfig {                                                  
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureNICIpConfig                                                # Breaks RemoveAzureNICIpConfig
-            #}                                                                               # End catch            
+            }                                                                               # End catch            
             Clear-Host                                                                      # Clears host                                                          
             Write-Host 'The IP configuration has been removed'                              # Write message to screen
             Write-Host ''                                                                   # Write message to screen
