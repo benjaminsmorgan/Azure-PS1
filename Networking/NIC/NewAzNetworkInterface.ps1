@@ -1,10 +1,10 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzLocation:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
-    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    New-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzLocation:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
@@ -29,7 +29,7 @@
     $OpSelect:                  Operator input for returning with $NICObject
     GetAzResourceGroup{}        Gets $RGObject
     GetAzLocation{}             Gets $LocationObject
-    GetAzVNetSubnetConfig{}     Gets $SubnetObject
+    GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VNetObject
 } #>
 <# Process Flow {
     Function
@@ -40,11 +40,11 @@
             Call GetAzLocation > Get $LocationObject
             End GetAzLocation
                 Return NewAzNetworkInterface > Send $LocationObject
-            Call GetAzVNetSubnetConfig > Get $SubnetObject
+            Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
             End GetAzVNetSubnetConfig
-                Return NewAzNetworkInterface > Send $SubnetObject
-            End NewAzNetworkInterface
-                Return function > Send $null
+                Return NewAzNetworkInterface > Send $SubnetObject, $VNetObject
+        End NewAzNetworkInterface
+            Return function > Send $null
 }#>
 function NewAzNetworkInterface {                                                            # Creates a new network interface
     Begin {                                                                                 # Begin function
