@@ -1,7 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Remove-AzNetworkInterface:  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworkinterface?view=azps-5.6.0
-    Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
+    Remove-AzNetworkInterface:                  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworkinterface?view=azps-5.6.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
@@ -21,7 +21,7 @@
 <# Process Flow {
     Function
         Call RemoveAzNetworkInterface > Get $null
-            Call GetAzNetworkInterface > Get $NicObject
+            Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
             End GetAzNetworkInterface
                 Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
         End RemoveAzNetworkInterface
