@@ -1,10 +1,10 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Add-AzNetworkInterfaceIpConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-6.0.0
-    Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
-    Get-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
-    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Add-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-6.0.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
@@ -22,14 +22,14 @@
     $SubnetObject:              Subnet of the nic 
     $VnetObject:                Vnet holding the subnet (Not used)
     $NicIPConfigName:           Operator input for the IP config name
-    GetAzNetworkInterface{}     Gets $NicObject
+    GetAzNetworkInterface{}     Gets $NicObject,$SubnetObject,$VnetObject
 } #>
 <# Process Flow {
     function
         Call AddAzNICIpConfig > Get $null
-            Call GetAzNetworkInterface > Get $NicObject
+            Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
             End GetAzNetworkInterface
-                Return AddAzNICIpConfig > $NicObject
+                Return AddAzNICIpConfig > Send $NicObject,$SubnetObject,$VnetObject
         End AddAzNICIpConfig
             Return function > Send $null
 }#>
