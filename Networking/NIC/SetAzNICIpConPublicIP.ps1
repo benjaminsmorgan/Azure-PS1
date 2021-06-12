@@ -1,8 +1,8 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Set-AzNetworkInterfaceIPConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
-    Set-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
-    Get-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
+    Set-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
 } #>
 <# Required Functions Links: {
     GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
@@ -32,7 +32,7 @@
             End GetAzPublicIpAddress
                 Return SetAzNICIpConfigPublicIP > Send $PublicIPObject
         End SetAzNICIpConfigPublicIP
-            Return SetAzNICIpConfigPublicIP > Send $null
+            Return function > Send $null
 }#>
 function SetAzNICIpConPublicIP {                                                            # Function to change the config public IP
     Begin {                                                                                 # Begin function
