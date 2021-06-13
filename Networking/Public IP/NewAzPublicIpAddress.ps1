@@ -1,7 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AzPublicIpAddress:      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0    
+    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0    
 } #>
 <# Required Functions Links: {
     GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
@@ -27,12 +27,12 @@
 } #>
 <# Process Flow {
     function
-        Call NewAzPublicIpAddress > Get $Null
+        Call NewAzPublicIpAddress > Get $null
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGroup
                 Return NewAzPublicIpAddress > Send $RGObject
         End NewAzPublicIpAddress
-            Return function > Send $Null
+            Return function > Send $null
 }#>
 function NewAzPublicIpAddress {                                                             # Function to create a new public IP address
     Begin {                                                                                 # Begin function
@@ -123,7 +123,7 @@ function NewAzPublicIpAddress {                                                 
             }                                                                               # End :SetAzurePublicIPAlloc while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the public IP'                                         # Write message to screen
-                New-AzPublicIpAddress -Name $PublicNameInput 
+                New-AzPublicIpAddress -Name $PublicNameInput `
                     -ResourceGroupName $RGObject.ResourceGroupName -Location `
                     $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
                     -DomainNameLabel $PublicIPNameObject -Force -ErrorAction 'Stop' `
