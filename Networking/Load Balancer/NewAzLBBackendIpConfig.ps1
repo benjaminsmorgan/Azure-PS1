@@ -12,7 +12,7 @@
     :NewAzureLBBEIpConfig       Outer loop for managing function
     :SetAzureLBBEName           Inner loop for setting the Back end name
     $BackEndNameObject:         Operator input for the Back end name
-    $OperatorConfirm:           Operator confirmation of the Back end name
+    $OpConfirm:                 Operator confirmation of the Back end name
     $BackEndIPConfigObject:     Back end IP config object    
 } #>
 <# Process Flow {
@@ -25,26 +25,39 @@ function NewAzLBBackendIpConfig {                                               
     Begin {                                                                                 # Begin function
         :NewAzureLBBEIpConfig while ($true) {                                               # Outer loop for managing the function
             :SetAzureLBBEName while ($true) {                                               # Inner loop for setting the back end name
-                $BackEndNameObject = Read-Host "Back end name"                              # Operator input for the back end name
-                if ($BackEndNameObject -eq 'exit') {                                        # If $BackEndNameObject equals $null
+                Write-Host 'Enter the load balancer back end name'                          # Write message to screen
+                $BackEndNameObject = Read-Host 'Name'                                       # Operator input for the back end name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$BackEndNameObject' as the back end name'                  # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the back end name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e''
                     Break NewAzureLBBEIpConfig                                              # Breaks :NewAzureLBBEIpConfig
-                }                                                                           # End if ($BackEndNameObject -eq 'exit')
-                Write-Host $BackEndNameObject                                               # Writes message to screen
-                $OperatorConfirm = Read-Host "Use as the Back end name? [Y] or [N]"         # Operator confirmation of the back end name
-                if ($OperatorConfirm -eq 'y') {                                             # If $OperatorConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureLBBEName                                                  # Breaks :SetAzureLBBEName
-                }                                                                           # End if ($OperatorConfirm -eq 'y')
+                }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureLBBEName while ($true)
-            $BackEndIPConfigObject = New-AzLoadBalancerBackendAddressPoolConfig -Name `
-                $BackEndNameObject                                                          # Creates the load balancer back end pool
-            if ($BackEndIPConfigObject) {                                                   # If $BackEndIPConfigObject has a value
-                Return $BackEndIPConfigObject                                               # Returns to calling function with $
-            }                                                                               # End if ($BackEndIPConfigObject)
-            else {                                                                          # If $BackEndIPConfigObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Building the load balancer back end config'                     # Write message to screen
+                $BackEndIPConfigObject = New-AzLoadBalancerBackendAddressPoolConfig -Name `
+                    $BackEndNameObject -ErrorAction 'Stop'                                  # Creates the load balancer back end pool
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureLBBEIpConfig                                                  # Breaks :NewAzureLBBEIpConfig
-            }                                                                               # End else (if ($BackEndIPConfigObject))
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen    
+            Write-Host 'Back end config has been built'                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $BackEndIPConfigObject                                                   # Returns to calling function with $var
         }                                                                                   # End :NewAzureLBBEIpConfig while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBBackendIpConfig
