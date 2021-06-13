@@ -3,20 +3,24 @@
     New-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Remove-AzVirtualNetwork:                    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetwork?view=azps-5.4.0
+    Add-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Remove-AzVirtualNetworkSubnetConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworksubnetconfig?view=azps-5.6.0
     New-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Remove-AzNetworkInterface:                  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworkinterface?view=azps-5.6.0
-    Add-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterface?view=azps-5.6.0
-    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Add-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-6.0.0
     Get-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
     Remove-AzNetworkInterfaceIPConfig:          https://docs.microsoft.com/en-us/powershell/module/az.network/Remove-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Set-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.0.0 
     New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
     Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    Set-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/set-azpublicipaddress?view=azps-5.5.0
     Remove-AzPublicIpAddress:                   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
     New-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
     New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
-    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
-    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
     New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
     New-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
     New-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
@@ -38,22 +42,30 @@
         GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
     ManageAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ManageAzNetworkInterface.ps1
         NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
+        ListAzNetworkInterface:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNetworkInterface.ps1
         GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
-        RemoveAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNetworkInterface.ps1   
-        AddAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/AddAzNICIpConfig.ps1
-        ListAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNICIpConfig.ps1
-        SetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfig.ps1
-        RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
-        NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
-        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
-        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
-        GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzLocation.ps1
+        RemoveAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNetworkInterface.ps1  
+        ManageAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ManageAzNICIpConfig.ps1
+            AddAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/AddAzNICIpConfig.ps1
+            ListAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNICIpConfig.ps1
+            GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
+            RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
+            SetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfig.ps1
+            SetAzNICPriIPConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICPriIPConfig.ps1
+            SetAzNICIpConfigPublicIP:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfigPublicIP.ps1
+            RemoveAzNICIpConPublicIP:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConPublicIP.ps1
+            GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+            GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1 
         GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+        GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
     ManageAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ManageAzPublicIpAddress.ps1
         NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1    
         ListAzPublicIPAddress:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ListAzPublicIpAddress.ps1
         GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        SetAzPublicIPAddressAllo:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/SetAzPublicIPAddressAllo.ps1
         RemoveAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/RemoveAzPublicIpAddress.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     ManageAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ManageAzLoadBalancer.ps1
         NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
         ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
@@ -83,16 +95,30 @@
         RemoveAzVNetSubnetConfig:   Removes an azure virtual network subnet
     ManageAzNetworkInterface:   Management function for network interfaces
         NewAzNetworkInterface:      Creates new network interfaces
+        ListAzNetworkInterface:     Lists network interfaces
         GetAzNetworkInterface:      Gets an existing network interface
         RemoveAzNetworkInterface:   Removes a network interface   
-        AddAzNICIpConfig:           Creates a new empty IP config
-        SetAzNICIpConfig:           Applies settings to existing IP config
-        RemoveAzNICIpConfig:        Removes a NIC IP configuration 
-    ManageAzPublicIPAddress:    Function for managing public IP address Skus    
+        ManageAzNICIpConfig:        Management function for network interfaces ip configs
+            AddAzNICIpConfig:           Creates a NIC IP configuration
+            ListAzNICIpConfig:          Lists all NIC IP configurations
+            GetAzNICIpConfig:           Gets a NIC IP configuration
+            RemoveAzNICIpConfig:        Removes a network interface config
+            SetAzNICIpConfig:           Updates a NIC IP configuration
+            SetAzNICPriIPConfig:        Updates a NIC IP primary configuration
+            SetAzNICIpConfigPublicIP:   Adds a public IP sku to a network interface config
+            RemoveAzNICIpConPublicIP:   Removes a public IP sku to a network interface config
+            GetAzPublicIpAddress:       Gets a public IP address sku  
+            GetAzNetworkInterface:      Gets an existing network interface
+        GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
+        GetAzResourceGroup:         Gets a resource group
+        GetAzLocation:              Gets an azure location
+    ManageAzPublicIPAddress:    Function for managing public IP address Skus
         NewAzPublicIpAddress:       Creates a new public IP address    
         ListAzPublicIPAddress:      Lists all existing public IP addresses
         GetAzPublicIPAddress:       Gets an existing public IP address
+        SetAzPublicIPAddressAllo:   Chages an existing public IP address allocation method
         RemoveAzPublicIPAddress:    Removes an existing public IP address
+        GetAzResourceGroup:         Gets a resource group
     ManageAzLoadBalancer:       Function for managing load balancers
         NewAzLoadBalancer:          Creates a new load balancer    
         ListAzLoadBalancer:         Lists all existing load balancers
@@ -129,32 +155,30 @@
             GetAzResourceGroup{}        Gets $RGObject
             GetAzLocation{}             Gets $LocationObject
             GetAzVNetSubnetConfig{}     Gets $SubnetObject
-        GetAzNetworkInterface{}     Get $NicObject
+        ListAzNetworkInterface{}    Lists $NicObjects
         RemoveAzNetworkInterface{}  Removes $NicObject
             GetAzNetworkInterface{}     Get $NicObject
-        AddAzNICIpConfig{}          Sets $NicObject
-            NewAzNetworkInterface{}     Creates $NicObject
-                GetAzResourceGroup{}        Gets $RGObject
-                GetAzLocation{}             Gets $LocationObject
-                GetAzVNetSubnetConfig{}     Gets $SubnetObject
-            GetAzNetworkInterface{}     Gets $NicObject
-        ListAzNICIpConfig{}         Lists $NicObject
-        SetAzNICIpConfig{}          Sets $NicObject
-            NewAzNetworkInterface{}     Creates $NicObject
-                GetAzResourceGroup{}        Gets $RGObject
-                GetAzLocation{}             Gets $LocationObject
-                GetAzVNetSubnetConfig{}     Gets $SubnetObject
-            GetAzNetworkInterface{}     Gets $NicObject
-            NewAzPublicIpAddress{}      Creates $PublicIPObject
-                GetAzResourceGroup{}        Gets $RGObject
-            GetAzPublicIpAddress{}      Gets $PublicIPObject
-        RemoveAzNICIpConfig{}       Sets $NicObject
-            GetAzNetworkInterface{}     Gets $NicObject
+        ManageAzNICIpConfig{}       Manages $NicIPConfigObject
+            AddAzNICIpConfig{}          Adds $NicIPConfigObject
+                GetAzNetworkInterface{}     Gets $NicObject,$SubnetObject,$VnetObject
+            ListAzNICIpConfig{}         Lists $NicIPConfigObject
+            RemoveAzNICIpConfig{}       Removes $NicIPConfigObject
+                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
+            SetAzNICIpConfig{}          Updates $NicIPConfigObject
+                GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
+            SetAzNICPriIPConfig{}       Updates $NicIPConfigObject
+                GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
+            SetAzNICIpConfigPublicIP{}  Updates $NicIPConfigObject
+                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
+                GetAzPublicIpAddress{}      Gets $PublicIPObject
+            RemoveAzNICIpConPublicIP{}  Removes $NicIPConfigObject
+                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
     ManageAzPublicIPAddress{}   Gets $PublicIPObject
         NewAzPublicIPAddress{}      Creates $PublicIPObject
             GetAzResourceGroup{}        Gets $RGObject
         ListAzPublicIPAddress{}     Lists $PublicIPObject
-        GetAzPublicIPAddress{}      Gets $PublicIPObject
+        SetAzPublicIPAddressAllo{}  Changes $PublicIPObject
+            GetAzPublicIPAddress{}      Gets $PublicIPObject
         RemoveAzPublicIPAddress{}   Removes $PublicIPObject
             GetAzPublicIPAddress{}      Gets $PublicIPObject      
     ManageAzLoadBalancer{}      Gets $LoadBalancerObject
@@ -213,100 +237,92 @@
                 End RemoveAzVNetSubnetConfig
                     Return ManageAzVnetSubnetConfig > Send $null
             End ManageAzVnetSubnetConfig
-                Return function > Send $SubnetObject
-                
-
-            Call ManageAzNetworkInterface > Get $SubnetObject
-                Call NewAzNetworkInterface > Get $NicObject
+                Return ManageAzNetwork > Send $null
+            Call ManageAzNetworkInterface > Get $null        
+                Call NewAzNetworkInterface > Get $null
                     Call GetAzResourceGroup > Get $RGObject
                     End GetAzResourceGroup
                         Return NewAzNetworkInterface > Send $RGObject
                     Call GetAzLocation > Get $LocationObject
                     End GetAzLocation
                         Return NewAzNetworkInterface > Send $LocationObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject
+                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
                     End GetAzVNetSubnetConfig
-                        Return NewAzNetworkInterface > Send $SubnetObject
-                    End NewAzNetworkInterface
-                        Return ManageAzNetworkInterface > Send $NicObject
-                Call GetAzNetworkInterface > Get $NicObject
-                End GetAzNetworkInterface
-                    Return ManageAzNetworkInterface > Send $NicObject
-                Call RemoveAzNetworkInterface > Get $null
-                    Call GetAzNetworkInterface > Get $NicObject
-                    End GetAzNetworkInterface
-                        Return RemoveAzNetworkInterface > Send $NicObject
-                End RemoveAzNetworkInterface
+                        Return NewAzNetworkInterface > Send $SubnetObject, $VNetObject
+                End NewAzNetworkInterface
                     Return ManageAzNetworkInterface > Send $null
-                Call AddAzNICIpConfig > Get $NicObject
-                    Call NewAzNetworkInterface > Get $NicObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return NewAzNetworkInterface > Send $RGObject
-                        Call GetAzLocation > Get $LocationObject
-                        End GetAzLocation
-                            Return NewAzNetworkInterface > Send $LocationObject
-                        Call GetAzVNetSubnetConfig > Get $SubnetObject
-                        End GetAzVNetSubnetConfig
-                            Return NewAzNetworkInterface > Send $SubnetObject
-                    End NewAzNetworkInterface
-                        Return AddAzNICIpConfig > Send $NicObject
-                    Call GetAzNetworkInterface > Get $NicObject
+                Call ListAzNetworkInterface > Get $null
+                End ListAzNetworkInterface
+                    Return ManageAzNetworkInterface > Send $null
+                Call RemoveAzNetworkInterface > Get $null
+                    Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
                     End GetAzNetworkInterface
-                        Return AddAzNICIpConfig > $NicObject
-                End AddAzNICIpConfig
-                    Return ManageAzNetworkInterface > Send $NicObject
-                Call ListAzNICIpConfig > Get $null
-                End ListAzNICIpConfig
-                    Return ManageAzNetworkInterface > Send $Null
-                Call SetAzNICIpConfig > Get $NicObject
-                    Call NewAzNetworkInterface > Get $NicObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return NewAzNetworkInterface > Send $RGObject
-                        Call GetAzLocation > Get $LocationObject
-                        End GetAzLocation
-                            Return NewAzNetworkInterface > Send $LocationObject
-                        Call GetAzVNetSubnetConfig > Get $SubnetObject
-                        End GetAzVNetSubnetConfig
-                            Return NewAzNetworkInterface > Send $SubnetObject
-                    End NewAzNetworkInterface
-                        Return SetAzNICIpConfig > Send $NicObject
-                    Call GetAzNetworkInterface > Get $NicObject
-                    End GetAzNetworkInterface
-                        Return SetAzNICIpConfig > $NicObject
-                    Call NewAzPublicIpAddress > Get $PublicIPObject
-                        Call GetAzResourceGroup > Get $RGObject
-                        End GetAzResourceGroup
-                            Return NewAzPublicIpAddress > Send $RGObject
-                    End NewAzPublicIpAddress
-                        Return SetAzNICIpConfig > Send $PublicIPObject
-                    Call GetAzPublicIpAddress{}      Gets $PublicIPObject
-                    End NewAzPublicIpAddress
-                        Return SetAzNICIpConfig > Send $PublicIPObject
-                End SetAzNICIpConfig
-                    Return function > Send $NicObject
-                Call RemoveAzNICIpConfig > Get $NicObject
-                    Call GetAzNetworkInterface > Get $NicObject
-                    End GetAzNetworkInterface
-                        Return RemoveAzNICIpConfig > $NicObject
-                End RemoveAzNICIpConfig
-                    Return ManageAzNetworkInterface > Send $NicObject
-            End ManageAzNetworkInterface   
-                Return ManageAzNetwork > Send $NicObject
-            Call ManageAzPublicIPAddress > Get $PublicIPObject
-                Call NewAzPublicIpAddress > Get $PublicIPObject
+                        Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
+                End RemoveAzNetworkInterface
+                    Return ManageAzNetworkInterface > Send $null            
+                Call ManageAzNICIpConfig > Get $null
+                    Call AddAzNICIpConfig > Get $null
+                        Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
+                        End GetAzNetworkInterface
+                            Return AddAzNICIpConfig > Send $NicObject,$SubnetObject,$VnetObject
+                    End AddAzNICIpConfig
+                        Return ManageAzNICIpConfig > Send $null
+                    Call ListAzNICIpConfig > Get $null
+                    End ListAzNICIpConfig
+                        Return ManageAzNICIpConfig > Send $null
+                    Call RemoveAzNICIpConfig > Get $null
+                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                        End GetAzNICIpConfig
+                            Return RemoveAzNICIpConfig > Send $NicIPConfigObject, $NicObject
+                    End RemoveAzNICIpConfig
+                        Return ManageAzNICIpConfig > Send $null
+                    Call SetAzNICIpConfig > Get $null
+                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                        End GetAzNICIpConfig
+                            Return SetAzNICIpConfig > Send $NicIPConfigObject,$NicObject
+                    End SetAzNICIpConfig
+                        Return ManageAzNICIpConfig > Send $null
+                    Call SetAzNICPriIPConfig > Get $null
+                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                        End GetAzNICIpConfig
+                            Return SetAzNICPriIPConfig > Send $NicIPConfigObject,$NicObject
+                    End SetAzNICPriIPConfig
+                        Return ManageAzNICIpConfig > Send $null
+                    Call SetAzNICIpConfigPublicIP > Get $null
+                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                        End GetAzNICIpConfig
+                            Return SetAzNICIpConfigPublicIP > Send $NicIPConfigObject, $NicObject
+                        Call GetAzPublicIpAddress > Get $PublicIPObject
+                        End GetAzPublicIpAddress
+                            Return SetAzNICIpConfigPublicIP > Send $PublicIPObject
+                    End SetAzNICIpConfigPublicIP
+                        Return ManageAzNICIpConfig > Send $null
+                    Call RemoveAzNICIpConPublicIP > Get $null
+                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                        End GetAzNICIpConfig
+                            Return RemoveAzNICIpConPublicIP > Send $NicIPConfigObject, $NicObject
+                    End RemoveAzNICIpConPublicIP
+                        Return ManageAzNICIpConfig > Send $null
+                End ManageAzNICIpConfig
+                    Return ManageAzNetworkInterface > Send $null
+            End ManageAzNetworkInterface
+                Return ManageAzNetwork > Send $null
+            Call ManageAzPublicIPAddress > Get $null
+                Call NewAzPublicIpAddress > Get $null
                     Call GetAzResourceGroup > Get RGObject
                     End GetAzResourceGroup
                         Return NewAzPublicIpAddress > Send RGObject
                 End NewAzPublicIpAddress
-                    Return ManageAzPublicIPAddress > Send $PublicIPObject
+                    Return ManageAzPublicIPAddress > Send $null
                 Call ListAzPublicIpAddress > Get $null
                 End ListAzPublicIpAddress
                     Return ManageAzPublicIPAddress > Send $null
-                Call GetAzPublicIpAddress > Get $PublicIPObject
-                End GetAzPublicIpAddress
-                    Return ManageAzPublicIPAddress > Send $PublicIPObject
+                Call SetAzPublicIPAddressAllo > Get $null
+                    Call GetAzPublicIpAddress > Get $PublicIPObject
+                    End GetAzPublicIpAddress
+                        Return SetAzPublicIPAddressAllo > Send $PublicIPObject
+                End SetAzPublicIPAddressAllo
+                    Return ManageAzPublicIPAddress > Send $null    
                 Call RemoveAzPublicIPAddres > Get $null
                     Call GetAzPublicIpAddress > Get $PublicIPObject
                     End GetAzPublicIpAddress
@@ -314,19 +330,13 @@
                 End RemoveAzPublicIPAddress
                     Return ManageAzPublicIPAddress > Send $null
             End ManageAzPublicIPAddress
-                Return ManageAzNetwork > Send $PublicIPObject
-            Call ManageAzLoadBalancer > Get $LoadBalancerObject
-                Call NewAzLoadBalancer > Get $LoadBalancerObject
+                Return ManageAzNetwork > Send $null            
+            Call ManageAzLoadBalancer > Get $null
+                Call NewAzLoadBalancer > Get $null
                     Call GetAzResourceGroup > Get $RGObject
                     End GetAzResourceGroup
                         Return NewAzLoadBalancer > Send $RGObject          
                     Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
-                        Call NewAzPublicIpAddress > Get $PublicIPObject
-                            Call GetAzResourceGroup > Get RGObject
-                            End GetAzResourceGroup
-                                Return NewAzPublicIpAddress > Send RGObject
-                        End NewAzPublicIpAddress
-                            Return NewAzLBFrontendIpConfig > Send $PublicIPObject
                         Call GetAzPublicIpAddress > Get $PublicIPObject
                         End GetAzPublicIpAddress
                             Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
@@ -345,13 +355,10 @@
                     End NewAzLBRuleConfig
                         Return NewAzLoadBalancer > Send $LoadBalanceRule
                 End NewAzLoadBalancer
-                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
+                    Return ManageAzLoadBalancer > Send $null
                 Call ListAzLoadBalancer > Get $null
                 End ListAzLoadBalancer
                     Return ManageAzLoadBalancer > Send $null
-                Call GetAzLoadBalancer > Get $LoadBalancerObject
-                End GetAzLoadBalancer
-                    Return ManageAzLoadBalancer > Send $LoadBalancerObject
                 Call RemoveAzPublicIPAddres > Get $null
                     Call GetAzLoadBalancer > Get $LoadBalancerObject
                     End GetAzLoadBalancer
@@ -359,7 +366,7 @@
                 End RemoveAzLoadBalancer
                     Return ManageAzLoadBalancer > Send $null
             End ManageAzLoadBalancer
-                Return ManageAzNetwork > Send $LoadBalancerObject
+                Return ManageAzNetwork > Send $null                
         End ManageAzNetwork
             Return function > Send $Null
 }#>
@@ -914,163 +921,6 @@ function RemoveAzVNetSubnetConfig {                                             
 }                                                                                           # End function RemoveAzVNetSubnetConfig
 # End ManageAzVNetSubnetConfig
 # Functions for ManageAzNetworkInterface
-# Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
-    New-AzNetworkInterface:             https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.6.0
-    Get-AzNetworkInterface:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
-    Remove-AzNetworkInterface:          https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworkinterface?view=azps-5.6.0
-    Add-AzNetworkInterfaceIpConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-6.0.0
-    Get-AzNetworkInterfaceIPConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
-    Remove-AzNetworkInterfaceIPConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/Remove-aznetworkinterfaceipconfig?view=azps-5.6.0
-    Set-AzNetworkInterfaceIPConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-5.6.0
-    Set-AzNetworkInterface:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-5.6.0
-    Get-AzResourceGroup:                https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
-    Get-AzLocation:                     https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azlocation?view=azps-5.4.0
-    Get-AzVirtualNetworkSubnetConfig:   https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:               https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
-    Get-AzPublicIpAddress:              https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
-    Get-AzVM:                           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.0.0  
-} #>
-<# Required Functions Links: {
-    NewAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/NewAzNetworkInterface.ps1
-    ListAzNetworkInterface:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNetworkInterface.ps1
-    GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1
-    RemoveAzNetworkInterface:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNetworkInterface.ps1  
-    ManageAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ManageAzNICIpConfig.ps1
-        AddAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/AddAzNICIpConfig.ps1
-        ListAzNICIpConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/ListAzNICIpConfig.ps1
-        GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
-        RemoveAzNICIpConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConfig.ps1
-        SetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfig.ps1
-        SetAzNICPriIPConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICPriIPConfig.ps1
-        SetAzNICIpConfigPublicIP:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/SetAzNICIpConfigPublicIP.ps1
-        RemoveAzNICIpConPublicIP:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/RemoveAzNICIpConPublicIP.ps1
-        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
-        GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1 
-    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
-    GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1
-} #>
-<# Functions Description: {
-    ManageAzNetworkInterface:   Management function for network interfaces
-    NewAzNetworkInterface:      Creates new network interfaces
-    ListAzNetworkInterface:     Lists network interfaces
-    GetAzNetworkInterface:      Gets an existing network interface
-    RemoveAzNetworkInterface:   Removes a network interface   
-    ManageAzNICIpConfig:        Management function for network interfaces ip configs
-        AddAzNICIpConfig:           Creates a NIC IP configuration
-        ListAzNICIpConfig:          Lists all NIC IP configurations
-        GetAzNICIpConfig:           Gets a NIC IP configuration
-        RemoveAzNICIpConfig:        Removes a network interface config
-        SetAzNICIpConfig:           Updates a NIC IP configuration
-        SetAzNICPriIPConfig:        Updates a NIC IP primary configuration
-        SetAzNICIpConfigPublicIP:   Adds a public IP sku to a network interface config
-        RemoveAzNICIpConPublicIP:   Removes a public IP sku to a network interface config
-        GetAzPublicIpAddress:       Gets a public IP address sku  
-        GetAzNetworkInterface:      Gets an existing network interface
-    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
-    GetAzResourceGroup:         Gets a resource group
-    GetAzLocation:              Gets an azure location
-} #>
-<# Variables: {
-    :ManageAzureNic             Outer loop for managing function
-    $OpSelect:                  Operator input for selecting function
-    NewAzNetworkInterface{}     Creates $NicObject
-        GetAzResourceGroup{}        Gets $RGObject
-        GetAzLocation{}             Gets $LocationObject
-        GetAzVNetSubnetConfig{}     Gets $SubnetObject
-    ListAzNetworkInterface{}    Lists $NicObjects
-    RemoveAzNetworkInterface{}  Removes $NicObject
-        GetAzNetworkInterface{}     Get $NicObject
-    ManageAzNICIpConfig{}       Manages $NicIPConfigObject
-        AddAzNICIpConfig{}          Adds $NicIPConfigObject
-            GetAzNetworkInterface{}     Gets $NicObject,$SubnetObject,$VnetObject
-        ListAzNICIpConfig{}         Lists $NicIPConfigObject
-        RemoveAzNICIpConfig{}       Removes $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-        SetAzNICIpConfig{}          Updates $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
-        SetAzNICPriIPConfig{}       Updates $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
-        SetAzNICIpConfigPublicIP{}  Updates $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-            GetAzPublicIpAddress{}      Gets $PublicIPObject
-        RemoveAzNICIpConPublicIP{}  Removes $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-        
-} #>
-<# Process Flow {
-    Function
-        Call ManageAzNetworkInterface > Get $null        
-            Call NewAzNetworkInterface > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzNetworkInterface > Send $RGObject
-                Call GetAzLocation > Get $LocationObject
-                End GetAzLocation
-                    Return NewAzNetworkInterface > Send $LocationObject
-                Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                End GetAzVNetSubnetConfig
-                    Return NewAzNetworkInterface > Send $SubnetObject, $VNetObject
-            End NewAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null
-            Call ListAzNetworkInterface > Get $null
-            End ListAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null
-            Call RemoveAzNetworkInterface > Get $null
-                Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                End GetAzNetworkInterface
-                    Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
-            End RemoveAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null            
-            Call ManageAzNICIpConfig > Get $null
-                Call AddAzNICIpConfig > Get $null
-                    Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                    End GetAzNetworkInterface
-                        Return AddAzNICIpConfig > Send $NicObject,$SubnetObject,$VnetObject
-                End AddAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call ListAzNICIpConfig > Get $null
-                End ListAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call RemoveAzNICIpConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return RemoveAzNICIpConfig > Send $NicIPConfigObject, $NicObject
-                End RemoveAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICIpConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICIpConfig > Send $NicIPConfigObject,$NicObject
-                End SetAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICPriIPConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICPriIPConfig > Send $NicIPConfigObject,$NicObject
-                End SetAzNICPriIPConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICIpConfigPublicIP > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICIpConfigPublicIP > Send $NicIPConfigObject, $NicObject
-                    Call GetAzPublicIpAddress > Get $PublicIPObject
-                    End GetAzPublicIpAddress
-                        Return SetAzNICIpConfigPublicIP > Send $PublicIPObject
-                End SetAzNICIpConfigPublicIP
-                    Return ManageAzNICIpConfig > Send $null
-                Call RemoveAzNICIpConPublicIP > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return RemoveAzNICIpConPublicIP > Send $NicIPConfigObject, $NicObject
-                End RemoveAzNICIpConPublicIP
-                    Return ManageAzNICIpConfig > Send $null
-            End ManageAzNICIpConfig
-                Return ManageAzNetworkInterface > Send $null
-        End ManageAzNetworkInterface
-            Return function > Send $null
-}#>
 function ManageAzNetworkInterface {                                                         # Function for managing azure nic resources
     Begin {                                                                                 # Begin function   
         :ManageAzureNic while ($true) {                                                     # Outer loop for managing function
@@ -2377,56 +2227,63 @@ function RemoveAzPublicIPAddress {                                              
 function ManageAzLoadBalancer {                                                             # Function to manage load balancer Skus
     Begin {                                                                                 # Begin function
         :ManageAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
-            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
-                Write-Host 'The current load balancer is'$LoadBalancerObject.Name           # Write message to screen
-            }                                                                               # End if ($LoadBalancerObject)
-            Write-Host '[0] Clear "$LoadBalancerObject"'                                    # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New load balancer'                                              # Write message to screen
             Write-Host '[2] List load balancers'                                            # Write message to screen
-            Write-Host '[3] Get load balancer'                                              # Write message to screen
-            Write-Host '[4] Remove load balancer'                                           # Write message to screen
-            $OperatorSelect = Read-Host 'Enter the option [#]'                              # Operator input for the function selection
-            if ($OperatorSelect -eq 'exit') {                                               # $OperatorSelect equals 'exit'    
+            Write-Host '[3] Remove load balancer'                                           # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
                 Break ManageAzureLoadBalancer                                               # Breaks :ManageAzureLoadBalancer
-            }                                                                               # End if ($OperatorSelect -eq 'exit')
-            elseif ($OperatorSelect -eq '0') {                                              # $OperatorSelect equals '0'
-                if ($LoadBalancerObject){                                                   # If $LoadBalancerObject has a value
-                    $LoadBalancerObject = $null                                             # Clears $LoadBalancerObject
-                    Write-Host '$LoadBalancerObject has been cleared'                       # Write message to screen
-                }                                                                           # End if ($LoadBalancerObject)
-                else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host '$LoadBalancerObject was already empty'                      # Write message to screen
-                }                                                                           # End else (if ($LoadBalancerObject))
-            }                                                                               # elseif ($OperatorSelect -eq '0')
-            elseif ($OperatorSelect -eq '1') {                                              # $OperatorSelect equals '1'
-                $LoadBalancerObject = NewAzLoadBalancer                                     # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '1')
-            elseif ($OperatorSelect -eq '2') {                                              # $OperatorSelect equals '2'
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'New load balancer'                                              # Write message to screen
+                NewAzLoadBalancer                                                           # Calls function
+            }                                                                               # elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List load balancers'                                            # Write message to screen
                 ListAzLoadBalancer                                                          # Calls function
-            }                                                                               # elseif ($OperatorSelect -eq '2')
-            elseif ($OperatorSelect -eq '3') {                                              # $OperatorSelect equals '3'
-                $LoadBalancerObject = GetAzLoadBalancer                                     # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '3')
-            elseif ($OperatorSelect -eq '4') {                                              # $OperatorSelect equals '4'
-                RemoveAzLoadBalancer ($LoadBalancerObject)                                  # Calls function and assigns output to $var
-            }                                                                               # elseif ($OperatorSelect -eq '4')
-            else {                                                                          # All other inputs for $OperatorSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OperatorSelect -eq 'exit'))
+            }                                                                               # elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Remove load balancer'                                           # Write message to screen
+                RemoveAzLoadBalancer                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq 'exit'))
         }                                                                                   # End :ManageAzureLoadBalancer while ($true)
-        return $LoadBalancerObject                                                          # Returns to calling function with $LoadBalancerObject
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzLoadBalancer
 function NewAzLoadBalancer {                                                                # Function to create a new load balancer
     Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzLoadBalancer'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
-            if (!$RGObject) {                                                               # If $RGObject is $null
-                $RGObject = GetAzResourceGroup                                              # Calls function and assigns output to $var
-                if (!$RGObject) {                                                           # If $RGObject is $null
+            :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
+                Write-Host 'Enter the load balancer name'                                   # Write message to screen
+                $LBNameObject = Read-Host 'Name'                                            # Operator input for the balancer name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$LBNameObject' as the balancer name'                       # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the balancer name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
                     Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
-                }                                                                           # End if (!$RGObject)
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break SetAzureLBName                                                    # Breaks :SetAzureLBName
+                }                                                                           # End if ($OpConfirm -eq 'y')
+            }                                                                               # End :SetAzureLBName while ($true)
+            $RGObject = GetAzResourceGroup ($CallingFunction)                               # Calls function and assigns output to $var
+            if (!$RGObject) {                                                               # If $RGObject is $null
+                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$RGObject)
-            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig                               # Calls function and assigns output to $var
+            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig ($CallingFunction)            # Calls function and assigns output to $var
             if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$FrontEndIPConfigObject)
@@ -2438,207 +2295,269 @@ function NewAzLoadBalancer {                                                    
             if (!$HealthProbeObject) {                                                      # If $HealthProbeObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$HealthProbeObject)
-            $InboundNatPoolObject = NewAzLBIBNatPoolConfig ($FrontEndIPConfigObject)        # Calls function and assigns output to $var
+            $InboundNatPoolObject = NewAzLBIBNatPoolConfig `
+                ($FrontEndIPConfigObject, $CallingFunction)                                 # Calls function and assigns output to $var
             if (!$InboundNatPoolObject) {                                                   # If $InboundNatPoolObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$InboundNatPoolObject)
             $LoadBalanceRule = NewAzLBRuleConfig ($FrontEndIPConfigObject, `
-                $BackEndIPConfigObject, $HealthProbeObject)                                 # Calls function and assigns output to $var
+                $BackEndIPConfigObject, $HealthProbeObject, $CallingFunction)               # Calls function and assigns output to $var
             if (!$LoadBalanceRule) {                                                        # If $LoadBalanceRule is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$LoadBalanceRule)
-            :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
-                $LBNameObject = Read-Host "Load balancer Name"                              # Operator input for the balancer name
-                if ($LBNameObject -eq 'exit') {                                             # If $LBNameObject equals $exit
-                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
-                }                                                                           # End if ($LBNameObject -eq 'exit')
-                Write-Host $LBNameObject                                                    # Writes message to screen
-                $OpConfirm = Read-Host "Use as the balancer name? [Y] or [N]"         # Operator confirmation of the balancer name
-                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
-                    Break SetAzureLBName                                                    # Breaks :SetAzureLBName
-                }                                                                           # End if ($OpConfirm -eq 'y')
-            }                                                                               # End :SetAzureLBName while ($true)
-            $LoadBalancerObject = New-AzLoadBalancer -Name $LBNameObject `
-                -ResourceGroupName $RGObject.ResourceGroupName -Location `
-                $RGObject.Location -FrontendIpConfiguration $FrontEndIPConfigObject `
-                -BackendAddressPool $BackEndIPConfigObject -Probe $HealthProbeObject `
-                -LoadBalancingRule $LBRule -InboundNatPool $InboundNatPoolObject            # Creates the load balancer
-            if ($LoadBalancerObject) {                                                      # If $LoadBalancerObject has a value
-                Return $LoadBalancerObject                                                  # Returns $LoadBalancerObject to calling function
-            }                                                                               # End if ($LoadBalancerObject)
-            else {                                                                          # If $LoadBalancerObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Creating the load balanacer'                                    # Write message to screen
+                New-AzLoadBalancer -Name $LBNameObject -ResourceGroupName `
+                    $RGObject.ResourceGroupName -Location $RGObject.Location `
+                    -FrontendIpConfiguration $FrontEndIPConfigObject -BackendAddressPool `
+                    $BackEndIPConfigObject -Probe $HealthProbeObject -LoadBalancingRule `
+                    $LBRule -InboundNatPool $InboundNatPoolObject -ErrorAction 'Stop' `
+                    | Out-Null                                                              # Creates the load balancer
+            }                                                                               # End try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'You may not have the permissions to do this'                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'The resource group maybe locked'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End else(if ($LoadBalancerObject))
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The load balancer has been created'                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzureLoadBalancer                                                      # Breaks :NewAzureLoadBalancer
         }                                                                                   # End :NewAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLoadBalancer
 function NewAzLBFrontendIpConfig {                                                          # Function to set up the front end IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBFEIpConfig while ($true) {                                               # Outer loop for managing the function
-            :GetAzurePublicIP while ($true) {                                               # Inner loop for getting the public IP
-                Write-Host "[0] Exit"                                                       # Write message to screen
-                Write-Host "[1] New Public IP"                                              # Write message to screen
-                Write-Host "[2] Existing public IP"                                         # Write message to screen
-                $PublicIPType = Read-Host "[0], [1], or [2]"                                # Operator input for getting the public IP
-                if ($PublicIPType -eq '0') {                                                # If $PublicIPType equals '0'
+            :SetAzurePublicIP while ($true) {                                               # Inner loop for selecting the public IP sku
+                $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                   # Calls function and assigns output to $var
+                if (!$PublicIPObject) {                                                     # If $var is $null
                     Break NewAzureLBFEIpConfig                                              # Breaks :NewAzureLPFEIpConfig
-                }                                                                           # End if ($PublicIPType -eq '0')
-                elseif ($PublicIPType -eq '1') {                                            # If $PublicIPType equals 1
-                    $PublicIPObject = NewAzPublicIpAddress                                  # Calls function and assigns output to $var
-                    if (!$PublicIPObject) {                                                 # If $var is $null
+                }                                                                           # End if (!$PublicIPObject)
+                if ($PublicIPObject.IpConfiguration.Id) {                                   # If $PublicIPObject.IpConfiguration.Id has a value
+                    Write-Host 'The selected public IP sku is already in use'               # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'Select a different public IP sku?'                          # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpSelect = Read-Host '[Y] Yes [N] No'                                  # Operator selection to choose a new public IP sku
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq 'y') {                                                # If $OpSelect equals 'y'
+                        $PublicIPObject = $null                                             # Clears $PublicIPObject
+                    }                                                                       # End if ($OpSelect -eq 'y')
+                    else {                                                                  # Else if $OpSelect does not equal 'y'
                         Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLPFEIpConfig
-                    }                                                                       # End if (!$PublicIPObject)
-                    Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
-                }                                                                           # End elseif ($PublicIPType -eq '1')
-                elseif ($PublicIPType -eq '2') {                                            # If $PublicIPType equals 2
-                    $PublicIPObject = GetAzPublicIpAddress                                  # Calls function and assigns output to $var
-                    if (!$PublicIPObject) {                                                 # If $var is $null
-                        Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLPFEIpConfig
-                    }                                                                       # End if (!$PublicIPObject)
-                    Break GetAzurePublicIP                                                  # Breaks :GetAzurePublicIP
-                }                                                                           # End elseif ($PublicIPType -eq '2')
-                else {                                                                      # All other inputs
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else(if ($PublicIPType -eq '0'))
-            }                                                                               # End :GetAzurePublicIP while ($true)
+                    }                                                                       # End if ($OpSelect -eq 'y')
+                }                                                                           # End if ($PublicIPObject.IpConfiguration.Id)
+                else {                                                                      # if $PublicIPObject.IpConfiguration.Id is $null
+                    Break SetAzurePublicIP                                                  # Breaks :SetAzurePublicIP
+                }                                                                           # End else (if ($PublicIPObject.IpConfiguration.Id))
+            }                                                                               # End :SetAzurePublicIP while ($true)
             :SetAzureLBFEName while ($true) {                                               # Inner loop for setting the front end name
-                $FrontEndNameObject = Read-Host "Front end Name"                            # Operator input for the front end name
-                if ($FrontEndNameObject -eq 'exit') {                                       # If $FrontEndNameObject equals $null
+                Write-Host 'Enter the load balancer front end name'                         # Write message to screen
+                $FrontEndNameObject = Read-Host 'Name'                                      # Operator input for the front end name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$FrontEndNameObject' as the front end name'                # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the front end name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e''
                     Break NewAzureLBFEIpConfig                                              # Breaks :NewAzureLBFEIpConfig
-                }                                                                           # End if ($FrontEndNameObject -eq 'exit')
-                Write-Host $FrontEndNameObject                                              # Writes message to screen
-                $OpConfirm = Read-Host "Use as the front end name? [Y] or [N]"        # Operator confirmation of the front end name
-                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureLBFEName                                                  # Breaks :SetAzureLBFEName
                 }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureLBFEName while ($true)
-            $FrontEndIPConfigObject = New-AzLoadBalancerFrontendIpConfig -Name `
-                $FrontEndNameObject -PublicIpAddress $PublicIPObject                        # Creates the load balancer front end pool
-            if ($FrontEndIPConfigObject) {                                                  # If $FrontEndIPConfigObject has a value
-                Return $FrontEndIPConfigObject                                              # Returns to calling function with $
-            }                                                                               # End if ($FrontEndIPConfigObject)
-            else {                                                                          # If $FrontEndIPConfigObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Building the load balancer front end config'                    # Write message to screen
+                $FrontEndIPConfigObject = New-AzLoadBalancerFrontendIpConfig -Name `
+                    $FrontEndNameObject -PublicIpAddress $PublicIPObject -ErrorAction `
+                    'Stop'                                                                   # Creates the load balancer front end pool
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureLBFEIpConfig                                                  # Breaks :NewAzureLBFEIpConfig
-            }                                                                               # End else (if ($FrontEndIPConfigObject))
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Front end config has been built'                                    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $FrontEndIPConfigObject                                                  # Returns to calling function with $var
         }                                                                                   # End :NewAzureLBFEIpConfig while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBFrontendIpConfig
 function NewAzLBBackendIpConfig {                                                           # Function to set up the Back end IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBBEIpConfig while ($true) {                                               # Outer loop for managing the function
             :SetAzureLBBEName while ($true) {                                               # Inner loop for setting the back end name
-                $BackEndNameObject = Read-Host "Back end name"                              # Operator input for the back end name
-                if ($BackEndNameObject -eq 'exit') {                                        # If $BackEndNameObject equals $null
+                Write-Host 'Enter the load balancer back end name'                          # Write message to screen
+                $BackEndNameObject = Read-Host 'Name'                                       # Operator input for the back end name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$BackEndNameObject' as the back end name'                  # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the back end name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e''
                     Break NewAzureLBBEIpConfig                                              # Breaks :NewAzureLBBEIpConfig
-                }                                                                           # End if ($BackEndNameObject -eq 'exit')
-                Write-Host $BackEndNameObject                                               # Writes message to screen
-                $OpConfirm = Read-Host "Use as the Back end name? [Y] or [N]"         # Operator confirmation of the back end name
-                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureLBBEName                                                  # Breaks :SetAzureLBBEName
                 }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureLBBEName while ($true)
-            $BackEndIPConfigObject = New-AzLoadBalancerBackendAddressPoolConfig -Name `
-                $BackEndNameObject                                                          # Creates the load balancer back end pool
-            if ($BackEndIPConfigObject) {                                                   # If $BackEndIPConfigObject has a value
-                Return $BackEndIPConfigObject                                               # Returns to calling function with $
-            }                                                                               # End if ($BackEndIPConfigObject)
-            else {                                                                          # If $BackEndIPConfigObject does not have a value
-                Write-Host "An error has occured"                                           # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Building the load balancer back end config'                     # Write message to screen
+                $BackEndIPConfigObject = New-AzLoadBalancerBackendAddressPoolConfig -Name `
+                    $BackEndNameObject -ErrorAction 'Stop'                                  # Creates the load balancer back end pool
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureLBBEIpConfig                                                  # Breaks :NewAzureLBBEIpConfig
-            }                                                                               # End else (if ($BackEndIPConfigObject))
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen    
+            Write-Host 'Back end config has been built'                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $BackEndIPConfigObject                                                   # Returns to calling function with $var
         }                                                                                   # End :NewAzureLBBEIpConfig while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBBackendIpConfig
 function NewAzLBProbeConfig {                                                               # Function to sett up load balancer health probes
-    Begin {
-        :NewAzureLBProbeConfig while ($true) {
+    Begin {                                                                                 # Begin function
+        :NewAzureLBProbeConfig while ($true) {                                              # Out loop for managing function
             :SetAzureProbeName while ($true) {                                              # Inner loop for setting the probe name
-                $ProbeNameObject = Read-Host "Probe Name"                                   # Operator input for the probe name
-                if ($ProbeNameObject -eq 'exit') {                                          # If $ProbeNameObject equals $null
+                Write-Host 'Enter the load balancer probe name'                             # Write message to screen
+                $ProbeNameObject = Read-Host 'Name'                                         # Operator input for the probe name
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$ProbeNameObject' as the probe name'                       # Writes message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the probe name
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
                     Break NewAzureLBProbeConfig                                             # Breaks :NewAzureLBProbeConfig
-                }                                                                           # End if ($ProbeNameObject -eq 'exit')
-                Write-Host $ProbeNameObject                                                 # Writes message to screen
-                $OpConfirm = Read-Host "Use as the probe name? [Y] or [N]"            # Operator confirmation of the probe name
-                if ($OpConfirm -eq 'y') {                                             # If $OpConfirm equals 'y'
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
                     Break SetAzureProbeName                                                 # Breaks :SetAzureProbeName
                 }                                                                           # End if ($OpConfirm -eq 'y')
             }                                                                               # End :SetAzureProbeName while ($true)
             :SetAzureProbeProtocol while ($true) {                                          # Inner loop for setting the probe type
+                Write-Host 'Load balanacer health probe protocol'                           # Write message to screen
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] Http (80)'                                                  # Write message to screen
                 Write-host '[2] Https(443)'                                                 # Write message to screen
-                $ProbeTypeObject = Read-Host '[0], [1], or [2]'                             # Operator input for the probe type object
-                if ($ProbeTypeObject -eq '0') {                                             # If $ProbeTypeObject equals 0
+                $OpSelect = Read-Host 'Option[#]'                                           # Operator input for the probe type object
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
                     Break NewAzureLBProbeConfig                                             # Breaks :NewAzureLBProbeConfig 
-                }                                                                           # End if ($ProbeTypeObject -eq '0')
-                elseif ($ProbeTypeObject -eq '1') {                                         # Elseif $ProbeTypeObject equals 1
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals '1'
                     [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
                     $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
                         'port' = '80'}                                                      # Creates the item to loaded into array
                     $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
                     Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($ProbeTypeObject -eq '1')
-                elseif ($ProbeTypeObject -eq '2') {                                         # Elseif $ProbeTypeObject equals 1
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals '2'
                     [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
                     $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'https';`
                         'port' = '443'}                                                     # Creates the item to loaded into array
                     $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
                     Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($ProbeTypeObject -eq '2')
-                else {                                                                      # All other inputs 
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else 
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (If $OpSelect -eq '0')
             }                                                                               # End :SetAzureProbeProtocol while ($true)
             :SetAzureProbeInterval while ($true) {                                          # Inner loop for setting the probe interval time
-                Try {                                                                       # Try the following
-                    [int]$ProbeIntervalObject = Read-Host "Probe interval in seconds"       # Operator input for the probe interval
-                }                                                                           # End try
-                Catch {}                                                                    # If try fails
-                if ($ProbeIntervalObject -le 0) {                                           # If $ProbeIntervalObject is less than or equal to 0
-                    Write-Host "Please enter a number"                                      # Write message to screen
-                }                                                                           # End if ($ProbeIntervalObject -le 0) 
-                elseif ($ProbeIntervalObject -ge 1) {                                       # If $ProbeIntervalObject is greater than or equal to `
-                    $OpConfirm = Read-Host 'Probe interval will be set at' `
-                    $ProbeIntervalObject 'seconds [Y] or [N]'                               # Operator confirmation of the probe interval
-                    if ($OpConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                Write-Host 'Enter the probe interval in seconds'                            # Write message to screen
+                $ProbeIntervalObject = Read-Host 'Probe interval'                           # Operator input for the probe interval
+                Clear-Host                                                                  # Clears screen
+                if ($ProbeIntervalObject -ge 1 -and `
+                    $ProbeIntervalObject -le 9999999999999 -and `
+                    $ProbeIntervalObject -notlike '*.*') {                               # If $ProbeIntervalObject is 1 or more and less or equal to 9999999999999
+                    Write-Host 'Set probe interval at:'$ProbeIntervalObject' Seconds'       # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureLBProbeConfig                                         # Breaks :NewAzureLBProbeConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeInterval                                         # Breaks :SetAzureProbeInterval        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End elseif ($ProbeIntervalObject -ge 1)
+                }                                                                           # End if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*') 
+                else {                                                                      # All other inputs for $ProbeIntervalObject
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*'))
             }                                                                               # End :SetAzureProbeInterval while ($true)
             :SetAzureProbeCount while ($true) {                                             # Inner loop for setting the probe count
-                Try {                                                                       # Try the following
-                    [int]$ProbeCountObject = Read-Host "Probe count"                        # Operator input for the probe count
-                }                                                                           # End try
-                Catch {}                                                                    # If try fails
-                if ($ProbeCountObject -le 0) {                                              # If $ProbeCountObject is less than or equal to 0
-                    Write-Host "Please enter a number"                                      # Write message to screen
-                }                                                                           # End if ($ProbeCountObject -le 0) 
-                elseif ($ProbeCountObject -ge 1) {                                          # If $ProbeCountObject is greater than or equal to `
-                    $OpConfirm = Read-Host 'Probe count will be set at' `
-                    $ProbeCountObject  '[Y] or [N]'                                         # Operator confirmation of the probe count
-                    if ($OpConfirm -eq 'y') {                                         # If $OperatorConfrim equals 'y'
+                Write-Host 'Enter the number of probes required to'                         # Write message to screen
+                Write-Host 'report node is no longer functioning'                           # Write message to screen
+                $ProbeCountObject = Read-Host 'Probe count'                                 # Operator input for the probe count
+                Clear-Host                                                                  # Clears screen
+                if ($ProbeCountObject -ge 1 -and `
+                    $ProbeCountObject -le 9999999999999 -and `
+                    $ProbeCountObject -notlike '*.*') {                                     # If $ProbeCountObject is greater or equal to 1 or less than or equal to 9999999999999 and not like '.'
+                    Write-Host 'Set probe count at:'$ProbeCountObject                       # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureLBProbeConfig                                         # Breaks :NewAzureLBProbeConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeCount                                            # Breaks :SetAzureProbeCount        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End elseif ($ProbeCountObject -ge 1)
+                }                                                                           # End if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*')
+                else {                                                                      # All other inputs for $ProbeCountObject
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*'))
             }                                                                               # End :SetAzureProbeCount while ($true)
-            $HealthProbeObject = New-AzLoadBalancerProbeConfig -Name $ProbeNameObject `
-                -RequestPath healthcheck.aspx -Protocol $ProbeProtocol.Protocol `
-                -Port $ProbeProtocol.Port -IntervalInSeconds $ProbeIntervalObject `
-                -ProbeCount $ProbeCountObject                                               # Creates the Health probe object
-            if ($HealthProbeObject) {                                                       # If $HealthProbeObject has a value
-                Return $HealthProbeObject                                                   # Returns $HealthProbeObject to calling function
-            }                                                                               # End if ($HealthProbeObject)
-            else {                                                                          # If $HealthProbeObject does not have a value
-                Write-Host "An error has occured while setting the probe"                   # Write message to screen
+            Try {                                                                           # Try the following
+                Write-Host 'Building health probe configuration'                            # Write message to screen
+                $HealthProbeObject = New-AzLoadBalancerProbeConfig -Name $ProbeNameObject `
+                    -RequestPath healthcheck.aspx -Protocol $ProbeProtocol.Protocol `
+                    -Port $ProbeProtocol.Port -IntervalInSeconds $ProbeIntervalObject `
+                    -ProbeCount $ProbeCountObject -ErrorAction 'Stop'                       # Creates the Health probe object
+            }                                                                               # End try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureLBProbeConfig                                                 # Breaks :NewAzureLBProbeConfig
-            }                                                                               # End else (if ($HealthProbeObject))
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen    
+            Write-Host 'Health probe config has been built'                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $HealthProbeObject                                                       # Returns to calling function with $var
         }                                                                                   # End :NewAzureLBProbeConfig while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function NewAzLBProbeConfig
 function NewAzLBIBNatPoolConfig {                                                           # Creates inbound pool configuration for load balancer
