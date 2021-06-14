@@ -31,6 +31,10 @@
     :NewAzureLoadBalancer       Outer loop to manage function   
     :SetAzureLBName             Inner loop for set the load balancer name
     $CallingFunction:           Name of this function or the one that called it
+    $ValidArray:                Array of valid non first/last characters to load balancer config
+    $Valid1stChar:              Array of valid first characters to load balancer config
+    $ValidLastChar:             Array of valid last characters to load balancer config
+    $LBNameArray:               $LBNameObject converted to array
     $LBNameObject:              Load balancer name object
     $RGObject:                  Resource group object
     $FrontEndIPConfigObject:    Front end configuration object
@@ -81,19 +85,62 @@ function NewAzLoadBalancer {                                                    
             $CallingFunction = 'NewAzLoadBalancer'                                          # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
                 Write-Host 'Enter the load balancer name'                                   # Write message to screen
                 $LBNameObject = Read-Host 'Name'                                            # Operator input for the balancer name
+                $LBNameArray = $LBNameObject.ToCharArray()                                  # Loads $LBNameObject into array
                 Clear-Host                                                                  # Clears screen
-                Write-Host 'Use:'$LBNameObject' as the balancer name'                       # Writes message to screen
-                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the balancer name
-                Clear-Host                                                                  # Clears screen
-                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
-                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
-                }                                                                           # End if ($OpConfirm -eq 'e')
-                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
-                    Break SetAzureLBName                                                    # Breaks :SetAzureLBName
-                }                                                                           # End if ($OpConfirm -eq 'y')
+                if ($LBNameObject.Length -ge 81) {                                          # If $PublicNameInput.Length is greater or equal to 81
+                    Write-Host 'The load balancer name is to long'                          # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $LBNameObject = $null                                                   # Clears $LBNameObject
+                }                                                                           # End if ($LBNameObject.Length -ge 80)
+                if ($LBNameArray[0] -notin $Valid1stChar) {                                 # If 0 position of $LBNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $LBNameObject = $null                                                   # Clears $LBNameObject
+                }                                                                           # End if ($LBNameArray[0] -notin $Valid1stChar)
+                if ($LBNameArray[-1] -notin $ValidLastChar) {                               # If last position of $LBNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $LBNameObject = $null                                                   # Clears $LBNameObject
+                }                                                                           # End if ($LBNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $LBNameArray) {                                              # For each item in $LBNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Load balancer name cannot include any spaces'       # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $LBNameObject = $null                                               # Clears $LBNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBNameArray)
+                if ($LBNameObject) {                                                        # If $LBNameObject has a value
+                    Write-Host 'Use:'$LBNameObject' as the balancer name'                   # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the balancer name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureLBName                                                # Breaks :SetAzureLBName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($LBNameObject)
+                else {                                                                      # If $LBNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($LBNameObject))
             }                                                                               # End :SetAzureLBName while ($true)
             $RGObject = GetAzResourceGroup ($CallingFunction)                               # Calls function and assigns output to $var
             if (!$RGObject) {                                                               # If $RGObject is $null
@@ -133,6 +180,8 @@ function NewAzLoadBalancer {                                                    
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'The provided ports configuratiob may not be valid'              # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'You may not have the permissions to do this'                    # Write message to screen
                 Write-Host ''                                                               # Write message to screen
