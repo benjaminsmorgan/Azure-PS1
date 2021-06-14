@@ -14,6 +14,10 @@
     :SetAzureProbeProtocol      Inner loop for setting the probe type
     :SetAzureProbeInterval      Inner loop for setting the probe interval
     :SetAzureProbeCount         Inner loop for setting the probe count
+    $ValidArray:                Array of valid non first/last characters to load balancer config
+    $Valid1stChar:              Array of valid first characters to load balancer config
+    $ValidLastChar:             Array of valid last characters to load balancer config
+    $ProbeNameArray:            $ProbeNameObject converted to array
     $ProbeNameObject:           Probe name object
     $ProbeTypeObject:           Probe type object
     $ProbeProtocol:             Array containing probe port and protocol
@@ -32,19 +36,62 @@
 function NewAzLBProbeConfig {                                                               # Function to sett up load balancer health probes
     Begin {                                                                                 # Begin function
         :NewAzureLBProbeConfig while ($true) {                                              # Out loop for managing function
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureProbeName while ($true) {                                              # Inner loop for setting the probe name
                 Write-Host 'Enter the load balancer probe name'                             # Write message to screen
                 $ProbeNameObject = Read-Host 'Name'                                         # Operator input for the probe name
+                $ProbeNameArray = $ProbeNameObject.ToCharArray()                            # Loads $ProbeNameArray into array
                 Clear-Host                                                                  # Clears screen
-                Write-Host 'Use:'$ProbeNameObject' as the probe name'                       # Writes message to screen
-                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the probe name
-                Clear-Host                                                                  # Clears screen
-                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
-                    Break NewAzureLBProbeConfig                                             # Breaks :NewAzureLBProbeConfig
-                }                                                                           # End if ($OpConfirm -eq 'e')
-                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
-                    Break SetAzureProbeName                                                 # Breaks :SetAzureProbeName
-                }                                                                           # End if ($OpConfirm -eq 'y')
+                if ($ProbeNameObject.Length -ge 81) {                                       # If $ProbeNameObject.Length is greater or equal to 81
+                    Write-Host 'The probe name is to long'                                  # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $ProbeNameObject = $null                                                # Clears $ProbeNameObject
+                }                                                                           # End if ($ProbeNameObject.Length -ge 80)
+                if ($ProbeNameArray[0] -notin $Valid1stChar) {                              # If 0 position of $ProbeNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $ProbeNameObject = $null                                                # Clears $ProbeNameObject
+                }                                                                           # End if ($ProbeNameArray[0] -notin $Valid1stChar)
+                if ($ProbeNameArray[-1] -notin $ValidLastChar) {                            # If last position of $ProbeNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $ProbeNameObject = $null                                                # Clears $ProbeNameObject
+                }                                                                           # End if ($ProbeNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $ProbeNameArray) {                                           # For each item in $ProbeNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Probe name cannot include any spaces'               # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $ProbeNameObject = $null                                            # Clears $ProbeNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBNameArray)
+                if ($ProbeNameObject) {                                                     # If $ProbeNameObject has a value
+                    Write-Host 'Use:'$ProbeNameObject' as the probe name'                   # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureLBProbeConfig                                         # Breaks :NewAzureLBProbeConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureProbeName                                             # Breaks :SetAzureProbeName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End $ProbeNameObject
+                else {                                                                      # If $ProbeNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else $ProbeNameObject
             }                                                                               # End :SetAzureProbeName while ($true)
             :SetAzureProbeProtocol while ($true) {                                          # Inner loop for setting the probe type
                 Write-Host 'Load balanacer health probe protocol'                           # Write message to screen
@@ -82,7 +129,7 @@ function NewAzLBProbeConfig {                                                   
                 Clear-Host                                                                  # Clears screen
                 if ($ProbeIntervalObject -ge 1 -and `
                     $ProbeIntervalObject -le 9999999999999 -and `
-                    $ProbeIntervalObject -notlike '*.*') {                               # If $ProbeIntervalObject is 1 or more and less or equal to 9999999999999
+                    $ProbeIntervalObject -notlike '*.*') {                                  # If $ProbeIntervalObject is 1 or more and less or equal to 9999999999999
                     Write-Host 'Set probe interval at:'$ProbeIntervalObject' Seconds'       # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
                     Clear-Host                                                              # Clears screen
