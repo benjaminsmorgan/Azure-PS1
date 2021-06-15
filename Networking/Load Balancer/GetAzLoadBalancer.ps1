@@ -1,6 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    Get-AzLoadBalancer:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-5.5.0  
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-5.5.0 
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0  
 } #>
 <# Required Functions Links: {
     None
@@ -11,11 +12,14 @@
 <# Variables: {      
     :GetAzureLoadBalancer       Outer loop for managing function
     :SelectAzureLoadBalancer    Inner loop for selecting the load balancer
-    $LoadBalancerList:          List of all load balancers
-    $LoadBalancerNumber:        List number used in array
-    $LoadBalancerArray:         Array used for the selection of the load balancer
-    $LoadBalancerInput:         $var used to load items into $LoadBalancerArray
-    $OperatorSelect:            Operator input for selecting the load balancer
+    $ObjectList:                List of all load balancers
+    $ObjectNumber:              List number used in array
+    $ObjectArray:               Array used for the selection of the load balancer
+    $PubIPID:                   Attached public IP sku ID
+    $PublicIPObject:            Attached public IP object
+    $ObjectInput:               $var used to load items into $ObjectArray
+    $CallingFunction:           Namde of the function that called this one
+    $OpSelect:                  Operator input for selecting the load balancer
     $LoadBalancerObject:        Load balancer object   
 } #>
 <# Process Flow {
@@ -27,41 +31,79 @@
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
         :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
-            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
-            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
-            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
-            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
-                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
-                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
-                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
-            }                                                                               # End foreach ($_ in $LoadBalancerList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            Write-Host ""                                                                   # Write message to screen
-            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
-                Write-Host $_.Number                                                        # Write message to screen
-                Write-Host $_.Name                                                          # Write message to screen
-                Write-Host $_.RGName                                                        # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            Write-Host 'Gathering load balancer info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ObjectList = Get-AzLoadBalancer                                                # Generates the load balancer list
+            if (!$ObjectList) {                                                             # If $ObjectList is $null 
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No load balancers are in this subscription'                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureLoadBalancer                                                  # Breaks GetAzureLoadBalancer
+            }                                                                               # End if (!$ObjectList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                if ($_.FrontendIpConfigurations.publicIPaddress.id) {                       # If the current item .FrontendIpConfigurations.publicIPaddress.id  has a value
+                    $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
+                    $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                        {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
+                }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
+                    'Number'=$ObjectNumber;'Name'=$_.Name;'RGName'=$_.ResourceGroupName;`
+                    'LOC'=$_.Location;'Sku'=$_.Sku.Name;'PubAllocation'=`
+                    $PublicIPObject.PublicIpAllocationMethod;`
+                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name   # Gets current item info
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
             :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
-                $OperatorSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
-                if ($OperatorSelect -eq '0') {                                              # If $OperatorSelect equals 0
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $Number is 9 or less
+                        Write-Host "[$Number]            "$_.Name                           # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # Else if $Number is greater than 9
+                        Write-Host "[$Number]           "$_.Name                            # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'LB loc:        '$_.loc                                      # Write message to screen
+                    Write-Host 'LB RG:         '$_.RGName                                   # Write message to screen
+                    Write-Host 'LB SKU:        '$_.Sku                                      # Write message to screen
+                    if ($_.Pubname) {                                                       # If $_.Pubname exists
+                        Write-Host 'Pub IP name:   '$_.Pubname                              # Write message to screen
+                        Write-Host 'Pub IP address:'$_.PubAddress                           # Write message to screen
+                        Write-Host 'Pub IP allocat:'$_.PubAllocation                        # Write message to screen
+                    }                                                                       # End if ($_.Pubname)
+                    Write-Host ''                                                           # Write message to screen         
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'You are selecting the load balancer for:'$CallingFunction   # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
+                Clear-Host                                                                  # Clears screen 
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
-                }                                                                           # End if ($OperatorSelect -eq '0')
-                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
-                    $OperatorSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OperatorSelect
-                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
-                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
-                        $LoadBalancerObject.Name -ResourceGroupName `
-                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.Name `
+                        -ResourceGroupName $OPSelect.RGName                                 # Pulls the full load balancer object
                     Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
-                }                                                                           # End if ($LoadBalancerObject)
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number) 
                 else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($LoadBalancerObject))
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureLoadBalancer while ($true)
         }                                                                                   # End :GetAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLoadBalancer    
