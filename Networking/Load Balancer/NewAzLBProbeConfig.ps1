@@ -23,7 +23,9 @@
     $ProbeProtocol:             Array containing probe port and protocol
     $ProbeProtocolInput:        Loads items into the $ProbeProtocol array
     $ProbeIntervalObject:       Probe interval object
+    $ProbeIntervalArray:        $ProbeIntervalObject converted to array
     $ProbeCountObject:          Probe count object
+    $ProbeCountArray:           $ProbeCountObject converted to array
     $OpConfirm:                 Operator confirmation of inputs
     $HealthProbeObject:         Health probe configuation
 } #>
@@ -44,6 +46,7 @@ function NewAzLBProbeConfig {                                                   
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureProbeName while ($true) {                                              # Inner loop for setting the probe name
                 Write-Host 'Enter the load balancer probe name'                             # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $ProbeNameObject = Read-Host 'Name'                                         # Operator input for the probe name
                 $ProbeNameArray = $ProbeNameObject.ToCharArray()                            # Loads $ProbeNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -79,6 +82,7 @@ function NewAzLBProbeConfig {                                                   
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($ProbeNameObject) {                                                     # If $ProbeNameObject has a value
                     Write-Host 'Use:'$ProbeNameObject' as the probe name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -98,6 +102,7 @@ function NewAzLBProbeConfig {                                                   
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] Http (80)'                                                  # Write message to screen
                 Write-host '[2] Https(443)'                                                 # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option[#]'                                           # Operator input for the probe type object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -120,17 +125,27 @@ function NewAzLBProbeConfig {                                                   
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (If $OpSelect -eq '0')
             }                                                                               # End :SetAzureProbeProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :SetAzureProbeInterval while ($true) {                                          # Inner loop for setting the probe interval time
                 Write-Host 'Enter the probe interval in seconds'                            # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $ProbeIntervalObject = Read-Host 'Probe interval'                           # Operator input for the probe interval
+                $ProbeIntervalArray = $ProbeIntervalObject.ToCharArray()                    # Loads $ProbeIntervalObject into array
                 Clear-Host                                                                  # Clears screen
-                if ($ProbeIntervalObject -ge 1 -and `
-                    $ProbeIntervalObject -le 9999999999999 -and `
-                    $ProbeIntervalObject -notlike '*.*') {                                  # If $ProbeIntervalObject is 1 or more and less or equal to 9999999999999
+                foreach ($_ in $ProbeIntervalArray) {                                       # For each item in $ProbeIntervalArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $ProbeIntervalObject = $null                                        # Clears $ProbeIntervalObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $ProbeIntervalArray)
+                $ProbeIntervalArray = $null                                                 # Clears $ProbeIntervalArray
+                if ($ProbeIntervalObject) {                                                 # If $ProbeIntervalObject has a value
                     Write-Host 'Set probe interval at:'$ProbeIntervalObject' Seconds'       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -139,23 +154,30 @@ function NewAzLBProbeConfig {                                                   
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeInterval                                         # Breaks :SetAzureProbeInterval        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*') 
-                else {                                                                      # All other inputs for $ProbeIntervalObject
+                }                                                                           # End if ($ProbeIntervalObject)
+                else {                                                                      # Else if $ProbeIntervalObject is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*'))
+                }                                                                           # End else (if ($ProbeIntervalObject))
             }                                                                               # End :SetAzureProbeInterval while ($true)
             :SetAzureProbeCount while ($true) {                                             # Inner loop for setting the probe count
                 Write-Host 'Enter the number of probes required to'                         # Write message to screen
                 Write-Host 'report node is no longer functioning'                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 $ProbeCountObject = Read-Host 'Probe count'                                 # Operator input for the probe count
+                $ProbeCountArray = $ProbeCountObject.ToCharArray()                          # Loads $ProbeCountObject into array
                 Clear-Host                                                                  # Clears screen
-                if ($ProbeCountObject -ge 1 -and `
-                    $ProbeCountObject -le 9999999999999 -and `
-                    $ProbeCountObject -notlike '*.*') {                                     # If $ProbeCountObject is greater or equal to 1 or less than or equal to 9999999999999 and not like '.'
+                foreach ($_ in $ProbeCountArray) {                                          # For each item in $ProbeIntervalArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $ProbeCountObject = $null                                           # Clears $ProbeCountObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $ProbeIntervalArray)
+                $ProbeIntervalArray = $null                                                 # Clears $ProbeIntervalArray
+                if ($ProbeCountObject) {                                                    # If $ProbeCountObject has a value
                     Write-Host 'Set probe count at:'$ProbeCountObject                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -164,13 +186,13 @@ function NewAzLBProbeConfig {                                                   
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeCount                                            # Breaks :SetAzureProbeCount        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*')
+                }                                                                           # End if ($ProbeCountObject)
                 else {                                                                      # All other inputs for $ProbeCountObject
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*'))
+                }                                                                           # End else (if ($ProbeCountObject))
             }                                                                               # End :SetAzureProbeCount while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Building health probe configuration'                            # Write message to screen
