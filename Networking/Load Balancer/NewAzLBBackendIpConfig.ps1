@@ -36,6 +36,7 @@ function NewAzLBBackendIpConfig {                                               
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBBEName while ($true) {                                               # Inner loop for setting the back end name
                 Write-Host 'Enter the load balancer back end name'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $BackEndNameObject = Read-Host 'Name'                                       # Operator input for the back end name
                 $BackEndNameArray = $BackEndNameObject.ToCharArray()                        # Loads $BackEndNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -71,6 +72,7 @@ function NewAzLBBackendIpConfig {                                               
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($BackEndNameObject) {                                                   # $BackEndNameObject has a value
                     Write-Host 'Use:'$BackEndNameObject' as the back end name'              # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
