@@ -144,6 +144,7 @@ function NewAzLoadBalancer {                                                    
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
                 Write-Host 'Enter the load balancer name'                                   # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBNameObject = Read-Host 'Name'                                            # Operator input for the balancer name
                 $LBNameArray = $LBNameObject.ToCharArray()                                  # Loads $LBNameObject into array
                 Clear-Host                                                                  # Clears screen
@@ -179,6 +180,7 @@ function NewAzLoadBalancer {                                                    
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($LBNameObject) {                                                        # If $LBNameObject has a value
                     Write-Host 'Use:'$LBNameObject' as the balancer name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the balancer name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -285,6 +287,7 @@ function NewAzLBFrontendIpConfig {                                              
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBFEName while ($true) {                                               # Inner loop for setting the front end name
                 Write-Host 'Enter the load balancer front end name'                         # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndNameObject = Read-Host 'Name'                                      # Operator input for the front end name
                 $FrontEndNameArray = $FrontEndNameObject.ToCharArray()                      # Loads $FrontEndNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -320,6 +323,7 @@ function NewAzLBFrontendIpConfig {                                              
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($FrontEndNameObject) {                                                  # $FrontEndNameObject has a value
                     Write-Host 'Use:'$FrontEndNameObject' as the front end name'            # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
@@ -369,6 +373,7 @@ function NewAzLBBackendIpConfig {                                               
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBBEName while ($true) {                                               # Inner loop for setting the back end name
                 Write-Host 'Enter the load balancer back end name'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $BackEndNameObject = Read-Host 'Name'                                       # Operator input for the back end name
                 $BackEndNameArray = $BackEndNameObject.ToCharArray()                        # Loads $BackEndNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -404,6 +409,7 @@ function NewAzLBBackendIpConfig {                                               
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($BackEndNameObject) {                                                   # $BackEndNameObject has a value
                     Write-Host 'Use:'$BackEndNameObject' as the back end name'              # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
@@ -452,6 +458,7 @@ function NewAzLBProbeConfig {                                                   
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureProbeName while ($true) {                                              # Inner loop for setting the probe name
                 Write-Host 'Enter the load balancer probe name'                             # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $ProbeNameObject = Read-Host 'Name'                                         # Operator input for the probe name
                 $ProbeNameArray = $ProbeNameObject.ToCharArray()                            # Loads $ProbeNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -487,6 +494,7 @@ function NewAzLBProbeConfig {                                                   
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($ProbeNameObject) {                                                     # If $ProbeNameObject has a value
                     Write-Host 'Use:'$ProbeNameObject' as the probe name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -506,6 +514,7 @@ function NewAzLBProbeConfig {                                                   
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] Http (80)'                                                  # Write message to screen
                 Write-host '[2] Https(443)'                                                 # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option[#]'                                           # Operator input for the probe type object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -528,17 +537,27 @@ function NewAzLBProbeConfig {                                                   
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (If $OpSelect -eq '0')
             }                                                                               # End :SetAzureProbeProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :SetAzureProbeInterval while ($true) {                                          # Inner loop for setting the probe interval time
                 Write-Host 'Enter the probe interval in seconds'                            # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $ProbeIntervalObject = Read-Host 'Probe interval'                           # Operator input for the probe interval
+                $ProbeIntervalArray = $ProbeIntervalObject.ToCharArray()                    # Loads $ProbeIntervalObject into array
                 Clear-Host                                                                  # Clears screen
-                if ($ProbeIntervalObject -ge 1 -and `
-                    $ProbeIntervalObject -le 9999999999999 -and `
-                    $ProbeIntervalObject -notlike '*.*') {                                  # If $ProbeIntervalObject is 1 or more and less or equal to 9999999999999
+                foreach ($_ in $ProbeIntervalArray) {                                       # For each item in $ProbeIntervalArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $ProbeIntervalObject = $null                                        # Clears $ProbeIntervalObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $ProbeIntervalArray)
+                $ProbeIntervalArray = $null                                                 # Clears $ProbeIntervalArray
+                if ($ProbeIntervalObject) {                                                 # If $ProbeIntervalObject has a value
                     Write-Host 'Set probe interval at:'$ProbeIntervalObject' Seconds'       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -547,23 +566,30 @@ function NewAzLBProbeConfig {                                                   
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeInterval                                         # Breaks :SetAzureProbeInterval        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*') 
-                else {                                                                      # All other inputs for $ProbeIntervalObject
+                }                                                                           # End if ($ProbeIntervalObject)
+                else {                                                                      # Else if $ProbeIntervalObject is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($ProbeIntervalObject -ge 1 -and $ProbeIntervalObject -le 9999999999999 -and $ProbeIntervalObject -notlike '*.*'))
+                }                                                                           # End else (if ($ProbeIntervalObject))
             }                                                                               # End :SetAzureProbeInterval while ($true)
             :SetAzureProbeCount while ($true) {                                             # Inner loop for setting the probe count
                 Write-Host 'Enter the number of probes required to'                         # Write message to screen
                 Write-Host 'report node is no longer functioning'                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 $ProbeCountObject = Read-Host 'Probe count'                                 # Operator input for the probe count
+                $ProbeCountArray = $ProbeCountObject.ToCharArray()                          # Loads $ProbeCountObject into array
                 Clear-Host                                                                  # Clears screen
-                if ($ProbeCountObject -ge 1 -and `
-                    $ProbeCountObject -le 9999999999999 -and `
-                    $ProbeCountObject -notlike '*.*') {                                     # If $ProbeCountObject is greater or equal to 1 or less than or equal to 9999999999999 and not like '.'
+                foreach ($_ in $ProbeCountArray) {                                          # For each item in $ProbeIntervalArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $ProbeCountObject = $null                                           # Clears $ProbeCountObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $ProbeIntervalArray)
+                $ProbeIntervalArray = $null                                                 # Clears $ProbeIntervalArray
+                if ($ProbeCountObject) {                                                    # If $ProbeCountObject has a value
                     Write-Host 'Set probe count at:'$ProbeCountObject                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -572,13 +598,13 @@ function NewAzLBProbeConfig {                                                   
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break SetAzureProbeCount                                            # Breaks :SetAzureProbeCount        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*')
+                }                                                                           # End if ($ProbeCountObject)
                 else {                                                                      # All other inputs for $ProbeCountObject
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($ProbeCountObject -ge 1 -le 9999999999999 -and $ProbeCountObject -le 9999999999999 -and $ProbeCountObject -notlike '*.*'))
+                }                                                                           # End else (if ($ProbeCountObject))
             }                                                                               # End :SetAzureProbeCount while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Building health probe configuration'                            # Write message to screen
@@ -615,7 +641,8 @@ function NewAzLBIBNatPoolConfig {                                               
             $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :NewAzureLBIBNatPoolName while ($true) {                                        # Inner loop for setting the nat pool name
-                Write-Host 'Enter the load balancer nat pool name'                          # Write message to screen    
+                Write-Host 'Enter the load balancer nat pool name'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen    
                 $NatPoolNameObject = Read-Host 'Name'                                       # Operator input for the pool name
                 $NatPoolNameArray = $NatPoolNameObject.ToCharArray()                        # Loads $NatPoolNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -651,6 +678,7 @@ function NewAzLBIBNatPoolConfig {                                               
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($NatPoolNameObject) {                                                   # If $NatPoolNameObject has a value
                     Write-Host 'Use:'$NatPoolNameObject' as the pool name'                  # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the pool name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -670,6 +698,7 @@ function NewAzLBIBNatPoolConfig {                                               
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] TCP'                                                        # Write message to screen
                 Write-Host '[2] UDP'                                                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the protocol object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -690,13 +719,23 @@ function NewAzLBIBNatPoolConfig {                                               
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0')) 
             }                                                                               # End :NewAzureLBIBNPProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBFEPortStart while ($true) {                                          # Inner loop for setting the front end port range start
                 Write-Host 'Enter the nat pool front end port start'                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndPortStart = Read-Host 'Starting port #'                            # Operator input for the front end port start
+                $FrontEndPortArray = $FrontEndPortStart.ToCharArray()                       # Adds $FrontEndPortStart to array
                 Clear-Host                                                                  # Clears screen
-                if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and `
-                    $FrontEndPortStart -notlike '*.*') {                                    # If $FrontEndPortStart is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $FrontEndPortArray) {                                        # For each item in $FrontEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $FrontEndPortStart = $null                                          # Clears $FrontEndPortStart
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $FrontEndPortArray)
+                $FrontEndPortArray = $null                                                  # Clears $FrontEndPortArray
+                if ($FrontEndPortStart) {                                                   # If $FrontEndPortStart has a value
                     Write-Host 'Use:'$FrontEndPortStart' as the front end pool start'       # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end port start
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -705,21 +744,29 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBFEPortStart                                         # Breaks :NewAzureLBFEPortStart        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and $FrontEndPortStart -notlike '*.*')
-                else {                                                                      # All other inputs for $FrontEndPortStart
+                }                                                                           # End if ($FrontEndPortStart)
+                else {                                                                      # Else if $FrontEndPortStart is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and $FrontEndPortStart -notlike '*.*'))
+                }                                                                           # End else (if ($FrontEndPortStart))
             }                                                                               # End :NewAzureLBFEPortStart while ($true)
             :NewAzureLBFEPortEnd while ($true) {                                            # Inner loop for setting the front end port range end
                 Write-Host 'Enter the nat pool front end port end'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndPortEnd = Read-Host 'Ending port #'                                # Operator input for the front end port start
+                $FrontEndPortArray = $FrontEndPortEnd.ToCharArray()                         # Adds $FrontEndPortEnd to array
                 Clear-Host                                                                  # Clears screen
-                if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and `
-                    $FrontEndPortEnd -notlike '*.*') {                                      # If $FrontEndPortEnd is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $FrontEndPortArray) {                                        # For each item in $FrontEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $FrontEndPortEnd = $null                                            # Clears $FrontEndPortEnd
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $FrontEndPortArray)
+                $FrontEndPortArray = $null                                                  # Clears $FrontEndPortArray
+                if ($FrontEndPortEnd) {                                                     # If $FrontEndPortEnd has a value
                     Write-Host 'Use:'$FrontEndPortEnd' as the front end pool end'           # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end port end
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -728,21 +775,29 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBFEPortEnd                                           # Breaks :NewAzureLBFEPortEnd        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and $FrontEndPortEnd -notlike '*.*')
-                else {                                                                      # All other inputs for $FrontEndPortEnd
+                }                                                                           # End if ($FrontEndPortEnd)
+                else {                                                                      # Else if $FrontEndPortEnd is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and $FrontEndPortEnd -notlike '*.*'))
+                }                                                                           # End else (if ($FrontEndPortEnd))
             }                                                                               # End :NewAzureLBFEPortEnd while ($true)
             :NewAzureLBBEPort while ($true) {                                               # Inner loop for setting the back end port
-                Write-Host 'Enter the nat pool back end port '                              # Write message to screen
+                Write-Host 'Enter the nat pool back end port'                               # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $BackEndPort = Read-Host 'Back end port #'                                  # Operator input for the back end port
+                $BackEndPortArray = $BackEndPort.ToCharArray()                              # Adds $BackEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort `
-                    -notlike '*.*') {                                                       # If $BackEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $BackEndPortArray) {                                         # For each item in $BackEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $BackEndPort = $null                                                # Clears $BackEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $BackEndPortArray)
+                $BackEndPortArray = $null                                                   # Clears $BackEndPortArray
+                if ($BackEndPort) {                                                         # If $BackEndPort has a value
                     Write-Host 'Use:'$BackEndPort' as the back end port'                    # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end port
                     Clear-Host                                                              # Clears screen 
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -751,13 +806,13 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBBEPort                                              # Breaks :NewAzureLBBEPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $BackEndPort
+                }                                                                           # End if ($BackEndPort)
+                else {                                                                      # Else if $BackEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($BackEndPort))
             }                                                                               # End :NewAzureLBBEPort while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the nat pool'                                          # Write message to screen
@@ -796,6 +851,7 @@ function NewAzLBRuleConfig {                                                    
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :NewAzureLBRCName while ($true) {                                               # Inner loop for setting the rule name
                 Write-Host 'Enter a load balancer rule name'                                # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleNameObject = Read-Host 'Name'                                        # Operator input for the pool name
                 Clear-Host                                                                  # Clears screen
                 $LBRuleNameArray = $LBRuleNameObject.ToCharArray()                          # Loads $LBRuleNameArray into array
@@ -832,6 +888,7 @@ function NewAzLBRuleConfig {                                                    
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($LBRuleNameObject) {                                                    # If $LBRuleNameObject has a value
                     Write-Host 'Use:'$LBRuleNameObject' as the rule name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -851,6 +908,7 @@ function NewAzLBRuleConfig {                                                    
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] TCP'                                                        # Write message to screen
                 Write-Host '[2] UDP'                                                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the protocol object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -871,13 +929,23 @@ function NewAzLBRuleConfig {                                                    
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0')) 
             }                                                                               # End :NewAzureLBRuleProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBRuleFrontEndPort while ($true) {                                     # Inner loop for setting the rule front end port
                 Write-Host 'Enter the rule pool front end port'                             # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleFrontEndPort = Read-Host 'Port #'                                    # Operator input for the front end rule port 
+                $LBRuleArray = $LBRuleFrontEndPort.ToCharArray()                            # Adds $LBRuleFrontEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and `
-                    $LBRuleFrontEndPort -notlike '*.*') {                                   # If $LBRuleFrontEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleFrontEndPort = $null                                         # Clears $LBRuleFrontEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleFrontEndPort) {                                                  # If $LBRuleFrontEndPort has a value
                     Write-Host 'Use:'$LBRuleFrontEndPort' as the front end pool rule port'  # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end rule port
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -886,21 +954,29 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleFrontEndPort                                    # Breaks :NewAzureLBRuleFrontEndPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and $LBRuleFrontEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleFrontEndPort
+                }                                                                           # End if ($LBRuleFrontEndPort)
+                else {                                                                      # Else if $LBRuleFrontEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and $LBRuleFrontEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleFrontEndPort))
             }                                                                               # End :NewAzureLBRuleFrontEndPort while ($true)
             :NewAzureLBRuleBackEndPort while ($true) {                                      # Inner loop for setting the rule back end port
                 Write-Host 'Enter the rule pool back end port'                              # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleBackEndPort = Read-Host 'Port #'                                     # Operator input for the back end rule port 
+                $LBRuleArray = $LBRuleBackEndPort.ToCharArray()                             # Adds $LBRuleBackEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and `
-                    $LBRuleBackEndPort -notlike '*.*') {                                    # If $LBRuleBackEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleBackEndPort = $null                                          # Clears $LBRuleBackEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleBackEndPort) {                                                   # If $LBRuleBackEndPort has a value
                     Write-Host 'Use:'$LBRuleBackEndPort' as the back end pool rule port'    # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end rule port
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -909,21 +985,29 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleBackEndPort                                     # Breaks :NewAzureLBRuleBackEndPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and $LBRuleBackEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleBackEndPort
+                }                                                                           # End if ($LBRuleBackEndPort)
+                else {                                                                      # Else if $LBRuleBackEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and $LBRuleBackEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleBackEndPort))
             }                                                                               # End :NewAzureLBRuleBackEndPort while ($true)
             :NewAzureLBRuleIdleTO while ($true) {                                           # Inner loop for setting the rule idle timeout
                 Write-Host 'Enter the idle time out in seconds for this rule'               # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleIdleTO = Read-Host 'Idle timeout'                                    # Operator input for the rule idle timeout 
+                $LBRuleArray = $LBRuleIdleTO.ToCharArray()                                  # Adds $LBRuleIdleTO to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and `
-                    $LBRuleIdleTO -notlike '*.*') {                                         # If $LBRuleIdleTO is or in between 1 and 99,999 and not include '.'
-                    Write-Host 'Use:'$LBRuleIdleTO' as the back end pool rule port'         # Write message to screen
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleIdleTO = $null                                               # Clears $LBRuleIdleTO
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleIdleTO) {                                                        # If $LBRuleIdleTO has a value
+                    Write-Host 'Use:'$LBRuleIdleTO' as the rule idle time out'              # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the idle timeout
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -932,13 +1016,13 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleIdleTO                                          # Breaks :NewAzureLBRuleIdleTO        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and $LBRuleIdleTO -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleIdleTO
+                }                                                                           # End if ($LBRuleIdleTO)
+                else {                                                                      # Else if $LBRuleIdleTO is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and $LBRuleIdleTO -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleIdleTO))
             }                                                                               # End :NewAzureLBRuleIdleTO while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the load balancer rule'                                # Write message to screen
@@ -967,84 +1051,133 @@ function NewAzLBRuleConfig {                                                    
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBRuleConfig
-function ListAzLoadBalancer {                                                               # Function to get an existing load balancer
+function ListAzLoadBalancer {                                                               # Function to list all existing load balancers
     Begin {                                                                                 # Begin function
         :ListAzureLoadBalancer while ($true) {                                              # Outer loop to manage function
-            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
-            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
-            foreach ($_ in $LoadBalancerList) {                                             # For each item in $LoadBalancerList
+            Write-Host 'Gathering load balancer info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ObjectList = Get-AzLoadBalancer                                                # Generates the load balancer list
+            if (!$ObjectList) {                                                             # If $ObjectList is $null 
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No load balancers are in this subscription'                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureLoadBalancer                                                 # Breaks :ListAzureLoadBalancer
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 if ($_.FrontendIpConfigurations.publicIPaddress.id) {                       # If the current item .FrontendIpConfigurations.publicIPaddress.id  has a value
                     $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
                     $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
                         {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
                 }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
-                $LoadBalancerInput = [PSCustomObject]@{'Name'= $_.Name;'RGName'=`
-                    $_.ResourceGroupName;'Loc'=$_.Location;'Sku'=$_.Sku.Name;`
-                    'PubAllocation'=$PublicIPObject.PublicIpAllocationMethod;`
-                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=`
-                    $PublicIPObject.Name}                                                   # Creates the item to loaded into array
-                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                $PubIPID = $null                                                            # Clears $var
-                $PublicIPObject = $null                                                     # Clears $var
-            }                                                                               # End foreach ($_ in $LoadBalancerList)
-            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
-                Write-Host 'Balancer name: '$_.Name                                         # Write message to screen
-                Write-Host 'Balancer loc:  '$_.loc                                          # Write message to screen
-                Write-Host 'Balancer RG:   '$_.RGName                                       # Write message to screen
-                Write-Host 'Balancer sku:  '$_.Sku                                          # Write message to screen
+                $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
+                    'Name'= $_.Name;'RG'=$_.ResourceGroupName;'Loc'=$_.Location;`
+                    'Sku'=$_.Sku.Name;'PubAllocation'=`
+                    $PublicIPObject.PublicIpAllocationMethod;'PubAddress'=`
+                    $PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name                # Creates the item to loaded into array
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                Write-Host 'LB name:       '$_.Name                                         # Write message to screen
+                Write-Host 'LB loc:        '$_.loc                                          # Write message to screen
+                Write-Host 'LB RG:         '$_.RG                                           # Write message to screen
+                Write-Host 'LB SKU:        '$_.Sku                                          # Write message to screen
                 if ($_.Pubname) {                                                           # If $_.Pubname exists
-                    Write-Host 'Public IP name:'$_.Pubname                                  # Write message to screen
-                    Write-Host 'Public IP add: '$_.PubAddress                               # Write message to screen
-                    Write-Host 'Public IP allo:'$_.PubAllocation                            # Write message to screen
+                    Write-Host 'Pub IP name:   '$_.Pubname                                  # Write message to screen
+                    Write-Host 'Pub IP address:'$_.PubAddress                               # Write message to screen
+                    Write-Host 'Pub IP allocat:'$_.PubAllocation                            # Write message to screen
                 }                                                                           # End if ($_.Pubname)
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            Pause                                                                           # Pauses all actions for operator input
             Break ListAzureLoadBalancer                                                     # Breaks :ListAzureLoadBalancer
         }                                                                                   # End :ListAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function ListAzLoadBalancer    
+}                                                                                           # End function ListAzLoadBalancer       
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
         :GetAzureLoadBalancer while ($true) {                                               # Outer loop to manage function
-            $LoadBalancerList = Get-AzLoadBalancer                                          # Generates the load balancer list
-            $LoadBalancerNumber = 1                                                         # Sets $LoadBalancerNumber to 1
-            [System.Collections.ArrayList]$LoadBalancerArray = @()                          # Creates the load balancer array
-            foreach ($_ in $LoadBalancerList) {                                             # For each $Offer in $LoadBalancerList
-                $LoadBalancerInput = [PSCustomObject]@{'Name' = $_.Name; `
-                    'Number' = $LoadBalancerNumber;'RGName'=$_.ResourceGroupName}           # Creates the item to loaded into array
-                $LoadBalancerArray.Add($LoadBalancerInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                $LoadBalancerNumber = $LoadBalancerNumber + 1                               # Increments $LoadBalancerNumber by 1
-            }                                                                               # End foreach ($_ in $LoadBalancerList)
-            Write-Host "0 Exit"                                                             # Write message to screen
-            Write-Host ""                                                                   # Write message to screen
-            foreach ($_ in $LoadBalancerArray) {                                            # For each $_ in $LoadBalancerArray
-                Write-Host $_.Number                                                        # Write message to screen
-                Write-Host $_.Name                                                          # Write message to screen
-                Write-Host $_.RGName                                                        # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $LoadBalancerArray)
+            Write-Host 'Gathering load balancer info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ObjectList = Get-AzLoadBalancer                                                # Generates the load balancer list
+            if (!$ObjectList) {                                                             # If $ObjectList is $null 
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No load balancers are in this subscription'                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureLoadBalancer                                                  # Breaks GetAzureLoadBalancer
+            }                                                                               # End if (!$ObjectList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                if ($_.FrontendIpConfigurations.publicIPaddress.id) {                       # If the current item .FrontendIpConfigurations.publicIPaddress.id  has a value
+                    $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
+                    $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                        {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
+                }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
+                    'Number'=$ObjectNumber;'Name'=$_.Name;'RGName'=$_.ResourceGroupName;`
+                    'LOC'=$_.Location;'Sku'=$_.Sku.Name;'PubAllocation'=`
+                    $PublicIPObject.PublicIpAllocationMethod;`
+                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name   # Gets current item info
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
             :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
-                $OpSelect = Read-Host "Enter the load balancer number"                # Operator input for the load balancer selection
-                if ($OpSelect -eq '0') {                                              # If $OpSelect equals 0
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $Number is 9 or less
+                        Write-Host "[$Number]            "$_.Name                           # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # Else if $Number is greater than 9
+                        Write-Host "[$Number]           "$_.Name                            # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'LB loc:        '$_.loc                                      # Write message to screen
+                    Write-Host 'LB RG:         '$_.RGName                                   # Write message to screen
+                    Write-Host 'LB SKU:        '$_.Sku                                      # Write message to screen
+                    if ($_.Pubname) {                                                       # If $_.Pubname exists
+                        Write-Host 'Pub IP name:   '$_.Pubname                              # Write message to screen
+                        Write-Host 'Pub IP address:'$_.PubAddress                           # Write message to screen
+                        Write-Host 'Pub IP allocat:'$_.PubAllocation                        # Write message to screen
+                    }                                                                       # End if ($_.Pubname)
+                    Write-Host ''                                                           # Write message to screen         
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'You are selecting the load balancer for:'$CallingFunction   # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
+                Clear-Host                                                                  # Clears screen 
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureLoadBalancer                                              # Breaks :GetAzureLoadBalancer
                 }                                                                           # End if ($OpSelect -eq '0')
-                $LoadBalancerObject = $LoadBalancerArray | Where-Object {$_.Number -eq `
-                    $OpSelect}                                                        # $LoadBalancerObject is equal to $LoadBalancerArray where $LoadBalancerArray.Number equals $OpSelect
-                if ($LoadBalancerObject) {                                                  # If $LoadBalancerObject has a value
-                    $LoadBalancerObject = Get-AzLoadBalancer -Name `
-                        $LoadBalancerObject.Name -ResourceGroupName `
-                        $LoadBalancerObject.RGName                                          # Repulls the full load balancer object
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.Name `
+                        -ResourceGroupName $OPSelect.RGName                                 # Pulls the full load balancer object
                     Return $LoadBalancerObject                                              # Returns to calling function with $LoadBalancerObject
-                }                                                                           # End if ($LoadBalancerObject)
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number) 
                 else {                                                                      # If $LoadBalancerObject does not have a value
-                    Write-Host "That was not a valid option"                                # Write message to screen
-                }                                                                           # End else (if ($LoadBalancerObject))
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureLoadBalancer while ($true)
         }                                                                                   # End :GetAzureLoadBalancer while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function GetAzLoadBalancer    
+}                                                                                           # End function GetAzLoadBalancer       
 function RemoveAzLoadBalancer {                                                             # Function to remove a network interface
     Begin {                                                                                 # Begin function
         :RemoveAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
