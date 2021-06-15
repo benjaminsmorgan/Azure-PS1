@@ -24,8 +24,10 @@
     $OpSelect:                  Operator selection of the protocol
     $NatPoolProtocolObject:     Pool protocol
     $FrontEndPortStart:         Pool front end port start
+    $FrontEndPortArray:         $FrontEndPortStart & $FrontEndPortEnd converted to array      
     $FrontEndPortEnd:           Pool front end port end
     $BackEndPort:               Pool back end port
+    $BackEndArray:              $BackEndPort converted to array
     $OperatorConfirm:           Confirmation of $var input
     $InboundNatPoolObject:      Created pool object
     $FrontEndIPConfigObject:    Front end IP configuration object, sent from calling function
@@ -36,6 +38,7 @@
         End NewAzLBIBNatPoolConfig
             Return function > Send $InboundNatPoolObject
 }#>
+
 function NewAzLBIBNatPoolConfig {                                                           # Function to create inbound pool configuration for load balancer
     begin {                                                                                 # Begin function
         :NewAzureLBIBNatPoolConfig while ($true) {                                          # Outer loop for managing function
@@ -46,7 +49,8 @@ function NewAzLBIBNatPoolConfig {                                               
             $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :NewAzureLBIBNatPoolName while ($true) {                                        # Inner loop for setting the nat pool name
-                Write-Host 'Enter the load balancer nat pool name'                          # Write message to screen    
+                Write-Host 'Enter the load balancer nat pool name'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen    
                 $NatPoolNameObject = Read-Host 'Name'                                       # Operator input for the pool name
                 $NatPoolNameArray = $NatPoolNameObject.ToCharArray()                        # Loads $NatPoolNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -82,6 +86,7 @@ function NewAzLBIBNatPoolConfig {                                               
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($NatPoolNameObject) {                                                   # If $NatPoolNameObject has a value
                     Write-Host 'Use:'$NatPoolNameObject' as the pool name'                  # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the pool name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -101,6 +106,7 @@ function NewAzLBIBNatPoolConfig {                                               
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] TCP'                                                        # Write message to screen
                 Write-Host '[2] UDP'                                                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the protocol object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -121,13 +127,23 @@ function NewAzLBIBNatPoolConfig {                                               
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0')) 
             }                                                                               # End :NewAzureLBIBNPProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBFEPortStart while ($true) {                                          # Inner loop for setting the front end port range start
                 Write-Host 'Enter the nat pool front end port start'                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndPortStart = Read-Host 'Starting port #'                            # Operator input for the front end port start
+                $FrontEndPortArray = $FrontEndPortStart.ToCharArray()                       # Adds $FrontEndPortStart to array
                 Clear-Host                                                                  # Clears screen
-                if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and `
-                    $FrontEndPortStart -notlike '*.*') {                                    # If $FrontEndPortStart is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $FrontEndPortArray) {                                        # For each item in $FrontEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $FrontEndPortStart = $null                                          # Clears $FrontEndPortStart
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $FrontEndPortArray)
+                $FrontEndPortArray = $null                                                  # Clears $FrontEndPortArray
+                if ($FrontEndPortStart) {                                                   # If $FrontEndPortStart has a value
                     Write-Host 'Use:'$FrontEndPortStart' as the front end pool start'       # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end port start
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -136,21 +152,29 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBFEPortStart                                         # Breaks :NewAzureLBFEPortStart        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and $FrontEndPortStart -notlike '*.*')
-                else {                                                                      # All other inputs for $FrontEndPortStart
+                }                                                                           # End if ($FrontEndPortStart)
+                else {                                                                      # Else if $FrontEndPortStart is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($FrontEndPortStart -ge 1 -and $FrontEndPortStart -le 99999 -and $FrontEndPortStart -notlike '*.*'))
+                }                                                                           # End else (if ($FrontEndPortStart))
             }                                                                               # End :NewAzureLBFEPortStart while ($true)
             :NewAzureLBFEPortEnd while ($true) {                                            # Inner loop for setting the front end port range end
                 Write-Host 'Enter the nat pool front end port end'                          # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndPortEnd = Read-Host 'Ending port #'                                # Operator input for the front end port start
+                $FrontEndPortArray = $FrontEndPortEnd.ToCharArray()                         # Adds $FrontEndPortEnd to array
                 Clear-Host                                                                  # Clears screen
-                if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and `
-                    $FrontEndPortEnd -notlike '*.*') {                                      # If $FrontEndPortEnd is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $FrontEndPortArray) {                                        # For each item in $FrontEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $FrontEndPortEnd = $null                                            # Clears $FrontEndPortEnd
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $FrontEndPortArray)
+                $FrontEndPortArray = $null                                                  # Clears $FrontEndPortArray
+                if ($FrontEndPortEnd) {                                                     # If $FrontEndPortEnd has a value
                     Write-Host 'Use:'$FrontEndPortEnd' as the front end pool end'           # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end port end
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -159,21 +183,29 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBFEPortEnd                                           # Breaks :NewAzureLBFEPortEnd        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and $FrontEndPortEnd -notlike '*.*')
-                else {                                                                      # All other inputs for $FrontEndPortEnd
+                }                                                                           # End if ($FrontEndPortEnd)
+                else {                                                                      # Else if $FrontEndPortEnd is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($FrontEndPortEnd -ge 1 -and $FrontEndPortEnd -le 99999 -and $FrontEndPortEnd -notlike '*.*'))
+                }                                                                           # End else (if ($FrontEndPortEnd))
             }                                                                               # End :NewAzureLBFEPortEnd while ($true)
             :NewAzureLBBEPort while ($true) {                                               # Inner loop for setting the back end port
-                Write-Host 'Enter the nat pool back end port '                              # Write message to screen
+                Write-Host 'Enter the nat pool back end port'                               # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $BackEndPort = Read-Host 'Back end port #'                                  # Operator input for the back end port
+                $BackEndPortArray = $BackEndPort.ToCharArray()                              # Adds $BackEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort `
-                    -notlike '*.*') {                                                       # If $BackEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $BackEndPortArray) {                                         # For each item in $BackEndPortArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $BackEndPort = $null                                                # Clears $BackEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $BackEndPortArray)
+                $BackEndPortArray = $null                                                   # Clears $BackEndPortArray
+                if ($BackEndPort) {                                                         # If $BackEndPort has a value
                     Write-Host 'Use:'$BackEndPort' as the back end port'                    # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end port
                     Clear-Host                                                              # Clears screen 
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -182,13 +214,13 @@ function NewAzLBIBNatPoolConfig {                                               
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBBEPort                                              # Breaks :NewAzureLBBEPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $BackEndPort
+                }                                                                           # End if ($BackEndPort)
+                else {                                                                      # Else if $BackEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($BackEndPort -ge 1 -and $BackEndPort -le 99999 -and $BackEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($BackEndPort))
             }                                                                               # End :NewAzureLBBEPort while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the nat pool'                                          # Write message to screen
