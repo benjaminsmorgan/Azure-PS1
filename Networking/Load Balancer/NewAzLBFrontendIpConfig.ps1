@@ -71,6 +71,7 @@ function NewAzLBFrontendIpConfig {                                              
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBFEName while ($true) {                                               # Inner loop for setting the front end name
                 Write-Host 'Enter the load balancer front end name'                         # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $FrontEndNameObject = Read-Host 'Name'                                      # Operator input for the front end name
                 $FrontEndNameArray = $FrontEndNameObject.ToCharArray()                      # Loads $FrontEndNameArray into array
                 Clear-Host                                                                  # Clears screen
@@ -106,6 +107,7 @@ function NewAzLBFrontendIpConfig {                                              
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($FrontEndNameObject) {                                                  # $FrontEndNameObject has a value
                     Write-Host 'Use:'$FrontEndNameObject' as the front end name'            # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
