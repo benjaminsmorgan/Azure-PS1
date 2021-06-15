@@ -93,6 +93,7 @@ function NewAzLoadBalancer {                                                    
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :SetAzureLBName while ($true) {                                                 # Inner loop for setting the balancer name
                 Write-Host 'Enter the load balancer name'                                   # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBNameObject = Read-Host 'Name'                                            # Operator input for the balancer name
                 $LBNameArray = $LBNameObject.ToCharArray()                                  # Loads $LBNameObject into array
                 Clear-Host                                                                  # Clears screen
@@ -128,6 +129,7 @@ function NewAzLoadBalancer {                                                    
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($LBNameObject) {                                                        # If $LBNameObject has a value
                     Write-Host 'Use:'$LBNameObject' as the balancer name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the balancer name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
