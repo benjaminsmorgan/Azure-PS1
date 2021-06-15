@@ -496,7 +496,29 @@ function SetAzADUserPassword {                                                  
 function GetAzADUser {                                                                      # Function to get an Azure AD user account
     Begin {                                                                                 # Begin function
         :GetAzureADUser while ($true) {                                                     # Outer loop for managing function
-            $ObjectList = Get-AzADUser                                                      # Pulls a list of all user accounts
+            :NarrowSearch while ($true) {                                                   # Inner loop for narrowing the list of names
+                Write-Host 'Enter part of the user prinicipal name'                         # Write message to screen
+                Write-Host 'This is the log in username'                                    # Write message to screen
+                $SearchInfo = Read-Host 'Name'                                              # Operator input for the username
+                Clear-Host                                                                  # Clears screen
+                $SearchInfo = '*'+$SearchInfo+'*'                                           # Adds wildcards to $SearchInfo
+                $ObjectList = Get-AzADUser | Where-Object `
+                    {$_.UserPrincipalName -like $SearchInfo}                                # Pulls a list of all matching user accounts
+                Write-Host $ObjectList.Count' Matches found'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Use this list to select from'                                   # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation to continue
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If ($OpConfirm -eq 'e')
+                    Break GetAzureADUser                                                    # Breaks GetAzureADUser
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                elseif ($OpConfirm -eq 'y') {                                               # Else if ($OpConfirm -eq 'y')
+                    Break NarrowSearch                                                      # Breaks :NarrowSearch
+                }                                                                           # End elseif ($OpConfirm -eq 'y')
+                else {                                                                      # All other inputs for $OpConfirm
+                    $ObjectList = $null                                                     # Clears $ObjectList
+                }                                                                           # End else (if ($OpConfirm -eq 'e'))
+            }                                                                               # End :NarrowSearch while ($true)
             $ObjectNumber = 1                                                               # Creates $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
