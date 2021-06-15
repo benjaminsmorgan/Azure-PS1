@@ -24,6 +24,7 @@
     $OpSelect:                  Operator selection of the rule protocol
     $LBRuleProtocolObject:      Rule protocol object
     $LBRuleFrontEndPort:        Rule front end port object
+    $LBRuleArray:               $LBRuleFrontEndPort, $LBRuleBackEndPort, $LBRuleIdleTO converted to array 
     $LBRuleBackEndPort:         Rule back end port object
     $LBRuleIdleTO:              Rule idle time out object
     $OperatorConfirm:           Operator confirmation of the $vars
@@ -49,6 +50,7 @@ function NewAzLBRuleConfig {                                                    
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
             :NewAzureLBRCName while ($true) {                                               # Inner loop for setting the rule name
                 Write-Host 'Enter a load balancer rule name'                                # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleNameObject = Read-Host 'Name'                                        # Operator input for the pool name
                 Clear-Host                                                                  # Clears screen
                 $LBRuleNameArray = $LBRuleNameObject.ToCharArray()                          # Loads $LBRuleNameArray into array
@@ -85,6 +87,7 @@ function NewAzLBRuleConfig {                                                    
                 }                                                                           # End foreach ($_ in $LBNameArray)
                 if ($LBRuleNameObject) {                                                    # If $LBRuleNameObject has a value
                     Write-Host 'Use:'$LBRuleNameObject' as the rule name'                   # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule name
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -104,6 +107,7 @@ function NewAzLBRuleConfig {                                                    
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] TCP'                                                        # Write message to screen
                 Write-Host '[2] UDP'                                                        # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the protocol object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
@@ -124,13 +128,23 @@ function NewAzLBRuleConfig {                                                    
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0')) 
             }                                                                               # End :NewAzureLBRuleProtocol while ($true)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBRuleFrontEndPort while ($true) {                                     # Inner loop for setting the rule front end port
                 Write-Host 'Enter the rule pool front end port'                             # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleFrontEndPort = Read-Host 'Port #'                                    # Operator input for the front end rule port 
+                $LBRuleArray = $LBRuleFrontEndPort.ToCharArray()                            # Adds $LBRuleFrontEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and `
-                    $LBRuleFrontEndPort -notlike '*.*') {                                   # If $LBRuleFrontEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleFrontEndPort = $null                                         # Clears $LBRuleFrontEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleFrontEndPort) {                                                  # If $LBRuleFrontEndPort has a value
                     Write-Host 'Use:'$LBRuleFrontEndPort' as the front end pool rule port'  # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end rule port
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -139,21 +153,29 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleFrontEndPort                                    # Breaks :NewAzureLBRuleFrontEndPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and $LBRuleFrontEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleFrontEndPort
+                }                                                                           # End if ($LBRuleFrontEndPort)
+                else {                                                                      # Else if $LBRuleFrontEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleFrontEndPort -ge 1 -and $LBRuleFrontEndPort -le 99999 -and $LBRuleFrontEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleFrontEndPort))
             }                                                                               # End :NewAzureLBRuleFrontEndPort while ($true)
             :NewAzureLBRuleBackEndPort while ($true) {                                      # Inner loop for setting the rule back end port
                 Write-Host 'Enter the rule pool back end port'                              # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleBackEndPort = Read-Host 'Port #'                                     # Operator input for the back end rule port 
+                $LBRuleArray = $LBRuleBackEndPort.ToCharArray()                             # Adds $LBRuleBackEndPort to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and `
-                    $LBRuleBackEndPort -notlike '*.*') {                                    # If $LBRuleBackEndPort is or in between 1 and 99,999 and not include '.'
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleBackEndPort = $null                                          # Clears $LBRuleBackEndPort
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleBackEndPort) {                                                   # If $LBRuleBackEndPort has a value
                     Write-Host 'Use:'$LBRuleBackEndPort' as the back end pool rule port'    # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the back end rule port
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -162,21 +184,29 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleBackEndPort                                     # Breaks :NewAzureLBRuleBackEndPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and $LBRuleBackEndPort -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleBackEndPort
+                }                                                                           # End if ($LBRuleBackEndPort)
+                else {                                                                      # Else if $LBRuleBackEndPort is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleBackEndPort -ge 1 -and $LBRuleBackEndPort -le 99999 -and $LBRuleBackEndPort -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleBackEndPort))
             }                                                                               # End :NewAzureLBRuleBackEndPort while ($true)
             :NewAzureLBRuleIdleTO while ($true) {                                           # Inner loop for setting the rule idle timeout
                 Write-Host 'Enter the idle time out in seconds for this rule'               # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
                 $LBRuleIdleTO = Read-Host 'Idle timeout'                                    # Operator input for the rule idle timeout 
+                $LBRuleArray = $LBRuleIdleTO.ToCharArray()                                  # Adds $LBRuleIdleTO to array
                 Clear-Host                                                                  # Clears screen
-                if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and `
-                    $LBRuleIdleTO -notlike '*.*') {                                         # If $LBRuleIdleTO is or in between 1 and 99,999 and not include '.'
-                    Write-Host 'Use:'$LBRuleIdleTO' as the back end pool rule port'         # Write message to screen
+                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBRuleIdleTO = $null                                               # Clears $LBRuleIdleTO
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBRuleArray)
+                $LBRuleArray = $null                                                        # Clears $LBRuleArray
+                if ($LBRuleIdleTO) {                                                        # If $LBRuleIdleTO has a value
+                    Write-Host 'Use:'$LBRuleIdleTO' as the rule idle time out'              # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the idle timeout
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
@@ -185,13 +215,13 @@ function NewAzLBRuleConfig {                                                    
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
                         Break NewAzureLBRuleIdleTO                                          # Breaks :NewAzureLBRuleIdleTO        
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and $LBRuleIdleTO -notlike '*.*')
-                else {                                                                      # All other inputs for $LBRuleIdleTO
+                }                                                                           # End if ($LBRuleIdleTO)
+                else {                                                                      # Else if $LBRuleIdleTO is $null
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleIdleTO -ge 1 -and $LBRuleIdleTO -le 99999 -and $LBRuleIdleTO -notlike '*.*'))
+                }                                                                           # End else (if ($LBRuleIdleTO))
             }                                                                               # End :NewAzureLBRuleIdleTO while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the load balancer rule'                                # Write message to screen
