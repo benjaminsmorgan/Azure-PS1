@@ -444,6 +444,54 @@ function RemoveAzADUser {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzADUser
+function SetAzADUserPassword {                                                              # Function to set a new password
+    Begin {                                                                                 # Begin function
+        if ($CallingFunction) {                                                             # If $CallingFunction is $null
+            $CallingFunction = 'SetAzADUserPassword'                                        # Creates $CallingFunction
+        }                                                                                   # End if ($CallingFunction)
+        :SetAzureAdUserPassword while ($true) {                                             # Outer loop for managing function
+            $ADUserObject = GetAzADUser ($CallingFunction)                                  # Calls function and assigns output to $var
+            if (!$ADUserObject) {                                                           # If $ADUserObject is $null
+                Break SetAzureAdUserPassword                                                # Breaks :SetAzureAdUserPassword
+            }                                                                               # End if (!$ADUserObject)
+            Write-Host 'Reset the password for:'$ADUserObject.UserPrincipalName             # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to reset the password
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Write-Host 'Reseting the password'                                          # Write message to screen
+                Try {                                                                       # Try the following
+                    $Password = '#1C@tD0g'                                                  # Creates a password
+                    $Password = ConvertTo-SecureString -String $Password -AsPlainText `
+                        -Force                                                              # Creates hashed password
+                    Set-AzureADUserPassword -ObjectId $ADUserObject.ID -Password $Password `
+                        -ErrorAction 'Stop'                                                 # Resets the password
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions'                           # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureAdUserPassword                                            # Breaks :SetAzureAdUserPassword
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The password has been changed'                                  # Write message to the screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureAdUserPassword                                                # Breaks :SetAzureAdUserPassword
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureAdUserPassword                                                # Breaks :SetAzureAdUserPassword
+            }                                                                               # End if (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureAdUserPassword while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Return to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End SetAzADUserPassword
 # Addtional functions for ManageAzADUser
 function GetAzADUser {                                                                      # Function to get an Azure AD user account
     Begin {                                                                                 # Begin function
@@ -463,7 +511,12 @@ function GetAzADUser {                                                          
             Write-Host ''                                                                   # Write message to screen
             foreach ($_ in $ObjectArray) {                                                  # Foreach item in $ObjectArray
                 $Number = $_.Number                                                         # $Number is equal to current item .Number
-                Write-Host "[$Number]" $_.UPN                                               # Write message to screen
+                if ($Number -le 9) {                                                        # If $number is 9 or less
+                    Write-Host "[$Number]          "$_.UPN                                  # Write message to screen
+                }                                                                           # End if ($Number -le 9)
+                else {                                                                      # iF $Number is more than 9
+                    Write-Host "[$Number]         "$_.UPN                                   # Write message to screen
+                }                                                                           # End else (if ($Number -le 9))
                 Write-Host 'Display Name:'$_.DName                                          # Write message to screen
                 Write-Host 'Given Name:  '$_.GName                                          # Write message to screen
                 Write-Host 'Surname:     '$_.SName                                          # Write message to screen
@@ -478,20 +531,17 @@ function GetAzADUser {                                                          
                 if ($CallingFunction) {                                                     # If $CallingFunction has a vale
                     Write-Host 'You are selecting a user account for:'$CallingFunction      # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                $OpSelect = Read-Host 'Select user [#]'                                     # Operator input to select the user account
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the user account
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
                     Break GetAzureADUser                                                    # Breaks :GetAzureADUser
                 }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -in $ObjectArray.Number) {                                # Elseif $OpSelect is in $ObjectArray.Number
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect equals $ObjectArray where $OpSelect equals $ObjectArray.number
-                    if ($CallingFunction) {                                                 # If $CallingFunction has a value
-                        $ADUserObject = Get-AzADUser -ObjectId $OpSelect.ID                 # Pulls the full AD user object
-                        Clear-Host                                                          # Clears screen 
-                        Return $ADUserObject                                                # Returns to calling function with $ADUserObject
-                    }                                                                       # End if ($CallingFunction)
-                    else {                                                                  # If $CallingFunction does not have a value
-                        Break GetAzureADUser                                                # Breaks :GetAzureADUser
-                    }                                                                       # End else if ($CallingFunction)
+                    $ADUserObject = Get-AzADUser -ObjectId $OpSelect.ID                     # Pulls the full AD user object
+                    Write-Host $ADUserObject.UserPrincipalName
+                    Pause
+                    Clear-Host                                                              # Clears screen 
+                    Return $ADUserObject                                                    # Returns to calling function with $ADUserObject
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid option'                                # Write message to screen
