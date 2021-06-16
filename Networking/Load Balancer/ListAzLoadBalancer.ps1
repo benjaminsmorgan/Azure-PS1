@@ -15,6 +15,9 @@
     $ObjectArray:               Array used for the selection of the load balancer
     $PubIPID:                   Attached public IP sku ID
     $PublicIPObject:            Attached public IP object
+    $VmssID:                    Current item .BackendAddressPools.BackendIpConfigurations.id
+    $VmssRG:                    Resource group of $VmssID
+    $VmssName:                  Vmss name of $VmssID                   
     $ObjectInput:               $var used to load items into $ObjectArray
 } #>
 <# Process Flow {
@@ -43,11 +46,17 @@ function ListAzLoadBalancer {                                                   
                     $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
                         {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
                 }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                if ($_.BackendAddressPools.BackendIpConfigurations.id) {                    # If current item .BackendAddressPools.BackendIpConfigurations.id has a value
+                    $VmssID = $_.BackendAddressPools.BackendIpConfigurations.id             # Isolates .BackendAddressPools.BackendIpConfigurations.id
+                    $VmssRG = $VmssID.Split('/')[4]                                         # Isolates the Vmss resource group
+                    $VmssName = $VmssID.Split('/')[8]                                       # Isolates the Vmss name
+                }                                                                           # End if ($_.BackendAddressPools.BackendIpConfigurations.id)
                 $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
                     'Name'= $_.Name;'RG'=$_.ResourceGroupName;'Loc'=$_.Location;`
                     'Sku'=$_.Sku.Name;'PubAllocation'=`
                     $PublicIPObject.PublicIpAllocationMethod;'PubAddress'=`
-                    $PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name                # Creates the item to loaded into array
+                    $PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name;`
+                    'VmssName'=$VmssName;'VmssRG'=$VmssRG                                   # Creates the item to loaded into array
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array
             }                                                                               # End foreach ($_ in $ObjectList)
@@ -62,6 +71,10 @@ function ListAzLoadBalancer {                                                   
                     Write-Host 'Pub IP address:'$_.PubAddress                               # Write message to screen
                     Write-Host 'Pub IP allocat:'$_.PubAllocation                            # Write message to screen
                 }                                                                           # End if ($_.Pubname)
+                if ($_.VmssName) {                                                          # If $_.VmssName has a value
+                    Write-Host 'Vmss name:     '$_.VmssName                                 # Write message to screen
+                    Write-Host 'Vmss RG:       '$_.VmssRG                                   # Write message to screen
+                }                                                                           # End if ($_.VmssName)
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $LoadBalancerArray)
             Pause                                                                           # Pauses all actions for operator input
