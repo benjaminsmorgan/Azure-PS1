@@ -14,6 +14,7 @@
     :NewAzurePublicIP           Outer loop for managing function
     :SetAzurePublicIPName       Inner loop for setting public IP name
     :SetAzurePublicIPAlloc      Inner loop for setting public IP allocation type
+    SetAzurePublicIPSku         Inner loop for setting public IP sku
     $CallingFunction:           Name of this function or the one that called it
     $RGObject:                  Resource group object
     $ValidArray:                Array of valid characters in the public IP name
@@ -23,6 +24,7 @@
     $OpConfirm:                 Operator confirmation of input
     $OpSelect:                  Operator selection
     $PublicIPAllocationObject:  IP allocation type
+    $PubIPSkuObject:            IP sku type
     GetAzResourceGroup{}        Gets $RGObject
 } #>
 <# Process Flow {
@@ -105,29 +107,53 @@ function NewAzPublicIpAddress {                                                 
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
                     Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
-                }                                                                           # End if ($PublicIPAllocationObject -eq '0')
+                }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
                     $PublicIPAllocationObject = 'dynamic'                                   # Creates $PublicIPAllocationObject
                     Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc    
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '1')
+                }                                                                           # End elseif ($OpSelect -eq '1')
                 elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
                     $PublicIPAllocationObject = 'static'                                    # Creates $PublicIPAllocationObject
                     Break SetAzurePublicIPAlloc                                             # Breaks :SetAzurePublicIPAlloc
-                }                                                                           # End elseif ($PublicIPAllocationObject -eq '2')
-                else {                                                                      # All other inputs
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (($PublicIPAllocationObject -eq '0'))
+                }                                                                           # End else (($OpSelect -eq '0'))
             }                                                                               # End :SetAzurePublicIPAlloc while ($true)
+            :SetAzurePublicIPSku while ($true) {                                            # Inner loop for setting the public IP Sku
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Basic'                                                      # Write message to screen
+                Write-Host '[2] Standard'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzurePublicIP                                                  # Breaks :NewAzurePublicIP
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $PubIPSkuObject = 'Basic'                                               # Creates $PubIPSkuObject
+                    Break SetAzurePublicIPSku                                               # Breaks :SetAzurePublicIPSku    
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $PubIPSkuObject = 'Standard'                                            # Creates $PubIPSkuObject
+                    Break SetAzurePublicIPSku                                               # Breaks :SetAzurePublicIPSku
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (($OpSelect -eq '0'))
+            }                                                                               # End :SetAzurePublicIPSku while ($true)
             Try {                                                                           # Try the following
                 Write-Host 'Creating the public IP'                                         # Write message to screen
                 New-AzPublicIpAddress -Name $PublicNameInput `
                     -ResourceGroupName $RGObject.ResourceGroupName -Location `
                     $RGObject.Location -AllocationMethod $PublicIPAllocationObject `
-                    -DomainNameLabel $PublicIPNameObject -Force -ErrorAction 'Stop' `
-                    | Out-Null                                                              # Creates the new public IP address
+                    -DomainNameLabel $PublicIPNameObject -Sku $PubIPSkuObject -Force `
+                    -ErrorAction 'Stop' | Out-Null                                          # Creates the new public IP address
             }                                                                               # End try
             Catch {                                                                         # If try fails
                 Clear-Host                                                                  # Clears screen
