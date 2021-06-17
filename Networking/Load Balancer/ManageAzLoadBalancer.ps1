@@ -2,6 +2,8 @@
 <# Ref: { Mircosoft docs links
     New-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
     New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
     Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
     New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
@@ -14,7 +16,10 @@
     ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
     GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
     RemoveAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/RemoveAzLoadBalancer.ps1
-    NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+    NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriDynamicIpCon.ps1
+    NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriStaticIpCon.ps1
+    NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPubIPCon.ps1
+    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1    
     NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
     GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
     NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
@@ -29,7 +34,10 @@
     ListAzLoadBalancer:         Lists all existing load balancers
     GetAzLoadBalancer:          Gets an existing load balancer
     RemoveAzLoadBalancer:       Removes an existing load balancer
-    NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+    NewAzLBFEPriDynamicIpCon:   Creates a load balancer front end private dynamic IP configuration
+    NewAzLBFEPriStaticIpCon:    Creates a load balancer front end private static IP configuration
+    NewAzLBFEPubIPCon:          Creates a load balancer front end public IP configuration
+    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
     NewAzPublicIpAddress:       Creates a new public IP addres
     GetAzPublicIpAddress:       Gets an existing IP address
     NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
@@ -43,10 +51,12 @@
     $LoadBalancerObject:        Load balancer object
     $OpSelect:                  Operator input for selecting the management function
     NewAzLoadBalancer{}         Creates $LoadBalancerObject
-        NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
-        NewAzPublicIpAddress{}      Creates $PublicIPObject
-            GetAzResourceGroup{}        Gets $RGObject
-        GetAzPublicIpAddress{}      Gets $PublicIPObject
+        NewAzLBFEPriDynamicIpCon{}  Gets $FrontEndIPConfigObject
+            GetAzVNetSubnetConfig{}     Gets $SubnetObject
+        NewAzLBFEPriStaticIpCon{}   Gets $FrontEndIPConfigObject
+            GetAzVNetSubnetConfig{}     Gets $SubnetObject
+        NewAzLBFEPubIPCon{}         Gets $FrontEndIPConfigObject
+            GetAzPublicIpAddress{}      Gets $PublicIPObject
         NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
         NewAzLBProbeConfig{}        Gets $HealthProbeObject
         NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
@@ -63,12 +73,24 @@
                 Call GetAzResourceGroup > Get $RGObject
                 End GetAzResourceGroup
                     Return NewAzLoadBalancer > Send $RGObject          
-                Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                    End GetAzVNetSubnetConfig 
+                        Return NewAzLBFEPriDynamicIpCon > Send $SubnetObject, $VNetObject
+                End NewAzLBFEPriDynamicIpCon
+                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
+                Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                    End GetAzVNetSubnetConfig 
+                        Return NewAzLBFEPriStaticIpCon > Send $SubnetObject, $VNetObject
+                End NewAzLBFEPriStaticIpCon
+                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
+                Call NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
                     Call GetAzPublicIpAddress > Get $PublicIPObject
                     End GetAzPublicIpAddress
-                        Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
-                End NewAzLBFrontendIpConfig
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject    
+                        Return NewAzLBFEPubIPCon > Send $PublicIPObject        
+                End NewAzLBFEPubIPCon
+                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
                 Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
                 End NewAzLBBackendIpConfig
                     Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
@@ -204,10 +226,74 @@ function NewAzLoadBalancer {                                                    
             if (!$RGObject) {                                                               # If $RGObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$RGObject)
-            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig ($CallingFunction)            # Calls function and assigns output to $var
-            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$FrontEndIPConfigObject)
+            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
+                Write-Host 'Select the load balancer sku'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Basic'                                                      # Write message to screen
+                Write-Host '[2] Standard'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
+            :NewAzureLBFrontEnd while ($true) {                                             # Inner loop for setting the type of front end config
+                Write-Host 'Select type of front end config'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Private Dynamic'                                            # Write message to screen
+                Write-Host '[2] Private Static'                                             # Write message to screen
+                Write-Host '[3] Public'                                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the IP type for front end config
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer  
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $FrontEndIPConfigObject = NewAzLBFEPriDynamicIpCon ($CallingFunction)   # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $FrontEndIPConfigObject = NewAzLBFEPriStaticIpCon ($CallingFunction)    # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                elseif ($OpSelect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $FrontEndIPConfigObject = NewAzLBFEPubIPCon `
+                        ($CallingFunction, $LBSkuObject)                                    # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                if ($FrontEndIPConfigObject) {                                              # If $FrontEndIPConfigObject has a value
+                    Break NewAzureLBFrontEnd                                                # Breaks :NewAzureLBFrontEnd
+                }                                                                           # End if ($FrontEndIPConfigObject)
+            }                                                                               # End :NewAzureLBFrontEnd while ($true)
             $BackEndIPConfigObject = NewAzLBBackendIpConfig                                 # Calls function and assigns output to $var
             if (!$BackEndIPConfigObject) {                                                  # If $BackEndIPConfigObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
@@ -232,8 +318,8 @@ function NewAzLoadBalancer {                                                    
                     $RGObject.ResourceGroupName -Location $RGObject.Location `
                     -FrontendIpConfiguration $FrontEndIPConfigObject -BackendAddressPool `
                     $BackEndIPConfigObject -Probe $HealthProbeObject -LoadBalancingRule `
-                    $LBRule -InboundNatPool $InboundNatPoolObject -ErrorAction 'Stop' `
-                    | Out-Null                                                              # Creates the load balancer
+                    $LBRule -InboundNatPool $InboundNatPoolObject -Sku $LBSkuObject `
+                    -ErrorAction 'Stop' | Out-Null                                          # Creates the load balancer
             }                                                                               # End try
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
@@ -258,7 +344,227 @@ function NewAzLoadBalancer {                                                    
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLoadBalancer
-function NewAzLBFrontendIpConfig {                                                          # Function to set up the front end IP for a load balancer
+function NewAzLBFEPriDynamicIpCon {                                                         # Function to set up a private dynamic front end IP for a load balancer
+    Begin {                                                                                 # Begin function
+        :NewAzureLBFEIpConfig while ($true) {                                               # Outer loop for managing the function
+            $SubnetObject, $VNetObject = GetAzVNetSubnetConfig ($CallingFunction)           # Calls function and assigns output to $var
+            if (!$SubnetObject) {                                                           # If $var is $null
+                Break NewAzureLBFEIpConfig                                                  # Breaks :NewAzureLPFEIpConfig
+            }                                                                               # End if (!$PublicIPObject)
+            $SubnetID = $SubnetObject.ID                                                    # Isloates the subnet id
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
+            :SetAzureLBFEName while ($true) {                                               # Inner loop for setting the front end name
+                Write-Host 'Enter the load balancer front end name'                         # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
+                $FrontEndNameObject = Read-Host 'Name'                                      # Operator input for the front end name
+                $FrontEndNameArray = $FrontEndNameObject.ToCharArray()                      # Loads $FrontEndNameArray into array
+                Clear-Host                                                                  # Clears screen
+                if ($FrontEndNameObject.Length -ge 81) {                                    # If $FrontEndNameObject.Length is greater or equal to 81
+                    Write-Host 'The front end name is to long'                              # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($LBNameObject.Length -ge 80)
+                if ($FrontEndNameArray[0] -notin $Valid1stChar) {                           # If 0 position of $FrontEndNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($FrontEndNameArray[0] -notin $Valid1stChar)
+                if ($FrontEndNameArray[-1] -notin $ValidLastChar) {                         # If last position of $FrontEndNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($FrontEndNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $FrontEndNameArray) {                                        # For each item in $FrontEndNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Front end name cannot include any spaces'           # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $FrontEndNameObject = $null                                         # Clears $FrontEndNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBNameArray)
+                if ($FrontEndNameObject) {                                                  # $FrontEndNameObject has a value
+                    Write-Host 'Use:'$FrontEndNameObject' as the front end name'            # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
+                        Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLBFEIpConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureLBFEName                                              # Breaks :SetAzureLBFEName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($FrontEndNameObject)
+                else {                                                                      # If $FrontEndNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($FrontEndNameObject))
+            }                                                                               # End :SetAzureLBFEName while ($true)
+            Try {                                                                           # Try the following
+                Write-Host 'Building the load balancer front end config'                    # Write message to screen
+                $FrontEndIPConfigObject = New-AzLoadBalancerFrontendIpConfig -Name `
+                    $FrontEndNameObject -SubnetId $SubnetID -ErrorAction 'Stop'             # Creates the load balancer front end config
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureLBFEIpConfig                                                  # Breaks :NewAzureLBFEIpConfig
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Front end config has been built'                                    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $FrontEndIPConfigObject                                                  # Returns to calling function with $var
+        }                                                                                   # End :NewAzureLBFEIpConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzLBFEPriDynamicIpCon
+function NewAzLBFEPriStaticIpCon {                                                          # Function to set up a private static front end IP for a load balancer
+    Begin {                                                                                 # Begin function
+        :NewAzureLBFEIpConfig while ($true) {                                               # Outer loop for managing the function
+            $SubnetObject, $VNetObject = GetAzVNetSubnetConfig ($CallingFunction)           # Calls function and assigns output to $var
+            if (!$SubnetObject) {                                                           # If $var is $null
+                Break NewAzureLBFEIpConfig                                                  # Breaks :NewAzureLPFEIpConfig
+            }                                                                               # End if (!$PublicIPObject)
+            $SubnetID = $SubnetObject.ID                                                    # Isloates the subnet id
+            Write-Host 'Gathering current subnet info'                                      # Write message to screen
+            $NicList = (Get-AzNetworkInterface | Where-Object `
+                {$_.IpConfigurations.Subnet.ID -eq $SubnetID}).IpConfigurations             # Gets a list of all nic ip configurations on subnetID
+            Clear-Host                                                                      # Clears screen
+            :SetAzureLBIP while ($true) {                                                   # Inner loop to set the IP address
+                Write-Host 'Subnet Prefix:'$SubnetObject.AddressPrefix                      # Write message to screen
+                Write-Host 'The following IPs are in use:'                                  # Write message to screen
+                foreach ($_ in $NicList) {                                                  # For each item in $NicList
+                    Write-Host 'IP:'$_.PrivateIpAddress                                     # Write message to screen
+                }                                                                           # End foreach ($_ in $NicList)
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Enter the static IP address:'                                   # Write message to screen
+                $IPInput = Read-Host 'IP'                                                   # Operator input for the new IP addres
+                Clear-Host                                                                  # Clears screen
+                if ($IPInput -in $NicList.PrivateIPAddress) {                               # If $IPInput is in $NicList.PrivateIPAddress 
+                    Write-Host 'That IP address is already in use'                          # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if ($IPInput -in $NicList.PrivateIPAddress)
+                elseif ($IPInput -notlike '*.*.*.*') {                                      # Else if $IPInput is not like '*.*.*.*'
+                    Write-Host 'That does not appear to be a valid IP'                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End elseif ($IPInput -notlike '*.*.*.*')
+                else {                                                                      # All other inputs for $IPInput
+                    Write-Host 'Use:'$IPInput ' for the load balancer front end'            # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the IP address
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLBFEIpConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm -eq 'y'
+                        Break SetAzureLBIP                                                  # Breaks :SetAzureLBIP
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                }                                                                           # End else (if ($IPInput -in $NicList.PrivateIPAddress))
+            }                                                                               # End :SetAzureLBIP while ($true)
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
+            :SetAzureLBFEName while ($true) {                                               # Inner loop for setting the front end name
+                Write-Host 'Enter the load balancer front end name'                         # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
+                $FrontEndNameObject = Read-Host 'Name'                                      # Operator input for the front end name
+                $FrontEndNameArray = $FrontEndNameObject.ToCharArray()                      # Loads $FrontEndNameArray into array
+                Clear-Host                                                                  # Clears screen
+                if ($FrontEndNameObject.Length -ge 81) {                                    # If $FrontEndNameObject.Length is greater or equal to 81
+                    Write-Host 'The front end name is to long'                              # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($LBNameObject.Length -ge 80)
+                if ($FrontEndNameArray[0] -notin $Valid1stChar) {                           # If 0 position of $FrontEndNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($FrontEndNameArray[0] -notin $Valid1stChar)
+                if ($FrontEndNameArray[-1] -notin $ValidLastChar) {                         # If last position of $FrontEndNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $FrontEndNameObject = $null                                             # Clears $FrontEndNameObject
+                }                                                                           # End if ($FrontEndNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $FrontEndNameArray) {                                        # For each item in $FrontEndNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Front end name cannot include any spaces'           # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $FrontEndNameObject = $null                                         # Clears $FrontEndNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBNameArray)
+                if ($FrontEndNameObject) {                                                  # $FrontEndNameObject has a value
+                    Write-Host 'Use:'$FrontEndNameObject' as the front end name'            # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e''
+                        Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLBFEIpConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureLBFEName                                              # Breaks :SetAzureLBFEName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($FrontEndNameObject)
+                else {                                                                      # If $FrontEndNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($FrontEndNameObject))
+            }                                                                               # End :SetAzureLBFEName while ($true)
+            Try {                                                                           # Try the following
+                Write-Host 'Building the load balancer front end config'                    # Write message to screen
+                $FrontEndIPConfigObject = New-AzLoadBalancerFrontendIpConfig -Name `
+                    $FrontEndNameObject -SubnetId $SubnetID -PrivateIpAddress $IPInput `
+                    -ErrorAction 'Stop'                                                     # Creates the load balancer front end config
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureLBFEIpConfig                                                  # Breaks :NewAzureLBFEIpConfig
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Front end config has been built'                                    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Return $FrontEndIPConfigObject                                                  # Returns to calling function with $var
+        }                                                                                   # End :NewAzureLBFEIpConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzLBFEPriStaticIpCon
+function NewAzLBFEPubIPCon {                                                                # Function to set up the front end public IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBFEIpConfig while ($true) {                                               # Outer loop for managing the function
             :SetAzurePublicIP while ($true) {                                               # Inner loop for selecting the public IP sku
@@ -266,6 +572,32 @@ function NewAzLBFrontendIpConfig {                                              
                 if (!$PublicIPObject) {                                                     # If $var is $null
                     Break NewAzureLBFEIpConfig                                              # Breaks :NewAzureLPFEIpConfig
                 }                                                                           # End if (!$PublicIPObject)
+                if ($PublicIPObject.Sku.Name -ne $LBSkuObject) {                            # If $PublicIPObject.Sku.Name does not equal $LBSkuObject 
+                    if ($LBSkuObject -eq 'Basic') {                                         # If $LBSkuObject equals 'Basic
+                        Write-Host 'The load balancer being built'                          # Write message to screen
+                        Write-Host 'is a basic sku and requires a'                          # Write message to screen
+                        Write-Host 'basic public IP sku'                                    # Write message to screen
+                    }                                                                       # End if ($LBSkuObject -eq 'Basic')
+                    else {                                                                  # Else if $LBSkuObject equals 'standard'
+                        Write-Host 'The load balancer being built'                          # Write message to screen
+                        Write-Host 'is a standard sku and requires a'                       # Write message to screen
+                        Write-Host 'standard public IP sku'                                 # Write message to screen 
+                    }                                                                       # End else (if ($LBSkuObject -eq 'Basic'))
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'Select a different public IP sku?'                          # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpSelect = Read-Host '[Y] Yes [N] No'                                  # Operator selection to choose a new public IP sku
+                    Clear-Host                                                              # Clears screen
+                    if ($OpSelect -eq 'y') {                                                # If $OpSelect equals 'y'
+                        $PublicIPObject = $null                                             # Clears $PublicIPObject
+                    }                                                                       # End if ($OpSelect -eq 'y')
+                    else {                                                                  # Else if $OpSelect does not equal 'y'
+                        Break NewAzureLBFEIpConfig                                          # Breaks :NewAzureLPFEIpConfig
+                    }                                                                       # End if ($OpSelect -eq 'y')
+                }                                                                           # End if ($PublicIPObject.Sku.Name -ne $LBSkuObject)
+                else {                                                                      # if $PublicIPObject.IpConfiguration.Id is $null
+                    Break SetAzurePublicIP                                                  # Breaks :SetAzurePublicIP
+                }                                                                           # End else (if ($PublicIPObject.Sku.Name -ne $LBSkuObject))
                 if ($PublicIPObject.IpConfiguration.Id) {                                   # If $PublicIPObject.IpConfiguration.Id has a value
                     Write-Host 'The selected public IP sku is already in use'               # Write message to screen
                     Write-Host ''                                                           # Write message to screen
@@ -366,7 +698,7 @@ function NewAzLBFrontendIpConfig {                                              
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzLBFrontendIpConfig
+}                                                                                           # End function NewAzLBFEPubIPCon
 function NewAzLBBackendIpConfig {                                                           # Function to set up the Back end IP for a load balancer
     Begin {                                                                                 # Begin function
         :NewAzureLBBEIpConfig while ($true) {                                               # Outer loop for managing the function
@@ -1323,7 +1655,7 @@ function AddAzLBFEPublicConfig {                                                
             if (!$LoadBalancerObject) {                                                     # If $LoadBalancerObject does not have a value
                 Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
             }                                                                               # End if (!$LoadBalancerObject)
-            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig ($CallingFunction)            # Calls function and assigns the output to $var
+            $FrontEndIPConfigObject = NewAzLBFEPubIPCon ($CallingFunction)            # Calls function and assigns the output to $var
             if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
                 Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
             }                                                                               # End if (!$FrontEndIPConfigObject)
