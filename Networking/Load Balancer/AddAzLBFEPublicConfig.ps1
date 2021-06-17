@@ -1,3 +1,51 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Set-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerfrontendipconfig?view=azps-6.0.0
+    Add-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerfrontendipconfig?view=azps-6.1.0
+    Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
+    New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
+} #>
+<# Required Functions Links: {
+    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+    NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+    GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+} #>
+<# Functions Description: {
+    AddAzLBFEPublicConfig:      Adds a public IP configuration to a load balancer
+    GetAzLoadBalancer:          Gets an existing load balancer
+    NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+    GetAzPublicIpAddress:       Gets an existing IP address
+} #>
+<# Variables: {      
+    :SetAzureLoadBalancer       Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
+    $LoadBalancerObject:        Load balancer object
+    $FrontEndIPConfigObject:    New front end config object
+    $LBSku:                     $LoadBalancerObject.Sku.name
+    $PubIPID:                   $FrontEndIPConfigObject.PublicIPAddress.Id            
+    $PubIPObject:               Public IP object
+    $PubIPSku:                  $PubIPObject.Sku.Name
+    $OpConfirm:                 Operator confirmation to add this config
+    GetAzLoadBalancer{}         Gets $LoadBalancerObject
+    NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+        GetAzPublicIpAddress{}      Gets $PubIPObject
+} #>
+<# Process Flow {
+    function
+        Call AddAzLBFEPublicConfig > Get $null
+            Call GetAzLoadBalancer > Get $LoadBalancerObject
+            End GetAzLoadBalancer
+                Return AddAzLBFEPublicConfig > Send $LoadBalancerObject
+            Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                Call GetAzPublicIpAddress > Get $PubIPObject
+                End GetAzPublicIpAddress
+                    Return NewAzLBFrontendIpConfig > Send $PubIPObject
+            End NewAzLBFrontendIpConfig
+                Return AddAzLBFEPublicConfig > Send $FrontEndIPConfigObject
+        End AddAzLBFEPublicConfig
+            Return function > Send $null
+}#>
 function AddAzLBFEPublicConfig {                                                            # Function to add a load balancer public IP front end config
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
