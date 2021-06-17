@@ -6,10 +6,15 @@
     New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
     New-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
     New-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0   
 } #>
 <# Required Functions Links: {
-    NewAzLBFrontendIpConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFrontendIpConfig.ps1
+    NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriDynamicIpCon.ps1
+    NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriStaticIpCon.ps1
+    NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPubIPCon.ps1
+    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1    
     GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
     NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
     NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
@@ -19,7 +24,10 @@
 } #>
 <# Functions Description: {
     NewAzLoadBalancer:          Creates a new load balancer
-    NewAzLBFrontendIpConfig:    Creates a load balancer front end IP configuration
+    NewAzLBFEPriDynamicIpCon:   Creates a load balancer front end private dynamic IP configuration
+    NewAzLBFEPriStaticIpCon:    Creates a load balancer front end private static IP configuration
+    NewAzLBFEPubIPCon:          Creates a load balancer front end public IP configuration
+    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
     GetAzPublicIpAddress:       Gets an existing IP address
     NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
     NewAzLBProbeConfig:         Creates a load balancer probe configuration
@@ -29,7 +37,9 @@
 } #>
 <# Variables: {      
     :NewAzureLoadBalancer       Outer loop to manage function   
-    :SetAzureLBName             Inner loop for set the load balancer name
+    :SetAzureLBName             Inner loop for setting the load balancer name
+    :SetAzureLoadBalancerSku    Inner loop for setting the load balancer sku
+    :NewAzureLBFrontEnd         Inner loop for setting the load balancer front end IP config
     $CallingFunction:           Name of this function or the one that called it
     $ValidArray:                Array of valid non first/last characters to load balancer config
     $Valid1stChar:              Array of valid first characters to load balancer config
@@ -37,6 +47,8 @@
     $LBNameArray:               $LBNameObject converted to array
     $LBNameObject:              Load balancer name object
     $RGObject:                  Resource group object
+    $OpSelect:                  Opertor input to select options
+    $LBSkuObject:               Load balancer sku object
     $FrontEndIPConfigObject:    Front end configuration object
     $BackEndIPConfigObject:     Back end configuration object
     $HealthProbeObject:         Health probe configuration object
@@ -45,7 +57,11 @@
     $OpConfirm:                 Operator confirmation of $LBNameObject
     $LoadBalancerObject:        The load balancer object
     GetAzResourceGroup{}        Gets $RGObject
-    NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+    NewAzLBFEPriDynamicIpCon{}  Gets $FrontEndIPConfigObject
+        GetAzVNetSubnetConfig{}     Gets $SubnetObject
+    NewAzLBFEPriStaticIpCon{}   Gets $FrontEndIPConfigObject
+        GetAzVNetSubnetConfig{}     Gets $SubnetObject
+    NewAzLBFEPubIPCon{}         Gets $FrontEndIPConfigObject
         GetAzPublicIpAddress{}      Gets $PublicIPObject
     NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
     NewAzLBProbeConfig{}        Gets $HealthProbeObject
@@ -58,12 +74,24 @@
             Call GetAzResourceGroup > Get $RGObject
             End GetAzResourceGroup
                 Return NewAzLoadBalancer > Send $RGObject          
-            Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+            Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                End GetAzVNetSubnetConfig 
+                    Return NewAzLBFEPriDynamicIpCon > Send $SubnetObject, $VNetObject
+            End NewAzLBFEPriDynamicIpCon
+                Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
+            Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                End GetAzVNetSubnetConfig 
+                    Return NewAzLBFEPriStaticIpCon > Send $SubnetObject, $VNetObject
+            End NewAzLBFEPriStaticIpCon
+                Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
+            Call NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
                 Call GetAzPublicIpAddress > Get $PublicIPObject
                 End GetAzPublicIpAddress
-                    Return NewAzLBFrontendIpConfig > Send $PublicIPObject        
-            End NewAzLBFrontendIpConfig
-                Return NewAzLoadBalancer > Send $FrontEndIPConfigObject    
+                    Return NewAzLBFEPubIPCon > Send $PublicIPObject        
+            End NewAzLBFEPubIPCon
+                Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
             Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
             End NewAzLBBackendIpConfig
                 Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
@@ -148,10 +176,74 @@ function NewAzLoadBalancer {                                                    
             if (!$RGObject) {                                                               # If $RGObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$RGObject)
-            $FrontEndIPConfigObject = NewAzLBFrontendIpConfig ($CallingFunction)            # Calls function and assigns output to $var
-            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$FrontEndIPConfigObject)
+            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
+                Write-Host 'Select the load balancer sku'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Basic'                                                      # Write message to screen
+                Write-Host '[2] Standard'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
+            :NewAzureLBFrontEnd while ($true) {                                             # Inner loop for setting the type of front end config
+                Write-Host 'Select type of front end config'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Private Dynamic'                                            # Write message to screen
+                Write-Host '[2] Private Static'                                             # Write message to screen
+                Write-Host '[3] Public'                                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the IP type for front end config
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer  
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $FrontEndIPConfigObject = NewAzLBFEPriDynamicIpCon ($CallingFunction)   # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $FrontEndIPConfigObject = NewAzLBFEPriStaticIpCon ($CallingFunction)    # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                elseif ($OpSelect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $FrontEndIPConfigObject = NewAzLBFEPubIPCon `
+                        ($CallingFunction, $LBSkuObject)                                    # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                if ($FrontEndIPConfigObject) {                                              # If $FrontEndIPConfigObject has a value
+                    Break NewAzureLBFrontEnd                                                # Breaks :NewAzureLBFrontEnd
+                }                                                                           # End if ($FrontEndIPConfigObject)
+            }                                                                               # End :NewAzureLBFrontEnd while ($true)
             $BackEndIPConfigObject = NewAzLBBackendIpConfig                                 # Calls function and assigns output to $var
             if (!$BackEndIPConfigObject) {                                                  # If $BackEndIPConfigObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
@@ -176,8 +268,8 @@ function NewAzLoadBalancer {                                                    
                     $RGObject.ResourceGroupName -Location $RGObject.Location `
                     -FrontendIpConfiguration $FrontEndIPConfigObject -BackendAddressPool `
                     $BackEndIPConfigObject -Probe $HealthProbeObject -LoadBalancingRule `
-                    $LBRule -InboundNatPool $InboundNatPoolObject -ErrorAction 'Stop' `
-                    | Out-Null                                                              # Creates the load balancer
+                    $LBRule -InboundNatPool $InboundNatPoolObject -Sku $LBSkuObject `
+                    -ErrorAction 'Stop' | Out-Null                                          # Creates the load balancer
             }                                                                               # End try
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
