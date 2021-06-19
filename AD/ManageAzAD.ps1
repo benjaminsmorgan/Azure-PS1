@@ -1,9 +1,9 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Reference links: {
-    New-AzureADUser:            https://docs.microsoft.com/en-us/powershell/module/azuread/new-azureaduser?view=azureadps-2.0
-    Get-AzureADUser:            https://docs.microsoft.com/en-us/powershell/module/azuread/get-azureaduser?view=azureadps-2.0
-    Get-AzADUser:               https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azaduser?view=azps-5.8.0
-    Remove-AzADUser:            https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azaduser?view=azps-5.8.0
+    New-AzureADUser:                            https://docs.microsoft.com/en-us/powershell/module/azuread/new-azureaduser?view=azureadps-2.0
+    Get-AzureADUser:                            https://docs.microsoft.com/en-us/powershell/module/azuread/get-azureaduser?view=azureadps-2.0
+    Get-AzADUser:                               https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azaduser?view=azps-5.8.0
+    Remove-AzADUser:                            https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azaduser?view=azps-5.8.0
 } #>
 <# Required Functions Links: {
     ManageAzADUser:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/AD/Accounts/ManageAzADUser.ps1
@@ -60,18 +60,18 @@ function ManageAzAD {                                                           
         Write-Host 'There is pop-up window to sign into Azure'                              # Write message to screen
         Write-Host 'You may need to minimize this window'                                   # Write message to screen
         Write-Host 'to use the pop-up window'                                               # Write message to screen
-        Try {                                                                               # Try the following
-            Connect-AzureAD  -ErrorAction 'Stop'                                            # Connects to Azure AD
-        }                                                                                   # End Try
-        catch {                                                                             # If Try fails
+        #Try {                                                                               # Try the following
+        #    Connect-AzureAD  -ErrorAction 'Stop'                                            # Connects to Azure AD
+        #}                                                                                   # End Try
+        #catch {                                                                             # If Try fails
             Write-Host ''                                                                   # Write message to screen
             Write-Host 'An error has occured'                                               # Write message to screen
             Write-Host 'Connect-AzureAD is not'                                             # Write message to screen
             Write-Host 'Compatible with PS7'                                                # Write message to screen
-            Pause                                                                           # Pause all action until operator
-            Clear-Host                                                                      # Clears screen
-            Return                                                                          # Returns to calling function with $null
-        }                                                                                   # End catch
+        #    Pause                                                                           # Pause all action until operator
+        #    Clear-Host                                                                      # Clears screen
+        #    Return                                                                          # Returns to calling function with $null
+        #}                                                                                   # End catch
         Write-Host 'You have been connected to Azure AD'                                    # Write message to screen
         :ManageAzureAD while ($true) {                                                      # Outer loop for managing function
             Write-Host '[1] Manage Accounts'                                                # Write message to screen
