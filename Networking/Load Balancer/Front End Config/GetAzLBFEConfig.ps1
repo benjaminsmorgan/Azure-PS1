@@ -44,7 +44,7 @@ function GetAzLBFEConfig {                                                      
                 Break GetAzureLBFEConfig                                                    # Breaks GetAzureLBFEConfig
             }                                                                               # if (!$ObjectList)
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
-            $ObjectNumber = 1
+            $ObjectNumber = 1                                                               # Creates $ObjectNumber
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 Write-Host 'Gathering info on:'$_.name                                      # Write message to screen
                 $LoadBalancerObject = Get-AzLoadBalancer -Name $_.Name                      # Gets the current load balancer object

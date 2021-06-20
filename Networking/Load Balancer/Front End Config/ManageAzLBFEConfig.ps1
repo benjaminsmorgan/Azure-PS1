@@ -1,3 +1,67 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.0.0
+    Remove-AzLoadBalancerFrontendIpConfig:      https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerfrontendipconfig?view=azps-6.1.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-6.1.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0    
+} #>
+<# Required Functions Links: {
+    AddAzLBFEPrivateConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/AddAzLBFEPrivateConfig.ps1
+    AddAzLBFEPublicConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/AddAzLBFEPublicConfig.ps1
+    ListAzLBFEConfigs:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/ListAzLBFEConfigs.ps1
+    GetAzLBFEConfig:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/GetAzLBFEConfig.ps1
+    RemoveAzLBFEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/RemoveAzLBFEConfig.ps1
+    NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPriDynamicIpCon.ps1
+    NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPriStaticIpCon.ps1
+    NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPubIPCon.ps1
+    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+} #>
+<# Functions Description: {
+    ManageAzLBFEConfig:         Management functions for load balancer front end configurations
+    AddAzLBFEPrivateConfig:     Function to add a new private front end to a load balancer
+    AddAzLBFEPublicConfig:      Function to add a new publiv front end to a load balancer
+    ListAzLBFEConfigs:          Function to list all load balancer front end configurations
+    GetAzLBFEConfig:            Function to get a load balancer front end configuration
+    RemoveAzLBFEConfig:         Function to function a load balancer front end configuration
+    NewAzLBFEPriDynamicIpCon:   Function to create a private dynamic load balancer front end configuration
+    NewAzLBFEPriStaticIpCon:    Function to create a private static load balancer front end configuration
+    NewAzLBFEPubIPCon:          Function to create a public load balancer front end configuration     
+    GetAzLoadBalancer:          Function to get a load balancer 
+} #>
+<# Variables: {      
+    :ManageAzureLoadBalancer    Outer loop for managing function
+    $OpSelect:                  Operator input for selecting the management function
+    AddAzLBFEPrivateConfig{}    Adds $FrontEndIPConfigObject
+        GetAzLoadBalancer{}         Gets $LoadBalancerObject
+        NewAzLBFEPriDynamicIpCon{}  Creates $FrontEndIPConfigObject
+        NewAzLBFEPriStaticIpCon{}   Creates $FrontEndIPConfigObject
+    AddAzLBFEPublicConfig
+} #>
+<# Process Flow {
+    function
+        Call ManageAzLBFEConfig > Get $null
+            Call AddAzLBFEPrivateConfig > Get $null
+                Call GetAzLoadBalancer > Get $LoadBalancerObject
+                End GetAzLoadBalancer
+                    Return AddAzLBFEPrivateConfig > Send $LoadBalancerObject
+                Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                End NewAzLBFEPriDynamicIpCon
+                    Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject
+                Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                End NewAzLBFEPriStaticIpCon
+                    Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject            
+            End AddAzLBFEPrivateConfig
+                Return function > Send $null
+
+
+
+
+        End ManageAzLBFEConfig
+            Return function > Send $null
+}#>
 function ManageAzLBFEConfig {                                                               # Function to manage front end configurations
     Begin {                                                                                 # Begin function
         :ManageAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
@@ -345,7 +409,7 @@ function GetAzLBFEConfig {                                                      
                 Break GetAzureLBFEConfig                                                    # Breaks GetAzureLBFEConfig
             }                                                                               # if (!$ObjectList)
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
-            $ObjectNumber = 1
+            $ObjectNumber = 1                                                               # Creates $ObjectNumber
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 Write-Host 'Gathering info on:'$_.name                                      # Write message to screen
                 $LoadBalancerObject = Get-AzLoadBalancer -Name $_.Name                      # Gets the current load balancer object

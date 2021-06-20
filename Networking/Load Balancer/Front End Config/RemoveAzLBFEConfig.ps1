@@ -6,7 +6,7 @@
     Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
 } #>
 <# Required Functions Links: {
-    GetAzLBFEConfig:            TBD   
+    GetAzLBFEConfig:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/GetAzLBFEConfig.ps1
 } #>
 <# Functions Description: {
     RemoveAzLBFEConfig:         Removes a front end configurations from a load balancer

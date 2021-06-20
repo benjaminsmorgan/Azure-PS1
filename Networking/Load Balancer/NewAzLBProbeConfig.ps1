@@ -20,6 +20,7 @@
     $ProbeNameArray:            $ProbeNameObject converted to array
     $ProbeNameObject:           Probe name object
     $ProbeTypeObject:           Probe type object
+    $LBSkuObject:               Sku of the load balancer this probe config is being added to
     $ProbeProtocol:             Array containing probe port and protocol
     $ProbeProtocolInput:        Loads items into the $ProbeProtocol array
     $ProbeIntervalObject:       Probe interval object
@@ -97,38 +98,45 @@ function NewAzLBProbeConfig {                                                   
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else $ProbeNameObject
             }                                                                               # End :SetAzureProbeName while ($true)
-            :SetAzureProbeProtocol while ($true) {                                          # Inner loop for setting the probe type
-                Write-Host 'Load balanacer health probe protocol'                           # Write message to screen
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Http (80)'                                                  # Write message to screen
-                Write-host '[2] Https(443)'                                                 # Write message to screen
-                Write-Host ''                                                               # Writes message to screen
-                $OpSelect = Read-Host 'Option[#]'                                           # Operator input for the probe type object
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break NewAzureLBProbeConfig                                             # Breaks :NewAzureLBProbeConfig 
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals '1'
-                    [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
-                    $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
-                        'port' = '80'}                                                      # Creates the item to loaded into array
-                    $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
-                    Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($OpSelect -eq '1')
-                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals '2'
-                    [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
-                    $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'https';`
-                        'port' = '443'}                                                     # Creates the item to loaded into array
-                    $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
-                    Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($OpSelect -eq '2')
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
+            if ($LBSkuObject -eq 'Basic') {                                                 # If $LBSkuObject equals 'Basic'                                  
+                $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
+                    'port' = '80'}                                                          # Creates the item to loaded into array
+                $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                          # Loads item into array, out-null removes write to screen
+            }                                                                               # End if ($LBSkuObject -eq 'Basic')
+            else {                                                                          # Else if $LBSkuObject does not equal 'Basic'
+                :SetAzureProbeProtocol while ($true) {                                      # Inner loop for setting the probe type
+                    Write-Host 'Load balanacer health probe protocol'                       # Write message to screen
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Http (80)'                                              # Write message to screen
+                    Write-host '[2] Https(443)'                                             # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpSelect = Read-Host 'Option[#]'                                       # Operator input for the probe type object
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (If $OpSelect -eq '0')
-            }                                                                               # End :SetAzureProbeProtocol while ($true)
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
+                        Break NewAzureLBProbeConfig                                         # Breaks :NewAzureLBProbeConfig 
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    elseif ($OpSelect -eq '1') {                                            # Elseif $OpSelect equals '1'
+                        [System.Collections.ArrayList]$ProbeProtocol = @()                  # Creates array for list to be loaded into
+                        $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
+                            'port' = '80'}                                                  # Creates the item to loaded into array
+                        $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                  # Loads item into array, out-null removes write to screen         
+                        Break SetAzureProbeProtocol                                         # Breaks :SetAzureProbeProtocol 
+                    }                                                                       # End elseif ($OpSelect -eq '1')
+                    elseif ($OpSelect -eq '2') {                                            # Elseif $OpSelect equals '2'
+                        [System.Collections.ArrayList]$ProbeProtocol = @()                  # Creates array for list to be loaded into
+                        $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'https';`
+                            'port' = '443'}                                                 # Creates the item to loaded into array
+                        $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                  # Loads item into array, out-null removes write to screen         
+                        Break SetAzureProbeProtocol                                         # Breaks :SetAzureProbeProtocol 
+                    }                                                                       # End elseif ($OpSelect -eq '2')
+                    else {                                                                  # All other inputs for $OpSelect
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (If $OpSelect -eq '0')
+                }                                                                           # End :SetAzureProbeProtocol while ($true)
+            }                                                                               # End else (if ($LBSkuObject -eq 'Basic'))
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :SetAzureProbeInterval while ($true) {                                          # Inner loop for setting the probe interval time

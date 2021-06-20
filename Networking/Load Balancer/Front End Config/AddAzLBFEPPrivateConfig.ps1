@@ -22,8 +22,8 @@
     $SubnetName:                Name of the subnet
     $OpConfirm:                 Operator confirmation to add this config
     GetAzLoadBalancer{}         Gets $LoadBalancerObject
-    NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
-        GetAzPublicIpAddress{}      Gets $PubIPObject
+    NewAzLBFEPriDynamicIpCon{}  Gets $FrontEndIPConfigObject
+    NewAzLBFEPriStaticIpCon{}   Gets $FrontEndIPConfigObject
 } #>
 <# Process Flow {
     function
@@ -31,12 +31,12 @@
             Call GetAzLoadBalancer > Get $LoadBalancerObject
             End GetAzLoadBalancer
                 Return AddAzLBFEPrivateConfig > Send $LoadBalancerObject
-            Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
-                Call GetAzPublicIpAddress > Get $PubIPObject
-                End GetAzPublicIpAddress
-                    Return NewAzLBFrontendIpConfig > Send $PubIPObject
-            End NewAzLBFrontendIpConfig
+            Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+            End NewAzLBFEPriDynamicIpCon
                 Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject
+            Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+            End NewAzLBFEPriStaticIpCon
+                Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject            
         End AddAzLBFEPrivateConfig
             Return function > Send $null
 }#>

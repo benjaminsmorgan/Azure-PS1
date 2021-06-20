@@ -163,6 +163,44 @@ function NewAzLoadBalancer {                                                    
             $CallingFunction = 'NewAzLoadBalancer'                                          # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
+                Write-Host 'Select the load balancer sku'                                   # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host ' Sku                | Basic | Standard   |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Back End pool size  | < 301 | < 1001     |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Health Probes       | HTTP  | HTTP/HTTPS |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Secure by default   | No    | Yes        |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Availability Zones  | N/A   | Yes        |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'SLA                 | N/A   | 99.99%     |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Basic'                                                      # Write message to screen
+                Write-Host '[2] Standard'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
             $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
@@ -226,32 +264,6 @@ function NewAzLoadBalancer {                                                    
             if (!$RGObject) {                                                               # If $RGObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$RGObject)
-            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
-                Write-Host 'Select the load balancer sku'                                   # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Basic'                                                      # Write message to screen
-                Write-Host '[2] Standard'                                                   # Write message to screen
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
-                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
-                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
-                }                                                                           # End elseif ($OpSelect -eq '1')
-                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
-                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
-                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
-                }                                                                           # End elseif ($OpSelect -eq '2')
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (($OpSelect -eq '0'))
-            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
             :NewAzureLBFrontEnd while ($true) {                                             # Inner loop for setting the type of front end config
                 Write-Host 'Select type of front end config'                                # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -298,7 +310,7 @@ function NewAzLoadBalancer {                                                    
             if (!$BackEndIPConfigObject) {                                                  # If $BackEndIPConfigObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$BackEndIPConfigObject)
-            $HealthProbeObject = NewAzLBProbeConfig                                         # Calls function and assigns output to $var
+            $HealthProbeObject = NewAzLBProbeConfig ($LBSkuObject)                          # Calls function and assigns output to $var
             if (!$HealthProbeObject) {                                                      # If $HealthProbeObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$HealthProbeObject)
@@ -896,38 +908,45 @@ function NewAzLBProbeConfig {                                                   
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else $ProbeNameObject
             }                                                                               # End :SetAzureProbeName while ($true)
-            :SetAzureProbeProtocol while ($true) {                                          # Inner loop for setting the probe type
-                Write-Host 'Load balanacer health probe protocol'                           # Write message to screen
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Http (80)'                                                  # Write message to screen
-                Write-host '[2] Https(443)'                                                 # Write message to screen
-                Write-Host ''                                                               # Writes message to screen
-                $OpSelect = Read-Host 'Option[#]'                                           # Operator input for the probe type object
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break NewAzureLBProbeConfig                                             # Breaks :NewAzureLBProbeConfig 
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals '1'
-                    [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
-                    $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
-                        'port' = '80'}                                                      # Creates the item to loaded into array
-                    $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
-                    Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($OpSelect -eq '1')
-                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals '2'
-                    [System.Collections.ArrayList]$ProbeProtocol = @()                      # Creates array for list to be loaded into
-                    $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'https';`
-                        'port' = '443'}                                                     # Creates the item to loaded into array
-                    $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                      # Loads item into array, out-null removes write to screen         
-                    Break SetAzureProbeProtocol                                             # Breaks :SetAzureProbeProtocol 
-                }                                                                           # End elseif ($OpSelect -eq '2')
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
+            if ($LBSkuObject -eq 'Basic') {                                                 # If $LBSkuObject equals 'Basic'                                  
+                $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
+                    'port' = '80'}                                                          # Creates the item to loaded into array
+                $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                          # Loads item into array, out-null removes write to screen
+            }                                                                               # End if ($LBSkuObject -eq 'Basic')
+            else {                                                                          # Else if $LBSkuObject does not equal 'Basic'
+                :SetAzureProbeProtocol while ($true) {                                      # Inner loop for setting the probe type
+                    Write-Host 'Load balanacer health probe protocol'                       # Write message to screen
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    Write-Host '[1] Http (80)'                                              # Write message to screen
+                    Write-host '[2] Https(443)'                                             # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpSelect = Read-Host 'Option[#]'                                       # Operator input for the probe type object
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (If $OpSelect -eq '0')
-            }                                                                               # End :SetAzureProbeProtocol while ($true)
+                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
+                        Break NewAzureLBProbeConfig                                         # Breaks :NewAzureLBProbeConfig 
+                    }                                                                       # End if ($OpSelect -eq '0')
+                    elseif ($OpSelect -eq '1') {                                            # Elseif $OpSelect equals '1'
+                        [System.Collections.ArrayList]$ProbeProtocol = @()                  # Creates array for list to be loaded into
+                        $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'http';`
+                            'port' = '80'}                                                  # Creates the item to loaded into array
+                        $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                  # Loads item into array, out-null removes write to screen         
+                        Break SetAzureProbeProtocol                                         # Breaks :SetAzureProbeProtocol 
+                    }                                                                       # End elseif ($OpSelect -eq '1')
+                    elseif ($OpSelect -eq '2') {                                            # Elseif $OpSelect equals '2'
+                        [System.Collections.ArrayList]$ProbeProtocol = @()                  # Creates array for list to be loaded into
+                        $ProbeProtocolInput = [PSCustomObject]@{'Protocol' = 'https';`
+                            'port' = '443'}                                                 # Creates the item to loaded into array
+                        $ProbeProtocol.Add($ProbeProtocolInput) | Out-Null                  # Loads item into array, out-null removes write to screen         
+                        Break SetAzureProbeProtocol                                         # Breaks :SetAzureProbeProtocol 
+                    }                                                                       # End elseif ($OpSelect -eq '2')
+                    else {                                                                  # All other inputs for $OpSelect
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (If $OpSelect -eq '0')
+                }                                                                           # End :SetAzureProbeProtocol while ($true)
+            }                                                                               # End else (if ($LBSkuObject -eq 'Basic'))
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :SetAzureProbeInterval while ($true) {                                          # Inner loop for setting the probe interval time
