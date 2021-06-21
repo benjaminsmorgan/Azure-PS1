@@ -3,6 +3,7 @@
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
     None
@@ -29,6 +30,9 @@
     $PubID:                     Current item .PublicIPAddress.ID
     $PubIP:                     Public IP sku object 
     $VM:                        Current item .VM, used for formatting
+    $VmssObject:                List of Vmss objects if present
+    $VmssName:                  Current item .Name
+    $VmssRG:                    Current item .ResourceGroupName
     $CallingFunction:           Name of the function that called this function
     $OpSelect:                  Operator input to select the nic
     $SubnetObject:              SubnetObject
@@ -46,6 +50,12 @@ function GetAzNetworkInterface {                                                
         :GetAzureNIC while ($true) {                                                        # Outer loop for managing function
             Write-Host 'Gathering network info, this a take a moment'                       # Write message to screen
             $VNetList = Get-AzVirtualNetwork                                                # Gets a list of all virtual networks
+            if (!$VNetList) {                                                               # If $VNetList is $null
+                Write-Host 'No virtual networks present in this subscription'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureNIC                                                           # Breaks :GetAzureNIC
+            }                                                                               # End if (!$VNetList)
             Clear-Host                                                                      # Clears screen
             $ListNumber = 1                                                                 # List number used for subnet selection
             [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
@@ -67,14 +77,54 @@ function GetAzNetworkInterface {                                                
                             'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
                             $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
                             'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations
+                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
+                            'Type'='NIC'
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
+            Write-Host 'Checking for virtual machine scale sets'                            # Write message to screen
+            $VmssObject = Get-AzVmss                                                        # Gets a list of Vmss objects if present
+            if ($VmssObject) {                                                              # If $VmssObject has a value
+                Write-Host 'Gathering scale set instance interfaces'                        # Write message to screen
+                foreach ($_ in $VmssObject) {                                               # For each item in $VmssObject
+                    Write-Host 'Gathering NICs on:'$_.name                                  # Writ message to screen
+                    $VmssName = $_.name                                                     # Isloates the Vmss name
+                    $VmssRG = $_.ResourceGroupName                                          # Isolates the Vmss resource group
+                    $NicList = Get-AzNetworkInterface -VirtualMachineScaleSetName `
+                        $VmssName -ResourceGroupName $VmssRG                                # Gets a list of nics attached to current vmss object
+                    foreach ($_ in $NicList) {                                              # For each item in $NicList
+                        $SubnetID = $_.IpConfigurations.Subnet.ID                           # Isolates the subnet
+                        $VnetName = $SubnetID.Split('/')[8]                                 # Isolates the Vnet name
+                        $Vnet = Get-AzVirtualNetwork -Name $VnetName                        # Gets the virtual network
+                        $VnetName = $Vnet.name                                              # Isolates the vnet name
+                        $VnetPFX = $Vnet.AddressSpace.AddressPrefixes                       # Isolates the vnet prefix
+                        $VNetRG = $Vnet.ResourceGroupName                                   # Isolates the vnet resource group
+                        $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet `
+                            | Where-Object {$_.ID -eq $SubnetID}                            # Gets the subnet
+                        $SubnetName = $Subnet.Name                                          # Isolates the subnet name
+                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix         
+                        $ObjectInput = [PSCustomObject]@{
+                            'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
+                            $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
+                            'VNetName'=$VNetname;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
+                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
+                            'Type'='Scaleset';'VmssName'=$VmssName;'VmssRg'=$VmssRG
+                        }                                                                   # Creates the item to loaded into array
+                        $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                        $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End foreach ($_ in $VmssObject)
+            }                                                                               # End if ($VmssObject)
             Clear-Host                                                                      # Clears screen
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Write-Host 'No network interfaces present in this subscription'             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureNIC                                                           # Breaks :GetAzureNIC
+            }                                                                               # End if (!$ObjectArray)
             Write-Host ''                                                                   # Write message to screen
             :SelectAzureNic while ($true) {                                                 # Inner loop for selecting the nic
                 Write-Host '[0] Exit'                                                       # Write message to screen
@@ -105,7 +155,14 @@ function GetAzNetworkInterface {                                                
                     Write-Host 'VNet RG:        '$_.VnetRG                                  # Write message to screen
                     if ($_.VM) {                                                            # If $_.VM has a value
                         $VM = $_.VM                                                         # VM is equal to current item .VM
-                        $VM = $VM.Split('/')[-1]                                            # Collects the VM name
+                        if ($VM -like '*virtualMachineScaleSets*') {                        # If $VM is like '*virtualMachineScaleSets*'
+                            $Vmss = $VM.Split('/')[-3]                                      # Collects the Vmss name
+                            $VM = $VM.Split('/')[-1]                                        # Collects the instance name
+                            $VM = $Vmss+'/virtualMachines/'+$VM                             # Combines the Vmss name and the instance name
+                        }                                                                   # End if ($VM -like '*virtualMachineScaleSets*')
+                        else {                                                              # Else If $VM is not like '*virtualMachineScaleSets*'
+                            $VM = $VM.Split('/')[-1]                                        # Collects the VM name
+                        }                                                                   # End else (if ($VM -like '*virtualMachineScaleSets*'))
                         Write-Host 'Attached VM:    '$VM                                    # Write message to screen
                         $VM = $null                                                         # Clears $VM                                            
                     }                                                                       # End if ($_.VM)
@@ -129,9 +186,16 @@ function GetAzNetworkInterface {                                                
                         -ResourceGroupName $OpSelect.VNetRG                                 # Pulls the $Subnet Vnet
                     $SubnetObject = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork `
                         $VNetObject -Name $OpSelect.Subname                                 # Pulls the $NicObject subnet
-                    $NicObject = Get-AzNetworkInterface -Name $OpSelect.NicName |`
-                        Where-Object {$_.IpConfigurations.Subnet.ID -eq `
-                        $SubnetObject.ID}                                                   # Pulls the full $NicObject
+                    if ($OpSelect.Type -eq 'Nic') {                                         # If $OpSelect.Type equals 'Nic'
+                        $NicObject = Get-AzNetworkInterface -Name $OpSelect.NicName |`
+                            Where-Object {$_.IpConfigurations.Subnet.ID -eq `
+                            $SubnetObject.ID}                                               # Pulls the full $NicObject
+                    }                                                                       # End if ($OpSelect.Type -eq 'Nic')
+                    else {                                                                  # Else if $OpSelect.Type does not equal 'Nic'
+                        $NicObject = Get-AzNetworkInterface -VirtualMachineScaleSetName `
+                            $OpSelect.VmssName -ResourceGroupName $OpSelect.VmssRg `
+                            | Where-Object {$_.Name -eq $OpSelect.NicName}                  # Pulls the full $NicObject
+                    }                                                                       # End else (if ($OpSelect.Type -eq 'Nic'))
                     Return $NicObject,$SubnetObject,$VnetObject                             # Returns $vars to calling function
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
