@@ -6,6 +6,7 @@
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
     GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
@@ -25,6 +26,7 @@
     $VNetObject:                Virtual network object
     $SubnetObject:              Subnet object
     $NicList:                   List of all nics on $SubnetObject
+    $VmssList:                  List of all virtual machine scale sets
     $IPInput:                   Operator input for the private IP
     $OpConfirm:                 Operator confirmation of the private IP
     GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
@@ -49,6 +51,7 @@ function SetAzNICIpConfig {                                                     
                 Break SetAzureNICIpConfig                                                   # Breaks :SetAzureNICIpConfig
             }                                                                               # End if (!$NicIPConfigObject) 
             Write-Host 'Gathering current subnet info'                                      # Write message to screen
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
             $SubnetID = $NicIPConfigObject.Subnet.ID                                        # Isolates the subnet ID
             $VNetName = $SubnetID.Split('/')[8]                                             # Gets the virtual network name
             $VNetObject = Get-AzVirtualNetwork -Name $VNetName                              # Pulls the virtual network object
@@ -56,13 +59,35 @@ function SetAzNICIpConfig {                                                     
                 | Where-Object {$_.ID -eq $SubnetID}                                        # Pulls the full subnet object
             $NicList = (Get-AzNetworkInterface | Where-Object `
                 {$_.IpConfigurations.Subnet.ID -eq $SubnetID}).IpConfigurations             # Gets a list of all nic ip configurations on subnetID
+            foreach ($_ in $NicList) {                                                      # For each item in $NicList
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'IP'=$_.PrivateIpAddress                                                # Adds vaules to $ObjectInput
+                }                                                                           # End $ObjectInput = [PSCustomObject]@{
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+            }                                                                               # End foreach ($_ in $NicList)
+            $NicList = $null                                                                # Clears $NicList
+            $VmssList = Get-AzVmss                                                          # Gets a list of all virtual machine scale sets
+            if ($VmssList) {                                                                # If $VmssList has a value
+                foreach ($_ in $VmssList) {                                                 # For each item in $VmssList
+                    $NicList = Get-AzNetworkInterface -VirtualMachineScaleSetName `
+                        $_.Name -ResourceGroupName $_.ResourceGroupName                     # Gets a list of all nics on current item .Name
+                    foreach ($_ in $NicList) {                                              # For each item in $NicList
+                        if ($_.IpConfigurations.Subnet.ID -eq $SubnetID) {                  # If current item .IpConfigurations.Subnet.ID equals $SubnetID
+                            $ObjectInput = [PSCustomObject]@{                               # Creates $ObjectInput
+                                'IP'=$_.IPConfigurations.PrivateIPAddress                   # Adds vaules to $ObjectInput
+                            }                                                               # End $ObjectInput = [PSCustomObject]@{
+                            $ObjectArray.Add($ObjectInput) | Out-Null                       # Adds $ObjectInput to $ObjectArray
+                        }                                                                   # End if ($_.IpConfigurations.Subnet.ID -eq $SubnetID)
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End foreach ($_ in $VmssList)
+            }                                                                               # End if ($VmssList)
             Clear-Host                                                                      # Clears screen
             :SetAzureNICIP while ($true) {                                                  # Inner loop to set the IP address
                 Write-Host 'Subnet Prefix:'$SubnetObject.AddressPrefix                      # Write message to screen
                 Write-Host 'The following IPs are in use:'                                  # Write message to screen
-                foreach ($_ in $NicList) {                                                  # For each item in $NicList
-                    Write-Host 'IP:'$_.PrivateIpAddress                                     # Write message to screen
-                }                                                                           # End foreach ($_ in $NicList)
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    Write-Host $_.IP                                                        # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'Enter the IP address for:'$NicIPConfigObject.name               # Write message to screen
                 $IPInput = Read-Host 'IP'                                                   # Operator input for the new IP addres
