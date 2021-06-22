@@ -3,6 +3,7 @@
     Get-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-6.0.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
     None
@@ -25,6 +26,9 @@
     $Number:                    Current item .Number
     $PubID:                     Current item .PubIP.ID
     $PubIP:                     IP currently used by attached public IP sku
+    $VmssObject:                List of virtual machine scale sets if present
+    $VmssName:                  Current item .Name
+    $VmssRG:                    Current item .ResourceGroupName
     $OpSelect:                  Operator input to select the IP config
 } #>
 <# Process Flow {
@@ -36,30 +40,79 @@
 function GetAzNICIpConfig {                                                                 # Function to get network interface config
     Begin {                                                                                 # Begin function
         :GetAzureNICIpConfig while ($true) {                                                # Outer loop for managing function
-            $ObjectList = Get-AzNetworkInterface                                            # Gets a list of all NICs
             $ObjectNumber = 1                                                               # Creates $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
-            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
-                $NICName = $_.Name                                                          # $NICName is equal to current item .Name
-                $NicRG = $_.ResourceGroupName                                               # Gets the NIC resource group
-                $NicVM = $_.VirtualMachine.ID                                               # Gets the NIC VM if attached
-                if ($NicVM) {                                                               # If $NicVM has a value 
-                    $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}                  # Gets the currently attached VM
-                }                                                                           # End if ($NicVM)
-                $IPConfigList = $_.IPConfigurations                                         # IPConfigList is equal to current item .IPConfigurations
-                foreach ($_ in $IPConfigList) {                                             # For each item in $IPConfigList
-                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput            
-                        'Number'=$ObjectNumber;'Name'=$_.Name;`
-                        'PrivIP'=$_.PrivateIPAddress;`
-                        'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                        'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                        'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name            # Collects the information for the array
-                    }                                                                       # End $ObjectInput = [PSCustomObject]
-                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                    $ObjectNumber = $ObjectNumber +1                                        # Increments $ObjectNumber up by 1
-                }                                                                           # End foreach ($_ in $IPConfigList)
-            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host 'Gathering network interfaces'                                       # Write message to screen
+            $ObjectList = Get-AzNetworkInterface                                            # Gets a list of all NICs
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No Nics are present in this subscription'                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End if (!$ObjectList)
+            else {                                                                          # If $ObjectList has a value
+                foreach ($_ in $ObjectList) {                                               # For each item in $ObjectList
+                    $NICName = $_.Name                                                      # $NICName is equal to current item .Name
+                    $NicRG = $_.ResourceGroupName                                           # Gets the NIC resource group
+                    $NicVM = $_.VirtualMachine.ID                                           # Gets the NIC VM if attached
+                    if ($NicVM) {                                                           # If $NicVM has a value 
+                        $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}              # Gets the currently attached VM
+                    }                                                                       # End if ($NicVM)
+                    $IPConfigList = $_.IPConfigurations                                     # IPConfigList is equal to current item .IPConfigurations
+                    foreach ($_ in $IPConfigList) {                                         # For each item in $IPConfigList
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput            
+                            'Number'=$ObjectNumber;'Name'=$_.Name;`
+                            'PrivIP'=$_.PrivateIPAddress;`
+                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
+                            'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
+                            'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name        # Collects the information for the array
+                        }                                                                   # End $ObjectInput = [PSCustomObject]
+                        $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                        $ObjectNumber = $ObjectNumber +1                                    # Increments $ObjectNumber up by 1
+                    }                                                                       # End foreach ($_ in $IPConfigList)
+                }                                                                           # End foreach ($_ in $ObjectList)
+            }                                                                               # End else (if (!$ObjectList))
+            Write-Host 'Gathering scale set interfaces'                                     # Write message to screen
+            $VmssObject = Get-AzVmss                                                        # Gets a list of Vmss objects if present
+            if ($VmssObject) {                                                              # If $VmssObject has a value
+                foreach ($_ in $VmssObject) {                                               # For each item in $VmssObject
+                    Write-Host 'Gathering NICs on:'$_.name                                  # Writ message to screen
+                    $VmssName = $_.name                                                     # Isloates the Vmss name
+                    $VmssRG = $_.ResourceGroupName                                          # Isolates the Vmss resource group
+                    $NicList = Get-AzNetworkInterface -VirtualMachineScaleSetName `
+                        $VmssName -ResourceGroupName $VmssRG                                # Gets a list of nics attached to current vmss object
+                    foreach ($_ in $NicList) {                                              # For each item in $NicList
+                        $NicName = $_.Name                                                  # $NicName is equal to current item .Name
+                        $NicRG = $_.ResourceGroupName                                       # $NicRG is equal to current item .ResourceGroupName
+                        $IPConfigList = $_.IPConfigurations                                 # IPConfigList is equal to current item .IPConfigurations
+                        foreach ($_ in $IPConfigList) {                                     # For each item in $IPConfigList
+                            $ObjectInput = [PSCustomObject]@{                               # Creates $ObjectInput            
+                                'Number'=$ObjectNumber;'Name'=$_.Name;`
+                                'PrivIP'=$_.PrivateIPAddress;`
+                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
+                                'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
+                                'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name;`
+                                'Type'='ScaleSetNic';'VmssName'=$VmssName;'VmssRG'=$VmssRG;`
+                                'Etag'=$_.Etag                                              # Collects the information for the array
+                            }                                                               # End $ObjectInput = [PSCustomObject]
+                            $ObjectArray.Add($ObjectInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                            $ObjectNumber = $ObjectNumber +1                                # Increments $ObjectNumber up by 1
+                        }                                                                   # End foreach ($_ in $IPConfigList)
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End foreach ($_ in $VmssObject)
+            }                                                                               # End if ($VmssObject)
+            else {                                                                          # If $VmssObject is $null
+                Clear-Host 'No scale sets present in this subscription'                     # Write message to screen
+            }                                                                               # End else (if ($VmssObject))
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'No network interfaces or scale set interfaces are present'      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureNICIpConfig                                                   # Breaks :GetAzureNICIpConfig
+            }                                                                               # End if (!$ObjectArray)
             :SelectAzureNICIpConfig while ($true) {                                         # Inner loop for selecting the NIC IP config
+                Clear-Host                                                                  # Clears screen
+                Write-Host ''                                                               # Write message to screen
                 Write-Host '[0]   Exit'                                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
@@ -93,18 +146,25 @@ function GetAzNICIpConfig {                                                     
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
                     Break GetAzureNICIpConfig                                               # Breaks :GetAzureNICIpConfig
                 }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -in $ObjectArray.Number) {
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect in $ObjectArray.Name
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $ObjectSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
-                    $NicObject = Get-AzNetworkInterface -Name $OpSelect.NicName `
-                        -ResourceGroupName $OpSelect.NicRG                                  # Gets the $NicObject
-                    $NicIPConfigObject = Get-AzNetworkInterfaceIpConfig -NetworkInterface `
-                        $NicObject -Name $OpSelect.Name                                     # Gets the NicIPConfigObject
+                    if ($OpSelect.Type -eq 'ScaleSetNic') {                                 # If $OpSelect.Type equals 'ScaleSetNic'
+                        $NicObject = Get-AzNetworkInterface -VirtualMachineScaleSetName `
+                            $OpSelect.VmssName -ResourceGroupName $OpSelect.VmssRG          # Gets the $NicObject
+                        $NicIPConfigObject = $NicObject.IpConfigurations | Where-Object `
+                        {$_.Etag -eq $OpSelect.Etag}                                        # Isolates NicIPConfigObject
+                    }                                                                       # End if ($OpSelect.Type -eq 'ScaleSetNic')
+                    else {                                                                  # Else if $OpSelect.Type does not equal 'ScaleSetNic'
+                        $NicObject = Get-AzNetworkInterface -Name $OpSelect.NicName `
+                            -ResourceGroupName $OpSelect.NicRG                              # Gets the $NicObject
+                        $NicIPConfigObject = Get-AzNetworkInterfaceIpConfig `
+                            -NetworkInterface $NicObject -Name $OpSelect.Name               # Gets the NicIPConfigObject
+                    }                                                                       # End else (if ($OpSelect.Type -eq 'ScaleSetNic'))
                     Return $NicIPConfigObject,$NicObject                                    # Returns to calling function with $vars
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureNICIpConfig while ($true)
         }                                                                                   # End :GetAzureNICIpConfig while ($true)
