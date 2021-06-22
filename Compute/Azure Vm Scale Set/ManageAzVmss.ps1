@@ -232,69 +232,50 @@
 function ManageAzVmss {                                                                     # Function to manage Vmss
     Begin {                                                                                 # Begin function
         :ManageAzureVmss while ($true) {                                                    # Outer loop for managing function
-            if ($VmssObject) {                                                              # If $VmssObject has a value
-                Write-Host "Currently selected Vmss is:" $VmssObject.Name                   # Write message to screen
-            }                                                                               # End if ($VmssObject) 
-            if ($VmssVMObject) {                                                            # If $VmssVMObject has a value
-                Write-Host "Currently selected Vmss instance is :" $VmssVMObject.InstanceID # Write message to screen 
-            }                                                                               # End if ($VmssVMObject) 
-            Write-Host '[0] Clear current Vmss'                                             # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New Vmss'                                                       # Write message to screen
-            Write-Host '[2] Get Vmss'                                                       # Write message to screen
+            Write-Host '[2] List Vmss'                                                      # Write message to screen
             Write-Host '[3] Remove Vmss'                                                    # Write message to screen
-            Write-Host '[4] Get Vmss Instance'                                              # Write message to screen
+            Write-Host '[4] List Vmss Instances'                                            # Write message to screen
             Write-Host '[5] Start Vmss Instance'                                            # Write message to screen
             Write-Host '[6] Stop Vmss Instance'                                             # Write message to screen
-            Write-Host '[Exit] Exit function'                                               # Write message to screen
-            $OperatorSelect = Read-Host 'Option number'                                     # Operator input for function selection
-            if ($OperatorSelect -eq '0') {                                                  # If $OperatorSelect equals 0
-                if ($VmssObject -or $VmssVMObject) {                                        # If $VmssObject or $VmssVMObject has a value
-                    if ($VmssObject) {                                                      # If $VmssObject has a value
-                        Clear-Variable $VmssObject                                          # Clears $VmssObject
-                        Write-Host '$VmssObject has been cleared'                           # Write message to screen
-                    }                                                                       # End if ($VmssObject)
-                    if ($VmssVMObject) {                                                    # If $VmssVMObject has a value
-                        Clear-Variable $VmssVMObject                                        # Clears $VmssVMObject
-                        Write-Host '$VmssVMObject has been cleared'                         # Write message to screen
-                    }                                                                       # End if ($VmssVMObject)
-                }                                                                           # End if ($VmssObject -or $VmssVMObject)
-                else {                                                                      # If $VmssObject does not have a value
-                    Write-Host 'Nothing to clear'                                           # Write message to screen
-                }                                                                           # End else (if ($VmssObject))
-            }                                                                               # End if ($OperatorSelect -eq '0')
-            elseif ($OperatorSelect -eq '1') {                                              # Else if $OperatorSelect equals 1
-                Write-Host "New Vmss"                                                       # Write message to screen
-                $VmssObject = NewAzVmss                                                     # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '1')
-            elseif ($OperatorSelect -eq '2') {                                              # Else if $OperatorSelect equals 1
-                Write-Host "Get Vmss"                                                       # Write message to screen
-                $VmssObject = GetAzVmss                                                     # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '2')
-            elseif ($OperatorSelect -eq '3') {                                              # Else if $OperatorSelect equals 3
-                Write-Host "Remove Vmss"                                                    # Write message to screen
-                RemoveAzVmss ($VmssObject)                                                  # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '3')
-            elseif ($OperatorSelect -eq '4') {                                              # Else if $OperatorSelect equals 4
-                Write-Host "Get Vmss Instance"                                              # Write message to screen
-                GetAzVmssVM ($VmssObject)                                                   # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '4')
-            elseif ($OperatorSelect -eq '5') {                                              # Else if $OperatorSelect equals 5
-                Write-Host "Start Vmss Instance"                                            # Write message to screen
-                StartAzVmss ($VmssObject)                                                   # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '5')
-            elseif ($OperatorSelect -eq '6') {                                              # Else if $OperatorSelect equals 6
-                Write-Host "Stop Vmss Instance"                                             # Write message to screen
-                StopAzVmss ($VmssObject)                                                    # Calls function and assigns output to $var
-            }                                                                               # End elseif ($OperatorSelect -eq '6')
-            elseif ($OperatorSelect -eq 'exit') {                                           # Else if $OperatorSelect equals 'exit'
-                Write-Host 'Leaving manage Vmss'                                            # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for function selection
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureVmss                                                       # Breaks :ManageAzureVmss
-            }                                                                               # End elseif ($OperatorSelect -eq 'exit')
-            else {                                                                          # All other inputs for $OperatorSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OperatorSelect -eq '0'))
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals 1
+                Write-Host 'New Vmss'                                                       # Write message to screen
+                NewAzVmss                                                                   # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Vmss'                                                      # Write message to screen
+                ListAzVmss                                                                  # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Remove Vmss'                                                    # Write message to screen
+                RemoveAzVmss                                                                # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'List Vmss Instance'                                             # Write message to screen
+                ListAzVmssVM                                                                # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Start Vmss Instance'                                            # Write message to screen
+                StartAzVmss                                                                 # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect equals '6'
+                Write-Host 'Stop Vmss Instance'                                             # Write message to screen
+                StopAzVmss                                                                  # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '6')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureVmss while ($true)
-        Return                                                                              # Returns to calling function with $null
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVmss
 function NewAzVmss {                                                                        # Function to create a new virtual machine scale set
@@ -1952,3 +1933,43 @@ function NewAzLBRuleConfig {                                                    
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzLBRuleConfig
+function GetAzVmssVM {                                                                      # Function to get a Vmss instance
+    Begin {                                                                                 # Begin function
+        :GetAzureVmssVM while ($true) {                                                     # Outer loop for managing function
+            $ObjectList = Get-AzVmss                                                        # Gets a list of all Vmss object
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No Vmss objects exist in this subscription'                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureVmssVM                                                        # Breaks GetAzureVmssVM
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            $ObjectNumber = 1                                                               # Creates $ObjectNumber
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $VmssName = $_.name                                                         # Isolates the Vmss name
+                $VmssRG = $_.ResourceGroupName                                              # Isolates the Vmss resource group name
+                $ObjectList2 = Get-AzVmssVM -ResourceGroupName $VmssRG `
+                    -VMScaleSetName $VmssName                                               # Gets a list of all instances for current item
+                foreach ($_ in $ObjectList2) {                                              # For each item in $ObjectList2
+                    $VmssInstance = Get-AzVmssVM -ResourceGroupName $VmssRG `
+                        -VMScaleSetName $VmssName -InstanceId $_.InstanceID                 # Gets the details on current item instance
+                    $ObjectInput = [PSCustomObject]@{                                       # Custom object to be added to $ObjectArray
+                        'Number'=$ObjectNumber;'InstanceID'=$VmssInstance.ID;`
+                        'SkuName'=$VmssInstance.Sku.Name;'SkuTier'=$VmssInstance.Sku.Tier;`
+                        'IMGPub'=$VmssInstance.StorageProfile.ImageReference.Publisher;`
+                        'IMGOff'=$VmssInstance.StorageProfile.ImageReference.Offer;`
+                        'IMGSku'=$VmssInstance.StorageProfile.ImageReference.Sku;`
+                        'IMGVer'=$VmssInstance.StorageProfile.ImageReference.ExactVersion;`
+                        'OSDType'=$VmssInstance.StorageProfile.OsDisk.OsType;`
+                        'OSDName'=$VmssInstance.StorageProfile.OsDisk.Name;`
+                        'OSDSize'=$VmssInstance.StorageProfile.OsDisk.DiskSizeGB;`
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber up by 1
+                }                                                                           # End foreach ($_ in $ObjectList2)
+            }                                                                               # End foreach ($_ in $ObjectList)
+        }                                                                                   # End :GetAzureVmssVM while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVmssVM
