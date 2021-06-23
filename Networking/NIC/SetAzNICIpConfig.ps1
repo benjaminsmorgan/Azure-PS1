@@ -7,6 +7,7 @@
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-5.5.0
 } #>
 <# Required Functions Links: {
     GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
@@ -27,6 +28,7 @@
     $SubnetObject:              Subnet object
     $NicList:                   List of all nics on $SubnetObject
     $VmssList:                  List of all virtual machine scale sets
+    $LBList:                    List of all load balancers with front end in $SubnetID
     $IPInput:                   Operator input for the private IP
     $OpConfirm:                 Operator confirmation of the private IP
     GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
@@ -81,6 +83,16 @@ function SetAzNICIpConfig {                                                     
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssList)
             }                                                                               # End if ($VmssList)
+            $LBList = Get-AzLoadBalancer | Where-Object `
+                {$_.FrontendIpConfigurations.Subnet.ID -eq $SubnetID}                       # Gets a list of all load balancers with a front end in the $SubnetID
+            if ($LBList) {                                                                  # If $LBList has a value
+                foreach ($_ in $LBList) {                                                   # For each item in $LBList
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput
+                        'IP'=$_.FrontendIpConfigurations.PrivateIPAddress                   # Adds vaules to $ObjectInput
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@{
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                }                                                                           # End foreach ($_ in $LBList)
+            }                                                                               # End if ($LBList)
             Clear-Host                                                                      # Clears screen
             :SetAzureNICIP while ($true) {                                                  # Inner loop to set the IP address
                 Write-Host 'Subnet Prefix:'$SubnetObject.AddressPrefix                      # Write message to screen
