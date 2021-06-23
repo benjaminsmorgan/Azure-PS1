@@ -536,6 +536,16 @@ function SetAzNICIpConfig {                                                     
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssList)
             }                                                                               # End if ($VmssList)
+            $LBList = Get-AzLoadBalancer | Where-Object `
+                {$_.FrontendIpConfigurations.Subnet.ID -eq $SubnetID}                       # Gets a list of all load balancers with a front end in the $SubnetID
+            if ($LBList) {                                                                  # If $LBList has a value
+                foreach ($_ in $LBList) {                                                   # For each item in $LBList
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput
+                        'IP'=$_.FrontendIpConfigurations.PrivateIPAddress                   # Adds vaules to $ObjectInput
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@{
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                }                                                                           # End foreach ($_ in $LBList)
+            }                                                                               # End if ($LBList)
             Clear-Host                                                                      # Clears screen
             :SetAzureNICIP while ($true) {                                                  # Inner loop to set the IP address
                 Write-Host 'Subnet Prefix:'$SubnetObject.AddressPrefix                      # Write message to screen
