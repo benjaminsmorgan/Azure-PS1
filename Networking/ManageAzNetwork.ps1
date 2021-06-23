@@ -1783,6 +1783,16 @@ function SetAzNICIpConfig {                                                     
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssList)
             }                                                                               # End if ($VmssList)
+            $LBList = Get-AzLoadBalancer | Where-Object `
+                {$_.FrontendIpConfigurations.Subnet.ID -eq $SubnetID}                       # Gets a list of all load balancers with a front end in the $SubnetID
+            if ($LBList) {                                                                  # If $LBList has a value
+                foreach ($_ in $LBList) {                                                   # For each item in $LBList
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates $ObjectInput
+                        'IP'=$_.FrontendIpConfigurations.PrivateIPAddress                   # Adds vaules to $ObjectInput
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@{
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                }                                                                           # End foreach ($_ in $LBList)
+            }                                                                               # End if ($LBList)
             Clear-Host                                                                      # Clears screen
             :SetAzureNICIP while ($true) {                                                  # Inner loop to set the IP address
                 Write-Host 'Subnet Prefix:'$SubnetObject.AddressPrefix                      # Write message to screen
@@ -2492,6 +2502,44 @@ function NewAzLoadBalancer {                                                    
             $CallingFunction = 'NewAzLoadBalancer'                                          # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :NewAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
+                Write-Host 'Select the load balancer sku'                                   # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host ' Sku                | Basic | Standard   |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Back End pool size  | < 301 | < 1001     |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Health Probes       | HTTP  | HTTP/HTTPS |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Secure by default   | No    | Yes        |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'Availability Zones  | N/A   | Yes        |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host 'SLA                 | N/A   | 99.99%     |'                     # Write message to screen
+                Write-Host '------------------------------------------'                     # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Basic'                                                      # Write message to screen
+                Write-Host '[2] Standard'                                                   # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
+                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
+                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
+                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
             $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
@@ -2555,32 +2603,6 @@ function NewAzLoadBalancer {                                                    
             if (!$RGObject) {                                                               # If $RGObject is $null
                 Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
             }                                                                               # End if (!$RGObject)
-            :SetAzureLoadBalancerSku while ($true) {                                        # Inner loop to set the load balancer sku
-                Write-Host 'Select the load balancer sku'                                   # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] Basic'                                                      # Write message to screen
-                Write-Host '[2] Standard'                                                   # Write message to screen
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the allocation method
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -eq '1') {                                                # Elseif $OpSelect equals 1
-                    $LBSkuObject = 'Basic'                                                  # Creates $LBSkuObject
-                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku    
-                }                                                                           # End elseif ($OpSelect -eq '1')
-                elseif ($OpSelect -eq '2') {                                                # Elseif $OpSelect equals 2
-                    $LBSkuObject = 'Standard'                                               # Creates $LBSkuObject
-                    Break SetAzureLoadBalancerSku                                           # Breaks :SetAzureLoadBalancerSku
-                }                                                                           # End elseif ($OpSelect -eq '2')
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (($OpSelect -eq '0'))
-            }                                                                               # End :SetAzureLoadBalancerSku while ($true)
             :NewAzureLBFrontEnd while ($true) {                                             # Inner loop for setting the type of front end config
                 Write-Host 'Select type of front end config'                                # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -2623,51 +2645,95 @@ function NewAzLoadBalancer {                                                    
                     Break NewAzureLBFrontEnd                                                # Breaks :NewAzureLBFrontEnd
                 }                                                                           # End if ($FrontEndIPConfigObject)
             }                                                                               # End :NewAzureLBFrontEnd while ($true)
-            $BackEndIPConfigObject = NewAzLBBackendIpConfig                                 # Calls function and assigns output to $var
-            if (!$BackEndIPConfigObject) {                                                  # If $BackEndIPConfigObject is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$BackEndIPConfigObject)
-            $HealthProbeObject = NewAzLBProbeConfig                                         # Calls function and assigns output to $var
-            if (!$HealthProbeObject) {                                                      # If $HealthProbeObject is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$HealthProbeObject)
-            $InboundNatPoolObject = NewAzLBIBNatPoolConfig `
-                ($FrontEndIPConfigObject, $CallingFunction)                                 # Calls function and assigns output to $var
-            if (!$InboundNatPoolObject) {                                                   # If $InboundNatPoolObject is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$InboundNatPoolObject)
-            $LoadBalanceRule = NewAzLBRuleConfig ($FrontEndIPConfigObject, `
-                $BackEndIPConfigObject, $HealthProbeObject, $CallingFunction)               # Calls function and assigns output to $var
-            if (!$LoadBalanceRule) {                                                        # If $LoadBalanceRule is $null
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End if (!$LoadBalanceRule)
-            Try {                                                                           # Try the following
-                Write-Host 'Creating the load balanacer'                                    # Write message to screen
-                New-AzLoadBalancer -Name $LBNameObject -ResourceGroupName `
-                    $RGObject.ResourceGroupName -Location $RGObject.Location `
-                    -FrontendIpConfiguration $FrontEndIPConfigObject -BackendAddressPool `
-                    $BackEndIPConfigObject -Probe $HealthProbeObject -LoadBalancingRule `
-                    $LBRule -InboundNatPool $InboundNatPoolObject -Sku $LBSkuObject `
-                    -ErrorAction 'Stop' | Out-Null                                          # Creates the load balancer
-            }                                                                               # End try
-            Catch {                                                                         # If Try fails
+            :SetRuleType while ($true) {                                                    # Inner loop for setting the rule type
+                Write-Host 'Load balancer rule type'                                        # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Generic rule'                                               # Write message to screen
+                Write-Host '[2] Nat forwarding rule'                                        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the rule type
                 Clear-Host                                                                  # Clears screen
-                Write-Host 'An error has occured'                                           # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'The provided ports configuratiob may not be valid'              # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'You may not have the permissions to do this'                    # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'The resource group maybe locked'                                # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break NewAzureLoadBalancer                                                  # Breaks :NewAzureLoadBalancer
-            }                                                                               # End Catch
-            Clear-Host                                                                      # Clears screen
-            Write-Host 'The load balancer has been created'                                 # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Pause                                                                           # Pauses all actions for operator input
-            Break NewAzureLoadBalancer                                                      # Breaks :NewAzureLoadBalancer
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $BackEndIPConfigObject = NewAzLBBackendIpConfig                         # Calls function and assigns output to $var
+                    if (!$BackEndIPConfigObject) {                                          # If $BackEndIPConfigObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$BackEndIPConfigObject)
+                    $HealthProbeObject = NewAzLBProbeConfig ($LBSkuObject)                  # Calls function and assigns output to $var
+                    if (!$HealthProbeObject) {                                              # If $HealthProbeObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$HealthProbeObject)
+                    $LoadBalanceRule = NewAzLBRuleConfig ($FrontEndIPConfigObject, `
+                        $BackEndIPConfigObject, $HealthProbeObject, $CallingFunction)       # Calls function and assigns output to $var
+                    if (!$LoadBalanceRule) {                                                # If $LoadBalanceRule is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$LoadBalanceRule)
+                    Try{                                                                    # Try the following
+                        Write-Host 'Creating the load balancer'                             # Write message to screen
+                        New-AzLoadBalancer -Name $LBNameObject -ResourceGroupName `
+                            $RGObject.ResourceGroupName -Location $RGObject.Location `
+                            -FrontendIpConfiguration $FrontEndIPConfigObject `
+                            -BackendAddressPool $BackEndIPConfigObject -Probe `
+                            $HealthProbeObject -LoadBalancingRule $LBRule -Sku `
+                            $LBSkuObject -ErrorAction 'Stop' | Out-Null                     # Creates the load balancer
+                    }                                                                       # End Try
+                    catch {                                                                 # If Try fails
+                        Clear-Host                                                          # Clears screen
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'The load balancer has been made'                            # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $HealthProbeObject = NewAzLBProbeConfig ($LBSkuObject)                  # Calls function and assigns output to $var
+                    if (!$HealthProbeObject) {                                              # If $HealthProbeObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$HealthProbeObject)    
+                    $InboundNatPoolObject = NewAzLBIBNatPoolConfig `
+                        ($FrontEndIPConfigObject, $CallingFunction)                         # Calls function and assigns output to $var
+                    if (!$InboundNatPoolObject) {                                           # If $InboundNatPoolObject is $null
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End if (!$InboundNatPoolObject)
+                    $InboundNatRuleObject = NewAzLBRuleConfig ($FrontEndIPConfigObject, `
+                    $InboundNatPoolObject, $HealthProbeObject, $CallingFunction)            # Calls function and assigns output to $var
+                    Try{                                                                    # Try the following
+                        Write-Host 'Creating the load balancer'                             # Write message to screen
+                        New-AzLoadBalancer -Name $LBNameObject -ResourceGroupName `
+                            $RGObject.ResourceGroupName -Location $RGObject.Location `
+                            -FrontendIpConfiguration $FrontEndIPConfigObject `
+                            -BackendAddressPool $BackEndIPConfigObject -Probe `
+                            $HealthProbeObject -InboundNatPool $InboundNatPoolObject `
+                            -InboundNatRule $InboundNatRuleObject -Sku $LBSkuObject `
+                            -ErrorAction 'Stop' | Out-Null                                  # Creates the load balancer
+                    }                                                                       # End Try
+                    catch {                                                                 # If Try fails
+                        Clear-Host                                                          # Clears screen
+                        Write-Host 'An error has occured'                                   # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Break NewAzureLoadBalancer                                          # Breaks :NewAzureLoadBalancer
+                    }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'The load balancer has been made'                            # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break NewAzureLoadBalancer                                              # Breaks :NewAzureLoadBalancer
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetRuleType while ($true)
         }                                                                                   # End :NewAzureLoadBalancer while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
