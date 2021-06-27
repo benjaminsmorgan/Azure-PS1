@@ -1,3 +1,51 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.1.0
+    Get-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/gew-azloadbalancer?view=azps-5.5.0  
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
+    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.1.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
+    Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Get-AzNetworkInterfaceIPConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-5.6.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-6.0.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
+} #>
+<# Required Functions Links: {
+    GetAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/GetAzLBNatRuleConfig.ps1
+    GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
+} #>
+<# Functions Description: {
+    SetAzLBNatRuleVM:           Function to associate a VM to a nat rule
+    GetAzLBNatRuleConfig:       Function for getting load balancer nat rule
+    GetAzNICIpConfig:           Gets a NIC IP configuration
+} #>
+<# Variables: {      
+    :SetAzureLBNatRuleVM        Outer loop for managing function
+    $CallingFunction:           Name of this function or the one that called it
+    $LBNatRule:                 Load balancer nat rule
+    $LoadBalancerObject:        Load balancer object
+    $NicIPConfigObject:         Nic IP configuration object
+    $NicObject:                 Nic object
+    $VMName:                    VM name attached to $NicObject
+    $OpConfirm:                 Operator confirmation to complete this action
+    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
+    GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
+} #>
+<# Process Flow {
+    function
+        Call SetAzLBNatRuleVM > Get $null
+            Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+            End GetAzLBNatRuleConfig
+                Return SetAzLBNatRuleVM > Send $LBNatRule, $LoadBalancerObject
+            Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObjectt
+            End GetAzNICIpConfig
+                Return SetAzLBNatRuleVM > Send $NicIPConfigObject,$NicObject
+        End SetAzLBNatRuleVM
+            Return function > Send $null
+}#>
 function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
