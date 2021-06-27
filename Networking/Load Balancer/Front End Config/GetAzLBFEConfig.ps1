@@ -8,7 +8,7 @@
     None    
 } #>
 <# Functions Description: {
-    GetAzLBFEConfig:            Gets a front end configuration for a load balancer
+    GetAzLBFEConfig:            Function to get a load balancer front end config
 } #>
 <# Variables: {      
     :GetAzureLBFEConfig         Outer loop for managing function
