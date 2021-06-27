@@ -1,120 +1,78 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
-    New-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
-    New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
-    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
-    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
-    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
-    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
-    New-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
-    New-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
-    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0     
+    Add-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
+    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.0.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-6.1.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0   
+    Get-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
+    Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.1.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
+    Remove-AzLoadBalancerInboundNatRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Set-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
-    NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
-    ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
-    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
-    RemoveAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/RemoveAzLoadBalancer.ps1
-    NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriDynamicIpCon.ps1
-    NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriStaticIpCon.ps1
-    NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPubIPCon.ps1
-    GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1    
-    NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
-    GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
-    NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
-    NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
-    NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
-    NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    AddAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/AddAzLBNatRuleConfig.ps1
+    ListAzLBNatRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/ListAzLBNatRuleConfig.ps1
+    SetAzLBNatRuleVM:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleVM.ps1
+    RemoveAzLBNatRuleConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/RemoveAzLBNatRuleConfig.ps1
+    GetAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/GetAzLBNatRuleConfig.ps1
+    GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
+    GetAzLBFEConfig:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/GetAzLBFEConfig.ps1
 } #>
 <# Functions Description: {
-    ManageAzLoadBalancer:       Function for managing load balancers
-    NewAzLoadBalancer:          Creates a new load balancer    
-    ListAzLoadBalancer:         Lists all existing load balancers
-    GetAzLoadBalancer:          Gets an existing load balancer
-    RemoveAzLoadBalancer:       Removes an existing load balancer
-    NewAzLBFEPriDynamicIpCon:   Creates a load balancer front end private dynamic IP configuration
-    NewAzLBFEPriStaticIpCon:    Creates a load balancer front end private static IP configuration
-    NewAzLBFEPubIPCon:          Creates a load balancer front end public IP configuration
-    GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
-    NewAzPublicIpAddress:       Creates a new public IP addres
-    GetAzPublicIpAddress:       Gets an existing IP address
-    NewAzLBBackendIpConfig:     Creates a load balancer back end configuration
-    NewAzLBProbeConfig:         Creates a load balancer probe configuration
-    NewAzLBIBNatPoolConfig:     Creates inbound pool configuration for load balancer
-    NewAzLBRuleConfig:          Creates a new load balancer rule
-    GetAzResourceGroup:         Gets an existing resource group
+    ManageAzLBNatRuleConfig:    Function to manage nat rule configurations
+    AddAzLBNatRuleConfig:       Function to add a nat rule configuration
+    ListAzLBNatRuleConfig:      Function for listing load balancer nat rules
+    SetAzLBNatRuleVM:           Function to associate a VM to a nat rule
+    RemoveAzLBNatRuleConfig:    Function to remove a load balancer nat rule configuration
+    GetAzLBNatRuleConfig:       Function for getting load balancer nat rule
+    GetAzNICIpConfig:           Gets a NIC IP configuration
+    GetAzLBFEConfig:            Function to get a load balancer front end config
 } #>
 <# Variables: {      
-    :ManageAzureLoadBalancer    Outer loop for managing function
-    $LoadBalancerObject:        Load balancer object
+    :ManageAzureLBNatRuleConfig Outer loop for managing function
     $OpSelect:                  Operator input for selecting the management function
-    NewAzLoadBalancer{}         Creates $LoadBalancerObject
-        NewAzLBFEPriDynamicIpCon{}  Gets $FrontEndIPConfigObject
-            GetAzVNetSubnetConfig{}     Gets $SubnetObject
-        NewAzLBFEPriStaticIpCon{}   Gets $FrontEndIPConfigObject
-            GetAzVNetSubnetConfig{}     Gets $SubnetObject
-        NewAzLBFEPubIPCon{}         Gets $FrontEndIPConfigObject
-            GetAzPublicIpAddress{}      Gets $PublicIPObject
-        NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
-        NewAzLBProbeConfig{}        Gets $HealthProbeObject
-        NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
-        NewAzLBRuleConfig{}         Gets $LoadBalanceRule 
-    ListAzLoadBalancer{}        Lists $LoadBalancerObject
-    GetAzLoadBalancer{}         Gets $LoadBalancerObject
-    RemoveAzLoadBalancer{}      Removes $LoadBalancerObject
-        GetAzLoadBalancer{}         Gets $LoadBalancerObject
+    AddAzLBNatRuleConfig{}      Creates $LBNatRule
+        GetAzLBFEConfig{}           Gets $FrontEndIPConfigObject,$LoadBalancerObject
+    ListAzLBNatRuleConfig{}     Lists $LBNatRules
+    SetAzLBNatRuleVM{}          Sets $LBNatRule
+        GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
+        GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
+    RemoveAzLBNatRuleConfig{}   Removes $LBNatRule
+        GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
 } #>
 <# Process Flow {
     function
-        Call ManageAzLoadBalancer > Get $null
-            Call NewAzLoadBalancer > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzLoadBalancer > Send $RGObject          
-                Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                    End GetAzVNetSubnetConfig 
-                        Return NewAzLBFEPriDynamicIpCon > Send $SubnetObject, $VNetObject
-                End NewAzLBFEPriDynamicIpCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                    End GetAzVNetSubnetConfig 
-                        Return NewAzLBFEPriStaticIpCon > Send $SubnetObject, $VNetObject
-                End NewAzLBFEPriStaticIpCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
-                    Call GetAzPublicIpAddress > Get $PublicIPObject
-                    End GetAzPublicIpAddress
-                        Return NewAzLBFEPubIPCon > Send $PublicIPObject        
-                End NewAzLBFEPubIPCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
-                End NewAzLBBackendIpConfig
-                    Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
-                Call NewAzLBProbeConfig > Get $HealthProbeObject
-                End NewAzLBProbeConfig
-                    Return NewAzLoadBalancer > Send $HealthProbeObject           
-                Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
-                End NewAzLBIBNatPoolConfig
-                    Return NewAzLoadBalancer > Send $InboundNatPoolObject
-                Call NewAzLBRuleConfig > Get $LoadBalanceRule
-                End NewAzLBRuleConfig
-                    Return NewAzLoadBalancer > Send $LoadBalanceRule
-            End NewAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-            Call ListAzLoadBalancer > Get $null
-            End ListAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-            Call RemoveAzPublicIPAddres > Get $null
-                Call GetAzLoadBalancer > Get $LoadBalancerObject
-                End GetAzLoadBalancer
-                    Return RemoveAzLoadBalancer > Send $LoadBalancerObject
-            End RemoveAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-        End ManageAzLoadBalancer
+        Call ManageAzLBNatRuleConfig > Get $null
+            Call AddAzLBNatRuleConfig > Get $null
+                Call GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+                End GetAzLBFEConfig
+                    Return AddAzLBNatRuleConfig > Send $FrontEndIPConfigObject,$LoadBalancerObject
+            End AddAzLBNatRuleConfig
+                Return ManageAzLBNatRuleConfig > Send $null
+            Call ListAzLBNatRuleConfig > Get $null
+            End ListAzLBNatRuleConfig
+                Return ManageAzLBNatRuleConfig > Send $null
+            Call SetAzLBNatRuleVM > Get $null
+                Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                End GetAzLBNatRuleConfig
+                    Return SetAzLBNatRuleVM > Send $LBNatRule, $LoadBalancerObject
+                Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObjectt
+                End GetAzNICIpConfig
+                    Return SetAzLBNatRuleVM > Send $NicIPConfigObject,$NicObject
+            End SetAzLBNatRuleVM
+                Return ManageAzLBNatRuleConfig > Send $null
+            Call RemoveAzLBNatRuleConfig > Get $null
+                Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                End GetAzLBNatRuleConfig
+                    Return RemoveAzLBNatRuleConfig > Send $LBNatRule, $LoadBalancerObject
+            End RemoveAzLBNatRuleConfig
+                Return ManageAzLBNatRuleConfig > Send $null
+        End ManageAzLBNatRuleConfig
             Return function > Send $null
 }#>
 function ManageAzLBNatRuleConfig {                                                          # Function to manage nat rule configurations
@@ -125,8 +83,7 @@ function ManageAzLBNatRuleConfig {                                              
             Write-Host '[1] Add Nat Rule Config'                                            # Write message to screen
             Write-Host '[2] List Nat Rule Configs'                                          # Write message to screen
             Write-Host '[3] Add VM to Nat Rule Config'                                      # Write message to screen
-            Write-Host '[4] Change Nat Rule Config'                                         # Write message to screen
-            Write-Host '[5] Remove Nat Rule Config'                                         # Write message to screen
+            Write-Host '[4] Remove Nat Rule Config'                                         # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -145,13 +102,9 @@ function ManageAzLBNatRuleConfig {                                              
                 SetAzLBNatRuleVM                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host 'Change Nat Rule Config'                                         # Write message to screen
-                #ListAzLBFEConfigs                                                          # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '4')
-            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
                 Write-Host 'Remove Nat Rule Config'                                         # Write message to screen
                 RemoveAzLBNatRuleConfig                                                     # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '5')
+            }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -475,72 +428,6 @@ function ListAzLBNatRuleConfig {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzLBNatRuleConfig
-function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction  = 'SetAzLBNatRuleVM'                                          # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-        :SetAzureLBNatRuleVM while ($true) {                                                # Outer loop for managing function
-            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
-            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if (!$LBNatRule)
-            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $var
-            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if (!$NicIPConfigObject)
-            $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
-            Write-Host 'Make the following change:'                                         # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Add:'                                                               # Write message to screen
-            Write-Host 'VM Name:      '$VMName                                              # Write message to screen
-            Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
-            Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
-            Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Write-Host 'To:'                                                                # Write message to screen
-            Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
-            Write-Host 'Nat Rule:     '$LBNatRule.name                                      # Write message to screen
-            Write-Host 'Nat Protocol: '$LBNatRule.Protocol                                  # Write message to screen
-            Write-Host 'Nat FE Port:  '$LBNatRule.FrontendPort                              # Write message to screen
-            Write-Host 'Nat BE Port:  '$LBNatRule.BackendPort                               # Write message to screen
-            Write-Host 'Nat Idle TO:  '$LBNatRule.IdleTimeoutInMinutes                      # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to make the change
-            Clear-Host                                                                      # Clears screen
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                Try {                                                                       # Try the following
-                    Write-Host 'Adding the IP config to nat rule'                           # Write message to screen
-                    $NicObject | Set-AzNetworkInterfaceIpConfig -Name `
-                        $NicIPConfigObject.Name -LoadBalancerInboundNatRuleId `
-                        $LBNatRule.ID -ErrorAction 'Stop' | Out-Null                        # Adds the load balancer inbound nat rule
-                }                                                                           # End Try
-                catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Break SetAzureLBNatRuleVM                                               # Breaks :SetAzureLBNatRuleVM
-                }                                                                           # End catch
-                Write-Host 'Saving nic configuration'                                       # Write message to screen
-                $NicObject | Set-AzNetworkInterface                                         # Saves the nic config
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'The changes have been made'                                     # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if ($OpConfirm -eq 'y') 
-            else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'No changes have been made'                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :SetAzureLBNatRuleVM while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function SetAzLBNatRuleVM
 function GetAzLBNatRuleConfig {                                                             # Function to get a load balancer nat rule
     Begin {                                                                                 # Begin function
         :GetAzureLBNatRule while ($true) {                                                  # Outer loop for managing function
@@ -687,6 +574,72 @@ function GetAzLBNatRuleConfig {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLBNatRuleConfig
+function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction  = 'SetAzLBNatRuleVM'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBNatRuleVM while ($true) {                                                # Outer loop for managing function
+            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if (!$LBNatRule)
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $var
+            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if (!$NicIPConfigObject)
+            $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
+            Write-Host 'Make the following change:'                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Add:'                                                               # Write message to screen
+            Write-Host 'VM Name:      '$VMName                                              # Write message to screen
+            Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
+            Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
+            Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'To:'                                                                # Write message to screen
+            Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
+            Write-Host 'Nat Rule:     '$LBNatRule.name                                      # Write message to screen
+            Write-Host 'Nat Protocol: '$LBNatRule.Protocol                                  # Write message to screen
+            Write-Host 'Nat FE Port:  '$LBNatRule.FrontendPort                              # Write message to screen
+            Write-Host 'Nat BE Port:  '$LBNatRule.BackendPort                               # Write message to screen
+            Write-Host 'Nat Idle TO:  '$LBNatRule.IdleTimeoutInMinutes                      # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to make the change
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Adding the IP config to nat rule'                           # Write message to screen
+                    $NicObject | Set-AzNetworkInterfaceIpConfig -Name `
+                        $NicIPConfigObject.Name -LoadBalancerInboundNatRuleId `
+                        $LBNatRule.ID -ErrorAction 'Stop' | Out-Null                        # Adds the load balancer inbound nat rule
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBNatRuleVM                                               # Breaks :SetAzureLBNatRuleVM
+                }                                                                           # End catch
+                Write-Host 'Saving nic configuration'                                       # Write message to screen
+                $NicObject | Set-AzNetworkInterface                                         # Saves the nic config
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The changes have been made'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLBNatRuleVM while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBNatRuleVM
 function RemoveAzLBNatRuleConfig {                                                          # Function to remove a load balancer nat rule configuration
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
