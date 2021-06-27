@@ -1,3 +1,48 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Add-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
+    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.0.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-6.1.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0   
+} #>
+<# Required Functions Links: {
+    GetAzLBFEConfig:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/GetAzLBFEConfig.ps1
+} #>
+<# Functions Description: {
+    AddAzLBNatRuleConfig:       Function to add a nat rule configuration
+    GetAzLBFEConfig:            Function to get a load balancer front end config
+} #>
+<# Variables: {      
+    :AddAzureLBNatRule          Outer loop for managing function
+    :NewAzureLBRuleName         Inner loop for setting the rule name
+    :NewAzureLBRuleProtocol     Inner loop for setting the rule protocol
+    :NewAzureLBRulePort         Inner loop for setting the rule port
+    :NewAzureLBRuleIdleTO       Inner loop for setting the rule time out
+    $CallingFunction:           Name of this function or the one that called it
+    $FrontEndIPConfigObject:    Load balancer front end configuration object
+    $LoadBalancerObject:        Load balancer object
+    $ValidArray:                List of valid characters for operator inputs
+    $Valid1stChar:              List of valid first characters for load balancer rule name
+    $ValidLastChar:             List of valid last characters for load balancer rule name
+    $LBRuleName:                Operator input for the rule name
+    $OpConfirm:                 Operator confirmation of value
+    $OpSelect:                  Operator input to select reule protocol
+    $LBRulePort:                Operator input for the rule port
+    $LBRuleArray:               Operator input converted to array for validation
+    $LBRuleIdleTO:              Operator input for the rule time out
+    $LBRuleIdleINT:             Operator input converted to interger for validation
+    GetAzLBFEConfig{}           Gets $FrontEndIPConfigObject,$LoadBalancerObject
+} #>
+<# Process Flow {
+    function
+        Call AddAzLBNatRuleConfig > Get $null
+            Call GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+            End GetAzLBFEConfig
+                Return AddAzLBNatRuleConfig > Send $FrontEndIPConfigObject,$LoadBalancerObject
+        End AddAzLBNatRuleConfig
+            Return function > Send $null
+}#>
 function AddAzLBNatRuleConfig {                                                             # Function to add a nat rule configuration
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
