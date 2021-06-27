@@ -4049,6 +4049,7 @@ function RemoveAzLoadBalancer {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzLoadBalancer
+# Functions for ManageAzLBConfig
 function ManageAzLBConfig {                                                                 # Function to manage load balancer config
     Begin {                                                                                 # Begin function
         :ManageAzureLoadBalancer while ($true) {                                            # Outer loop for managing function
@@ -4098,6 +4099,493 @@ function ManageAzLBConfig {                                                     
         return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzLBConfig
+# Functions for ManageAzLBFEConfig
+function ManageAzLBFEConfig {                                                               # Function to manage front end configurations
+    Begin {                                                                                 # Begin function
+        :ManageAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Manage Load Balancer Front End'                                     # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Add Private IP Config'                                          # Write message to screen
+            Write-Host '[2] Add Public IP Config'                                           # Write message to screen
+            Write-Host '[3] List IP configs'                                                # Write message to screen
+            Write-Host '[4] Remove IP config'                                               # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
+                Break ManageAzureLBFEConfig                                                 # Breaks :ManageAzureLBFEConfig
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Add Private IP Config'                                          # Write message to screen
+                AddAzLBFEPrivateConfig                                                      # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'Add Public IP Config'                                           # Write message to screen
+                AddAzLBFEPublicConfig                                                       # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'List IP configs'                                                # Write message to screen
+                ListAzLBFEConfigs                                                           # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove IP config'                                               # Write message to screen
+                RemoveAzLBFEConfig                                                          # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureLBFEConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzLBFEConfig
+function AddAzLBFEPrivateConfig {                                                           # Function to add a load balancer public IP front end config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'AddAzLBFEPrivateConfig'                                     # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            $LoadBalancerObject = GetAzLoadBalancer ($CallingFunction)                      # Calls function and assigns output to $var
+            if (!$LoadBalancerObject) {                                                     # If $LoadBalancerObject does not have a value
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if (!$LoadBalancerObject)
+            if ($LoadBalancerObject.FrontendIpConfigurations.PublicIpAddress.ID) {          # If $LoadBalancerObject.FrontendIpConfigurations.PublicIpAddress.ID has a value
+                Write-Host 'This load balancer is currently referencing a public IP'        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'It is not possible to add a private config to a load'           # Write message to screen
+                Write-Host 'balancer configured with a public IP front end'                 # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if ($LoadBalancerObject.FrontendIpConfigurations.PublicIpAddress.ID)
+            :NewAzureLBFrontEnd while ($true) {                                             # Inner loop for setting the type of front end config
+                Write-Host 'Select type of front end config'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Private Dynamic'                                            # Write message to screen
+                Write-Host '[2] Private Static'                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the IP type for front end config
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureLoadBalancer                                              # Breaks :SetAzureLoadBalancer  
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $FrontEndIPConfigObject = NewAzLBFEPriDynamicIpCon ($CallingFunction)   # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break SetAzureLoadBalancer                                          # Breaks :SetAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $FrontEndIPConfigObject = NewAzLBFEPriStaticIpCon ($CallingFunction)    # Calls function and assigns output to $var
+                    if (!$FrontEndIPConfigObject) {                                         # If $FrontEndIPConfigObject is $null
+                        Break SetAzureLoadBalancer                                          # Breaks :SetAzureLoadBalancer
+                    }                                                                       # End if (!$FrontEndIPConfigObject)
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+                if ($FrontEndIPConfigObject) {                                              # If $FrontEndIPConfigObject has a value
+                    Break NewAzureLBFrontEnd                                                # Breaks :NewAzureLBFrontEnd
+                }                                                                           # End if ($FrontEndIPConfigObject)
+            }                                                                               # End :NewAzureLBFrontEnd while ($true)
+            $SubnetName = $FrontEndIPConfigObject.Subnet.ID                                 # Isolates the subnet ID
+            $SubnetName = $SubnetName.Split('/')[-1]                                        # Isolates the subnet name
+            Write-Host 'Add the following:'                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Load balancer: '$LoadBalancerObject.name                            # Write message to screen
+            Write-Host 'Resource group:'$LoadBalancerObject.ResourceGroupName               # Write message to screen
+            Write-Host 'Front end name:'$FrontEndIPConfigObject.Name                        # Write message to screen
+            Write-Host 'Private IP add:'$FrontEndIPConfigObject.PrivateIpAddress            # Write message to screen
+            Write-Host 'Private IP all:'$FrontEndIPConfigObject.PrivateIpAllocationMethod   # Write message to screen
+            Write-Host 'Subnet Name:   '$SubnetName                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the load balancer
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Adding load balancer front end config'                      # Write message to screen    
+                    if ($FrontEndIPConfigObject.PrivateIpAllocationMethod -eq 'Dynamic') {  # If $FrontEndIPConfigObject.PrivateIpAllocationMethod equals 'Dynamic'                  
+                        $LoadBalancerObject | Add-AzLoadBalancerFrontendIpConfig -Name `
+                            $FrontEndIPConfigObject.Name -SubnetId `
+                            $FrontEndIPConfigObject.Subnet.ID -ErrorAction 'Stop' `
+                            | Out-Null                                                      # Adds the load balancer config
+                        Write-Host 'Saving load balancer front end config'                  # Write message to screen
+                        $LoadBalancerObject | Set-AzLoadBalancerFrontendIpConfig -Name `
+                            $FrontEndIPConfigObject.Name -SubnetId `
+                            $FrontEndIPConfigObject.Subnet.ID -ErrorAction 'Stop' `
+                            | Out-Null                                                      # Saves the load balancer config
+                    }                                                                       # End if ($FrontEndIPConfigObject.PrivateIpAllocationMethod -eq 'Dynamic')
+                    else {                                                                  # Else if $FrontEndIPConfigObject.PrivateIpAllocationMethod does not equal 'Dynamic'
+                        $LoadBalancerObject | Add-AzLoadBalancerFrontendIpConfig -Name `
+                            $FrontEndIPConfigObject.Name -SubnetId `
+                            $FrontEndIPConfigObject.Subnet.ID -PrivateIpAddress `
+                            $FrontEndIPConfigObject.PrivateIpAddress -ErrorAction 'Stop' `
+                            | Out-Null                                                      # Adds the load balancer config
+                        Write-Host 'Saving load balancer front end config'                  # Write message to screen
+                        $LoadBalancerObject | Set-AzLoadBalancerFrontendIpConfig -Name `
+                            $FrontEndIPConfigObject.Name -SubnetId `
+                            $FrontEndIPConfigObject.Subnet.ID -PrivateIpAddress `
+                            $FrontEndIPConfigObject.PrivateIpAddress -ErrorAction 'Stop' `
+                            | Out-Null                                                      # Adds the load balancer config
+                    }                                                                       # End else (if ($FrontEndIPConfigObject.PrivateIpAllocationMethod -eq 'Dynamic'))
+                    Write-Host 'Saving load balancer config'                                # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null # Saves the load balancer state
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions to do this'                # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLoadBalancer                                              # Breaks :SetAzureLoadBalancer
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The front end config has been added'                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLoadBalancer while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzLBFEPrivateConfig
+function AddAzLBFEPublicConfig {                                                            # Function to add a load balancer public IP front end config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'AddAzLBFEPublicConfig'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLoadBalancer while ($true) {                                               # Outer loop for managing function
+            $LoadBalancerObject = GetAzLoadBalancer ($CallingFunction)                      # Calls function and assigns output to $var
+            if (!$LoadBalancerObject) {                                                     # If $LoadBalancerObject does not have a value
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if (!$LoadBalancerObject)
+            if ($LoadBalancerObject.FrontendIpConfigurations.Subnet.ID) {                   # If $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID has a value
+                Write-Host 'This load balancer is currently referencing a subnet'           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'It is not possible to add a public config to a load'            # Write message to screen
+                Write-Host 'balancer configured with a private IP front end'                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if ($LoadBalancerObject.FrontendIpConfigurations.Subnet.ID)
+            $FrontEndIPConfigObject = NewAzLBFEPubIPCon ($CallingFunction)                  # Calls function and assigns the output to $var
+            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if (!$FrontEndIPConfigObject)
+            $LBSku =  $LoadBalancerObject.Sku.name                                          # Gets the current load balance sku
+            $PubIPID = $FrontEndIPConfigObject.PublicIPAddress.Id                           # Isloates the public IP ID
+            $PubIPObject = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubIPID}        # Gets the public IP object
+            $PubIPSku = $PubIPObject.Sku.Name                                               # Isloates the sku
+            if ($PubIPObject.IpConfiguration.Id) {                                          # If $PubIPObject.IpConfiguration.Id has a value
+                Write-Host 'This public IP sku is already in use'                           # Write message to screen
+                Write-Host 'Please select an unused public IP sku'                          # Write message to screen
+                Write-Host 'No changes made'                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }
+            if ($LBSku -ne $PubIPSku) {                                                     # If $LBSku does not equal $PubIPSku
+                if ($LBSku -eq 'Basic') {                                                   # If $LBSku equals 'Basic'
+                    Write-Host 'The load balancer is a basic SKU and'                       # Write message to screen
+                    Write-Host 'can only use a basic public IP sku'                         # Write message to screen
+                }                                                                           # End   
+                else {                                                                      # If $LBSku does not equal 'Basic'                              
+                    Write-Host 'The load balancer is a standard SKU and'                    # Write message to screen
+                    Write-Host 'can only use a standard public IP sku'                      # Write message to screen
+                }                                                                           # End else (if ($LBSku -eq 'Basic'))
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes made'                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if ($LBSku -ne $PubIPSku)
+            Write-Host 'Add the following:'                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Load balancer: '$LoadBalancerObject.name                            # Write message to screen
+            Write-Host 'Resource group:'$LoadBalancerObject.ResourceGroupName               # Write message to screen
+            Write-Host 'Front end name:'$FrontEndIPConfigObject.Name                        # Write message to screen
+            Write-Host 'Public IP name:'$PubIPObject.Name                                   # Write message to screen
+            Write-Host 'Public IP add: '$PubIPObject.IpAddress                              # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the load balancer
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Adding load balancer front end config'                      # Write message to screen                         
+                    $LoadBalancerObject | Add-AzLoadBalancerFrontendIpConfig -Name `
+                        $FrontEndIPConfigObject.Name -PublicIpAddressId `
+                        $FrontEndIPConfigObject.PublicIPAddress.ID -ErrorAction 'Stop' `
+                        | Out-Null                                                          # Adds the load balancer config
+                    Write-Host 'Saving load balancer front end config'                      # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancerFrontendIpConfig -Name `
+                        $FrontEndIPConfigObject.Name -PublicIpAddressId `
+                        $FrontEndIPConfigObject.PublicIPAddress.ID -ErrorAction 'Stop' `
+                        | Out-Null                                                          # Saves the load balancer config
+                    Write-Host 'Saving load balancer config'                                # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null # Saves the load balancer state
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions to do this'                # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLoadBalancer                                              # Breaks :SetAzureLoadBalancer
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The front end config has been added'                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLoadBalancer                                                  # Breaks :SetAzureLoadBalancer
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLoadBalancer while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzLBFEPublicConfig
+function ListAzLBFEConfigs {                                                                # Function to list all load balancer front end configs
+    Begin {                                                                                 # Begin function
+        :ListAzureLBFEConfigs while ($true) {                                               # Outer loop for managing function
+            Write-Host 'Gathering load balancer info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ObjectList = Get-AzLoadBalancer                                                # Gets a list of all load balancers
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'There are no load balancers in this subscription'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureLBFEConfigs                                                  # Breaks ListAzureLBFEConfigs
+            }                                                                               # if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                Write-Host 'Gathering info on:'$_.name                                      # Write message to screen
+                $LoadBalancerObject = Get-AzLoadBalancer -Name $_.Name                      # Gets the current load balancer object
+                $ObjectList2 = Get-AzLoadBalancerFrontendIpConfig -LoadBalancer `
+                    $LoadBalancerObject                                                     # Gets the configs of the current load balancer
+                foreach ($_ in $ObjectList2) {                                              # For each item in $ObjectList2
+                    if ($_.Subnet.ID) {                                                     # If current item .subnet.id has a value
+                        $SubnetID = $_.Subnet.ID                                            # Isolates the subnet ID
+                        $SubnetID = $SubnetID.Split('/')[-1]                                # Isolates the subnet name
+                    }                                                                       # End if ($_.Subnet.ID)
+                    if ($_.PublicIPAddress.ID) {                                            # If current item .PublicIPAddress.ID 
+                        $PublicIPID = $_.PublicIPAddress.ID                                 # Isolates the public IP ID 
+                        $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                            {$_.ID -eq $PublicIPID}                                         # Gets the public IP object
+                    }                                                                       # End if ($_.PublicIPAddress.ID)
+                    $ObjectInput = [PSCustomObject]@{                                       # Custom object to be added to $ObjectArray
+                        'Name'=$_.Name;'PriIP'=$_.PrivateIpAddress;`
+                        'PriIP2'=$_.PrivateIpAllocationMethod;'Sub'=$SubnetID;`
+                        'PubIP'=$PublicIPObject.IpAddress;`
+                        'PubIP2'=$PublicIPObject.PublicIpAllocationMethod;`
+                        'PubIP3'=$PublicIPObject.Sku.Name;'LB'=$LoadBalancerObject.Name     # Creates the item to loaded into array
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                    $SubnetID = $null                                                       # Clears $SubnetID
+                    $PublicIPID = $null                                                     # Clears $PublicIPID
+                    $PublicIPObject = $null                                                 # Clears $PublicIPObject
+                }                                                                           # End foreach ($_ in $ObjectList2)
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                Write-Host 'Config Name:'$_.Name                                            # Write message to screen
+                Write-Host 'LB Name:    '$_.LB                                              # Write message to screen
+                if ($_.PubIP) {                                                             # If current item .PubIP has a value
+                    Write-host 'Config Type: Public'                                        # Write message to screen
+                    Write-Host 'IP Address: '$_.PubIP                                       # Write message to screen
+                    Write-Host 'Allocation: '$_.PubIP2                                      # Write message to screen
+                    Write-Host 'Sku Name:   '$_.PubIP3                                      # Write message to screen
+                }                                                                           # End if ($_.PubIP)
+                else {                                                                      # Else if current item .PubIP is $null
+                    Write-host 'Config Type: Private'                                       # Write message to screen
+                    if ($_.PriIP) {                                                         # if current item .priIP has a value
+                        Write-Host 'IP Address: '$_.PriIP                                   # Write message to screen
+                    }                                                                       # End if ($_.PriIP)
+                    Write-Host 'Allocation: '$_.PriIP2                                      # Write message to screen
+                    Write-Host 'Subnet:     '$_.Sub                                         # Write message to screen
+                }                                                                           # End else (if ($_.PubIP))
+                Write-Host ''                                                               # Write message to screen                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureLBFEConfigs                                                      # Breaks :ListAzureLBFEConfigs
+        }                                                                                   # End :ListAzureLBFEConfigs while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzLBFEConfigs
+function GetAzLBFEConfig {                                                                  # Function to get a load balancer front end config
+    Begin {                                                                                 # Begin function
+        :GetAzureLBFEConfig while ($true) {                                                 # Outer loop for managing function
+            Write-Host 'Gathering load balancer info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ObjectList = Get-AzLoadBalancer                                                # Gets a list of all load balancers
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'There are no load balancers in this subscription'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureLBFEConfig                                                    # Breaks GetAzureLBFEConfig
+            }                                                                               # if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            $ObjectNumber = 1
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                Write-Host 'Gathering info on:'$_.name                                      # Write message to screen
+                $LoadBalancerObject = Get-AzLoadBalancer -Name $_.Name                      # Gets the current load balancer object
+                $ObjectList2 = Get-AzLoadBalancerFrontendIpConfig -LoadBalancer `
+                    $LoadBalancerObject                                                     # Gets the configs of the current load balancer
+                foreach ($_ in $ObjectList2) {                                              # For each item in $ObjectList2
+                    if ($_.Subnet.ID) {                                                     # If current item .subnet.id has a value
+                        $SubnetID = $_.Subnet.ID                                            # Isolates the subnet ID
+                        $SubnetID = $SubnetID.Split('/')[-1]                                # Isolates the subnet name
+                    }                                                                       # End if ($_.Subnet.ID)
+                    if ($_.PublicIPAddress.ID) {                                            # If current item .PublicIPAddress.ID 
+                        $PublicIPID = $_.PublicIPAddress.ID                                 # Isolates the public IP ID 
+                        $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
+                            {$_.ID -eq $PublicIPID}                                         # Gets the public IP object
+                    }                                                                       # End if ($_.PublicIPAddress.ID)
+                    $ObjectInput = [PSCustomObject]@{                                       # Custom object to be added to $ObjectArray
+                        'Number'=$ObjectNumber;`
+                        'Name'=$_.Name;'PriIP'=$_.PrivateIpAddress;`
+                        'PriIP2'=$_.PrivateIpAllocationMethod;'Sub'=$SubnetID;`
+                        'PubIP'=$PublicIPObject.IpAddress;`
+                        'PubIP2'=$PublicIPObject.PublicIpAllocationMethod;`
+                        'PubIP3'=$PublicIPObject.Sku.Name;'LB'=$LoadBalancerObject.Name     # Creates the item to loaded into array
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                    $SubnetID = $null                                                       # Clears $SubnetID
+                    $PublicIPID = $null                                                     # Clears $PublicIPID
+                    $PublicIPObject = $null                                                 # Clears $PublicIPObject
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber up by 1
+                }                                                                           # End foreach ($_ in $ObjectList2)
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
+            :SelectAzureLBFEConfig while ($true) {                                          # Inner loop for selecting the front end config
+                Write-Host '[0]          Exit'                                              # Write message to screen
+                Write-Host ''                                                               # Write message to screen    
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .Number
+                    if ($Number -le 9) {                                                    # If $number is 9 or less
+                        Write-Host "[$number]         "$_.Name                              # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # Else if $number is more than 9
+                        Write-Host "[$number]       "$_.Name                                # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'LB Name:    '$_.LB                                          # Write message to screen
+                    if ($_.PubIP) {                                                         # If current item .PubIP has a value
+                        Write-host 'Config Type: Public'                                    # Write message to screen
+                        Write-Host 'IP Address: '$_.PubIP                                   # Write message to screen
+                        Write-Host 'Allocation: '$_.PubIP2                                  # Write message to screen
+                        Write-Host 'Sku Name:   '$_.PubIP3                                  # Write message to screen
+                    }                                                                       # End if ($_.PubIP)
+                    else {                                                                  # Else if current item .PubIP is $null
+                        Write-host 'Config Type: Private'                                   # Write message to screen
+                        if ($_.PriIP) {                                                     # if current item .priIP has a value
+                            Write-Host 'IP Address: '$_.PriIP                               # Write message to screen
+                        }                                                                   # End if ($_.PriIP)
+                        Write-Host 'Allocation: '$_.PriIP2                                  # Write message to screen
+                        Write-Host 'Subnet:     '$_.Sub                                     # Write message to screen
+                    }                                                                       # End else (if ($_.PubIP))
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host `
+                        'You are selecting the front end config for:'$CallingFunction       # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the front end config
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break GetAzureLBFEConfig                                                # Breaks :GetAzureLBFEConfig
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.LB             # Gets the load balancer object
+                    $FrontEndIPConfigObject = Get-AzLoadBalancerFrontendIpConfig `
+                        -LoadBalancer $LoadBalancerObject -Name $OpSelect.Name              # Gets the front end IP config object
+                    Return $FrontEndIPConfigObject,$LoadBalancerObject                      # Returns to calling function with $vars
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else if ($OpSelect -eq '0')
+            }                                                                               # End :SelectAzureLBFEConfig while ($true)
+        }                                                                                   # End :GetAzureLBFEConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzLBFEConfig
+function RemoveAzLBFEConfig {                                                               # Function to remove a load balancer front end config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzLBFEConfig'                                         # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
+            $FrontEndIPConfigObject,$LoadBalancerObject = GetAzLBFEConfig `
+                ($CallingFunction)                                                          # Calls function and assigns output to $var
+            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
+                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
+            }                                                                               # End if (!$FrontEndIPConfigObject)
+            Write-Host 'Remove the following:'                                              # Write message to screen
+            Write-Host 'Config Name:'$FrontEndIPConfigObject.Name                           # Write message to screen
+            Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Removing the config'
+                    Remove-AzLoadBalancerFrontendIpConfig -LoadBalancer `
+                        $LoadBalancerObject -Name $FrontEndIPConfigObject `
+                        -ErrorAction 'Stop' | Out-Null                                      # Removes the config
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions'                           # Write message to screen
+                    Write-Host 'to perform this action'                                     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureLBFEConfig                                             # Breaks :RemoveAzureLBFEConfig
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The configuration has been removed'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureLBFEConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLBFEConfig
+# End ManageAzLBFEConfig
+# Functions for ManageAzLBNatRuleConfig
 function ManageAzLBNatRuleConfig {                                                          # Function to manage nat rule configurations
     Begin {                                                                                 # Begin function
         :ManageAzureLBNatRuleConfig while ($true) {                                         # Outer loop for managing function
@@ -4106,8 +4594,7 @@ function ManageAzLBNatRuleConfig {                                              
             Write-Host '[1] Add Nat Rule Config'                                            # Write message to screen
             Write-Host '[2] List Nat Rule Configs'                                          # Write message to screen
             Write-Host '[3] Add VM to Nat Rule Config'                                      # Write message to screen
-            Write-Host '[4] Change Nat Rule Config'                                         # Write message to screen
-            Write-Host '[5] Remove Nat Rule Config'                                         # Write message to screen
+            Write-Host '[4] Remove Nat Rule Config'                                         # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -4126,13 +4613,9 @@ function ManageAzLBNatRuleConfig {                                              
                 SetAzLBNatRuleVM                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host 'Change Nat Rule Config'                                         # Write message to screen
-                #ListAzLBFEConfigs                                                          # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '4')
-            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
                 Write-Host 'Remove Nat Rule Config'                                         # Write message to screen
                 RemoveAzLBNatRuleConfig                                                     # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '5')
+            }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -4456,577 +4939,7 @@ function ListAzLBNatRuleConfig {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ListAzLBNatRuleConfig
-function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction  = 'SetAzLBNatRuleVM'                                          # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-        :SetAzureLBNatRuleVM while ($true) {                                                # Outer loop for managing function
-            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
-            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if (!$LBNatRule)
-            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $var
-            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if (!$NicIPConfigObject)
-            $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
-            Write-Host 'Make the following change:'                                         # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Add:'                                                               # Write message to screen
-            Write-Host 'VM Name:      '$VMName                                              # Write message to screen
-            Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
-            Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
-            Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Write-Host 'To:'                                                                # Write message to screen
-            Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
-            Write-Host 'Nat Rule:     '$LBNatRule.name                                      # Write message to screen
-            Write-Host 'Nat Protocol: '$LBNatRule.Protocol                                  # Write message to screen
-            Write-Host 'Nat FE Port:  '$LBNatRule.FrontendPort                              # Write message to screen
-            Write-Host 'Nat BE Port:  '$LBNatRule.BackendPort                               # Write message to screen
-            Write-Host 'Nat Idle TO:  '$LBNatRule.IdleTimeoutInMinutes                      # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to make the change
-            Clear-Host                                                                      # Clears screen
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                Try {                                                                       # Try the following
-                    Write-Host 'Adding the IP config to nat rule'                           # Write message to screen
-                    $NicObject | Set-AzNetworkInterfaceIpConfig -Name `
-                        $NicIPConfigObject.Name -LoadBalancerInboundNatRuleId `
-                        $LBNatRule.ID -ErrorAction 'Stop' | Out-Null                        # Adds the load balancer inbound nat rule
-                }                                                                           # End Try
-                catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Break SetAzureLBNatRuleVM                                               # Breaks :SetAzureLBNatRuleVM
-                }                                                                           # End catch
-                Write-Host 'Saving nic configuration'                                       # Write message to screen
-                $NicObject | Set-AzNetworkInterface                                         # Saves the nic config
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'The changes have been made'                                     # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End if ($OpConfirm -eq 'y') 
-            else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'No changes have been made'                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :SetAzureLBNatRuleVM while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function SetAzLBNatRuleVM
-function GetAzLBFEConfig {                                                                  # Function to get a load balancer front end config
-    Begin {                                                                                 # Begin function
-        :GetAzureLBFEConfig while ($true) {                                                 # Outer loop for managing function
-            Write-Host 'Gathering load balancer info'                                       # Write message to screen
-            Write-Host 'This may take a moment'                                             # Write message to screen
-            $ObjectList = Get-AzLoadBalancer                                                # Gets a list of all load balancers
-            if (!$ObjectList) {                                                             # If $ObjectList is $null
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'There are no load balancers in this subscription'               # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break GetAzureLBFEConfig                                                    # Breaks GetAzureLBFEConfig
-            }                                                                               # if (!$ObjectList)
-            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
-            $ObjectNumber = 1
-            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
-                Write-Host 'Gathering info on:'$_.name                                      # Write message to screen
-                $LoadBalancerObject = Get-AzLoadBalancer -Name $_.Name                      # Gets the current load balancer object
-                $ObjectList2 = Get-AzLoadBalancerFrontendIpConfig -LoadBalancer `
-                    $LoadBalancerObject                                                     # Gets the configs of the current load balancer
-                foreach ($_ in $ObjectList2) {                                              # For each item in $ObjectList2
-                    if ($_.Subnet.ID) {                                                     # If current item .subnet.id has a value
-                        $SubnetID = $_.Subnet.ID                                            # Isolates the subnet ID
-                        $SubnetID = $SubnetID.Split('/')[-1]                                # Isolates the subnet name
-                    }                                                                       # End if ($_.Subnet.ID)
-                    if ($_.PublicIPAddress.ID) {                                            # If current item .PublicIPAddress.ID 
-                        $PublicIPID = $_.PublicIPAddress.ID                                 # Isolates the public IP ID 
-                        $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
-                            {$_.ID -eq $PublicIPID}                                         # Gets the public IP object
-                    }                                                                       # End if ($_.PublicIPAddress.ID)
-                    $ObjectInput = [PSCustomObject]@{                                       # Custom object to be added to $ObjectArray
-                        'Number'=$ObjectNumber;`
-                        'Name'=$_.Name;'PriIP'=$_.PrivateIpAddress;`
-                        'PriIP2'=$_.PrivateIpAllocationMethod;'Sub'=$SubnetID;`
-                        'PubIP'=$PublicIPObject.IpAddress;`
-                        'PubIP2'=$PublicIPObject.PublicIpAllocationMethod;`
-                        'PubIP3'=$PublicIPObject.Sku.Name;'LB'=$LoadBalancerObject.Name     # Creates the item to loaded into array
-                    }                                                                       # End $ObjectInput = [PSCustomObject]@
-                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
-                    $SubnetID = $null                                                       # Clears $SubnetID
-                    $PublicIPID = $null                                                     # Clears $PublicIPID
-                    $PublicIPObject = $null                                                 # Clears $PublicIPObject
-                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber up by 1
-                }                                                                           # End foreach ($_ in $ObjectList2)
-            }                                                                               # End foreach ($_ in $ObjectList)
-            Clear-Host                                                                      # Clears screen
-            :SelectAzureLBFEConfig while ($true) {                                          # Inner loop for selecting the front end config
-                Write-Host '[0]          Exit'                                              # Write message to screen
-                Write-Host ''                                                               # Write message to screen    
-                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
-                    $Number = $_.Number                                                     # $Number is equal to current item .Number
-                    if ($Number -le 9) {                                                    # If $number is 9 or less
-                        Write-Host "[$number]         "$_.Name                              # Write message to screen
-                    }                                                                       # End if ($Number -le 9)
-                    else {                                                                  # Else if $number is more than 9
-                        Write-Host "[$number]       "$_.Name                                # Write message to screen
-                    }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'LB Name:    '$_.LB                                          # Write message to screen
-                    if ($_.PubIP) {                                                         # If current item .PubIP has a value
-                        Write-host 'Config Type: Public'                                    # Write message to screen
-                        Write-Host 'IP Address: '$_.PubIP                                   # Write message to screen
-                        Write-Host 'Allocation: '$_.PubIP2                                  # Write message to screen
-                        Write-Host 'Sku Name:   '$_.PubIP3                                  # Write message to screen
-                    }                                                                       # End if ($_.PubIP)
-                    else {                                                                  # Else if current item .PubIP is $null
-                        Write-host 'Config Type: Private'                                   # Write message to screen
-                        if ($_.PriIP) {                                                     # if current item .priIP has a value
-                            Write-Host 'IP Address: '$_.PriIP                               # Write message to screen
-                        }                                                                   # End if ($_.PriIP)
-                        Write-Host 'Allocation: '$_.PriIP2                                  # Write message to screen
-                        Write-Host 'Subnet:     '$_.Sub                                     # Write message to screen
-                    }                                                                       # End else (if ($_.PubIP))
-                    Write-Host ''                                                           # Write message to screen
-                }                                                                           # End foreach ($_ in $ObjectArray)
-                if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host `
-                        'You are selecting the front end config for:'$CallingFunction       # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the front end config
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break GetAzureLBFEConfig                                                # Breaks :GetAzureLBFEConfig
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
-                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to ObjectArray where $ObjectArray.Number equals $OpSelect
-                    $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.LB             # Gets the load balancer object
-                    $FrontEndIPConfigObject = Get-AzLoadBalancerFrontendIpConfig `
-                        -LoadBalancer $LoadBalancerObject -Name $OpSelect.Name              # Gets the front end IP config object
-                    Return $FrontEndIPConfigObject,$LoadBalancerObject                      # Returns to calling function with $vars
-                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else if ($OpSelect -eq '0')
-            }                                                                               # End :SelectAzureLBFEConfig while ($true)
-        }                                                                                   # End :GetAzureLBFEConfig while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzLBFEConfig
-function RemoveAzLBFEConfig {                                                               # Function to remove a load balancer front end config
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction = 'RemoveAzLBFEConfig'                                         # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-        :RemoveAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
-            $FrontEndIPConfigObject,$LoadBalancerObject = GetAzLBFEConfig `
-                ($CallingFunction)                                                          # Calls function and assigns output to $var
-            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
-                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
-            }                                                                               # End if (!$FrontEndIPConfigObject)
-            Write-Host 'Remove the following:'                                              # Write message to screen
-            Write-Host 'Config Name:'$FrontEndIPConfigObject.Name                           # Write message to screen
-            Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                Try {                                                                       # Try the following
-                    Write-Host 'Removing the config'
-                    Remove-AzLoadBalancerFrontendIpConfig -LoadBalancer `
-                        $LoadBalancerObject -Name $FrontEndIPConfigObject `
-                        -ErrorAction 'Stop' | Out-Null                                      # Removes the config
-                }                                                                           # End Try
-                Catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'You may not have the permissions'                           # Write message to screen
-                    Write-Host 'to perform this action'                                     # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Break RemoveAzureLBFEConfig                                             # Breaks :RemoveAzureLBFEConfig
-                }                                                                           # End catch
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'The configuration has been removed'                             # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
-            }                                                                               # End if ($OpConfirm -eq 'y')
-            else {                                                                          # All other inputs for $OpConfirm
-                Write-Host 'No changes have been made'                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :RemoveAzureLBFEConfig while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzLBFEConfig
-function ManageAzLBNatRuleConfig {                                                          # Function to manage nat rule configurations
-    Begin {                                                                                 # Begin function
-        :ManageAzureLBNatRuleConfig while ($true) {                                         # Outer loop for managing function
-            Write-Host 'Manage Load Balancer Nat Rules'                                     # Write message to screen
-            Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] Add Nat Rule Config'                                            # Write message to screen
-            Write-Host '[2] List Nat Rule Configs'                                          # Write message to screen
-            Write-Host '[3] Change Nat Rule Config'                                         # Write message to screen
-            Write-Host '[4] Remove Nat Rule Config'                                         # Write message to screen
-            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
-            Clear-Host                                                                      # Clears screen
-            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
-                Break ManageAzureLBNatRuleConfig                                            # Breaks :ManageAzureLBNatRuleConfig
-            }                                                                               # End if ($OpSelect -eq '0')
-            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
-                Write-Host 'Add Nat Rule Config'                                            # Write message to screen
-                AddAzLBNatRuleConfig                                                        # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '1')
-            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
-                Write-Host 'List Nat Rule Configs'                                          # Write message to screen
-                ListAzLBNatRuleConfig                                                       # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '2')
-            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host 'Change Nat Rule Config'                                         # Write message to screen
-                #ListAzLBFEConfigs                                                           # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '3')
-            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host 'Remove Nat Rule Config'                                         # Write message to screen
-                RemoveAzLBNatRuleConfig                                                     # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '4')
-            else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid input'                                     # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Clear-Host                                                                  # Clears screen
-            }                                                                               # End else (if ($OpSelect -eq '0'))
-        }                                                                                   # End :ManageAzureLBNatRuleConfig while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function ManageAzLBFEConfig
-function AddAzLBNatRuleConfig {                                                             # Function to add a nat rule configuration
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction = 'AddAzLBNatRuleConfig'                                       # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-        :AddAzureLBNatRule while ($true) {                                                  # Inner loop for setting the nat rule name
-            $FrontEndIPConfigObject,$LoadBalancerObject = GetAzLBFEConfig `
-                ($CallingFunction)                                                          # Calls function and assigns output to $vars
-            if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
-                Break AddAzureLBNatRule                                                     # Breaks :AddAzureLBNatRule
-            }                                                                               # End if (!$FrontEndIPConfigObject)
-            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
-            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
-            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
-            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
-            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
-            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
-            :NewAzureLBRuleName while ($true) {                                             # Inner loop for setting the rule name
-                Write-Host 'Enter a load balancer rule name'                                # Write message to screen
-                Write-Host ''                                                               # Writes message to screen
-                $LBRuleName = Read-Host 'Name'                                              # Operator input for the pool name
-                Clear-Host                                                                  # Clears screen
-                $LBRuleNameArray = $LBRuleName.ToCharArray()                                # Loads $LBRuleNameArray into array
-                Clear-Host                                                                  # Clears screen
-                if ($LBRuleName.Length -ge 81) {                                            # If $LBRuleName.Length is greater or equal to 81
-                    Write-Host 'The rule name is to long'                                   # Write message to screen
-                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $LBRuleName = $null                                                     # Clears $LBRuleName
-                }                                                                           # End if ($LBRuleName.Length -ge 80)
-                if ($LBRuleNameArray[0] -notin $Valid1stChar) {                             # If 0 position of $LBRuleNameArray is not in $Valid1stChar
-                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $LBRuleName = $null                                                     # Clears $LBRuleName
-                }                                                                           # End if ($LBRuleNameArray[0] -notin $Valid1stChar)
-                if ($LBRuleNameArray[-1] -notin $ValidLastChar) {                           # If last position of $LBRuleNameArray is not in $ValidLastChar
-                    Write-Host `
-                        'The last character of the name must be a letter, number or _ '     # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $LBRuleName = $null                                                     # Clears $LBRuleName
-                }                                                                           # End if ($LBRuleNameArray[0] -notin $Valid1stChar)
-                foreach ($_ in $LBRuleNameArray) {                                          # For each item in $LBRuleNameArray
-                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
-                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
-                            Write-Host ''                                                   # Write message to screen    
-                            Write-Host 'Rule name cannot include any spaces'                # Write message to screen
-                        }                                                                   # End if ($_ -eq ' ')
-                        else {                                                              # If current item is not equal to 'space'
-                            Write-Host ''                                                   # Write message to screen    
-                            Write-Host $_' is not a valid character'                        # Write message to screen
-                        }                                                                   # End else (if ($_ -eq ' '))
-                        $LBRuleName = $null                                                 # Clears $LBRuleName
-                    }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $LBNameArray)
-                if ($LBRuleName) {                                                          # If $LBRuleName has a value
-                    Write-Host 'Use:'$LBRuleName' as the rule name'                         # Writes message to screen
-                    Write-Host ''                                                           # Writes message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule name
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
-                        Break AddAzureLBNatRule                                             # Breaks :AddAzureLBNatRule
-                    }                                                                       # End if ($OpConfirm -eq 'e')
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break NewAzureLBRuleName                                            # Breaks :NewAzureLBRuleName
-                    }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleName)
-                else {                                                                      # If $LBRuleName is $null
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleName))
-            }                                                                               # End :NewAzureLBRuleName while ($true)
-            :NewAzureLBRuleProtocol while ($true) {                                         # Inner loop for setting the rule protocol
-                Write-Host 'Inbound Nat Rule Protocol'                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] TCP'                                                        # Write message to screen
-                Write-Host '[2] UDP'                                                        # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the rule protocol
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break AddAzureLBNatRule                                                 # Breaks :AddAzureLBNatRule
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
-                    $LBRuleProtocol = 'TCP'                                                 # Creates $LBRuleProtocol
-                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol 
-                }                                                                           # End elseif ($OpSelect -eq '1')
-                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
-                    $LBRuleProtocol = 'UDP'                                                 # Creates $LBRuleProtocol
-                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
-                }                                                                           # End elseif ($OpSelect -eq '2')
-                else  {                                                                     # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($OpSelect -eq '0'))
-            }                                                                               # End :NewAzureLBRuleProtocol while ($true)
-            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
-            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
-            :NewAzureLBRulePort while ($true) {                                             # Inner loop for setting the rule port
-                Write-Host 'Enter the nat rule port'                                        # Write message to screen
-                Write-Host ''                                                               # Writes message to screen
-                $LBRulePort = Read-Host 'Port #'                                            # Operator input for the front end rule port 
-                $LBRuleArray = $LBRulePort.ToCharArray()                                    # Adds $LBRulePort to array
-                Clear-Host                                                                  # Clears screen
-                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
-                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
-                        $LBRulePort = $null                                                 # Clears $LBRulePort
-                    }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $LBRuleArray)
-                $LBRuleArray = $null                                                        # Clears $LBRuleArray
-                if ($LBRulePort) {                                                          # If $LBRulePort has a value
-                    Write-Host 'Use:'$LBRulePort' as the rule port'                         # Write message to screen
-                    Write-Host ''                                                           # Writes message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule port
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
-                        Break AddAzureLBNatRule                                             # Breaks :AddAzureLBNatRule
-                    }                                                                       # End if ($OpConfirm -eq 'e')
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break NewAzureLBRulePort                                            # Breaks :NewAzureLBRulePort        
-                    }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRulePort)
-                else {                                                                      # Else if $LBRulePort is $null
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRulePort))
-            }                                                                               # End :NewAzureLBRulePort while ($true)
-            :NewAzureLBRuleIdleTO while ($true) {                                           # Inner loop for setting the rule idle timeout
-                Write-Host 'Enter the idle time out in minutes for this rule'               # Write message to screen
-                Write-Host ''                                                               # Writes message to screen
-                $LBRuleIdleTO = Read-Host 'Idle timeout'                                    # Operator input for the rule idle timeout 
-                $LBRuleIdleINT = [int]$LBRuleIdleTO                                         # Converts the operator input into an interger
-                $LBRuleArray = $LBRuleIdleTO.ToCharArray()                                  # Adds $LBRuleIdleTO to array
-                Clear-Host                                                                  # Clears screen
-                if ($LBRuleIdleINT -gt 30) {                                                # If $LBRuleIdleINT is greater than 30
-                    Write-Host 'Rule time out max is 30 minutes'                            # Write message to screen
-                    Write-Host 'Please choose a lower timeout'                              # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $LBRuleIdleTO = $null                                                   # Clears $LBRuleIdleTO
-                }                                                                           # End if ($LBRuleIdleTO -gt 30)
-                $LBRuleIdleINT =$null
-                foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
-                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
-                        $LBRuleIdleTO = $null                                               # Clears $LBRuleIdleTO
-                    }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $LBRuleArray)
-                $LBRuleArray = $null                                                        # Clears $LBRuleArray
-                if ($LBRuleIdleTO) {                                                        # If $LBRuleIdleTO has a value
-                    Write-Host 'Use:'$LBRuleIdleTO' as the rule idle time out'              # Write message to screen
-                    Write-Host ''                                                           # Writes message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the idle timeout
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
-                        Break AddAzureLBNatRule                                             # Breaks :AddAzureLBNatRule
-                    }                                                                       # End if ($OpConfirm -eq 'e')
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break NewAzureLBRuleIdleTO                                          # Breaks :NewAzureLBRuleIdleTO        
-                    }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($LBRuleIdleTO)
-                else {                                                                      # Else if $LBRuleIdleTO is $null
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($LBRuleIdleTO))
-            }                                                                               # End :NewAzureLBRuleIdleTO while ($true)
-            Try {                                                                           # Try the following
-                Write-Host 'Adding the nat rule to the load balancer'                       # Write message to screen
-                Add-AzLoadBalancerInboundNatRuleConfig -LoadBalancer $LoadBalancerObject `
-                    -FrontendIpConfigurationId $FrontEndIPConfigObject.ID `
-                    -Name $LBRuleName  -Protocol $LBRuleProtocol -FrontendPort $LBRulePort `
-                    -BackendPort $LBRulePort -IdleTimeoutInMinutes $LBRuleIdleTO `
-                    -ErrorAction 'Stop' | Out-Null                                          # Creates the load balancer nat rule
-            }                                                                               # End try
-            Catch {                                                                         # If Try fails
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'An error has occured'                                           # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break AddAzureLBNatRule                                                     # Breaks :AddAzureLBNatRule
-            }                                                                               # End catch
-            Write-Host 'Saving the configuration'
-            $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'silentlyContinue' `
-                | Out-Null                                                                  # Saves the changes
-            Clear-Host                                                                      # Clears screen
-            Write-Host 'The rule has been added'                                            # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Pause                                                                           # Pauses all actions for operator input
-            Break AddAzureLBNatRule                                                         # Breaks :AddAzureLBNatRule
-        }                                                                                   # End :AddAzureLBNatRule while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function AddAzLBNatRuleConfig
-Function ListAzLBNatRuleConfig {                                                            # Function to list all load balancer nat rules
-    Begin {                                                                                 # Begin function
-        :ListAzureLBNatRule while ($true) {                                                 # Outer loop for managing function
-            $LBList = Get-AzLoadBalancer                                                    # Gets a list of all load balancers
-            Write-Host 'Gathering load balancer configurations'                             # Write message to screen
-            Write-Host 'This may take a moment'                                             # Write message to screen
-            if (!$LBList) {                                                                 # If $LBList is $null
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'No load balancers present in this subscription'                 # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break ListAzureLBNatRule                                                    # Breaks :ListAzureLBNatRule
-            }                                                                               # End if (!$LBList)
-            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
-            foreach ($_ in $LBList) {                                                       # For each item in $LBList
-                $LoadBalancerObject = $_                                                    # $LoadBalancerObject is equal to current item
-                $LBRuleList = Get-AzLoadBalancerInboundNatRuleConfig -LoadBalancer `
-                    $LoadBalancerObject                                                     # Gets a list of load balancers nat rules on $LoadBalancerObject
-                if ($LBRuleList) {                                                          # If $LBRuleList has a value
-                    foreach ($_ in $LBRuleList) {                                           # For each item in $LBRuleList
-                        $FrontEndID = $_.FrontendIpConfiguration.ID                         # Gets the rule front end ID
-                        $FrontEndID = $FrontEndID.Split('/')[-1]                            # Isloates the front end config name
-                        $FrontEnd = Get-AzLoadBalancerFrontendIpConfig -LoadBalancer `
-                            $LoadBalancerObject -Name $FrontEndID                           # Gets the front end object
-                        if ($FrontEnd.Subnet.ID) {                                          # If $FrontEnd.Subnet.ID has a value
-                            $FrontEndSub = $FrontEnd.Subnet.ID                              # Isloates the front end subnet ID
-                            $FrontEndSub = $FrontEndSub.Split('/')[-1]                      # Isolates the front end subnet name
-                        }                                                                   # End if ($FrontEnd.Subnet.ID)
-                        if ($FrontEnd.PublicIpAddress.ID) {                                 # If $FrontEnd.PublicIpAddress.ID has a value
-                            $PubIPID = $FrontEnd.PublicIpAddress.ID                         # Isolates the public IP ID
-                            $FEPublicIPObject = Get-AzPublicIpAddress | Where-Object `
-                                {$_.ID -eq $PubIPID}                                        # Gets the public ID sku object
-                        }                                                                   # End if ($FrontEnd.PublicIpAddress.ID)
-                        if ($_.BackendIpConfiguration.ID) {                                 # If current item .BackendIpConfiguration.ID has a value
-                            $BackEndID = $_.BackendIpConfiguration.ID                       # Isolates the back end IP config ID
-                            $BackEndNic = $BackEndID.Split('/')[8]                          # Isolates the back end NIC name
-                            $BackEndName = $BackEndID.Split('/')[-1]                        # Isolates the back end IP config name
-                            $BackEndNic = Get-AzNetworkInterface -Name $BackEndNic          # Gets the back end NIC
-                            $BackEndConfig = Get-AzNetworkInterfaceIpConfig `
-                                -NetworkInterface $BackEndNic -Name $BackEndName            # Gets the back end config NIC ip config
-                            $BackEndSub = $BackEndConfig.Subnet.Id                          # Isolates the back end subnet ID
-                            $BackEndSub = $BackEndSub.Split('/')[-1]                        # Isolates the back end subnet name
-                        }                                                                   # End if ($_.BackendIpConfiguration.ID) 
-                        $ObjectList = [PSCustomObject]@{                                    # Var used to load items into $ObjectArray
-                            'Name'=$_.Name;'Proto'=$_.Protocol;`
-                            'LBName'=$LoadBalancerObject.Name;`
-                            'FEPort'=$_.FrontendPort;'BEPort'=$_.BackEndPort;`
-                            'Idle'=$_.IdleTimeoutInMinutes;'FEName'=$FrontEnd.Name;`
-                            'FEPriIP'=$FrontEnd.PrivateIpAddress;`
-                            'FEPriAll'=$FrontEnd.PrivateIpAllocationMethod;`
-                            'FESub'=$FrontEndSub;`
-                            'FEPubIPName'=$FEPublicIPObject.Name;`
-                            'FEPubIPAdd'=$FEPublicIPObject.IpAddress;`
-                            'FEPubIPAll'=$FEPublicIPObject.PublicIpAllocationMethod;`
-                            'BEPriIP'=$BackEndConfig.PrivateIpAddress;`
-                            'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;`
-                            'BESub'=$BackEndSub                                             # Assoicates the items to $ObjectList         
-                        }                                                                   # End $ObjectList = [PSCustomObject]@
-                        $ObjectArray.Add($ObjectList) | Out-Null                            # Adds ObjectList to $ObjectArray
-                        $FrontEndID = $null                                                 # Clears $var                     
-                        $FrontEnd = $null                                                   # Clears $var
-                        $FrontEndSub = $null                                                # Clears $var
-                        $PubIPID = $null                                                    # Clears $var
-                        $FEPublicIPObject = $null                                           # Clears $var
-                        $BackEndID = $null                                                  # Clears $var
-                        $BackEndNic = $null                                                 # Clears $var
-                        $BackEndName = $null                                                # Clears $var
-                        $BackEndConfig = $null                                              # Clears $var
-                        $BackEndSub = $null                                                 # Clears $var
-                    }                                                                       # End foreach ($_ in $LBRuleList)
-                }                                                                           # End if ($LBRuleList)
-            }                                                                               # End foreach ($_ in $LBList)
-            Clear-Host                                                                      # Clears screen    
-            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
-                Write-Host 'No inbound nat rules are present in this subscription'          # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break ListAzureLBNatRule                                                    # Breaks :ListAzureLBNatRule
-            }                                                                               # End if (!$ObjectArray)
-            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
-                Write-Host 'Nat rule name: '$_.Name                                         # Write message to screen
-                Write-Host 'LB name:       '$_.LBName                                       # Write message to screen
-                Write-Host 'Protocol:      '$_.Proto                                        # Write message to screen
-                Write-Host 'FE port:       '$_.FEPort                                       # Write message to screen
-                Write-Host 'BE port:       '$_.BEPort                                       # Write message to screen
-                Write-Host 'Idle TO in min:'$_.Idle                                         # Write message to screen
-                Write-Host 'Front end name:'$_.FeName                                       # Write message to screen
-                if ($_.FESub) {                                                             # If $_.FESub has a value
-                    Write-Host 'FE private IP: '$_.FEPriIP                                  # Write message to screen
-                    Write-Host 'FE IP method:  '$_.FEPriAll                                 # Write message to screen
-                    Write-Host 'FE subnet:     '$_.FESub                                    # Write message to screen
-                }                                                                           # End if ($_.FESub)
-                if ($_.FEPubIPName) {                                                       # If $_.FEPubIPName has a value
-                    Write-Host 'FE pub IP name:'$_.FEPubIPName                              # Write message to screen
-                    Write-Host 'FE pub IP add: '$_.FEPubIPAdd                               # Write message to screen
-                    Write-Host 'FE pub method: '$_.FEPubIPAll                               # Write message to screen
-                }                                                                           # End if ($_.FEPubIPName)
-                if ($_.BESub) {                                                             # If $_.BESub has a value
-                    Write-Host 'BE private IP: '$_.BEPriIP                                  # Write message to screen
-                    Write-Host 'BE IP method:  '$_.BEPriIPAll                               # Write message to screen
-                    Write-Host 'BE subnet:     '$_.BESub                                    # Write message to screen
-                }                                                                           # End if ($_.BESub)
-                if ($_.BEPubIP) {                                                           # If $_.BEPubIP has a value
-                    Write-Host 'BE public IP:  '$_.BEPubIP                                  # Write message to screen
-                }                                                                           # End if ($_.BEPubIP)
-                Write-Host ''                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $ObjectArray)
-            Pause                                                                           # Pauses all actions for operator input
-            Break ListAzureLBNatRule                                                        # Breaks :ListAzureLBNatRule
-        }                                                                                   # End :ListAzureLBNatRule while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function ListAzLBNatRuleConfig
-Function GetAzLBNatRuleConfig {                                                             # Function to get a load balancer nat rule
+function GetAzLBNatRuleConfig {                                                             # Function to get a load balancer nat rule
     Begin {                                                                                 # Begin function
         :GetAzureLBNatRule while ($true) {                                                  # Outer loop for managing function
             $LBList = Get-AzLoadBalancer                                                    # Gets a list of all load balancers
@@ -5172,7 +5085,73 @@ Function GetAzLBNatRuleConfig {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLBNatRuleConfig
-Function RemoveAzLBNatRuleConfig {                                                          # Function to remove a load balancer nat rule configuration
+function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction  = 'SetAzLBNatRuleVM'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBNatRuleVM while ($true) {                                                # Outer loop for managing function
+            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if (!$LBNatRule)
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $var
+            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if (!$NicIPConfigObject)
+            $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
+            Write-Host 'Make the following change:'                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Add:'                                                               # Write message to screen
+            Write-Host 'VM Name:      '$VMName                                              # Write message to screen
+            Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
+            Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
+            Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'To:'                                                                # Write message to screen
+            Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
+            Write-Host 'Nat Rule:     '$LBNatRule.name                                      # Write message to screen
+            Write-Host 'Nat Protocol: '$LBNatRule.Protocol                                  # Write message to screen
+            Write-Host 'Nat FE Port:  '$LBNatRule.FrontendPort                              # Write message to screen
+            Write-Host 'Nat BE Port:  '$LBNatRule.BackendPort                               # Write message to screen
+            Write-Host 'Nat Idle TO:  '$LBNatRule.IdleTimeoutInMinutes                      # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to make the change
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Adding the IP config to nat rule'                           # Write message to screen
+                    $NicObject | Set-AzNetworkInterfaceIpConfig -Name `
+                        $NicIPConfigObject.Name -LoadBalancerInboundNatRuleId `
+                        $LBNatRule.ID -ErrorAction 'Stop' | Out-Null                        # Adds the load balancer inbound nat rule
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBNatRuleVM                                               # Breaks :SetAzureLBNatRuleVM
+                }                                                                           # End catch
+                Write-Host 'Saving nic configuration'                                       # Write message to screen
+                $NicObject | Set-AzNetworkInterface                                         # Saves the nic config
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The changes have been made'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLBNatRuleVM while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBNatRuleVM
+function RemoveAzLBNatRuleConfig {                                                          # Function to remove a load balancer nat rule configuration
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
             $CallingFunction = 'RemoveAzLBNatRuleConfig'                                    # Creates $CallingFunction
@@ -5219,6 +5198,7 @@ Function RemoveAzLBNatRuleConfig {                                              
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End Function RemoveAzLBNatRuleConfig
+# End ManageAzLBNatRuleConfig
 # End ManageAzLBConfig
 # End ManageAzLoadBalancer
 # Additional functions required for ManageAzVirtualNetwork
