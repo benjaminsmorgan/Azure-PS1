@@ -815,6 +815,10 @@ function GetAzNICIpConfig {                                                     
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ObjectNumber = $ObjectNumber +1                                    # Increments $ObjectNumber up by 1
                     }                                                                       # End foreach ($_ in $IPConfigList)
+                    $NICName = $null                                                        # Clears $var
+                    $NicRG = $null                                                          # Clears $var
+                    $NicVM = $null                                                          # Clears $var
+                    $VMObject = $null                                                       # Clears $var
                 }                                                                           # End foreach ($_ in $ObjectList)
             }                                                                               # End else (if (!$ObjectList))
             Write-Host 'Gathering scale set interfaces'                                     # Write message to screen
