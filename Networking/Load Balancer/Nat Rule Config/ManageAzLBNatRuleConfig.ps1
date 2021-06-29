@@ -588,6 +588,18 @@ function SetAzLBNatRuleVM {                                                     
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
             }                                                                               # End if (!$NicIPConfigObject)
+            if (!$NicObject.VirtualMachine.ID) {                                            # If $NicObject.VirtualMachine.ID is $null
+                Write-Host 'The selecting NIC config does not have an associated VM'        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRuleVM                                                   # Breaks :SetAzureLBNatRuleVM
+            }                                                                               # End if (!$NicObject.VirtualMachine.ID)
+            if ($NicIPConfigObject.ID -in $LBNatRule.BackendIPConfiguration.ID) {           # If ($NicIPConfigObject.ID is in $LBNatRule.BackendIPConfiguration.ID
+                Write-Host 'That IP config is already associated to this rule'              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM    
+            }                                                                               # End if ($NicIPConfigObject.ID -in $LBNatRule.BackendIPConfiguration.ID)
             $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
             Write-Host 'Make the following change:'                                         # Write message to screen
             Write-Host ''                                                                   # Write message to screen
