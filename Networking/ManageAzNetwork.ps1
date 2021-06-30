@@ -4586,7 +4586,7 @@ function RemoveAzLBFEConfig {                                                   
 }                                                                                           # End function RemoveAzLBFEConfig
 # End ManageAzLBFEConfig
 # Functions for ManageAzLBBEConfig
-function ManageAzLBBEConfig {                                                               # Function to manage front end configurations
+function ManageAzLBBEConfig {                                                               # Function to manage back end configurations
     Begin {                                                                                 # Begin function
         :ManageAzureLBBEConfig while ($true) {                                              # Outer loop for managing function
             Write-Host 'Manage Load Balancer Back End'                                      # Write message to screen
@@ -4594,7 +4594,8 @@ function ManageAzLBBEConfig {                                                   
             Write-Host '[1] Add Back End Pool'                                              # Write message to screen
             Write-Host '[2] List Back End Pools'                                            # Write message to screen
             Write-Host '[3] Add VM to Back End Pool'                                        # Write message to screen
-            Write-Host '[4] Remove Back End Pool'                                           # Write message to screen
+            Write-Host '[4] Remove VM from Back End Pool'                                   # Write message to screen
+            Write-Host '[5] Remove Back End Pool'                                           # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -4613,9 +4614,13 @@ function ManageAzLBBEConfig {                                                   
                 SetAzLBBEPoolVM                                                             # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Remove VM from Back End Pool'                                   # Write message to screen
+                RemoveAzLBBEPoolVM                                                          # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
                 Write-Host 'Remove Back End Pool'                                           # Write message to screen
                 RemoveAzLBBEConfig                                                          # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '4')
+            }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -4931,11 +4936,38 @@ function SetAzLBBEPoolVM {                                                      
             if (!$NicObject.VirtualMachine.ID) {                                            # If $NicObject.VirtualMachine.ID is $null
                 Write-Host 'The selecting NIC config does not have an associated VM'        # Write message to screen
                 Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
             }                                                                               # End if (!$NicObject.VirtualMachine.ID)
+            if ($NicIPConfigObject.Subnet.ID -ne `
+                $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID) {                   # If $NicIPConfigObject.Subnet.ID does not equal $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID
+                Write-Host 'The selected NIC config is not in '                             # Write message to screen
+                Write-Host 'the same subnet as the load balancer'                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM    
+            }                                                                               # End if ($NicIPConfigObject.Subnet.ID -ne $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID)
+            if ($NicIPConfigObject.PublicIPAddress.ID) {                                    # If ($NicIPConfigObject.PublicIPAddress.ID has a value    
+                $PubIPID = $NicIPConfigObject.PublicIPAddress.ID                            # Isolated the public IP ID
+                $PubIPObject = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubIPID}    # Gets the public IP sku
+                if ($PubIPObject.Sku.Name -eq 'Basic') {                                    # If $PubIPObject.Sku.Name equals 'Basic'
+                    Write-Host 'The selected NIC config has a basic sku public IP'          # Write message to screen
+                    Write-Host 'You will need to replace the public IP with a standard sku' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBBEPoolVM                                                # Breaks :SetAzureLBBEPoolVM
+                }                                                                           # End if ($PubIPObject.Sku.Name -eq 'Basic')
+            }                                                                               # End if ($NicIPConfigObject.PublicIPAddress.ID)
             if ($NicIPConfigObject.ID -in $LBBackEndObject.BackendIpConfigurations.ID) {    # If ($NicIPConfigObject.ID is in $LBBackEndObject.BackendIpConfigurations.ID 
                 Write-Host 'That IP config is already associated to this pool'              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM    
@@ -4988,6 +5020,80 @@ function SetAzLBBEPoolVM {                                                      
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzLBBEPoolVM
+function RemoveAzLBBEPoolVM {                                                               # Function to remove a VM from a back end pool
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction  = 'RemoveAzLBBEPoolVM'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBBEPoolVM while ($true) {                                                 # Outer loop for managing function
+            $NicIPConfigObject,$NicObject = GetAzNICIpConfig ($CallingFunction)             # Calls function and assigns output to $var
+            if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
+            }                                                                               # End if (!$NicIPConfigObject)
+            if (!$NicIPConfigObject.LoadBalancerBackendAddressPools.ID) {                   # If $NicIPConfigObject.LoadBalancerBackendAddressPools.ID is $null
+                Write-Host 'The selected NIC config is not associated with a back end pool' # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
+            }                                                                               # End if (!$NicIPConfigObject.LoadBalancerBackendAddressPools.ID)
+            $BackEndPoolID = $NicIPConfigObject.LoadBalancerBackendAddressPools.ID          # Isolates the back end pool ID
+            $LoadBalancerObject = Get-AzLoadBalancer | Where-Object `
+                {$_.BackendAddressPools.ID -eq $BackEndPoolID}                              # Gets the load balancer object
+            $LBBackEndObject = $BackEndPoolID.Split('/')[-1]                                # Isolates the back end pool name
+            if ($NicObject.VirtualMachine.ID) {                                             # If $NicObject.VirtualMachine.ID has a value
+                $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                       # Isloates the VM name
+            }                                                                               # End if ($NicObject.VirtualMachine.ID)
+            Write-Host 'Make the following change:'                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Remove:'                                                            # Write message to screen
+            if ($VMName) {                                                                  # If $VMName has a value
+                Write-Host 'VM Name:      '$VMName                                          # Write message to screen
+            }                                                                               # End if ($VMName)
+            Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
+            Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
+            Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'From:'                                                              # Write message to screen
+            Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
+            Write-Host 'BE Pool:      '$LBBackEndObject                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to make the change
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Removing the IP config from back end pool'                  # Write message to screen
+                    $NicObject | Set-AzNetworkInterfaceIpConfig -Name `
+                        $NicIPConfigObject.Name -LoadBalancerBackendAddressPoolId `
+                        $null -ErrorAction 'Stop' | Out-Null                                # Removes the nic from load balancer back end pool
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBBEPoolVM                                                # Breaks :SetAzureLBBEPoolVM
+                }                                                                           # End catch
+                Write-Host 'Saving nic configuration, This may take a moment'               # Write message to screen
+                $NicObject | Set-AzNetworkInterface                                         # Saves the nic config
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The changes have been made'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLBBEPoolVM while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLBBEPoolVM
 function RemoveAzLBBEConfig {                                                               # Function to remove a load balancer back end pool config
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
