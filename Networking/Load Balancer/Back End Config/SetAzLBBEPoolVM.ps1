@@ -7,6 +7,7 @@
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
     Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.1.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
 } #>
 <# Required Functions Links: {
     GetAzLBBEPoolConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/GetAzLBBEPoolConfig.ps1
@@ -24,6 +25,8 @@
     $LoadBalancerObject:        Load balancer object
     $NicIPConfigObject:         Nic IP configuration object
     $NicObject:                 Nic object
+    $PubIPID:                   $NicIPConfigObject.PublicIPAddress.ID
+    $PubIPObject:               Public IP object            
     $VMName:                    VM name
     $OpConfirm:                 Operator confirmation to make this change
     GetAzLBBEPoolConfig{}       Gets $LBBackEndObject, $LoadBalancerObject
@@ -59,11 +62,38 @@ function SetAzLBBEPoolVM {                                                      
             if (!$NicObject.VirtualMachine.ID) {                                            # If $NicObject.VirtualMachine.ID is $null
                 Write-Host 'The selecting NIC config does not have an associated VM'        # Write message to screen
                 Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM
             }                                                                               # End if (!$NicObject.VirtualMachine.ID)
+            if ($NicIPConfigObject.Subnet.ID -ne `
+                $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID) {                   # If $NicIPConfigObject.Subnet.ID does not equal $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID
+                Write-Host 'The selected NIC config is not in '                             # Write message to screen
+                Write-Host 'the same subnet as the load balancer'                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM    
+            }                                                                               # End if ($NicIPConfigObject.Subnet.ID -ne $LoadBalancerObject.FrontendIpConfigurations.Subnet.ID)
+            if ($NicIPConfigObject.PublicIPAddress.ID) {                                    # If ($NicIPConfigObject.PublicIPAddress.ID has a value    
+                $PubIPID = $NicIPConfigObject.PublicIPAddress.ID                            # Isolated the public IP ID
+                $PubIPObject = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubIPID}    # Gets the public IP sku
+                if ($PubIPObject.Sku.Name -eq 'Basic') {                                    # If $PubIPObject.Sku.Name equals 'Basic'
+                    Write-Host 'The selected NIC config has a basic sku public IP'          # Write message to screen
+                    Write-Host 'You will need to replace the public IP with a standard sku' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBBEPoolVM                                                # Breaks :SetAzureLBBEPoolVM
+                }                                                                           # End if ($PubIPObject.Sku.Name -eq 'Basic')
+            }                                                                               # End if ($NicIPConfigObject.PublicIPAddress.ID)
             if ($NicIPConfigObject.ID -in $LBBackEndObject.BackendIpConfigurations.ID) {    # If ($NicIPConfigObject.ID is in $LBBackEndObject.BackendIpConfigurations.ID 
                 Write-Host 'That IP config is already associated to this pool'              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureLBBEPoolVM                                                    # Breaks :SetAzureLBBEPoolVM    
