@@ -2461,7 +2461,6 @@ function GetAzLBBEPoolConfig {                                                  
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
-                    clear-history -count 3 -newest
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureLBBeConfig while ($true)
         }                                                                                   # End :GetAzureLBBEPoolConfig while ($true)
