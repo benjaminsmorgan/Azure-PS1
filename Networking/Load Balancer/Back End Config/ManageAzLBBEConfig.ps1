@@ -388,7 +388,7 @@ function GetAzLBBEPoolConfig {                                                  
                 Write-Host 'You are selecting the back end config for:'$CallingFunction     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End if ($CallingFunction)
-            :SelectAzureLBBeConfig while ($true) {                                          # Inner loop to select the load balancer back end config
+            :SelectAzureLBBEConfig while ($true) {                                          # Inner loop to select the load balancer back end config
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
                     Break GetAzureLBBEPoolConfig                                            # Breaks :GetAzureLBBEPoolConfig
@@ -406,7 +406,6 @@ function GetAzLBBEPoolConfig {                                                  
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
-                    clear-history -count 3 -newest
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureLBBeConfig while ($true)
         }                                                                                   # End :GetAzureLBBEPoolConfig while ($true)
