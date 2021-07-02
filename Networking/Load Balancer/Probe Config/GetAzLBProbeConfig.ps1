@@ -99,7 +99,7 @@ function GetAzLBProbeConfig {                                                   
                     Write-Host ''                                                           # Write message to screen         
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host 'You are selecting the back end config for:'$CallingFunction # Write message to screen
+                    Write-Host 'You are selecting the probe config for:'$CallingFunction    # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if ($CallingFunction)
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
