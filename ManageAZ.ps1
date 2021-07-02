@@ -16165,7 +16165,7 @@ function ManageAzLBProbeConfig {                                                
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove ProbeConfig'                                             # Write message to screen
-                #SetAzLBBEPoolVM                                                             # Calls function
+                RemoveAzLBProbeConfig                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
@@ -16525,7 +16525,7 @@ function GetAzLBProbeConfig {                                                   
                     Write-Host ''                                                           # Write message to screen         
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host 'You are selecting the back end config for:'$CallingFunction # Write message to screen
+                    Write-Host 'You are selecting the probe config for:'$CallingFunction    # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if ($CallingFunction)
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
@@ -16553,6 +16553,71 @@ function GetAzLBProbeConfig {                                                   
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLBProbeConfig
+function RemoveAzLBProbeConfig {                                                            # Function to remove a load balancer probe config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzLBProbeConfig'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureLBProbeConfig while ($true) {                                           # Outer loop for managing function
+            $LBProbeObject, $LoadBalancerObject = GetAzLBProbeConfig ($CallingFunction)     # Calls function and assigns output to $var
+            if (!$LBProbeObject) {                                                          # If $LBProbeObject is $null
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End if (!$LBProbeObject)
+            if ($LBProbeObject.LoadBalancingRules.ID) {                                     # If $LBProbeObject.LoadBalancingRules.ID
+                Write-Host 'This probe config must be removed from the'                     # Write message to screen
+                Write-Host 'following rules before it can be removed:'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $LBProbeObject.LoadBalancingRules.ID) {                      # For each item in $LBProbeObject.LoadBalancingRules.ID
+                    $RuleName = $_                                                          # Isolates the current item
+                    $RuleName = $RuleName.Split('/')[-1]                                    # Isolates the rule name
+                    Write-Host $RuleName                                                    # Write message to screen
+                }                                                                           # End foreach ($_ in $LBProbeObject.LoadBalancingRules.ID)
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig    
+            }                                                                               # End if ($LBProbeObject.LoadBalancingRules.ID)
+            Write-Host 'Remove the following:'                                              # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Config Name:'$LBProbeObject.Name                                    # Write message to screen
+            Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Removing the config'                                        # Write message to screen
+                    Remove-AzLoadBalancerProbeConfig -LoadBalancer `
+                        $LoadBalancerObject -Name $LBProbeObject.name `
+                        -ErrorAction 'Stop' | Out-Null                                      # Removes the config
+                    Write-Host 'Saving changes'                                             # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop'            # Saves the updated load balancer config
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions'                           # Write message to screen
+                    Write-Host 'to perform this action'                                     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureLBProbeConfig                                          # Breaks :RemoveAzureLBProbeConfig
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The configuration has been removed'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureLBProbeConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLBProbeConfig
 # End ManageAzLBProbeConfig
 # End ManageAzLBConfig
 # End ManageAzLoadBalancer
