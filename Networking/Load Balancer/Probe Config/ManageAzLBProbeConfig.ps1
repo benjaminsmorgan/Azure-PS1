@@ -3,17 +3,22 @@
     Add-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerprobeconfig?view=azps-6.1.0
     Get-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerprobeconfig?view=azps-6.1.0
     Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
+    Remove-AzLoadBalancerProbeConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerprobeconfig?view=azps-6.1.0
     Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-5.5.0 
 } #>
 <# Required Functions Links: {
     AddAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/AddAzLBProbeConfig.ps1
     ListAzLBProbeConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/ListAzLBProbeConfig.ps1
+    GetAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/GetAzLBProbeConfig.ps1
+    RemoveAzLBProbeConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/RemoveAzLBProbeConfig.ps1
     GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
 } #>
 <# Functions Description: {
     ManageAzLBProbeConfig:      Function to manage load balancer probe configurations
     AddAzLBProbeConfig:         Function to add a new load balancer probe config
     ListAzLBProbeConfig:        Function to list all load balancer probe configs
+    RemoveAzLBProbeConfig:      Function to remove a load balancer probe config
+    GetAzLBProbeConfig:         Function to get an existing load balancer probe config
     GetAzLoadBalancer:          Function to get a load balancer 
 } #>
 <# Variables: {      
@@ -22,6 +27,7 @@
     AddAzLBProbeConfig{}        Creates $LBProbeObject
         GetAzLoadBalancer{}         Gets $LoadBalancerObject
     ListAzLBProbeConfig{}       Lists $LBProbeObject
+    RemoveAzLBProbeConfig{}     Removes $LBProbeObject
 } #>
 <# Process Flow {
     function
@@ -34,8 +40,13 @@
                 Return ManageAzLBProbeConfig > Send $null
             Call ListAzLBProbeConfig > Get $null
             End ListAzLBProbeConfig
-                Return ManageAzLBProbeConfig > Send $nul
-
+                Return ManageAzLBProbeConfig > Send $null
+            Call RemoveAzLBProbeConfig > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject,$LoadBalancerObject
+                End GetAzLBProbeConfig
+                    Return RemoveAzLBProbeConfig > Send $LBProbeObject,$LoadBalancerObject
+            End RemoveAzLBProbeConfig
+                Return ManageAzLBProbeConfig > Send $null
         End ManageAzLBProbeConfig
             Return function > Send $null
 }#>
@@ -62,7 +73,7 @@ function ManageAzLBProbeConfig {                                                
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove ProbeConfig'                                             # Write message to screen
-                #SetAzLBBEPoolVM                                                             # Calls function
+                RemoveAzLBProbeConfig                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
@@ -422,7 +433,7 @@ function GetAzLBProbeConfig {                                                   
                     Write-Host ''                                                           # Write message to screen         
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host 'You are selecting the back end config for:'$CallingFunction # Write message to screen
+                    Write-Host 'You are selecting the probe config for:'$CallingFunction    # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if ($CallingFunction)
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the load balancer
@@ -450,6 +461,71 @@ function GetAzLBProbeConfig {                                                   
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLBProbeConfig
+function RemoveAzLBProbeConfig {                                                            # Function to remove a load balancer probe config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzLBProbeConfig'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :RemoveAzureLBProbeConfig while ($true) {                                           # Outer loop for managing function
+            $LBProbeObject, $LoadBalancerObject = GetAzLBProbeConfig ($CallingFunction)     # Calls function and assigns output to $var
+            if (!$LBProbeObject) {                                                          # If $LBProbeObject is $null
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End if (!$LBProbeObject)
+            if ($LBProbeObject.LoadBalancingRules.ID) {                                     # If $LBProbeObject.LoadBalancingRules.ID
+                Write-Host 'This probe config must be removed from the'                     # Write message to screen
+                Write-Host 'following rules before it can be removed:'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $LBProbeObject.LoadBalancingRules.ID) {                      # For each item in $LBProbeObject.LoadBalancingRules.ID
+                    $RuleName = $_                                                          # Isolates the current item
+                    $RuleName = $RuleName.Split('/')[-1]                                    # Isolates the rule name
+                    Write-Host $RuleName                                                    # Write message to screen
+                }                                                                           # End foreach ($_ in $LBProbeObject.LoadBalancingRules.ID)
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig    
+            }                                                                               # End if ($LBProbeObject.LoadBalancingRules.ID)
+            Write-Host 'Remove the following:'                                              # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Config Name:'$LBProbeObject.Name                                    # Write message to screen
+            Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Removing the config'                                        # Write message to screen
+                    Remove-AzLoadBalancerProbeConfig -LoadBalancer `
+                        $LoadBalancerObject -Name $LBProbeObject.name `
+                        -ErrorAction 'Stop' | Out-Null                                      # Removes the config
+                    Write-Host 'Saving changes'                                             # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop'            # Saves the updated load balancer config
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'You may not have the permissions'                           # Write message to screen
+                    Write-Host 'to perform this action'                                     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureLBProbeConfig                                          # Breaks :RemoveAzureLBProbeConfig
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The configuration has been removed'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLBProbeConfig                                              # Breaks :RemoveAzureLBProbeConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :RemoveAzureLBProbeConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzLBProbeConfig
 # Additional functions required for ManageAzLBProbeConfig
 function GetAzLoadBalancer {                                                                # Function to get an existing load balancer
     Begin {                                                                                 # Begin function
@@ -540,142 +616,3 @@ function GetAzLoadBalancer {                                                    
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLoadBalancer
-function GetAzNICIpConfig {                                                                 # Function to get network interface config
-    Begin {                                                                                 # Begin function
-        :GetAzureNICIpConfig while ($true) {                                                # Outer loop for managing function
-            $ObjectNumber = 1                                                               # Creates $ObjectNumber
-            [System.Collections.ArrayList]$ObjectArray = @()                                # Array that all info is loaded into
-            Write-Host 'Gathering network interfaces'                                       # Write message to screen
-            $ObjectList = Get-AzNetworkInterface                                            # Gets a list of all NICs
-            if (!$ObjectList) {                                                             # If $ObjectList is $null
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'No Nics are present in this subscription'                       # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-            }                                                                               # End if (!$ObjectList)
-            else {                                                                          # If $ObjectList has a value
-                foreach ($_ in $ObjectList) {                                               # For each item in $ObjectList
-                    $NICName = $_.Name                                                      # $NICName is equal to current item .Name
-                    $NicRG = $_.ResourceGroupName                                           # Gets the NIC resource group
-                    $NicVM = $_.VirtualMachine.ID                                           # Gets the NIC VM if attached
-                    if ($NicVM) {                                                           # If $NicVM has a value 
-                        $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}              # Gets the currently attached VM
-                    }                                                                       # End if ($NicVM)
-                    $IPConfigList = $_.IPConfigurations                                     # IPConfigList is equal to current item .IPConfigurations
-                    foreach ($_ in $IPConfigList) {                                         # For each item in $IPConfigList
-                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput            
-                            'Number'=$ObjectNumber;'Name'=$_.Name;`
-                            'PrivIP'=$_.PrivateIPAddress;`
-                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                            'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                            'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name        # Collects the information for the array
-                        }                                                                   # End $ObjectInput = [PSCustomObject]
-                        $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
-                        $ObjectNumber = $ObjectNumber +1                                    # Increments $ObjectNumber up by 1
-                    }                                                                       # End foreach ($_ in $IPConfigList)
-                    $NICName = $null                                                        # Clears $var
-                    $NicRG = $null                                                          # Clears $var
-                    $NicVM = $null                                                          # Clears $var
-                    $VMObject = $null                                                       # Clears $var
-                }                                                                           # End foreach ($_ in $ObjectList)
-            }                                                                               # End else (if (!$ObjectList))
-            Write-Host 'Gathering scale set interfaces'                                     # Write message to screen
-            $VmssObject = Get-AzVmss                                                        # Gets a list of Vmss objects if present
-            if ($VmssObject) {                                                              # If $VmssObject has a value
-                foreach ($_ in $VmssObject) {                                               # For each item in $VmssObject
-                    Write-Host 'Gathering NICs on:'$_.name                                  # Writ message to screen
-                    $VmssName = $_.name                                                     # Isloates the Vmss name
-                    $VmssRG = $_.ResourceGroupName                                          # Isolates the Vmss resource group
-                    $NicList = Get-AzNetworkInterface -VirtualMachineScaleSetName `
-                        $VmssName -ResourceGroupName $VmssRG                                # Gets a list of nics attached to current vmss object
-                    foreach ($_ in $NicList) {                                              # For each item in $NicList
-                        $NicName = $_.Name                                                  # $NicName is equal to current item .Name
-                        $NicRG = $_.ResourceGroupName                                       # $NicRG is equal to current item .ResourceGroupName
-                        $IPConfigList = $_.IPConfigurations                                 # IPConfigList is equal to current item .IPConfigurations
-                        foreach ($_ in $IPConfigList) {                                     # For each item in $IPConfigList
-                            $ObjectInput = [PSCustomObject]@{                               # Creates $ObjectInput            
-                                'Number'=$ObjectNumber;'Name'=$_.Name;`
-                                'PrivIP'=$_.PrivateIPAddress;`
-                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                                'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                                'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name;`
-                                'Type'='ScaleSetNic';'VmssName'=$VmssName;'VmssRG'=$VmssRG;`
-                                'Etag'=$_.Etag                                              # Collects the information for the array
-                            }                                                               # End $ObjectInput = [PSCustomObject]
-                            $ObjectArray.Add($ObjectInput) | Out-Null                       # Loads item into array, out-null removes write to screen
-                            $ObjectNumber = $ObjectNumber +1                                # Increments $ObjectNumber up by 1
-                        }                                                                   # End foreach ($_ in $IPConfigList)
-                    }                                                                       # End foreach ($_ in $NicList)
-                }                                                                           # End foreach ($_ in $VmssObject)
-            }                                                                               # End if ($VmssObject)
-            else {                                                                          # If $VmssObject is $null
-                Clear-Host 'No scale sets present in this subscription'                     # Write message to screen
-            }                                                                               # End else (if ($VmssObject))
-            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'No network interfaces or scale set interfaces are present'      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break GetAzureNICIpConfig                                                   # Breaks :GetAzureNICIpConfig
-            }                                                                               # End if (!$ObjectArray)
-            :SelectAzureNICIpConfig while ($true) {                                         # Inner loop for selecting the NIC IP config
-                Clear-Host                                                                  # Clears screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host '[0]   Exit'                                                     # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
-                    $Number = $_.Number                                                     # $Number is equal to current item .Number
-                    if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]                   "$_.Name                    # Write message to screen
-                    }                                                                       # End if ($Number -le 9)
-                    else {                                                                  # If $Number is more than 9
-                        Write-Host "[$Number]                  "$_.Name                     # Write message to screen
-                    }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'Private IP Address:   '$_.PrivIP                            # Write message to screen 
-                    Write-Host 'Private IP Allocation:'$_.PrivIPAllo                        # Write message to screen
-                    if ($_.PubIP) {                                                         # If current item .PubIP has a value
-                        $PubID = $_.PubIP.ID                                                # Isolates the public IP sku ID
-                        $PubIP = Get-AzPublicIpAddress | Where-Object {$_.ID -eq $PubID}    # Gets the public IP sku
-                        Write-Host 'Public IP Address:    '$PubIP.IpAddress                 # Write message to screen
-                        Write-Host 'Public IP Allocation: '$PubIP.PublicIpAllocationMethod  # Write message to screen
-                    }                                                                       # End if ($_.PubIP)
-                    Write-Host 'Is primary:           '$_.Pri                               # Write message to screen
-                    Write-Host 'Nic Name:             '$_.NicName                           # Write message to screen
-                    if ($_.NICVM) {                                                         # If current item .NICVM has a value
-                        Write-Host 'Attached VM:          '$_.NicVM                         # Write message to screen
-                    }                                                                       # End if ($_.NICVM)
-                    Write-Host ''                                                           # Write message to screen
-                }                                                                           # End foreach ($_ in $ObjectArray)
-                if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host 'You are selecting the IP config for:'$CallingFunction       # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the network config
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break GetAzureNICIpConfig                                               # Breaks :GetAzureNICIpConfig
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect in $ObjectArray.Name
-                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $ObjectSelect is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
-                    if ($OpSelect.Type -eq 'ScaleSetNic') {                                 # If $OpSelect.Type equals 'ScaleSetNic'
-                        $NicObject = Get-AzNetworkInterface -VirtualMachineScaleSetName `
-                            $OpSelect.VmssName -ResourceGroupName $OpSelect.VmssRG          # Gets the $NicObject
-                        $NicIPConfigObject = $NicObject.IpConfigurations | Where-Object `
-                        {$_.Etag -eq $OpSelect.Etag}                                        # Isolates NicIPConfigObject
-                    }                                                                       # End if ($OpSelect.Type -eq 'ScaleSetNic')
-                    else {                                                                  # Else if $OpSelect.Type does not equal 'ScaleSetNic'
-                        $NicObject = Get-AzNetworkInterface -Name $OpSelect.NicName `
-                            -ResourceGroupName $OpSelect.NicRG                              # Gets the $NicObject
-                        $NicIPConfigObject = Get-AzNetworkInterfaceIpConfig `
-                            -NetworkInterface $NicObject -Name $OpSelect.Name               # Gets the NicIPConfigObject
-                    }                                                                       # End else (if ($OpSelect.Type -eq 'ScaleSetNic'))
-                    Return $NicIPConfigObject,$NicObject                                    # Returns to calling function with $vars
-                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                }                                                                           # End else (if ($OpSelect -eq '0'))
-            }                                                                               # End :SelectAzureNICIpConfig while ($true)
-        }                                                                                   # End :GetAzureNICIpConfig while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzNICIpConfig
