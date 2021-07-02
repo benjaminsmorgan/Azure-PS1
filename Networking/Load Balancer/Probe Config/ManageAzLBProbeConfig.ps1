@@ -22,7 +22,7 @@
     GetAzLoadBalancer:          Function to get a load balancer 
 } #>
 <# Variables: {      
-    :ManageAzureLoadBalancer    Outer loop for managing function
+    :ManageAzureLBProbeConfig   Outer loop for managing function
     $OpSelect:                  Operator input for selecting the management function
     AddAzLBProbeConfig{}        Creates $LBProbeObject
         GetAzLoadBalancer{}         Gets $LoadBalancerObject
@@ -53,11 +53,11 @@
 function ManageAzLBProbeConfig {                                                            # Function to manage load balancer probe configurations
     Begin {                                                                                 # Begin function
         :ManageAzureLBProbeConfig while ($true) {                                           # Outer loop for managing function
-            Write-Host 'Manage Load Balancer Back End'                                      # Write message to screen
+            Write-Host 'Manage Load Balancer Probes'                                        # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Add Probe Config'                                               # Write message to screen
             Write-Host '[2] List Probe Configs'                                             # Write message to screen
-            Write-Host '[3] Remove ProbeConfig'                                             # Write message to screen
+            Write-Host '[3] Remove Probe Config'                                            # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -72,7 +72,7 @@ function ManageAzLBProbeConfig {                                                
                 ListAzLBProbeConfig                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host 'Remove ProbeConfig'                                             # Write message to screen
+                Write-Host 'Remove Probe Config'                                            # Write message to screen
                 RemoveAzLBProbeConfig                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
