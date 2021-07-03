@@ -16,16 +16,16 @@
     :RemoveAzureLBFEConfig      Outer loop for managing function
     $CallingFunction:           Name of this function, or the one that called it
     $LoadBalancerObject:        Load balancer object
-    $FrontEndIPConfigObject:    Front end configuration object    
+    $LBFEObject:                Front end configuration object    
     $OpConfirm:                 Operator confirmation to remove the configuration
-    GetAzLBFEConfig{}           Gets $FrontEndIPConfigObject,$LoadBalancerObject
+    GetAzLBFEConfig{}           Gets $LBFEObject,$LoadBalancerObject
 } #>
 <# Process Flow {
     function
         Call RemoveAzLBFEConfig > Get $null
-            Call GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+            Call GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
             End GetAzLBFEConfig
-                Return RemoveAzLBFEConfig > Send $FrontEndIPConfigObject,$LoadBalancerObject
+                Return RemoveAzLBFEConfig > Send $LBFEObject,$LoadBalancerObject
         End RemoveAzLBFEConfig
             Return function > Send $null
 }#>
@@ -35,20 +35,20 @@ function RemoveAzLBFEConfig {                                                   
             $CallingFunction = 'RemoveAzLBFEConfig'                                         # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
-            $FrontEndIPConfigObject,$LoadBalancerObject = GetAzLBFEConfig `
+            $LBFEObject,$LoadBalancerObject = GetAzLBFEConfig `
                 ($CallingFunction)                                                          # Calls function and assigns output to $var
             if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
                 Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
             }                                                                               # End if (!$FrontEndIPConfigObject)
             Write-Host 'Remove the following:'                                              # Write message to screen
-            Write-Host 'Config Name:'$FrontEndIPConfigObject.Name                           # Write message to screen
+            Write-Host 'Config Name:'$LBFEObject.Name                                       # Write message to screen
             Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
                     Write-Host 'Removing the config'
                     Remove-AzLoadBalancerFrontendIpConfig -LoadBalancer `
-                        $LoadBalancerObject -Name $FrontEndIPConfigObject `
+                        $LoadBalancerObject -Name $LBFEObject `
                         -ErrorAction 'Stop' | Out-Null                                      # Removes the config
                 }                                                                           # End Try
                 Catch {                                                                     # If Try fails
