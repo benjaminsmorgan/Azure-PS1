@@ -22,13 +22,13 @@
     $PublicIPObject:            Public IP object on current item configuration
     $ObjectInput:               $var used to load info into $ObjectArray
     $OpSelect:                  Operator input to select the configutation
-    $FrontEndIPConfigObject:    Front end configuration object    
+    $LBFEObject:                Front end configuration object    
 } #>
 <# Process Flow {
     function
-        Call GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+        Call GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
         End GetAzLBFEConfig
-            Return function > Send $FrontEndIPConfigObject,$LoadBalancerObject
+            Return function > Send $LBFEObject,$LoadBalancerObject
 }#>
 function GetAzLBFEConfig {                                                                  # Function to get a load balancer front end config
     Begin {                                                                                 # Begin function
@@ -116,9 +116,14 @@ function GetAzLBFEConfig {                                                      
                 elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to ObjectArray where $ObjectArray.Number equals $OpSelect
                     $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.LB             # Gets the load balancer object
-                    $FrontEndIPConfigObject = Get-AzLoadBalancerFrontendIpConfig `
+                    $LBFEObject = Get-AzLoadBalancerFrontendIpConfig `
                         -LoadBalancer $LoadBalancerObject -Name $OpSelect.Name              # Gets the front end IP config object
-                    Return $FrontEndIPConfigObject,$LoadBalancerObject                      # Returns to calling function with $vars
+                    if ($CallingFunction -eq 'AddAzLBRuleConfig') {                         # If $CallingFunction equals 'AddAzLBRuleConfig'
+                        Return $LBFEObject                                                  # Returns to calling function with $var    
+                    }                                                                       # End if ($CallingFunction -eq 'AddAzLBRuleConfig')
+                    else {                                                                  # Else if $CallingFunction does not equal 'AddAzLBRuleConfig'
+                        Return $LBFEObject, $LoadBalancerObject                             # Returns to calling function with $vars
+                    }                                                                       # End else (if ($CallingFunction -eq 'AddAzLBRuleConfig'))
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
