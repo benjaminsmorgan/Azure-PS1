@@ -1686,7 +1686,12 @@ function GetAzLBProbeConfig {                                                   
                     $LBProbeObject = Get-AzLoadBalancerProbeConfig -LoadBalancer `
                         $LoadBalancerObject -Name $OpSelect.Name                            # Pulls the load balancer probe config object
                     Clear-Host                                                              # Clears screen
-                    Return $LBProbeObject, $LoadBalancerObject                              # Returns to calling function with $vars
+                    if ($CallingFunction -eq 'AddAzLBRuleConfig') {                         # If $CallingFunction equals 'AddAzLBRuleConfig'
+                        Return $LBProbeObject                                               # Returns to calling function with $var    
+                    }                                                                       # End if ($CallingFunction -eq 'AddAzLBRuleConfig')
+                    else {                                                                  # Else if $CallingFunction does not equal 'AddAzLBRuleConfig'
+                        Return $LBProbeObject, $LoadBalancerObject                          # Returns to calling function with $vars
+                    }                                                                       # End else (if ($CallingFunction -eq 'AddAzLBRuleConfig'))
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number) 
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
