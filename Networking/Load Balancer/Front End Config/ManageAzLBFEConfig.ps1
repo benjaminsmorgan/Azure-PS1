@@ -34,10 +34,10 @@
 <# Variables: {      
     :ManageAzureLoadBalancer    Outer loop for managing function
     $OpSelect:                  Operator input for selecting the management function
-    AddAzLBFEPrivateConfig{}    Adds $FrontEndIPConfigObject
-        GetAzLoadBalancer{}         Gets $LoadBalancerObject
-        NewAzLBFEPriDynamicIpCon{}  Creates $FrontEndIPConfigObject
-        NewAzLBFEPriStaticIpCon{}   Creates $FrontEndIPConfigObject
+    AddAzLBFEPrivateConfig{}    Adds $LBFEObject
+        GetAzLoadBalancer{}         Gets $LBFEObject
+        NewAzLBFEPriDynamicIpCon{}  Creates $LBFEObject
+        NewAzLBFEPriStaticIpCon{}   Creates $LBFEObject
     AddAzLBFEPublicConfig
 } #>
 <# Process Flow {
@@ -466,9 +466,14 @@ function GetAzLBFEConfig {                                                      
                 elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
                     $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to ObjectArray where $ObjectArray.Number equals $OpSelect
                     $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.LB             # Gets the load balancer object
-                    $FrontEndIPConfigObject = Get-AzLoadBalancerFrontendIpConfig `
+                    $LBFEObject = Get-AzLoadBalancerFrontendIpConfig `
                         -LoadBalancer $LoadBalancerObject -Name $OpSelect.Name              # Gets the front end IP config object
-                    Return $FrontEndIPConfigObject,$LoadBalancerObject                      # Returns to calling function with $vars
+                    if ($CallingFunction -eq 'AddAzLBRuleConfig') {                         # If $CallingFunction equals 'AddAzLBRuleConfig'
+                        Return $LBFEObject                                                  # Returns to calling function with $var    
+                    }                                                                       # End if ($CallingFunction -eq 'AddAzLBRuleConfig')
+                    else {                                                                  # Else if $CallingFunction does not equal 'AddAzLBRuleConfig'
+                        Return $LBFEObject, $LoadBalancerObject                             # Returns to calling function with $vars
+                    }                                                                       # End else (if ($CallingFunction -eq 'AddAzLBRuleConfig'))
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
@@ -488,20 +493,20 @@ function RemoveAzLBFEConfig {                                                   
             $CallingFunction = 'RemoveAzLBFEConfig'                                         # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureLBFEConfig while ($true) {                                              # Outer loop for managing function
-            $FrontEndIPConfigObject,$LoadBalancerObject = GetAzLBFEConfig `
+            $LBFEObject,$LoadBalancerObject = GetAzLBFEConfig `
                 ($CallingFunction)                                                          # Calls function and assigns output to $var
             if (!$FrontEndIPConfigObject) {                                                 # If $FrontEndIPConfigObject is $null
                 Break RemoveAzureLBFEConfig                                                 # Breaks :RemoveAzureLBFEConfig
             }                                                                               # End if (!$FrontEndIPConfigObject)
             Write-Host 'Remove the following:'                                              # Write message to screen
-            Write-Host 'Config Name:'$FrontEndIPConfigObject.Name                           # Write message to screen
+            Write-Host 'Config Name:'$LBFEObject.Name                                       # Write message to screen
             Write-Host 'LB Name:    '$LoadBalancerObject.Name                               # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the config
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
                     Write-Host 'Removing the config'
                     Remove-AzLoadBalancerFrontendIpConfig -LoadBalancer `
-                        $LoadBalancerObject -Name $FrontEndIPConfigObject `
+                        $LoadBalancerObject -Name $LBFEObject `
                         -ErrorAction 'Stop' | Out-Null                                      # Removes the config
                 }                                                                           # End Try
                 Catch {                                                                     # If Try fails
