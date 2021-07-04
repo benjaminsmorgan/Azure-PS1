@@ -12,6 +12,7 @@
 } #>
 <# Variables: {      
     :GetAzureLBFEConfig         Outer loop for managing function
+    :SelectAzureLBFEConfig      Inner loop for selecting the front end config
     $ObjectList:                List of all load balancers in subscription
     $ObjectArray:               Array used to hold all config info
     $ObjectNumber:              $var used for listing and selecting items in $ObjectArray
@@ -118,12 +119,7 @@ function GetAzLBFEConfig {                                                      
                     $LoadBalancerObject = Get-AzLoadBalancer -Name $OpSelect.LB             # Gets the load balancer object
                     $LBFEObject = Get-AzLoadBalancerFrontendIpConfig `
                         -LoadBalancer $LoadBalancerObject -Name $OpSelect.Name              # Gets the front end IP config object
-                    if ($CallingFunction -eq 'AddAzLBRuleConfig') {                         # If $CallingFunction equals 'AddAzLBRuleConfig'
-                        Return $LBFEObject                                                  # Returns to calling function with $var    
-                    }                                                                       # End if ($CallingFunction -eq 'AddAzLBRuleConfig')
-                    else {                                                                  # Else if $CallingFunction does not equal 'AddAzLBRuleConfig'
-                        Return $LBFEObject, $LoadBalancerObject                             # Returns to calling function with $vars
-                    }                                                                       # End else (if ($CallingFunction -eq 'AddAzLBRuleConfig'))
+                    Return $LBFEObject, $LoadBalancerObject                                 # Returns to calling function with $vars
                 }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
                 else {                                                                      # All other inputs for $OpSelect
                     Write-Host 'That was not a valid input'                                 # Write message to screen
