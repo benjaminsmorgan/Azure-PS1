@@ -14,7 +14,7 @@
 } #>
 <# Variables: {      
     :GetAzureLBBEPoolConfig     Outer loop for managing function
-    :SelectAzureLBBeConfig      Inner loop for selecting the back end address pool
+    :SelectAzureLBBEConfig      Inner loop for selecting the back end address pool
     $ObjectList:                List of all load balanacers
     $ObjectNumber:              $var used for selecting and listing items
     $ObjectArray:               Array used to hold item info
@@ -145,7 +145,7 @@ function GetAzLBBEPoolConfig {                                                  
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                 }                                                                           # End else (if ($OpSelect -eq '0'))
-            }                                                                               # End :SelectAzureLBBeConfig while ($true)
+            }                                                                               # End :SelectAzureLBBEConfig while ($true)
         }                                                                                   # End :GetAzureLBBEPoolConfig while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
