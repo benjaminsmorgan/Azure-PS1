@@ -7,7 +7,7 @@
     None
 } #>
 <# Functions Description: {
-    GetAzLBRuleConfig:         Function to get an existing load balancer rule config
+    GetAzLBRuleConfig:          Function to get an existing load balancer rule config
 } #>
 <# Variables: {      
     :GetAzureLBRuleConfig       Outer loop for managing function
