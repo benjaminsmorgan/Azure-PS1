@@ -1775,6 +1775,7 @@ function ManageAzLBRuleConfig {                                                 
             Write-Host '[1] Add Rule Config'                                                # Write message to screen
             Write-Host '[2] List Rule Configs'                                              # Write message to screen
             Write-Host '[3] Remove Rule Config'                                             # Write message to screen
+            Write-Host '[4] Change Rule Probe Config'                                       # Write message to screen 
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -1792,6 +1793,10 @@ function ManageAzLBRuleConfig {                                                 
                 Write-Host 'Remove Rule Config'                                             # Write message to screen
                 RemoveAzLBRuleConfig                                                        # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Change Rule Probe Config'                                       # Write message to screen 
+                SetAzLBRuleProbe                                                            # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -2609,6 +2614,153 @@ function RemoveAzLBRuleConfig {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzLBRuleConfig
+function SetAzLBRuleProbe {                                                                 # Function to change an existing load balancer rule probe config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBRuleProbe'                                           # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBRuleProbe while ($true) {                                                # Outer loop for managing function
+            $LBRuleObject, $LoadBalancerObject = GetAzLBRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBRuleObject) {                                                           # If $LBRuleObject is $null
+                Break SetAzureLBRuleProbe                                                   # Breaks :SetAzureLBRuleProbe
+            }                                                                               # End if (!$LBRuleObject)
+            $LBProbeObject = GetAzLBRuleProbe ($CallingFunction, $LoadBalancerObject)       # Calls function and assigns output to $var
+            if (!$LBProbeObject) {                                                          # If $LBProbeObject is $null
+                Break SetAzureLBRuleProbe                                                   # Breaks :SetAzureLBRuleProbe
+            }                                                                               # End if (!$LBProbeObject)
+            $CurrentProbeName = $LBRuleObject.Probe.ID                                      # Isolates the probe ID
+            $CurrentProbeName = $CurrentProbeName.Split('/')[-1]                            # Isolates the probe name
+            $CurrentProbeObject = Get-AzLoadBalancerProbeConfig -LoadBalancer `
+                $LoadBalancerObject -Name $CurrentProbeName                                 # Gets the current probe info
+            Write-Host 'Make the following change'                                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Current Probe'                                                      # Write message to screen
+            Write-Host 'Name:    '$CurrentProbeObject.Name                                  # Write message to screen
+            Write-Host 'Protocol:'$CurrentProbeObject.Protocol                              # Write message to screen
+            Write-Host 'Port:    '$CurrentProbeObject.Port                                  # Write message to screen
+            Write-Host 'Interval:'$CurrentProbeObject.IntervalInSeconds                     # Write message to screen
+            Write-Host 'Count:   '$CurrentProbeObject.NumberOfProbes                        # Write message to screen
+            if ($CurrentProbeObject.RequestPath) {                                          # If $CurrentProbeObject.RequestPath has a value
+                Write-Host 'RPath:   '$CurrentProbeObject.RequestPath                       # Write message to screen
+            }                                                                               # End if ($CurrentProbeObject.RequestPath)
+            else {                                                                          # Else if $CurrentProbeObject.RequestPath is $null
+                Write-Host 'RPath:    N/A'                                                  # Write message to screen
+            }                                                                               # End else (if ($CurrentProbeObject.RequestPath))
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'New Probe'                                                          # Write message to screen
+            Write-Host 'Name:    '$LBProbeObject.Name                                       # Write message to screen
+            Write-Host 'Protocol:'$LBProbeObject.Protocol                                   # Write message to screen
+            Write-Host 'Port:    '$LBProbeObject.Port                                       # Write message to screen
+            Write-Host 'Interval:'$LBProbeObject.IntervalInSeconds                          # Write message to screen
+            Write-Host 'Count:   '$LBProbeObject.NumberOfProbes                             # Write message to screen
+            if ($LBProbeObject.RequestPath) {                                               # If $LBProbeObject.RequestPath has a value
+                Write-Host 'RPath:   '$LBProbeObject.RequestPath                            # Write message to screen
+            }                                                                               # End if ($LBProbeObject.RequestPath)
+            else {                                                                          # Else if $LBProbeObject.RequestPath is $null
+                Write-Host 'RPath:    N/A'                                                  # Write message to screen
+            }                                                                               # End else (if ($LBProbeObject.RequestPath))
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Make this change'                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confrimation to change the rule probe
+            Clear-Host                                                                      # Clears screen
+            if ($LBRuleObject.BackendAddressPool.ID) {                                      # If $LBRuleObject.BackendAddressPool.ID has a value
+                $LBBackEndName = $LBRuleObject.BackendAddressPool.ID                        # Isolates the rule backend ID
+                $LBBackEndName = $LBBackEndName.Split('/')[-1]                              # Isolates the rule back end name
+                $LBBackEndObject = Get-AzLoadBalancerBackendAddressPool `
+                    -LoadBalancer $LoadBalancerObject -Name $LBBackEndName                  # Gets the back end object
+            }                                                                               # End if ($LBRuleObject.BackendAddressPool.ID)
+            else {                                                                          # Else if $LBRuleObject.BackendAddressPool.ID is $null
+                $LBBackEndObject = $null                                                    # Clears $LBBackEndObject                                       
+            }                                                                               # End else (if ($LBRuleObject.BackendAddressPool.ID))
+            if ($OpConfirm -eq 'y') {                                                       # If $OPConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    if ($LBRuleObject.EnableFloatingIP -eq $True `
+                        -and $LBRuleObject.EnableTcpReset -eq $True) {                      # If $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset equal $true
+                        Set-AzLoadBalancerRuleConfig `
+                            -LoadBalancer $LoadBalancerObject `
+                            -Name $LBRuleObject.Name `
+                            -FrontendIpConfigurationId `
+                            $LBRuleObject.FrontendIPConfiguration.ID `
+                            -Protocol $LBRuleObject.Protocol `
+                            -FrontendPort $LBRuleObject.FrontendPort `
+                            -BackendPort $LBRuleObject.BackEndPort `
+                            -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
+                            -BackendAddressPoolId  $LBBackEndObject.ID `
+                            -LoadDistribution $LBRuleObject.LoadDistribution `
+                            -EnableTcpReset -EnableFloatingIP `
+                            -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
+                            'Stop' | Out-Null                                               # Changes the rule probe config
+                    }                                                                       # End if ($LBRuleObject.EnableFloatingIP -eq $True -and $LBRuleObject.EnableTcpReset -eq $True)
+                    elseif ($LBRuleObject.EnableFloatingIP -eq $True) {                     # Else if $LBRuleObject.EnableFloatingIP equals $True
+                        Set-AzLoadBalancerRuleConfig `
+                            -LoadBalancer $LoadBalancerObject `
+                            -Name $LBRuleObject.Name `
+                            -FrontendIpConfigurationId `
+                            $LBRuleObject.FrontendIPConfiguration.ID `
+                            -Protocol $LBRuleObject.Protocol `
+                            -FrontendPort $LBRuleObject.FrontendPort `
+                            -BackendPort $LBRuleObject.BackEndPort `
+                            -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
+                            -BackendAddressPoolId  $LBBackEndObject.ID `
+                            -LoadDistribution $LBRuleObject.LoadDistribution `
+                            -EnableFloatingIP `
+                            -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
+                            'Stop' | Out-Null                                               # Changes the rule probe config
+                    }                                                                       # End elseif ($LBRuleObject.EnableFloatingIP -eq $True)
+                    elseif ($LBRuleObject.EnableTcpReset -eq $true) {                       # Else if $LBRuleObject.EnableTcpReset equals $true
+                        Set-AzLoadBalancerRuleConfig `
+                            -LoadBalancer $LoadBalancerObject `
+                            -Name $LBRuleObject.Name `
+                            -FrontendIpConfigurationId `
+                            $LBRuleObject.FrontendIPConfiguration.ID `
+                            -Protocol $LBRuleObject.Protocol `
+                            -FrontendPort $LBRuleObject.FrontendPort `
+                            -BackendPort $LBRuleObject.BackEndPort `
+                            -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
+                            -BackendAddressPoolId  $LBBackEndObject.ID `
+                            -LoadDistribution $LBRuleObject.LoadDistribution `
+                            -EnableTcpReset `
+                            -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
+                            'Stop' | Out-Null                                               # Changes the rule probe config    
+                    }                                                                       # End elseif ($LBRuleObject.EnableTcpReset -eq $true) 
+                    else {                                                                  # Else if $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset does not equal $true
+                        Set-AzLoadBalancerRuleConfig `
+                        -LoadBalancer $LoadBalancerObject `
+                        -Name $LBRuleObject.Name `
+                        -FrontendIpConfigurationId $LBRuleObject.FrontendIPConfiguration.ID `
+                        -Protocol $LBRuleObject.Protocol `
+                        -FrontendPort $LBRuleObject.FrontendPort `
+                        -BackendPort $LBRuleObject.BackEndPort `
+                        -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
+                        -BackendAddressPoolId  $LBBackEndObject.ID `
+                        -LoadDistribution $LBRuleObject.LoadDistribution `
+                        -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
+                        'Stop' | Out-Null                                                   # Changes the rule probe config
+                    }                                                                       # End Else (if ($LBProbeObject.EnableFloatingIP -eq $True -and $LBProbeObject.EnableTcpReset -eq $True))
+                    Write-Host 'Saving the load balancer configuration'                     # Write message to screen
+                    $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null # Saves the changes to $LoadBalancerObject
+                }                                                                           # End try
+                Catch {                                                                     # If try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureLBRuleProbe                                               # Breaks :SetAzureLBRuleProbe
+                }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Requested changes have been made'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBRuleProbe                                                   # Breaks :SetAzureLBRuleProbe
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else  {                                                                         # All other inputs for $OpConfirm
+                Break SetAzureLBRuleProbe                                                   # Breaks :SetAzureLBRuleProbe
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureLBRuleProbe while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBRuleProbe
 # End ManageAzLBRuleConfig
 # Functions for ManageAzLBNatRuleConfig
 function ManageAzLBNatRuleConfig {                                                          # Function to manage nat rule configurations
