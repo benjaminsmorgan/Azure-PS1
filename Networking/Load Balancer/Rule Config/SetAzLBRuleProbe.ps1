@@ -27,17 +27,17 @@
     $OpConfirm:                 Operator confirmation to make the change
     $LBBackEndName:             Load balancer rule back end name
     $LBBackEndObject:           Load balancer rule back end object
-    GetAzLBRuleProbe{}          Gets $LBRuleObject, $LoadBalancerObject
-    GetAzLBRuleConfig{}         Gets $LBProbeObject
+    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
+    GetAzLBRuleProbe{}          Gets $LBProbeObject
 } #>
 <# Process Flow {
     function
         Call SetAzLBRuleProbe > Get $null
-            Call GetAzLBRuleProbe > Get $LBRuleObject, $LoadBalancerObject
-            End GetAzLBRuleProbe
-                Return SetAzLBRuleProbe > Send $LBRuleObject, $LoadBalancerObject
-            Call GetAzLBRuleConfig > Get $LBProbeObject
+            Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
             End GetAzLBRuleConfig
+                Return SetAzLBRuleProbe > Send $LBRuleObject, $LoadBalancerObject
+            Call GetAzLBRuleProbe > Get $LBProbeObject
+            End GetAzLBRuleProbe
                 Return SetAzLBRuleProbe > Send $LBProbeObject
         End SetAzLBRuleProbe
             Return function > Send $null
@@ -101,6 +101,7 @@ function SetAzLBRuleProbe {                                                     
                 $LBBackEndObject = $null                                                    # Clears $LBBackEndObject                                       
             }                                                                               # End else (if ($LBRuleObject.BackendAddressPool.ID))
             if ($OpConfirm -eq 'y') {                                                       # If $OPConfirm equals 'y'
+                Write-Host 'Changing the rule probe configuration'                          # Write message to screen
                 Try {                                                                       # Try the following
                     if ($LBRuleObject.EnableFloatingIP -eq $True `
                         -and $LBRuleObject.EnableTcpReset -eq $True) {                      # If $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset equal $true
@@ -153,17 +154,18 @@ function SetAzLBRuleProbe {                                                     
                     }                                                                       # End elseif ($LBRuleObject.EnableTcpReset -eq $true) 
                     else {                                                                  # Else if $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset does not equal $true
                         Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId $LBRuleObject.FrontendIPConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $LBBackEndObject.ID `
-                        -LoadDistribution $LBRuleObject.LoadDistribution `
-                        -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule probe config
+                            -LoadBalancer $LoadBalancerObject `
+                            -Name $LBRuleObject.Name `
+                            -FrontendIpConfigurationId `
+                            $LBRuleObject.FrontendIPConfiguration.ID `
+                            -Protocol $LBRuleObject.Protocol `
+                            -FrontendPort $LBRuleObject.FrontendPort `
+                            -BackendPort $LBRuleObject.BackEndPort `
+                            -IdleTimeoutInMinutes $LBRuleObject.IdleTimeoutInMinutes `
+                            -BackendAddressPoolId  $LBBackEndObject.ID `
+                            -LoadDistribution $LBRuleObject.LoadDistribution `
+                            -ProbeID $LBProbeObject.ID -Verbose -ErrorAction `
+                            'Stop' | Out-Null                                               # Changes the rule probe config
                     }                                                                       # End Else (if ($LBProbeObject.EnableFloatingIP -eq $True -and $LBProbeObject.EnableTcpReset -eq $True))
                     Write-Host 'Saving the load balancer configuration'                     # Write message to screen
                     $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null # Saves the changes to $LoadBalancerObject
