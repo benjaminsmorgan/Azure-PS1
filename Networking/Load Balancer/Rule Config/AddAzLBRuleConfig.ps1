@@ -96,7 +96,7 @@ function AddAzLBRuleConfig {                                                    
             $VNameLast = 'abcdefghijklmnopqrstuvwxyz0123456789_'                            # Valid name last character
             $VNameLast = $VNameLast.ToCharArray()                                           # Converts $var to character array
             :SetAzureLBRuleName while ($true) {                                             # Inner loop for setting the name
-                Write-Host 'Back End name rules:'                                           # Write message to screen
+                Write-Host 'Load balancer rule name rules:'                                 # Write message to screen
                 Write-Host 'The name can be up to 80 characters long'                       # Write message to screen
                 Write-Host 'It must begin with a word character (A-9)'                      # Write message to screen
                 Write-Host 'The name may contain word characters or . - _'                  # Write message to screen
@@ -204,7 +204,7 @@ function AddAzLBRuleConfig {                                                    
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the protocol object
                 Clear-Host                                                                  # Clears screen
                 if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
-                    Break AddAzureLBRule                                              # Breaks :AddAzureLBRule
+                    Break AddAzureLBRule                                                    # Breaks :AddAzureLBRule
                 }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
                     $LBRuleProtocolObject = 'TCP'                                           # Sets $LBRuleProtocolObject to 'TCP'
@@ -223,7 +223,7 @@ function AddAzLBRuleConfig {                                                    
             }                                                                               # End :NewAzureLBRuleProtocol while ($true)
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
-            :NewAzureLBRuleFEPort while ($true) {                                     # Inner loop for setting the rule front end port
+            :NewAzureLBRuleFEPort while ($true) {                                           # Inner loop for setting the rule front end port
                 Write-Host 'Enter the rule pool front end port'                             # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
                 $LBRuleFrontEndPort = Read-Host 'Port #'                                    # Operator input for the front end rule port 
@@ -244,7 +244,7 @@ function AddAzLBRuleConfig {                                                    
                         Break AddAzureLBRule                                                # Breaks :AddAzureLBRule
                     }                                                                       # End if ($OpConfirm -eq 'e')
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break NewAzureLBRuleFEPort                                    # Breaks :NewAzureLBRuleFEPort        
+                        Break NewAzureLBRuleFEPort                                          # Breaks :NewAzureLBRuleFEPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBRuleFrontEndPort)
                 else {                                                                      # Else if $LBRuleFrontEndPort is $null
@@ -254,7 +254,7 @@ function AddAzLBRuleConfig {                                                    
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($LBRuleFrontEndPort))
             }                                                                               # End :NewAzureLBRuleFEPort while ($true)
-            :NewAzureLBRuleBEPort while ($true) {                                      # Inner loop for setting the rule back end port
+            :NewAzureLBRuleBEPort while ($true) {                                           # Inner loop for setting the rule back end port
                 Write-Host 'Enter the rule pool back end port'                              # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
                 $LBRuleBackEndPort = Read-Host 'Port #'                                     # Operator input for the back end rule port 
@@ -275,7 +275,7 @@ function AddAzLBRuleConfig {                                                    
                         Break AddAzureLBRule                                                # Breaks :AddAzureLBRule
                     }                                                                       # End if ($OpConfirm -eq 'e')
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break NewAzureLBRuleBEPort                                     # Breaks :NewAzureLBRuleBEPort        
+                        Break NewAzureLBRuleBEPort                                          # Breaks :NewAzureLBRuleBEPort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBRuleBackEndPort)
                 else {                                                                      # Else if $LBRuleBackEndPort is $null
@@ -288,7 +288,7 @@ function AddAzLBRuleConfig {                                                    
             :NewAzureLBRuleIdleTO while ($true) {                                           # Inner loop for setting the rule idle timeout
                 Write-Host 'Enter the idle time out in minutes for this rule'               # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
-                $LBRuleIdleTO = Read-Host 'Idle timeout'                                    # Operator input for the rule idle timeout 
+                $LBRuleIdleTO = Read-Host 'Idle timeout (Minutes)'                          # Operator input for the rule idle timeout 
                 $LBRuleArray = $LBRuleIdleTO.ToCharArray()                                  # Adds $LBRuleIdleTO to array
                 Clear-Host                                                                  # Clears screen
                 foreach ($_ in $LBRuleArray) {                                              # For each item in $LBRuleArray
@@ -304,7 +304,7 @@ function AddAzLBRuleConfig {                                                    
                 }                                                                           # End if ($LBRuleIdleTOInt -lt 4 -or $LBRuleIdleTOInt -gt 30)
                 $LBRuleArray = $null                                                        # Clears $LBRuleArray
                 if ($LBRuleIdleTO) {                                                        # If $LBRuleIdleTO has a value
-                    Write-Host 'Use:'$LBRuleIdleTO' as the rule idle time out'              # Write message to screen
+                    Write-Host 'Use:'$LBRuleIdleTO'(Minutes) as the rule idle time out'     # Write message to screen
                     Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the idle timeout
                     Clear-Host                                                              # Clears screen
