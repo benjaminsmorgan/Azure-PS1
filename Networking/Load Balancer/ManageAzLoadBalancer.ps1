@@ -142,7 +142,7 @@ function ManageAzLoadBalancer {                                                 
                 Write-Host 'Remove load balancer'                                           # Write message to screen
                 RemoveAzLoadBalancer                                                        # Calls function
             }                                                                               # elseif ($OpSelect -eq '3')
-            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '4'
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Manage Load Balancer Configs'                                   # Write message to screen
                 ManageAzLBConfig                                                            # Calls function
             }                                                                               # elseif ($OpSelect -eq '4')    
