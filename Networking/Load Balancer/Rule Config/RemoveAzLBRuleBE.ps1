@@ -10,7 +10,7 @@
     GetAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleConfig.ps1
 } #>
 <# Functions Description: {
-    RemoveAzLBRuleBE:              Function to change an existing load balancer rule back end config
+    RemoveAzLBRuleBE:           Function to change an existing load balancer rule back end config
     GetAzLBRuleConfig:          Function to get an existing load balancer rule config
 } #>
 <# Variables: {      
