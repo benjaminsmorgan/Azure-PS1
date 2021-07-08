@@ -304,7 +304,7 @@ function AddAzLBRuleConfig {                                                    
                 }                                                                           # End if ($LBRuleIdleTOInt -lt 4 -or $LBRuleIdleTOInt -gt 30)
                 $LBRuleArray = $null                                                        # Clears $LBRuleArray
                 if ($LBRuleIdleTO) {                                                        # If $LBRuleIdleTO has a value
-                    Write-Host 'Use:'$LBRuleIdleTO'(Minutes) as the rule idle time out'     # Write message to screen
+                    Write-Host 'Set:'$LBRuleIdleTO' minutes as the rule idle time out'      # Write message to screen
                     Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the idle timeout
                     Clear-Host                                                              # Clears screen
