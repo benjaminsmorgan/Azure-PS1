@@ -5634,12 +5634,13 @@ function ManageAzLBRuleConfig {                                                 
             Write-Host '[5]  Change Rule Back End Config'                                   # Write message to screen 
             Write-Host '[6]  Remove Rule Back End Config'                                   # Write message to screen 
             Write-Host '[7]  Change Rule Probe Config'                                      # Write message to screen
-            Write-Host '[8]  Change Rule Front End port'                                    # Write message to screen
-            Write-Host '[9]  Change Rule Back End Port'                                     # Write message to screen
-            Write-Host '[10] Change Rule Idle Time Out'                                     # Write message to screen 
-            Write-Host '[11] Change Rule Load Distribution'                                 # Write message to screen 
-            Write-Host '[12] Change Rule TCP Reset'                                         # Write message to screen 
-            Write-Host '[13] Change Rule Floating IP'                                       # Write message to screen 
+            Write-Host '[8]  Change Rule Protocol'                                          # Write message to screen
+            Write-Host '[9]  Change Rule Front End port'                                    # Write message to screen
+            Write-Host '[10] Change Rule Back End Port'                                     # Write message to screen
+            Write-Host '[11] Change Rule Idle Time Out'                                     # Write message to screen 
+            Write-Host '[12] Change Rule Load Distribution'                                 # Write message to screen 
+            Write-Host '[13] Change Rule TCP Reset'                                         # Write message to screen 
+            Write-Host '[14] Change Rule Floating IP'                                       # Write message to screen 
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -5674,29 +5675,33 @@ function ManageAzLBRuleConfig {                                                 
                 SetAzLBRuleProbe                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '7')
             elseif ($OpSelect -eq '8') {                                                    # Else if $OpSelect equals '8'
-                Write-Host 'Change Rule Front End port'                                     # Write message to screen
-                SetAzLBRuleFEPort                                                           # Calls function
+                Write-Host 'Change Rule Protocol'                                           # Write message to screen
+                SetAzLBRuleProtocol                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '8')
             elseif ($OpSelect -eq '9') {                                                    # Else if $OpSelect equals '9'
-                Write-Host 'Change Rule Back End Port'                                      # Write message to screen
-                SetAzLBRuleBEPort                                                           # Calls function
+                Write-Host 'Change Rule Front End port'                                     # Write message to screen
+                SetAzLBRuleFEPort                                                           # Calls function
             }                                                                               # End elseif ($OpSelect -eq '9')
             elseif ($OpSelect -eq '10') {                                                   # Else if $OpSelect equals '10'
-                Write-Host 'Change Rule Idle Time Out'                                      # Write message to screen 
-                SetAzLBRuleTimeOut                                                          # Calls function
+                Write-Host 'Change Rule Back End Port'                                      # Write message to screen
+                SetAzLBRuleBEPort                                                           # Calls function
             }                                                                               # End elseif ($OpSelect -eq '10')
             elseif ($OpSelect -eq '11') {                                                   # Else if $OpSelect equals '11'
-                Write-Host 'Change Rule Load Distribution'                                  # Write message to screen 
-                SetAzLBRuleLoadDisto                                                        # Calls function
+                Write-Host 'Change Rule Idle Time Out'                                      # Write message to screen 
+                SetAzLBRuleTimeOut                                                          # Calls function
             }                                                                               # End elseif ($OpSelect -eq '11')
             elseif ($OpSelect -eq '12') {                                                   # Else if $OpSelect equals '12'
-                Write-Host 'Change Rule TCP Reset'                                          # Write message to screen 
-                SetAzLBRuleTCPReset                                                         # Calls function
+                Write-Host 'Change Rule Load Distribution'                                  # Write message to screen 
+                SetAzLBRuleLoadDisto                                                        # Calls function
             }                                                                               # End elseif ($OpSelect -eq '12')
             elseif ($OpSelect -eq '13') {                                                   # Else if $OpSelect equals '13'
+                Write-Host 'Change Rule TCP Reset'                                          # Write message to screen 
+                SetAzLBRuleTCPReset                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '13')
+            elseif ($OpSelect -eq '14') {                                                   # Else if $OpSelect equals '14'
                 Write-Host 'Change Rule Floating IP'                                        # Write message to screen 
                 SetAzLBRuleFloatingIP                                                       # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '13')
+            }                                                                               # End elseif ($OpSelect -eq '14')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -6274,17 +6279,26 @@ function ListAzLBRuleConfig {                                                   
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 $LBObject = $_                                                              # Isolates the current item
+                if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID) {               # If $LBObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
+                    $LBObjectType = 'Internal'                                              # Sets $LBObjectType
+                }                                                                           # End if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID)
+                else {                                                                      # Else if $LBObject.FrontendIpConfigurations.PublicIPAddress.ID has a value
+                    $LBObjectType = 'External'                                              # Sets $LBObjectType
+                }                                                                           # End else (if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID))
                 $RuleConfigList = Get-AzLoadBalancerRuleConfig -LoadBalancer $_             # Gets a list of all rules on $LBObject
                 foreach ($_ in $RuleConfigList) {                                           # For each item in $RuleConfigList
                     $ObjectInput = [PSCustomObject]@{                                       # Creates the item to loaded into array
                         'Name'=$_.Name;                                                     # Rule name
                         'LBName'=$LBObject.Name;                                            # Load balancer name
+                        'LBSku'=$LBObject.Sku.Name;                                         # Load balancer sku
+                        'LBType'=$LBObjectType;                                             # Load balancer internal or external
                         'RGName'=$LBObject.ResourceGroupName;                               # Load balancer resource group
                         'Proto'=$_.Protocol;                                                # Rule protocol
                         'FEPort'=$_.FrontendPort;                                           # Front end port
                         'BEPort'=$_.BackendPort;                                            # Back end port
                         'Idle'=$_.IdleTimeoutInMinutes;                                     # Idle timeout
                         'LD'=$_.LoadDistribution;                                           # Load distribution
+                        'TCP'=$_.EnableTcpReset;                                            # EnableTCPReset enabled
                         'EFIP'=$_.EnableFloatingIP;                                         # Floating IP enabled
                         'FEIP'=$_.FrontendIPConfiguration.ID;                               # Front end ID
                         'BEPool'=$_.BackendAddressPool.ID;                                  # Back end pool ID
@@ -6292,6 +6306,8 @@ function ListAzLBRuleConfig {                                                   
                     }                                                                       # End $ObjectInput = [PSCustomObject]@
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array
                 }                                                                           # End foreach ($_ in $RuleConfigList)
+                $LBObject = $null                                                           # Clears $var
+                $LBObjectType = $null                                                       # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null    
@@ -6303,12 +6319,15 @@ function ListAzLBRuleConfig {                                                   
             foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
                 Write-Host 'Rule Name:     '$_.Name                                         # Write message to screen
                 Write-Host 'LB Name:       '$_.LBName                                       # Write message to screen
+                Write-Host 'LB Sku:        '$_.LBSku                                        # Write message to screen
+                Write-Host 'LB Type:       '$_.LBType                                       # Write message to screen       
                 Write-Host 'LB RG:         '$_.RGName                                       # Write message to screen
                 Write-Host 'Rule Protocol: '$_.Proto                                        # Write message to screen
                 Write-Host 'Front End Port:'$_.FEPort                                       # Write message to screen
                 Write-Host 'Back End Port: '$_.BEPort                                       # Write message to screen
                 Write-Host 'TO In Minutes: '$_.Idle                                         # Write message to screen
                 Write-Host 'Load Distro:   '$_.LD                                           # Write message to screen
+                Write-Host 'TCP Reset:     '$_.TCP                                          # Write message to screen
                 Write-Host 'Floating IP:   '$_.EFIP                                         # Write message to screen
                 if ($_.FEIP) {                                                              # If current item .FEIP has a value
                     $FEndName = $_.FEIP                                                     # Isolates the current item
@@ -6360,18 +6379,27 @@ function GetAzLBRuleConfig {                                                    
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 $LBObject = $_                                                              # Isolates the current item
+                if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID) {               # If $LBObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
+                    $LBObjectType = 'Internal'                                              # Sets $LBObjectType
+                }                                                                           # End if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID)
+                else {                                                                      # Else if $LBObject.FrontendIpConfigurations.PublicIPAddress.ID has a value
+                    $LBObjectType = 'External'                                              # Sets $LBObjectType
+                }                                                                           # End else (if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID))
                 $RuleConfigList = Get-AzLoadBalancerRuleConfig -LoadBalancer $_             # Gets a list of all rules on $LBObject
                 foreach ($_ in $RuleConfigList) {                                           # For each item in $RuleConfigList
                     $ObjectInput = [PSCustomObject]@{                                       # Creates the item to loaded into array
                         'Number'=$ObjectNumber;                                             # Object number
                         'Name'=$_.Name;                                                     # Rule name
                         'LBName'=$LBObject.Name;                                            # Load balancer name
+                        'LBSku'=$LBObject.Sku.Name;                                         # Load balancer sku
+                        'LBType'=$LBObjectType;                                             # Load balancer internal or external
                         'RGName'=$LBObject.ResourceGroupName;                               # Load balancer resource group
                         'Proto'=$_.Protocol;                                                # Rule protocol
                         'FEPort'=$_.FrontendPort;                                           # Front end port
                         'BEPort'=$_.BackendPort;                                            # Back end port
                         'Idle'=$_.IdleTimeoutInMinutes;                                     # Idle timeout
                         'LD'=$_.LoadDistribution;                                           # Load distribution
+                        'TCP'=$_.EnableTcpReset;                                            # EnableTCPReset enabled
                         'EFIP'=$_.EnableFloatingIP;                                         # Floating IP enabled
                         'FEIP'=$_.FrontendIPConfiguration.ID;                               # Front end ID
                         'BEPool'=$_.BackendAddressPool.ID;                                  # Back end pool ID
@@ -6380,6 +6408,8 @@ function GetAzLBRuleConfig {                                                    
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array
                     $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
                 }                                                                           # End foreach ($_ in $RuleConfigList)
+                $LBObject = $null                                                           # Clears $var
+                $LBObjectType = $null                                                       # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null    
@@ -6400,12 +6430,15 @@ function GetAzLBRuleConfig {                                                    
                         Write-Host "[$Number]           "$_.Name                            # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
                     Write-Host 'LB Name:       '$_.LBName                                   # Write message to screen
+                    Write-Host 'LB Sku:        '$_.LBSku                                    # Write message to screen
+                    Write-Host 'LB Type:       '$_.LBType                                   # Write message to screen       
                     Write-Host 'LB RG:         '$_.RGName                                   # Write message to screen
                     Write-Host 'Rule Protocol: '$_.Proto                                    # Write message to screen
                     Write-Host 'Front End Port:'$_.FEPort                                   # Write message to screen
                     Write-Host 'Back End Port: '$_.BEPort                                   # Write message to screen
                     Write-Host 'TO In Minutes: '$_.Idle                                     # Write message to screen
                     Write-Host 'Load Distro:   '$_.LD                                       # Write message to screen
+                    Write-Host 'TCP Reset:     '$_.TCP                                      # Write message to screen
                     Write-Host 'Floating IP:   '$_.EFIP                                     # Write message to screen
                     if ($_.FEIP) {                                                          # If current item .FEIP has a value
                         $FEndName = $_.FEIP                                                 # Isolates the current item
@@ -7080,6 +7113,221 @@ function SetAzLBRuleProbe {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzLBRuleProbe
+function SetAzLBRuleProtocol {                                                              # Function to change an existing load balancer rule protocol
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBRuleProtocol'                                        # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBRuleProtocol while ($true) {                                             # Outer loop for managing function
+            $LBRuleObject, $LoadBalancerObject = GetAzLBRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBRuleObject) {                                                           # If $LBRuleObject is $null
+                Break SetAzureLBRuleProtocol                                                # Breaks :SetAzureLBRuleProtocol
+            }                                                                               # End if (!$LBRuleObject)
+            if ($LBRuleObject.BackendAddressPool.ID) {                                      # If $LBRuleObject.BackendAddressPool.ID has a value
+                $CurrentBEName = $LBRuleObject.BackendAddressPool.ID                        # Isolates the back end ID
+                $CurrentBEName = $CurrentBEName.Split('/')[-1]                              # Isolates the back end name
+                $CurrentBEObject = Get-AzLoadBalancerBackendAddressPool -LoadBalancer `
+                    $LoadBalancerObject -Name $CurrentBEName                                # Gets the current back end info
+                $CurrentBEID = $CurrentBEObject.ID                                          # Isolates the current back end ID
+            }                                                                               # End if ($LBRuleObject.BackendAddressPool.ID)
+            else {                                                                          # Else if $LBRuleObject.BackendAddressPool.ID is $null
+                $CurrentBEID = $null                                                        # Sets $CurrentBEID
+            }                                                                               # End if ($LBRuleObject.BackendAddressPool.ID)
+            :NewAzureLBRuleProtocol while ($true) {                                         # Inner loop for setting the rule load disto
+                Write-Host 'Rule Name:    '$LBRuleObject.name                               # Write message to screen
+                Write-Host 'Load Balancer:'$LoadBalancerObject.name                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Rule Protocol Options'                                          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] TCP'                                                        # Write message to screen
+                Write-Host '[2] UDP'                                                        # Write message to screen
+                if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and `
+                    !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID) {     # If $LoadBalancerObject.Sku.Name equals 'Standard' and $LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
+                    Write-Host '[3] HA (Both)'                                              # Write message to screen
+                    $HAAvail = 'Y'                                                          # Sets $HAAvail flag as 'Y'
+                }                                                                           # End if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID)
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select load disto
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureLBRuleProtocol                                            # Breaks SetAzureLBRuleProtocol
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $LBRuleProtocol = 'TCP'                                                 # Sets $LBRuleProtocol
+                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $LBRuleProtocol = 'UDP'                                                 # Sets $LBRuleProtocol
+                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                elseif ($OpSelect -eq '3' -and $HAAvail -eq 'y') {                          # Else if $OpSelect equals '3' -and $HAAvail equals 'y'
+                    $LBRuleProtocol = 'All'                                                 # Sets $LBRuleProtocol
+                    Break NewAzureLBRuleProtocol                                            # Breaks :NewAzureLBRuleProtocol
+                }                                                                           # End elseif ($OpSelect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :NewAzureLBRuleProtocol while ($true)
+            if ($LBRuleProtocol -eq 'TCP' -or $LBRuleProtocol -eq 'UDP') {                  # If $LBRuleProtocol equals 'TCP' or 'UDP'
+                $ValidArray = '0123456789'                                                  # Creates a string of valid characters
+                $ValidArray = $ValidArray.ToCharArray()                                     # Loads all valid characters into array
+                :NewAzureLBRuleFEPort while ($true) {                                       # Inner loop for setting the rule front end port
+                    Write-Host 'Enter the rule pool front end port'                         # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $LBRuleFrontEndPort = Read-Host 'Port #'                                # Operator input for the front end rule port 
+                    $LBRuleArray = $LBRuleFrontEndPort.ToCharArray()                        # Adds $LBRuleFrontEndPort to array
+                    Clear-Host                                                              # Clears screen
+                    foreach ($_ in $LBRuleArray) {                                          # For each item in $LBRuleArray
+                        if ($_ -notin $ValidArray) {                                        # If current item is not in $ValidArray
+                            $LBRuleFrontEndPort = $null                                     # Clears $LBRuleFrontEndPort
+                        }                                                                   # End if ($_ -notin $ValidArray)
+                    }                                                                       # End foreach ($_ in $LBRuleArray)
+                    $LBRuleArray = $null                                                    # Clears $LBRuleArray
+                    if ($LBRuleFrontEndPort) {                                              # If $LBRuleFrontEndPort has a value
+                        Write-Host 'Use:'$LBRuleFrontEndPort' as the front end rule port'   # Write message to screen
+                        Write-Host ''                                                       # Writes message to screen
+                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the front end rule port
+                        Clear-Host                                                          # Clears screen
+                        if ($OpConfirm -eq 'e') {                                           # If $OpConfirm equals 'e'
+                            Break SetAzureLBRuleProtocol                                    # Breaks :SetAzureLBRuleProtocol
+                        }                                                                   # End if ($OpConfirm -eq 'e')
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Break NewAzureLBRuleFEPort                                      # Breaks :NewAzureLBRuleFEPort        
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                    }                                                                       # End if ($LBRuleFrontEndPort)
+                    else {                                                                  # Else if $LBRuleFrontEndPort is $null
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($LBRuleFrontEndPort))
+                }                                                                           # End :NewAzureLBRuleFEPort while ($true)
+                :NewAzureLBRuleBEPort while ($true) {                                       # Inner loop for setting the rule back end port
+                    Write-Host 'Enter the rule pool back end port'                          # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $LBRuleBackEndPort = Read-Host 'Port #'                                 # Operator input for the back end rule port 
+                    $LBRuleArray = $LBRuleBackEndPort.ToCharArray()                         # Adds $LBRuleBackEndPort to array
+                    Clear-Host                                                              # Clears screen
+                    foreach ($_ in $LBRuleArray) {                                          # For each item in $LBRuleArray
+                        if ($_ -notin $ValidArray) {                                        # If current item is not in $ValidArray
+                            $LBRuleBackEndPort = $null                                      # Clears $LBRuleBackEndPort
+                        }                                                                   # End if ($_ -notin $ValidArray)
+                    }                                                                       # End foreach ($_ in $LBRuleArray)
+                    $LBRuleArray = $null                                                    # Clears $LBRuleArray
+                    if ($LBRuleBackEndPort) {                                               # If $LBRuleBackEndPort has a value
+                        Write-Host 'Use:'$LBRuleBackEndPort' as the back end rule port'     # Write message to screen
+                        Write-Host ''                                                       # Writes message to screen
+                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the back end rule port
+                        Clear-Host                                                          # Clears screen
+                        if ($OpConfirm -eq 'e') {                                           # If $OpConfirm equals 'e'
+                            Break SetAzureLBRuleProtocol                                    # Breaks :SetAzureLBRuleProtocol
+                        }                                                                   # End if ($OpConfirm -eq 'e')
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Break NewAzureLBRuleBEPort                                      # Breaks :NewAzureLBRuleBEPort        
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                    }                                                                       # End if ($LBRuleBackEndPort)
+                    else {                                                                  # Else if $LBRuleBackEndPort is $null
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($LBRuleBackEndPort))
+                }                                                                           # End :NewAzureLBRuleBEPort while ($true)
+            }                                                                               # End if ($LBRuleProtocol -eq 'TCP' -or $LBRuleProtocol -eq 'UDP')
+            else {                                                                          # Else if $LBRuleProtocol does not equal 'TCP' or 'UDP'
+                $LBRuleFrontEndPort = '0'                                                   # Sets $LBRuleFrontEndPort
+                $LBRuleBackEndPort = '0'                                                    # Sets $LBRuleBackEndPort
+            }                                                                               # End else (if ($LBRuleProtocol -eq 'TCP' -or $LBRuleProtocol -eq 'UDP'))
+            Write-Host 'Changing the rule protocol'                                         # Write message to screen
+            Try {                                                                           # Try the following
+                if ($LBRuleObject.EnableFloatingIP -eq $True `
+                    -and $LBRuleObject.EnableTcpReset -eq $True) {                          # If $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset equal $true
+                    Set-AzLoadBalancerRuleConfig `
+                        -LoadBalancer $LoadBalancerObject `
+                        -Name $LBRuleObject.Name `
+                        -FrontendIpConfigurationId `
+                        $LBRuleObject.FrontendIpConfiguration.ID `
+                        -Protocol $LBRuleProtocol `
+                        -FrontendPort $LBRuleFrontEndPort `
+                        -BackendPort $LBRuleBackEndPort `
+                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
+                        -BackendAddressPoolId  $CurrentBEID `
+                        -LoadDistribution $LBRuleObject.LoadDistribution `
+                        -EnableTcpReset -EnableFloatingIP `
+                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
+                        'Stop' | Out-Null                                                   # Changes the rule protocol
+                }                                                                           # End if ($LBRuleObject.EnableFloatingIP -eq $True -and $LBRuleObject.EnableTcpReset -eq $True)
+                elseif ($LBRuleObject.EnableFloatingIP -eq $True) {                         # Else if $LBRuleObject.EnableFloatingIP equals $True
+                    Set-AzLoadBalancerRuleConfig `
+                        -LoadBalancer $LoadBalancerObject `
+                        -Name $LBRuleObject.Name `
+                        -FrontendIpConfigurationId `
+                        $LBRuleObject.FrontendIpConfiguration.ID `
+                        -Protocol $LBRuleProtocol `
+                        -FrontendPort $LBRuleFrontEndPort `
+                        -BackendPort $LBRuleBackEndPort `
+                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
+                        -BackendAddressPoolId  $CurrentBEID `
+                        -LoadDistribution $LBRuleObject.LoadDistribution `
+                        -EnableFloatingIP `
+                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
+                        'Stop' | Out-Null                                                   # Changes the rule protocol
+                }                                                                           # End elseif ($LBRuleObject.EnableFloatingIP -eq $True)
+                elseif ($LBRuleObject.EnableTcpReset -eq $true) {                           # Else if $LBRuleObject.EnableTcpReset equals $true
+                    Set-AzLoadBalancerRuleConfig `
+                        -LoadBalancer $LoadBalancerObject `
+                        -Name $LBRuleObject.Name `
+                        -FrontendIpConfigurationId `
+                        $LBRuleObject.FrontendIpConfiguration.ID `
+                        -Protocol $LBRuleProtocol `
+                        -FrontendPort $LBRuleFrontEndPort `
+                        -BackendPort $LBRuleBackEndPort `
+                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
+                        -BackendAddressPoolId  $CurrentBEID `
+                        -LoadDistribution $LBRuleObject.LoadDistribution `
+                        -EnableTcpReset `
+                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
+                        'Stop' | Out-Null                                                   # Changes the rule protocol    
+                }                                                                           # End elseif ($LBRuleObject.EnableTcpReset -eq $true) 
+                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset does not equal $true
+                    Set-AzLoadBalancerRuleConfig `
+                        -LoadBalancer $LoadBalancerObject `
+                        -Name $LBRuleObject.Name `
+                        -FrontendIpConfigurationId `
+                        $LBRuleObject.FrontendIpConfiguration.ID `
+                        -Protocol $LBRuleProtocol `
+                        -FrontendPort $LBRuleFrontEndPort `
+                        -BackendPort $LBRuleBackEndPort `
+                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
+                        -BackendAddressPoolId  $CurrentBEID `
+                        -LoadDistribution $LBRuleObject.LoadDistribution `
+                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
+                        'Stop' | Out-Null                                                   # Changes the rule protocol
+                }                                                                           # End Else (if ($LBBEObject.EnableFloatingIP -eq $True -and $LBBEObject.EnableTcpReset -eq $True))
+                Write-Host 'Saving the load balancer configuration'                         # Write message to screen
+                $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBRuleProtocol                                                  # Breaks :SetAzureLBRuleProtocol
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Requested changes have been made'                                   # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureLBRuleProtocol                                                      # Breaks :SetAzureLBRuleProtocol
+        }                                                                                   # End :SetAzureLBRuleProtocol while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBRuleProtocol
 function SetAzLBRuleFEPort {                                                                # Function to change an existing load balancer rule front end port
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -7090,6 +7338,16 @@ function SetAzLBRuleFEPort {                                                    
             if (!$LBRuleObject) {                                                           # If $LBRuleObject is $null
                 Break SetAzureLBRuleFEPort                                                  # Breaks :SetAzureLBRuleFEPort
             }                                                                               # End if (!$LBRuleObject)
+            if ($LBRuleObject.Protocol -eq 'All') {                                         # If $LBRuleObject.Protocol equals 'All'
+                Write-Host 'This rule is configured with'                                   # Write message to screen
+                Write-Host 'High Availability (HA) ports'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Specifying a port is not an'                                    # Write message to screen
+                Write-Host 'option for this rule'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBRuleFEPort                                                  # Breaks :SetAzureLBRuleFEPort
+            }                                                                               # End if ($LBRuleObject.Protocol -eq 'All')
             if ($LBRuleObject.BackendAddressPool.ID) {                                      # If $LBRuleObject.BackendAddressPool.ID has a value
                 $CurrentBEName = $LBRuleObject.BackendAddressPool.ID                        # Isolates the back end ID
                 $CurrentBEName = $CurrentBEName.Split('/')[-1]                              # Isolates the back end name
@@ -7229,6 +7487,16 @@ function SetAzLBRuleBEPort {                                                    
             if (!$LBRuleObject) {                                                           # If $LBRuleObject is $null
                 Break SetAzureLBRuleBEPort                                                  # Breaks :SetAzureLBRuleBEPort
             }                                                                               # End if (!$LBRuleObject)
+            if ($LBRuleObject.Protocol -eq 'All') {                                         # If $LBRuleObject.Protocol equals 'All'
+                Write-Host 'This rule is configured with'                                   # Write message to screen
+                Write-Host 'High Availability (HA) ports'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Specifying a port is not an'                                    # Write message to screen
+                Write-Host 'option for this rule'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBRuleBEPort                                                  # Breaks :SetAzureLBRuleBEPort
+            }                                                                               # End if ($LBRuleObject.Protocol -eq 'All')
             if ($LBRuleObject.BackendAddressPool.ID) {                                      # If $LBRuleObject.BackendAddressPool.ID has a value
                 $CurrentBEName = $LBRuleObject.BackendAddressPool.ID                        # Isolates the back end ID
                 $CurrentBEName = $CurrentBEName.Split('/')[-1]                              # Isolates the back end name
@@ -7556,6 +7824,7 @@ function SetAzLBRuleLoadDisto {                                                 
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :NewAzureLBRuleLoadDisto while ($true)
+
             Write-Host 'Changing the rule load distribution'                                # Write message to screen
             Try {                                                                           # Try the following
                 if ($LBRuleObject.EnableFloatingIP -eq $True `
