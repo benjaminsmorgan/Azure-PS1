@@ -47,6 +47,16 @@ function SetAzLBRuleBEPort {                                                    
             if (!$LBRuleObject) {                                                           # If $LBRuleObject is $null
                 Break SetAzureLBRuleBEPort                                                  # Breaks :SetAzureLBRuleBEPort
             }                                                                               # End if (!$LBRuleObject)
+            if ($LBRuleObject.Protocol -eq 'All') {                                         # If $LBRuleObject.Protocol equals 'All'
+                Write-Host 'This rule is configured with'                                   # Write message to screen
+                Write-Host 'High Availability (HA) ports'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Specifying a port is not an'                                    # Write message to screen
+                Write-Host 'option for this rule'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBRuleBEPort                                                  # Breaks :SetAzureLBRuleBEPort
+            }                                                                               # End if ($LBRuleObject.Protocol -eq 'All')
             if ($LBRuleObject.BackendAddressPool.ID) {                                      # If $LBRuleObject.BackendAddressPool.ID has a value
                 $CurrentBEName = $LBRuleObject.BackendAddressPool.ID                        # Isolates the back end ID
                 $CurrentBEName = $CurrentBEName.Split('/')[-1]                              # Isolates the back end name
