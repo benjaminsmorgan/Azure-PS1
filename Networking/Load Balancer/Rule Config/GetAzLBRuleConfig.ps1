@@ -16,6 +16,7 @@
     $ObjectNumber:              $var used for selecting and listing items
     $ObjectArray:               Array used to hold item info
     $LBObject:                  Current load balancer
+    $LBObjectType:              Current load balancer internal or external type
     $RuleConfigList:            List of all probes on $LBObject
     $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .number
@@ -50,18 +51,27 @@ function GetAzLBRuleConfig {                                                    
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the load balancer array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 $LBObject = $_                                                              # Isolates the current item
+                if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID) {               # If $LBObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
+                    $LBObjectType = 'Internal'                                              # Sets $LBObjectType
+                }                                                                           # End if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID)
+                else {                                                                      # Else if $LBObject.FrontendIpConfigurations.PublicIPAddress.ID has a value
+                    $LBObjectType = 'External'                                              # Sets $LBObjectType
+                }                                                                           # End else (if (!$LBObject.FrontendIpConfigurations.PublicIPAddress.ID))
                 $RuleConfigList = Get-AzLoadBalancerRuleConfig -LoadBalancer $_             # Gets a list of all rules on $LBObject
                 foreach ($_ in $RuleConfigList) {                                           # For each item in $RuleConfigList
                     $ObjectInput = [PSCustomObject]@{                                       # Creates the item to loaded into array
                         'Number'=$ObjectNumber;                                             # Object number
                         'Name'=$_.Name;                                                     # Rule name
                         'LBName'=$LBObject.Name;                                            # Load balancer name
+                        'LBSku'=$LBObject.Sku.Name;                                         # Load balancer sku
+                        'LBType'=$LBObjectType;                                             # Load balancer internal or external
                         'RGName'=$LBObject.ResourceGroupName;                               # Load balancer resource group
                         'Proto'=$_.Protocol;                                                # Rule protocol
                         'FEPort'=$_.FrontendPort;                                           # Front end port
                         'BEPort'=$_.BackendPort;                                            # Back end port
                         'Idle'=$_.IdleTimeoutInMinutes;                                     # Idle timeout
                         'LD'=$_.LoadDistribution;                                           # Load distribution
+                        'TCP'=$_.EnableTcpReset;                                            # EnableTCPReset enabled
                         'EFIP'=$_.EnableFloatingIP;                                         # Floating IP enabled
                         'FEIP'=$_.FrontendIPConfiguration.ID;                               # Front end ID
                         'BEPool'=$_.BackendAddressPool.ID;                                  # Back end pool ID
@@ -70,6 +80,8 @@ function GetAzLBRuleConfig {                                                    
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array
                     $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
                 }                                                                           # End foreach ($_ in $RuleConfigList)
+                $LBObject = $null                                                           # Clears $var
+                $LBObjectType = $null                                                       # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null    
@@ -90,12 +102,15 @@ function GetAzLBRuleConfig {                                                    
                         Write-Host "[$Number]           "$_.Name                            # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
                     Write-Host 'LB Name:       '$_.LBName                                   # Write message to screen
+                    Write-Host 'LB Sku:        '$_.LBSku                                    # Write message to screen
+                    Write-Host 'LB Type:       '$_.LBType                                   # Write message to screen       
                     Write-Host 'LB RG:         '$_.RGName                                   # Write message to screen
                     Write-Host 'Rule Protocol: '$_.Proto                                    # Write message to screen
                     Write-Host 'Front End Port:'$_.FEPort                                   # Write message to screen
                     Write-Host 'Back End Port: '$_.BEPort                                   # Write message to screen
                     Write-Host 'TO In Minutes: '$_.Idle                                     # Write message to screen
                     Write-Host 'Load Distro:   '$_.LD                                       # Write message to screen
+                    Write-Host 'TCP Reset:     '$_.TCP                                      # Write message to screen
                     Write-Host 'Floating IP:   '$_.EFIP                                     # Write message to screen
                     if ($_.FEIP) {                                                          # If current item .FEIP has a value
                         $FEndName = $_.FEIP                                                 # Isolates the current item
