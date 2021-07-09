@@ -18,6 +18,7 @@
     GetAzLBRuleProbe:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleProbe.ps1
 } #>
 <# Functions Description: {
+    AddAzLBRuleConfig:          Funtion to add a new load balancer rule config
     GetAzLoadBalancer:          Function to get an existing load balancer
     GetAzLBRuleFE:              Function to get a load balancer front end config for load balancer rule
     GetAzLBRuleBE:              Function to get an existing load balancer back end pool config for load balancer rule
