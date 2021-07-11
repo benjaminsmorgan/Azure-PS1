@@ -52,45 +52,67 @@ function GetAzLoadBalancer {                                                    
                     $PubIPID = $_.FrontendIpConfigurations.publicIPaddress.id               # Sets $PubIPID to the current item .FrontendIpConfigurations.publicIPaddress.id 
                     $PublicIPObject = Get-AzPublicIpAddress | Where-Object `
                         {$_.ID -eq $PubIPID}                                                # Pulls the attached public IP sku info
+                    $LBType = 'External'                                                    # Sets $LBType
                 }                                                                           # End if ($_.FrontendIpConfigurations.publicIPaddress.id)
+                else {                                                                      # Else if $_.FrontendIpConfigurations.publicIPaddress.id is $null
+                    $LBType = 'Internal'                                                    # Sets $LBType
+                }                                                                           # End else (if ($_.FrontendIpConfigurations.publicIPaddress.id))
                 if ($_.BackendAddressPools.BackendIpConfigurations.id) {                    # If current item .BackendAddressPools.BackendIpConfigurations.id has a value
                     $VmssID = $_.BackendAddressPools.BackendIpConfigurations.id             # Isolates .BackendAddressPools.BackendIpConfigurations.id
                     $VmssRG = $VmssID.Split('/')[4]                                         # Isolates the Vmss resource group
                     $VmssName = $VmssID.Split('/')[8]                                       # Isolates the Vmss name
                 }                                                                           # End if ($_.BackendAddressPools.BackendIpConfigurations.id)
                 $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
-                    'Number'=$ObjectNumber;'Name'=$_.Name;'RGName'=$_.ResourceGroupName;`
-                    'LOC'=$_.Location;'Sku'=$_.Sku.Name;'PubAllocation'=`
-                    $PublicIPObject.PublicIpAllocationMethod;`
-                    'PubAddress'=$PublicIPObject.IpAddress;'Pubname'=$PublicIPObject.Name; `
-                    'VmssName'=$VmssName;'VmssRG'=$VmssRG                                   # Gets current item info
+                    'Number'=$ObjectNumber;                                                 # List number
+                    'Name'=$_.Name;                                                         # LB Name
+                    'RGName'=$_.ResourceGroupName;                                          # LB resource group
+                    'LOC'=$_.Location;                                                      # Azure location
+                    'Sku'=$_.Sku.Name;                                                      # LB sku
+                    'Type'=$LBType;                                                         # LB Type
+                    'PubAllocation'= $PublicIPObject.PublicIpAllocationMethod;              # Public IP allocation
+                    'PubAddress'=$PublicIPObject.IpAddress;                                 # Public IP address
+                    'Pubname'=$PublicIPObject.Name;                                         # Public IP name
+                    'VmssName'=$VmssName;                                                   # Vmms Name
+                    'VmssRG'=$VmssRG                                                        # Vmss resource group
+                    'FrontEndCount'=$_.FrontendIpConfigurations.Count                       # LB front end config count
+                    'BackEndCount'=$_.BackendAddressPools.count                             # LB back end pool count
+                    'ProbeCount'=$_.Probes.count                                            # LB Probe count
+                    'NatRulesCount'=$_.InboundNatRules.count                                # LB nat rules count
+                    'RulesCount'=$_.LoadBalancingRules.count                                # LB rules count
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             :SelectAzureLoadBalancer while ($true) {                                        # Inner loop to select the load balancer
-                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0]              Exit'                                          # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
                     $Number = $_.Number                                                     # Number is equal to current item .number
                     if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]            "$_.Name                           # Write message to screen
+                        Write-Host "[$Number]             "$_.Name                          # Write message to screen
                     }                                                                       # End if ($Number -le 9)
                     else {                                                                  # Else if $Number is greater than 9
-                        Write-Host "[$Number]           "$_.Name                            # Write message to screen
+                        Write-Host "[$Number]            "$_.Name                           # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'LB loc:        '$_.loc                                      # Write message to screen
-                    Write-Host 'LB RG:         '$_.RGName                                   # Write message to screen
-                    Write-Host 'LB SKU:        '$_.Sku                                      # Write message to screen
+                    Write-Host 'LB loc:         '$_.loc                                     # Write message to screen
+                    Write-Host 'LB RG:          '$_.RGName                                  # Write message to screen
+                    Write-Host 'LB SKU:         '$_.Sku                                     # Write message to screen
+                    Write-Host 'LB Type:        '$_.Type                                    # Write message to screen
+                    Write-Host 'Front End Count:'$_.FrontEndCount                           # Write message to screen
+                    Write-Host 'Back End Count: '$_.BackEndCount                            # Write message to screen
+                    Write-Host 'Probe Count:    '$_.ProbeCount                              # Write message to screen
+                    Write-Host 'Rules Count:    '$_.RulesCount                              # Write message to screen
+                    Write-Host 'Nat Rules Count:'$_.NatRulesCount                           # Write message to screen           
                     if ($_.Pubname) {                                                       # If $_.Pubname has a value
-                        Write-Host 'Pub IP name:   '$_.Pubname                              # Write message to screen
-                        Write-Host 'Pub IP address:'$_.PubAddress                           # Write message to screen
-                        Write-Host 'Pub IP allocat:'$_.PubAllocation                        # Write message to screen
+                        Write-Host 'Pub IP name:    '$_.Pubname                             # Write message to screen
+                        Write-Host 'Pub IP address: '$_.PubAddress                          # Write message to screen
+                        Write-Host 'Pub IP allocat: '$_.PubAllocation                       # Write message to screen
                     }                                                                       # End if ($_.Pubname)
                     if ($_.VmssName) {                                                      # If $_.VmssName has a value
-                        Write-Host 'Vmss name:     '$_.VmssName                             # Write message to screen
-                        Write-Host 'Vmss RG:       '$_.VmssRG                               # Write message to screen
+                        Write-Host 'Vmss name:      '$_.VmssName                            # Write message to screen
+                        Write-Host 'Vmss RG:        '$_.VmssRG                              # Write message to screen
                     }                                                                       # End if ($_.VmssName)
                     Write-Host ''                                                           # Write message to screen         
                 }                                                                           # End foreach ($_ in $ObjectArray)
