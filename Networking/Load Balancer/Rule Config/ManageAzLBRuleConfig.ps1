@@ -1710,6 +1710,23 @@ function SetAzLBRuleProtocol {                                                  
             else {                                                                          # Else if $LBRuleObject.BackendAddressPool.ID is $null
                 $CurrentBEID = $null                                                        # Sets $CurrentBEID
             }                                                                               # End if ($LBRuleObject.BackendAddressPool.ID)
+            if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and `
+                !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID) {         # If $LoadBalancerObject.Sku.Name equals 'Standard' and $LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
+                $HAAvail = 'y'                                                              # Sets $HAAvail
+                $LBRuleFEID = $LBRuleObject.FrontendIPConfiguration.ID                      # $LBRuleFEID is equal to $LBRuleObject.FrontendIPConfiguration.ID
+                $LBRuleFEName = $LBRuleFEID.Split('/')[-1]                                  # Isolates the front end name
+                $LBRuleFE = Get-AzLoadBalancerFrontendIpConfig -LoadBalancer `
+                    $LoadBalancerObject -Name $LBRuleFEName                                 # Gets the front end object
+                if ($LBRuleFE.InboundNatRules) {                                            # If $LBRuleFE.InboundNatRules has a value
+                    $HAAvail = 'n'                                                          # Sets $HAAvail
+                }                                                                           # End if ($LBRuleFE.InboundNatRules)
+                $LBRuleFERules = $LBRuleFE.LoadBalancingRules                               # $LBRuleFERules is equal to $LBRuleFE.LoadBalancingRules
+                foreach ($_ in $LBRuleFERules) {                                            # For each item in $LBRuleFERules
+                    if ($_.ID -ne $LBRuleObject.ID) {                                       # If current item if .ID not equal to $LBRuleObject.ID
+                        $HAAvail = 'n'                                                      # Sets $HAAvail
+                    }                                                                       # End if ($_.ID -ne $LBRuleObject.ID)
+                }                                                                           # End foreach ($_ in $LBRuleFERules)
+            }                                                                               # End if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID)
             :NewAzureLBRuleProtocol while ($true) {                                         # Inner loop for setting the rule load disto
                 Write-Host 'Rule Name:    '$LBRuleObject.name                               # Write message to screen
                 Write-Host 'Load Balancer:'$LoadBalancerObject.name                         # Write message to screen
@@ -1719,11 +1736,9 @@ function SetAzLBRuleProtocol {                                                  
                 Write-Host '[0] Exit'                                                       # Write message to screen
                 Write-Host '[1] TCP'                                                        # Write message to screen
                 Write-Host '[2] UDP'                                                        # Write message to screen
-                if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and `
-                    !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID) {     # If $LoadBalancerObject.Sku.Name equals 'Standard' and $LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID is $null
-                    Write-Host '[3] HA (Both)'                                              # Write message to screen
-                    $HAAvail = 'Y'                                                          # Sets $HAAvail flag as 'Y'
-                }                                                                           # End if ($LoadBalancerObject.Sku.Name -eq 'Standard' -and !$LoadBalancerObject.FrontendIpConfigurations.PublicIPAddress.ID)
+                if ($HAAvail -eq 'y') {                                                     # If $HAAvail equals 'y'
+                    Write-Host '[3] HA (All)'                                               # Write message to screen
+                }                                                                           # End if ($HAAvail -eq 'y')
                 Write-Host ''                                                               # Write message to screen
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select load disto
                 Clear-Host                                                                  # Clears screen
@@ -1893,13 +1908,13 @@ function SetAzLBRuleProtocol {                                                  
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureLBRuleProtocol                                                  # Breaks :SetAzureLBRuleProtocol
+                Break SetAzureLBRuleProtocol                                                # Breaks :SetAzureLBRuleProtocol
             }                                                                               # End catch
             Clear-Host                                                                      # Clears screen
             Write-Host 'Requested changes have been made'                                   # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
-            Break SetAzureLBRuleProtocol                                                      # Breaks :SetAzureLBRuleProtocol
+            Break SetAzureLBRuleProtocol                                                    # Breaks :SetAzureLBRuleProtocol
         }                                                                                   # End :SetAzureLBRuleProtocol while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
