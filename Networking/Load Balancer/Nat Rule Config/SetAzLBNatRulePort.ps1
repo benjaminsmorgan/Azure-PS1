@@ -10,11 +10,11 @@
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
-    GetAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleConfig.ps1
+    GetAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/GetAzLBNatRuleConfig.ps1
 } #>
 <# Functions Description: {
     SetAzLBNatRulePort:         Function to change an existing load balancer nat rule port
-    GetAzLBRuleConfig:          Function to get an existing load balancer rule config
+    GetAzLBNatRuleConfig:       Function for getting load balancer nat rule
 } #>
 <# Variables: {      
     :SetAzureLBNatRule          Outer loop for managing function
