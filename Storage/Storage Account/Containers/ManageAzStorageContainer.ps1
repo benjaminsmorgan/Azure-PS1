@@ -69,14 +69,15 @@ function ManageAzStorageContainer {                                             
     Begin {                                                                                 # Begin function
         :ManageAzureStorageCon while ($true) {                                              # Outer loop for managing function
             Write-Host 'Azure Storage Container Management'                                 # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New Storage Container'                                          # Write message to screen
             Write-Host '[2] List All Storage Containers'                                    # Write message to screen
             Write-Host '[3] Remove Storage Container'                                       # Write message to screen
-            Write-Host '[Exit] to return'                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select management function
-            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureStorageCon                                                 # Breaks :ManageAzureStorageCon 
-            }                                                                               # End if ($OpSelect -eq 'exit')
+            }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host "New Storage Container"                                          # Write message to screen
                 NewAzStorageContainer                                                       # Calls function
@@ -90,8 +91,11 @@ function ManageAzStorageContainer {                                             
                 RemoveAzStorageContainer                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host "That was not a valid option"                                    # Write message to screen
-            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End ManageAzureStorageCon while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
