@@ -306,7 +306,7 @@ function ManageAzKeyVault {                                                     
             Write-Host '[4] Manage Key Vault Keys'                                          # Write message to screen
             Write-Host '[5] Manage Key Vault Secrets'                                       # Write message to screen
             Write-Host '[6] Manage Key Vault Certificates'                                  # Write message to screen
-            $OpSelect= Read-Host 'Select option [#]'                                        # Operator input for which option they need to run
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect-eq '0') {                                                         # If $OpSelect equals '0'
                 Break ManageAzureKeyVault                                                   # Breaks :ManageAzureKeyVault
@@ -333,10 +333,13 @@ function ManageAzKeyVault {                                                     
             }                                                                               # End elseif ($OpSelect-eq '5')
             elseif ($OpSelect-eq '6') {                                                     # Else if $OpSelect equals '6'                  
                 Write-Host 'Manage Key Vault Certificates'                                  # Write message to screen
-                #ManageAzKeyVaultCert                                                        # Calls function 
+                ManageAzKVCertificate                                                       # Calls function 
             }                                                                               # End elseif ($OpSelect-eq '6')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect-eq '0'))
         }                                                                                   # End :ManageAzureKeyVault while ($true)
         Clear-Host                                                                          # Clears screen
@@ -560,7 +563,8 @@ function ManageAzKeyVaultKey {                                                  
             Write-Host '[3] List All Key Vaults Keys'                                       # Write message to screen
             Write-Host '[4] Download Key Vault Key'                                         # Write message to screen
             Write-Host '[5] Remove Key Vault Key'                                           # Write message to screen
-            $OpSelect = Read-Host 'Chose option [#]'                                        # Operator selection for management function
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureKeyVaultKey                                                # Breaks :ManageAzureKeyVaultKey
             }                                                                               # End if ($OpSelect -eq '0')
@@ -585,7 +589,10 @@ function ManageAzKeyVaultKey {                                                  
                 RemoveAzKeyVaultKey                                                         # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureKeyVaultKey while ($true)
         Clear-Host                                                                          # Clears screen
@@ -1237,6 +1244,7 @@ function ManageAzKeyVaultSecret {                                               
             Write-Host '[4] Update Key Vault Secret Value'                                  # Write message to screen
             Write-Host '[5] Remove Key Vault Secret Value'                                  # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureKeyVaultSecret                                             # Breaks :ManageAzureKeyVaultSecret
             }                                                                               # End if ($OpSelect -eq '0')
@@ -1261,10 +1269,11 @@ function ManageAzKeyVaultSecret {                                               
                 RemoveAzKeyVaultSecret                                                      # Calls function
             }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
-            Clear-Host                                                                      # Clears screen
         }                                                                                   # End :ManageAzureKeyVaultSecret while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
@@ -1585,7 +1594,7 @@ function RemoveAzKeyVaultSecret {                                               
 function ManageAzKVCertificate {                                                            # Function for managing key vault certs
     Begin {                                                                                 # Begin function
         :ManageAzureKeyVaultCert while ($true) {                                            # Outer loop for managing function
-            Write-Host '[0] To exit'                                                        # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New Key Vault Cert'                                             # Write message to screen
             Write-Host '[2] Import Key Vault Cert'                                          # Write message to screen
             Write-Host '[3] List All Key Vaults Certs'                                      # Write message to screen
@@ -1593,6 +1602,7 @@ function ManageAzKVCertificate {                                                
             Write-Host '[5] Update Key Vault Cert'                                          # Write message to screen
             Write-Host '[6] Remove Key Vault Cert'                                          # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureKeyVaultCert                                               # Breaks :ManageAzureKeyVaultCert
             }                                                                               # End if ($OpSelect -eq '0')
@@ -1621,10 +1631,11 @@ function ManageAzKVCertificate {                                                
                 RemoveAzKVCertificate                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '6')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
-            Clear-Host                                                                      # Clears screen
         }                                                                                   # End :ManageAzureKeyVaultSecret while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
