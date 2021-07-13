@@ -212,16 +212,16 @@ function ManageAzStorageShare {                                                 
     Begin {                                                                                 # Begin function
         :ManageAzureStorageShares while ($true) {                                           # Outer loop for managing function
             Write-Host 'Azure Storage Share Management'                                     # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New Storage Share'                                              # Write message to screen
             Write-Host '[2] List Storage Shares'                                            # Write message to screen
             Write-Host '[3] Remove Storage Share'                                           # Write message to screen
             Write-Host '[4] Manage Storage Share Folders'                                   # Write message to screen
             Write-Host '[5] Manage Storage Share Files'                                     # Write message to screen
-            Write-Host '[Exit] to return'                                                   # Write message to screen
-            $OpSelect = Read-Host "Option?"                                                 # Operator input for selecting the management function
-            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals '0'
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureStorageShares                                              # Breaks :ManageAzureStorageShares
-            }                                                                               # End if ($OpSelect -eq 'exit')
+            }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host 'New Storage Share'                                              # Write message to screen
                 NewAzStorageShare                                                           # Calls function
@@ -243,8 +243,11 @@ function ManageAzStorageShare {                                                 
                 ManageAzStorageFile                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureStorageShares while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
@@ -489,8 +492,9 @@ function ManageAzStorageDirectory {                                             
         :ManageAzureSFolder while ($true) {                                                 # Outer loop for managing function
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Create new folder'                                              # Write message to screen
-            Write-Host '[2] Remove folder'                                                  # Write message to screen   
-            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            Write-Host '[2] Remove folder'                                                  # Write message to screen               
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureSFolder                                                    # Breaks :ManageAzureSFolder
             }                                                                               # End if ($OpSelect -eq '0')
@@ -503,7 +507,10 @@ function ManageAzStorageDirectory {                                             
                 RemoveAzStorageDirectory                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureSFolder while ($true)
         Clear-Host                                                                          # Clears screen
@@ -655,8 +662,9 @@ function ManageAzStorageFile {                                                  
         :ManageAzureSFile while ($true) {                                                   # Outer loop for managing function
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Download file'                                                  # Write message to screen
-            Write-Host '[2] Remove file'                                                    # Write message to screen   
-            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            Write-Host '[2] Remove file'                                                    # Write message to screen               
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureSFile                                                      # Breaks :ManageAzureSFile
             }                                                                               # End if ($OpSelect -eq '0')
@@ -669,13 +677,16 @@ function ManageAzStorageFile {                                                  
                 RemoveAzStorageFile                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureSFolder while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}
+}                                                                                           # End function ManageAzStorageFile
 function GetAzStorageFileContent {                                                          # Function to download a file from file share
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
