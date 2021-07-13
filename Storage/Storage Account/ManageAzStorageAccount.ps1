@@ -68,15 +68,16 @@ function ManageAzStorageAccount {                                               
     Begin {                                                                                 # Begin function
         :ManageAzureStorageAcc while ($true) {                                              # Outer loop for managing function
             Write-Host 'Azure Storage Account Management'                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New Storage Account'                                            # Write message to screen
             Write-Host '[2] List Storage Accounts'                                          # Write message to screen
             Write-Host '[3] Get Storage Account'                                            # Write message to screen
             Write-Host '[4] Remove Storage Account'                                         # Write message to screen
-            Write-Host '[Exit] to return'                                                   # Write message to screen
-            $OpSelect = Read-Host "Option?"                                                 # Operator input for management function selection
-            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for management function selection
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureStorageAcc                                                 # Breaks :ManageAzureStorageAcc
-            }                                                                               # End if ($OpSelect -eq 'exit')
+            }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host 'New Storage Account'                                            # Write message to screen
                 NewAzStorageAccount                                                         # Calls function
@@ -94,8 +95,11 @@ function ManageAzStorageAccount {                                               
                 RemoveAzStorageAccount                                                      # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OpSelect -eq 'exit'))
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End ManageAzureStorageAcc while ($true)
         Return $null                                                                        # Returns to calling function 
     }                                                                                       # End begin
