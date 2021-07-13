@@ -89,8 +89,9 @@ function ManageAzStorageDirectory {                                             
         :ManageAzureSFolder while ($true) {                                                 # Outer loop for managing function
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Create new folder'                                              # Write message to screen
-            Write-Host '[2] Remove folder'                                                  # Write message to screen   
-            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            Write-Host '[2] Remove folder'                                                  # Write message to screen               
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting the management function
+            Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureSFolder                                                    # Breaks :ManageAzureSFolder
             }                                                                               # End if ($OpSelect -eq '0')
@@ -103,7 +104,10 @@ function ManageAzStorageDirectory {                                             
                 RemoveAzStorageDirectory                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($OpSelect -eq '0'))
         }                                                                                   # End :ManageAzureSFolder while ($true)
         Clear-Host                                                                          # Clears screen
