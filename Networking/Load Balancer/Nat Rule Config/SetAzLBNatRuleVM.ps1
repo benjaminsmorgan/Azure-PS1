@@ -75,13 +75,15 @@ function SetAzLBNatRuleVM {                                                     
             $VMName = $NicObject.VirtualMachine.ID.Split('/')[-1]                           # Isloates the VM name
             Write-Host 'Make the following change:'                                         # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Add:'                                                               # Write message to screen
+            Write-Host 'Add'                                                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             Write-Host 'VM Name:      '$VMName                                              # Write message to screen
             Write-Host 'Nic Name:     '$NicObject.name                                      # Write message to screen
             Write-Host 'Config Name:  '$NicIPConfigObject.Name                              # Write message to screen
             Write-Host 'Private IP:   '$NicIPConfigObject.PrivateIPAddress                  # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Write-Host 'To:'                                                                # Write message to screen
+            Write-Host 'To'                                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             Write-Host 'Load Balancer:'$LoadBalancerObject.name                             # Write message to screen
             Write-Host 'Nat Rule:     '$LBNatRule.name                                      # Write message to screen
             Write-Host 'Nat Protocol: '$LBNatRule.Protocol                                  # Write message to screen
