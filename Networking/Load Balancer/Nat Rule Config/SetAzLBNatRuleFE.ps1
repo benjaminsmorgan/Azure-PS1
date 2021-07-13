@@ -11,12 +11,12 @@
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
-    GetAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleConfig.ps1
+    GetAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/GetAzLBNatRuleConfig.ps1
     GetAzLBRuleFE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleFE.ps1
 } #>
 <# Functions Description: {
     SetAzLBNatRuleFE:           Function to change an existing load balancer nat rule front end
-    GetAzLBRuleConfig:          Function to get an existing load balancer rule config
+    GetAzLBNatRuleConfig:       Function for getting load balancer nat rule
     GetAzLBRuleFE:              Function to get a load balancer front end config for load balancer rule
 } #>
 <# Variables: {      
@@ -221,6 +221,7 @@ function SetAzLBNatRuleFE {                                                     
             else  {                                                                         # All other inputs for $OpConfirm
                 Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
                 Break SetAzureLBNatRule                                                     # Breaks :SetAzureLBNatRule
             }                                                                               # End else (if ($OpConfirm -eq 'y'))                                                    
         }                                                                                   # End :SetAzureLBNatRule while ($true)
