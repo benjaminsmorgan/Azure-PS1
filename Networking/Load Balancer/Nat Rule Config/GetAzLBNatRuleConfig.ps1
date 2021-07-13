@@ -6,6 +6,7 @@
     Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.1.0
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.2.0
 } #>
 <# Required Functions Links: {
     None
@@ -29,6 +30,7 @@
     $BackEndNic:                Current rule load balancer back end nic object
     $BackEndConfig:             Current rule load balancer back end nic IP config object
     $BackEndSub:                Current rule load balancer back end nic IP config subnet
+    $VMObject:                  Current rule load balancer target VM
     $ObjectList:                $var used to load items into $ObjectArray
     $Number:                    Current item.number
     $CallingFunction:           Name of the function that called this one
@@ -85,21 +87,28 @@ Function GetAzLBNatRuleConfig {                                                 
                                 -NetworkInterface $BackEndNic -Name $BackEndName            # Gets the back end config NIC ip config
                             $BackEndSub = $BackEndConfig.Subnet.Id                          # Isolates the back end subnet ID
                             $BackEndSub = $BackEndSub.Split('/')[-1]                        # Isolates the back end subnet name
+                            $VMObject = Get-AzVM | Where-Object `
+                                {$_.NetworkProfile.NetworkInterfaces.ID -eq $BackEndNic.ID} # Gets the VM $BackEndNic is attached to 
                         }                                                                   # End if ($_.BackendIpConfiguration.ID) 
                         $ObjectList = [PSCustomObject]@{                                    # Var used to load items into $ObjectArray
-                            'Number'=$ObjectNumber;'Name'=$_.Name;'Proto'=$_.Protocol;`
-                            'LBName'=$LoadBalancerObject.Name;`
-                            'FEPort'=$_.FrontendPort;'BEPort'=$_.BackEndPort;`
-                            'Idle'=$_.IdleTimeoutInMinutes;'FEName'=$FrontEnd.Name;`
-                            'FEPriIP'=$FrontEnd.PrivateIpAddress;`
-                            'FEPriAll'=$FrontEnd.PrivateIpAllocationMethod;`
-                            'FESub'=$FrontEndSub;`
-                            'FEPubIPName'=$FEPublicIPObject.Name;`
-                            'FEPubIPAdd'=$FEPublicIPObject.IpAddress;`
-                            'FEPubIPAll'=$FEPublicIPObject.PublicIpAllocationMethod;`
-                            'BEPriIP'=$BackEndConfig.PrivateIpAddress;`
-                            'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;`
-                            'BESub'=$BackEndSub                                             # Assoicates the items to $ObjectList         
+                            'Number'=$ObjectNumber;                                         # List number
+                            'Name'=$_.Name;                                                 # Nat rule name
+                            'Proto'=$_.Protocol;                                            # Nat rule protocol
+                            'LBName'=$LoadBalancerObject.Name;                              # Load balancer name
+                            'FEPort'=$_.FrontendPort;                                       # Nat rule source port
+                            'BEPort'=$_.BackEndPort;                                        # Nat rule target port
+                            'Idle'=$_.IdleTimeoutInMinutes;                                 # Nat rule idle time out
+                            'FEName'=$FrontEnd.Name;                                        # Front end name
+                            'FEPriIP'=$FrontEnd.PrivateIpAddress;                           # Front end private IP
+                            'FEPriAll'=$FrontEnd.PrivateIpAllocationMethod;                 # Front end private IP allocation
+                            'FESub'=$FrontEndSub;                                           # Front end subnet
+                            'FEPubIPName'=$FEPublicIPObject.Name;                           # Target public IP sku name
+                            'FEPubIPAdd'=$FEPublicIPObject.IpAddress;                       # Target public IP address
+                            'FEPubIPAll'=$FEPublicIPObject.PublicIpAllocationMethod;        # Target public IP addess allocation
+                            'BEPriIP'=$BackEndConfig.PrivateIpAddress;                      # Target private IP address
+                            'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;          # Target private IP allocation 
+                            'BESub'=$BackEndSub;                                            # Target subnet
+                            'VMName'=$VMObject.Name                                         # VM object name                                              
                         }                                                                   # End $ObjectList = [PSCustomObject]@
                         $ObjectArray.Add($ObjectList) | Out-Null                            # Adds ObjectList to $ObjectArray
                         $ObjectNumber = $ObjectNumber + 1                                   # Increments $ObjectNumber up by 1
@@ -113,6 +122,7 @@ Function GetAzLBNatRuleConfig {                                                 
                         $BackEndName = $null                                                # Clears $var
                         $BackEndConfig = $null                                              # Clears $var
                         $BackEndSub = $null                                                 # Clears $var
+                        $VMObject = $null                                                   # Clears $var
                     }                                                                       # End foreach ($_ in $LBRuleList)
                 }                                                                           # End if ($LBRuleList)
             }                                                                               # End foreach ($_ in $LBList)
@@ -158,6 +168,9 @@ Function GetAzLBNatRuleConfig {                                                 
                     if ($_.BEPubIP) {                                                       # If $_.BEPubIP has a value
                         Write-Host 'BE public IP:  '$_.BEPubIP                              # Write message to screen
                     }                                                                       # End if ($_.BEPubIP)
+                    if ($_.VMName) {                                                        # If $_.VMName has a value
+                        Write-Host 'Target VM Name:'$_.VMName                               # Write message to screen
+                    }                                                                       # End if ($_.VMName)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
