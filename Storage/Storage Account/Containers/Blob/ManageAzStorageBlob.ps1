@@ -115,15 +115,16 @@ function ManageAzStorageBlob {                                                  
     Begin {                                                                                 # Begin function
         :ManageAzureStorageBlob while ($true) {                                             # Outer loop for managing function
             Write-Host 'Azure Storage Blob Management'                                      # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Add Storage Blob'                                               # Write message to screen
             Write-Host '[2] List Storage Blobs'                                             # Write message to screen
             Write-Host '[3] Download Storage Blobs'                                         # Write message to screen
             Write-Host '[4] Remove Storage Blobs'                                           # Write message to screen
-            Write-Host '[Exit] to return'                                                   # Write message to screen
-            $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function        
-            if ($OpSelect -eq 'exit') {                                                     # If $OpSelect equals 'exit'
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function  
+            Clear-Host                                                                      # Clears screen      
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureStorageBlob                                                # Breaks :ManageAzureStorageBlob 
-            }                                                                               # End if ($OpSelect -eq 'exit')
+            }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host 'Add Storage Blob'                                               # Write message to screen
                 SetAzStorageBlobContent                                                     # Calls function 
@@ -141,8 +142,11 @@ function ManageAzStorageBlob {                                                  
                 RemoveAzStorageBlob                                                         # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
-                Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($OpSelect -eq 'exit))
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0))
         }                                                                                   # End :ManageAzureStorageBlob while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
