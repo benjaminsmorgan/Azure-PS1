@@ -1747,7 +1747,6 @@ function SetAzLBRuleFEPort {                                                    
             $CurrentNatRules = Get-AzLoadBalancerInboundNatRuleConfig -LoadBalancer `
                 $LoadBalancerObject | Where-Object {$_.FrontendIPConfiguration.ID -eq `
                 $LBRuleObject.FrontendIpConfiguration.ID}                                   # Gets a list of all nat rules using $LBRuleObject.FrontendIpConfiguration.ID
-                
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBRuleFEPort while ($true) {                                           # Inner loop for setting the rule front end port
