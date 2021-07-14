@@ -23,7 +23,8 @@
     $CurrentBEObject:           Current rule back end object
     $CurrentBEID:               Current rule back end object ID
     $OpSelect:                  Operator selection for the rule new TCP reset setting
-    $TCPReset:                  Load balancer rule new TCP reset setting
+    $EFloatIP:                  Current value of $LBRuleObject.EnableFloatingIP
+    $ETCPReset:                 New value for $LBRuleObject.EnableTCPReset
     GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
 } #>
 <# Process Flow {
@@ -71,11 +72,13 @@ function SetAzLBRuleTCPReset {                                                  
                     Break SetAzureLBRuleTCPReset                                            # Breaks SetAzureLBRuleTCPReset
                 }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
-                    $TCPReset = 'Disabled'                                                  # Sets $TCPReset
+                    $ETCPReset = $false                                                     # Sets $ETCPReset
+                    Write-Host 'Disabling TCP Reset'                                        # Write message to screen
                     Break NewAzureLBRuleTCPReset                                            # Breaks :NewAzureLBRuleTCPReset
                 }                                                                           # End elseif ($OpSelect -eq '1')
                 elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
-                    $TCPReset = 'Enabled'                                                   # Sets $TCPReset
+                    $ETCPReset = $true                                                      # Sets $ETCPReset
+                    Write-Host 'Enabling TCP Reset'                                         # Write message to screen
                     Break NewAzureLBRuleTCPReset                                            # Breaks :NewAzureLBRuleTCPReset
                 }                                                                           # End elseif ($OpSelect -eq '2')
                 else {                                                                      # All other inputs for $OpSelect
@@ -86,76 +89,21 @@ function SetAzLBRuleTCPReset {                                                  
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :NewAzureLBRuleTCPReset while ($true)
             Try {                                                                           # Try the following
-                if ($LBRuleObject.EnableFloatingIP -eq $True `
-                    -and $TCPReset -eq 'Enabled') {                                         # If $LBRuleObject.EnableFloatingIP equals $True and $TCPReset equals 'Enabled'    
-                    Write-Host 'Enabling TCP reset'                                         # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule TCP reset
-                }                                                                           # End if ($LBRuleObject.EnableFloatingIP -eq $True -and $TCPReset -eq 'Enabled')
-                elseif ($LBRuleObject.EnableFloatingIP -eq $True `
-                    -and $TCPReset -eq 'Disabled') {                                        # Else if $LBRuleObject.EnableFloatingIP equals $True and $TCPReset equals 'Disabled'
-                    Write-Host 'Disabling TCP reset'                                        # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule TCP reset
-                }                                                                           # End elseif ($LBRuleObject.EnableFloatingIP -eq $True -and $TCPReset -eq 'Disabled')
-                elseif ($LBRuleObject.EnableFloatingIP -eq $false `
-                    -and $TCPReset -eq 'Enabled') {                                         # If $LBRuleObject.EnableFloatingIP equals $false and $TCPReset equals 'Enabled'
-                    Write-Host 'Enabling TCP reset'                                         # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule TCP reset    
-                }                                                                           # End elseif ($LBRuleObject.EnableFloatingIP -eq $false -and $TCPReset -eq 'Enabled) 
-                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP equals $false and $TCPReset equals 'Disabled'
-                    Write-Host 'Disabling TCP reset'                                        # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule TCP reset
-                }                                                                           # End Else (if ($LBRuleObject.EnableFloatingIP -eq $True -and $TCPReset -eq 'Enabled'))
+                if ($LBRuleObject.EnableFloatingIP -eq $True) {                             # If $LBRuleObject.EnableFloatingIP equals $True                          
+                    $EFloatIP = $true                                                       # Sets $EFloatIP
+                }                                                                           # End if ($LBRuleObject.EnableFloatingIP -eq $True)
+                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP does not equal $True 
+                    $EFloatIP = $false                                                      # Sets $EFloatIP
+                }                                                                           # End else (if ($LBRuleObject.EnableFloatingIP -eq $True))
+                Set-AzLoadBalancerRuleConfig -LoadBalancer $LoadBalancerObject -Name `
+                    $LBRuleObject.Name -FrontendIpConfigurationId `
+                    $LBRuleObject.FrontendIpConfiguration.ID -Protocol `
+                    $LBRuleObject.Protocol -FrontendPort $LBRuleObject.FrontendPort `
+                    -BackendPort  $LBRuleObject.BackEndPort -IdleTimeoutInMinutes `
+                    $LBRuleObject.IdleTimeoutInMinutes -BackendAddressPoolId $CurrentBEID `
+                    -LoadDistribution $LBRuleLoadDisto -EnableTcpReset:$ETCPReset `
+                    -EnableFloatingIP:$EFloatIP -ProbeID $LBRuleObject.Probe.ID `
+                    -ErrorAction 'Stop' | Out-Null                                          # Changes the rule TCP reset
                 Write-Host 'Saving the load balancer configuration'                         # Write message to screen
                 $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
             }                                                                               # End try
