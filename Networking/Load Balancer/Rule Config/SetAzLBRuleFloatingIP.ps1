@@ -23,7 +23,8 @@
     $CurrentBEObject:           Current rule back end object
     $CurrentBEID:               Current rule back end object ID
     $OpSelect:                  Operator selection for the rule new floating IP setting
-    $FloatingIP:                Load balancer rule new floating IP setting
+    $EFloatIP:                  New value of $LBRuleObject.EnableFloatingIP
+    $ETCPReset:                 Current value of $LBRuleObject.EnableTCPReset
     GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
 } #>
 <# Process Flow {
@@ -71,11 +72,13 @@ function SetAzLBRuleFloatingIP {                                                
                     Break SetAzureLBRuleFloatingIP                                          # Breaks SetAzureLBRuleFloatingIP
                 }                                                                           # End if ($OpSelect -eq '0')
                 elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
-                    $FloatingIP = 'Disabled'                                                # Sets $FloatingIP
+                    $EFloatIP = $false                                                      # Sets $EFloatIP
+                    Write-Host 'Disabling Floating IP'                                      # Write message to screen
                     Break NewAzureLBRuleFloatingIP                                          # Breaks :NewAzureLBRuleFloatingIP
                 }                                                                           # End elseif ($OpSelect -eq '1')
                 elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
-                    $FloatingIP = 'Enabled'                                                 # Sets $FloatingIP
+                    $EFloatIP = $true                                                       # Sets $EFloatIP
+                    Write-Host 'Enabling Floating IP'                                       # Write message to screen
                     Break NewAzureLBRuleFloatingIP                                          # Breaks :NewAzureLBRuleFloatingIP
                 }                                                                           # End elseif ($OpSelect -eq '2')
                 else {                                                                      # All other inputs for $OpSelect
@@ -86,76 +89,21 @@ function SetAzLBRuleFloatingIP {                                                
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :NewAzureLBRuleFloatingIP while ($true)
             Try {                                                                           # Try the following
-                if ($LBRuleObject.EnableTcpReset -eq $True `
-                    -and $FloatingIP -eq 'Enabled') {                                       # If $LBRuleObject.EnableTcpReset equals $True -and $FloatingIP equals 'Enabled'
-                    Write-Host 'Enabling Floating IP'                                       # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule floating IP
-                }                                                                           # End if ($LBRuleObject.EnableTcpReset -eq $True -and $FloatingIP -eq 'Enabled')
-                elseif ($LBRuleObject.EnableFloatingIP -eq $false `
-                    -and $FloatingIP -eq 'Enabled') {                                       # Else if $LBRuleObject.EnableFloatingIP equals $false -and $FloatingIP equals 'Enabled'
-                    Write-Host 'Enabling Floating IP'                                       # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule floating IP
-                }                                                                           # End elseif ($LBRuleObject.EnableFloatingIP -eq $false -and $FloatingIP -eq 'Enabled')
-                elseif ($LBRuleObject.EnableTcpReset -eq $true `
-                    -and $FloatingIP -eq 'Disabled') {                                      # Else if $LBRuleObject.EnableFloatingIP equals $true -and $FloatingIP equals 'Disabled'
-                    Write-Host 'Disabling Floating IP'                                      # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule floating IP    
-                }                                                                           # End elseif ($LBRuleObject.EnableTcpReset -eq $true -and $FloatingIP -eq 'Disabled')
-                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP equals $false -and $FloatingIP equals 'Disabled'
-                    Write-Host 'Disabling Floating IP'                                      # Write message to screen
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule floating IP
-                }                                                                           # End else (if ($LBRuleObject.EnableTcpReset -eq $True -and $FloatingIP -eq 'Enabled'))
+                if ($LBRuleObject.EnableTcpReset -eq $true) {                               # If $LBRuleObject.EnableTcpReset equals $true                               
+                    $ETCPReset = $true                                                      # Sets $ETCPReset
+                }                                                                           # End if ($LBRuleObject.EnableTcpReset -eq $true)
+                else {                                                                      # Else if $LBRuleObject.EnableTcpReset does not equal $true
+                    $ETCPReset = $false                                                     # Sets $ETCPReset
+                }                                                                           # End Else (if ($LBRuleObject.EnableTcpReset -eq $true))
+                Set-AzLoadBalancerRuleConfig -LoadBalancer $LoadBalancerObject -Name `
+                    $LBRuleObject.Name -FrontendIpConfigurationId `
+                    $LBRuleObject.FrontendIpConfiguration.ID -Protocol `
+                    $LBRuleObject.Protocol -FrontendPort $LBRuleObject.FrontendPort `
+                    -BackendPort $LBRuleObject.BackEndPort -IdleTimeoutInMinutes  `
+                    $LBRuleObject.IdleTimeoutInMinutes -BackendAddressPoolId $CurrentBEID `
+                    -LoadDistribution $LBRuleLoadDisto -EnableTcpReset:$ETCPReset `
+                    -EnableFloatingIP:$EFloatIP -ProbeID $LBRuleObject.Probe.ID `
+                    -ErrorAction 'Stop' | Out-Null                                          # Changes the rule floating IP
                 Write-Host 'Saving the load balancer configuration'                         # Write message to screen
                 $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
             }                                                                               # End try
