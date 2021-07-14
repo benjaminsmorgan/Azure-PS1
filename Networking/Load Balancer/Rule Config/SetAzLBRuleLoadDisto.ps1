@@ -24,6 +24,8 @@
     $CurrentBEID:               Current rule back end object ID
     $OpSelect:                  Operator selection for the rule new load distro
     $LBRuleLoadDisto:           Load balancer rule new load distro
+    $EFloatIP:                  Current value of $LBRuleObject.EnableFloatingIP
+    $ETCPReset:                 Current value of $LBRuleObject.EnableTCPReset
     GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
 } #>
 <# Process Flow {
@@ -90,72 +92,30 @@ function SetAzLBRuleLoadDisto {                                                 
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :NewAzureLBRuleLoadDisto while ($true)
+
             Write-Host 'Changing the rule load distribution'                                # Write message to screen
             Try {                                                                           # Try the following
-                if ($LBRuleObject.EnableFloatingIP -eq $True `
-                    -and $LBRuleObject.EnableTcpReset -eq $True) {                          # If $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset equal $true
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule load disto
-                }                                                                           # End if ($LBRuleObject.EnableFloatingIP -eq $True -and $LBRuleObject.EnableTcpReset -eq $True)
-                elseif ($LBRuleObject.EnableFloatingIP -eq $True) {                         # Else if $LBRuleObject.EnableFloatingIP equals $True
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableFloatingIP `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule load disto
-                }                                                                           # End elseif ($LBRuleObject.EnableFloatingIP -eq $True)
-                elseif ($LBRuleObject.EnableTcpReset -eq $true) {                           # Else if $LBRuleObject.EnableTcpReset equals $true
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -EnableTcpReset `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule load disto    
-                }                                                                           # End elseif ($LBRuleObject.EnableTcpReset -eq $true) 
-                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP and $LBRuleObject.EnableTcpReset does not equal $true
-                    Set-AzLoadBalancerRuleConfig `
-                        -LoadBalancer $LoadBalancerObject `
-                        -Name $LBRuleObject.Name `
-                        -FrontendIpConfigurationId `
-                        $LBRuleObject.FrontendIpConfiguration.ID `
-                        -Protocol $LBRuleObject.Protocol `
-                        -FrontendPort $LBRuleObject.FrontendPort `
-                        -BackendPort  $LBRuleObject.BackEndPort `
-                        -IdleTimeoutInMinutes  $LBRuleObject.IdleTimeoutInMinutes `
-                        -BackendAddressPoolId  $CurrentBEID `
-                        -LoadDistribution $LBRuleLoadDisto `
-                        -ProbeID $LBRuleObject.Probe.ID -Verbose -ErrorAction `
-                        'Stop' | Out-Null                                                   # Changes the rule load disto
-                }                                                                           # End Else (if ($LBBEObject.EnableFloatingIP -eq $True -and $LBBEObject.EnableTcpReset -eq $True))
+                if ($LBRuleObject.EnableFloatingIP -eq $True) {                             # If $LBRuleObject.EnableFloatingIP equals $True                          
+                    $EFloatIP = $true                                                       # Sets $EFloatIP
+                }                                                                           # End if ($LBRuleObject.EnableFloatingIP -eq $True)
+                else {                                                                      # Else if $LBRuleObject.EnableFloatingIP does not equal $True 
+                    $EFloatIP = $false                                                      # Sets $EFloatIP
+                }                                                                           # End else (if ($LBRuleObject.EnableFloatingIP -eq $True))
+                if ($LBRuleObject.EnableTcpReset -eq $true) {                               # If $LBRuleObject.EnableTcpReset equals $true                               
+                    $ETCPReset = $true                                                      # Sets $ETCPReset
+                }                                                                           # End if ($LBRuleObject.EnableTcpReset -eq $true)
+                else {                                                                      # Else if $LBRuleObject.EnableTcpReset does not equal $true
+                    $ETCPReset = $false                                                     # Sets $ETCPReset
+                }                                                                           # End Else (if ($LBRuleObject.EnableTcpReset -eq $true))
+                Set-AzLoadBalancerRuleConfig -LoadBalancer $LoadBalancerObject -Name `
+                    $LBRuleObject.Name -FrontendIpConfigurationId `
+                    $LBRuleObject.FrontendIpConfiguration.ID -Protocol `
+                    $LBRuleObject.Protocol -FrontendPort $LBRuleObject.FrontendPort `
+                    -BackendPort $LBRuleObject.BackEndPort -IdleTimeoutInMinutes `
+                    $LBRuleObject.IdleTimeoutInMinutes -BackendAddressPoolId $CurrentBEID `
+                    -LoadDistribution $LBRuleLoadDisto -EnableTcpReset:$ETCPReset `
+                    -EnableFloatingIP:$EFloatIP -ProbeID $LBRuleObject.Probe.ID `
+                    -ErrorAction 'Stop' | Out-Null                                          # Changes the rule load disto
                 Write-Host 'Saving the load balancer configuration'                         # Write message to screen
                 $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
             }                                                                               # End try
