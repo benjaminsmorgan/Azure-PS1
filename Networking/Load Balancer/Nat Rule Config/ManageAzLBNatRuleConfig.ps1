@@ -79,16 +79,18 @@ function ManageAzLBNatRuleConfig {                                              
     Begin {                                                                                 # Begin function
         :ManageAzureLBNatRuleConfig while ($true) {                                         # Outer loop for managing function
             Write-Host 'Manage Load Balancer Nat Rules'                                     # Write message to screen
-            Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] Add Nat Rule Config'                                            # Write message to screen
-            Write-Host '[2] List Nat Rule Configs'                                          # Write message to screen
-            Write-Host '[3] Set Nat Rule Front End Config'                                  # Write message to screen
-            Write-Host '[4] Set Nat Rule Source Port Config'                                # Write message to screen
-            Write-Host '[5] Set Nat Rule Target Port Config'                                # Write message to screen
-            Write-Host '[6] Set Nat Rule Idle Iime Out Config'                              # Write message to screen
-            Write-Host '[7] Add VM to Nat Rule Config'                                      # Write message to screen
-            Write-Host '[8] Remove VM from Nat Rule Config'                                 # Write message to screen
-            Write-Host '[9] Remove Nat Rule Config'                                         # Write message to screen
+            Write-Host '[0]  Exit'                                                          # Write message to screen
+            Write-Host '[1]  Add Nat Rule Config'                                           # Write message to screen
+            Write-Host '[2]  List Nat Rule Configs'                                         # Write message to screen
+            Write-Host '[3]  Set Nat Rule Front End Config'                                 # Write message to screen
+            Write-Host '[4]  Set Nat Rule Source Port Config'                               # Write message to screen
+            Write-Host '[5]  Set Nat Rule Target Port Config'                               # Write message to screen
+            Write-Host '[6]  Set Nat Rule Idle Iime Out Config'                             # Write message to screen
+            Write-Host '[7]  Set Nat Rule TCP Reset'                                        # Write message to screen
+            Write-Host '[8]  Set Nat Rule Floating IP'                                      # Write message to screen
+            Write-Host '[9]  Add VM to Nat Rule Config'                                     # Write message to screen
+            Write-Host '[10] Remove VM from Nat Rule Config'                                # Write message to screen
+            Write-Host '[11] Remove Nat Rule Config'                                        # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -108,7 +110,7 @@ function ManageAzLBNatRuleConfig {                                              
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Set Nat Rule Source Port Config'                                # Write message to screen
-                SetAzLBNatRulePort                                                          # Calls function
+                SetAzLBNatRuleSourcePort                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
                 Write-Host 'Set Nat Rule Target Port Config'                                # Write message to screen
@@ -119,17 +121,25 @@ function ManageAzLBNatRuleConfig {                                              
                 SetAzLBNatRuleTO                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '6')
             elseif ($OpSelect -eq '7') {                                                    # Else if $OpSelect equals '7'
-                Write-Host 'Add VM to Nat Rule Config'                                      # Write message to screen
-                SetAzLBNatRuleVM                                                            # Calls function
+                Write-Host 'Set Nat Rule TCP Reset'                                         # Write message to screen
+                SetAzLBNatRuleTCP                                                           # Calls function
             }                                                                               # End elseif ($OpSelect -eq '7')
             elseif ($OpSelect -eq '8') {                                                    # Else if $OpSelect equals '8'
-                Write-Host 'Remove VM from Nat Rule Config'                                 # Write message to screen
-                RemoveAzLBNatRuleVM                                                         # Calls function
+                Write-Host 'Set Nat Rule Floating IP'                                       # Write message to screen
+                SetAzLBNatRuleFloatIP                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '8')
             elseif ($OpSelect -eq '9') {                                                    # Else if $OpSelect equals '9'
+                Write-Host 'Add VM to Nat Rule Config'                                      # Write message to screen
+                SetAzLBNatRuleVM                                                            # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '9')
+            elseif ($OpSelect -eq '10') {                                                   # Else if $OpSelect equals '10'
+                Write-Host 'Remove VM from Nat Rule Config'                                 # Write message to screen
+                RemoveAzLBNatRuleVM                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '10')
+            elseif ($OpSelect -eq '11') {                                                   # Else if $OpSelect equals '11'
                 Write-Host 'Remove Nat Rule Config'                                         # Write message to screen
                 RemoveAzLBNatRuleConfig                                                     # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '9')
+            }                                                                               # End elseif ($OpSelect -eq '11')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -401,6 +411,8 @@ Function ListAzLBNatRuleConfig {                                                
                             'BEPriIP'=$BackEndConfig.PrivateIpAddress;                      # Target private IP address
                             'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;          # Target private IP allocation 
                             'BESub'=$BackEndSub;                                            # Target subnet
+                            'ETCPR'=$_.EnableTCPReset;                                      # Nat rule TCP reset setting
+                            'EFIP'=$_.EnableFloatingIP;                                     # Nat rule floating IP setting
                             'VMName'=$VMObject.Name                                         # VM object name        
                         }                                                                   # End $ObjectList = [PSCustomObject]@
                         $ObjectArray.Add($ObjectList) | Out-Null                            # Adds ObjectList to $ObjectArray
@@ -454,6 +466,8 @@ Function ListAzLBNatRuleConfig {                                                
                 if ($_.VMName) {                                                            # If $_.VMName has a value
                     Write-Host 'Target VM Name:'$_.VMName                                   # Write message to screen
                 }                                                                           # End if ($_.VMName)
+                Write-Host 'TCP Reset:     '$_.ETCPR                                        # Write message to screen
+                Write-Host 'Floating IP:   '$_.EFIP                                         # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -527,6 +541,8 @@ Function GetAzLBNatRuleConfig {                                                 
                             'BEPriIP'=$BackEndConfig.PrivateIpAddress;                      # Target private IP address
                             'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;          # Target private IP allocation 
                             'BESub'=$BackEndSub;                                            # Target subnet
+                            'ETCPR'=$_.EnableTCPReset;                                      # Nat rule TCP reset setting
+                            'EFIP'=$_.EnableFloatingIP;                                     # Nat rule floating IP setting
                             'VMName'=$VMObject.Name                                         # VM object name                                              
                         }                                                                   # End $ObjectList = [PSCustomObject]@
                         $ObjectArray.Add($ObjectList) | Out-Null                            # Adds ObjectList to $ObjectArray
@@ -590,6 +606,8 @@ Function GetAzLBNatRuleConfig {                                                 
                     if ($_.VMName) {                                                        # If $_.VMName has a value
                         Write-Host 'Target VM Name:'$_.VMName                               # Write message to screen
                     }                                                                       # End if ($_.VMName)
+                    Write-Host 'TCP Reset:     '$_.ETCPR                                    # Write message to screen
+                    Write-Host 'Floating IP:   '$_.EFIP                                     # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
@@ -769,10 +787,10 @@ function SetAzLBNatRuleFE {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzLBNatRuleFE
-function SetAzLBNatRulePort {                                                               # Function to change an existing load balancer nat rule port
+function SetAzLBNatRuleSourcePort {                                                         # Function to change an existing load balancer nat rule source port
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction = 'SetAzLBNatRulePort'                                         # Creates $CallingFunction
+            $CallingFunction = 'SetAzLBNatRuleSourcePort'                                   # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :SetAzureLBNatRule while ($true) {                                                  # Outer loop for managing function
             $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
@@ -781,29 +799,43 @@ function SetAzLBNatRulePort {                                                   
             }                                                                               # End if (!$LBNatRule)
             $CurrentRules = Get-AzLoadBalancerRuleConfig -LoadBalancer $LoadBalancerObject `
             | Where-Object {$_.FrontendIPConfiguration.ID -eq `
-                $LBRuleObject.FrontendIpConfiguration.ID}                                   # Gets a list of all rules using $LBRuleObject.FrontendIpConfiguration.ID
+                $LBNatRule.FrontendIpConfiguration.ID}                                      # Gets a list of all rules using $LBNatRule.FrontendIpConfiguration.ID
             $CurrentNatRules = Get-AzLoadBalancerInboundNatRuleConfig -LoadBalancer `
                 $LoadBalancerObject | Where-Object {$_.FrontendIPConfiguration.ID -eq `
-            $LBRuleObject.FrontendIpConfiguration.ID}                                       # Gets a list of all nat rules using $LBRuleObject.FrontendIpConfiguration.ID
+                $LBNatRule.FrontendIpConfiguration.ID}                                      # Gets a list of all nat rules using $LBNatRule.FrontendIpConfiguration.ID
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates $ObjectArray
+            foreach ($_ in $CurrentRules) {                                                 # For each item in $CurrentRules
+                $PortandProtocol = $_.Protocol + ' ' + $_.FrontEndPort                      # $PortandProtocol is equal to current item .Protocol and .FrontEndPort                    
+                $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
+                    'PortandProto'=$PortandProtocol                                         # $PortandProtocol
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $PortandProtocol = $null                                                    # Clears $var
+            }                                                                               # End foreach ($_ in $CurrentRules)
+            foreach ($_ in $CurrentNatRules) {                                              # For each item in $CurrentNatRules
+                $PortandProtocol = $_.Protocol + ' ' + $_.FrontEndPort                      # $PortandProtocol is equal to current item .Protocol and .FrontEndPort                    
+                $ObjectInput = [PSCustomObject]@{                                           # Creates the item to loaded into array
+                    'PortandProto'=$PortandProtocol                                         # $PortandProtocol
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $PortandProtocol = $null                                                    # Clears $var
+            }                                                                               # End foreach ($_ in $CurrentNatRules)
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBNatRulePort while ($true) {                                          # Inner loop for setting the nat rule port
-                if ($CurrentRules -or $CurrentNatRules) {                                   # If $CurrentRules or $CurrentNatRules has a value
+                if ($ObjectArray) {                                                         # If $ObjectArray has a value
                     Write-Host 'The following front end ports are already in use'           # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    foreach ($_ in $CurrentRules) {                                         # For each item in $CurrentRules
-                        Write-Host $_.FrontEndPort                                          # Write message to screen
-                    }                                                                       # End foreach ($_ in $CurrentRules)
-                    foreach ($_ in $CurrentNatRules) {                                      # For each item in $CurrentNatRules
-                        Write-Host $_.FrontEndPort                                          # Write message to screen
-                    }                                                                       # End foreach ($_ in $CurrentNatRules)
+                    foreach ($_ in $ObjectArray) {                                          # For each item in $ObjectArray
+                        Write-Host $_.PortandProto                                          # Write message to screen
+                    }                                                                       # End foreach ($_ in $ObjectArray)
                     Write-Host ''                                                           # Write message to screen
-                }                                                                           # End if ($CurrentRules -or $CurrentNatRules)
-                Write-Host 'Enter the nat rule pool port'                                   # Write message to screen
+                }                                                                           # End if ($ObjectArray)
+                Write-Host 'Enter the nat rule pool source port'                            # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
                 $LBNatRulePort = Read-Host 'Port #'                                         # Operator input for the nat rule port 
                 $LBRuleArray = $LBNatRulePort.ToCharArray()                                 # Adds $LBNatRulePort to array
-                Clear-Host                                                                  # Clears screen
+                $LBNatRulePortProto = $LBNatRule.Protocol + ' ' + $LBNatRulePort            # $LBNatRulePortProto is equal to $LBNatRule.Protocol and $LBNatRulePort
                 Clear-Host                                                                  # Clears screen
                 :CheckInput foreach ($_ in $LBRuleArray) {                                  # For each item in $LBRuleArray
                     if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
@@ -814,49 +846,23 @@ function SetAzLBNatRulePort {                                                   
                     }                                                                       # End if ($_ -notin $ValidArray)
                 }                                                                           # End foreach ($_ in $LBRuleArray)
                 $LBRuleArray = $null                                                        # Clears $LBRuleArray
-                if ($LBNatRulePort -in $CurrentRules.FrontendPort -or `
-                $LBNatRulePort -in $CurrentNatRules.FrontendPort) {                         # If $LBNatRulePort is in $CurrentRules.FrontendPort or $CurrentNatRules.FrontendPort
-                    Write-Host 'Port:'$LBNatRulePort' is already in use'                    # Write message to screen
+                if ($LBNatRulePortProto -in $ObjectArray.PortandProto) {                    # If $LBNatRulePortProto is in $ObjectArray.PortandProto
+                    Write-Host 'Port:'$LBNatRulePortProto' is already in use'               # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Write-Host 'Please select another port'                                 # Write message to screen
                     Write-Host 'or move this rule to a different'                           # Write message to screen
                     Write-Host 'front end configuration'                                    # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $LBNatRulePort = $null                                                  # Clears $LBNatRulePort
-                }                                                                           # End if ($LBNatRulePort -in $CurrentRules.FrontendPort -or $LBNatRulePort -in $CurrentNatRules.FrontendPort)
+                }                                                                           # End if ($LBNatRulePortProto -in $ObjectArray.PortandProto)
                 if ($LBNatRulePort) {                                                       # If $LBNatRulePort has a value
-                    Write-Host 'Use:'$LBNatRulePort' as the nat rule source port'           # Write message to screen
+                    Write-Host 'Use:'$LBNatRulePortProto' as the nat rule source port'      # Write message to screen
                     Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the nat rule port
                     Clear-Host                                                              # Clears screen
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
                         Break SetAzureLBNatRule                                             # Breaks :SetAzureLBNatRule
                     }                                                                       # End if ($OpConfirm -eq 'e')
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Write-Host 'Current target port is:   '$LBNatRule.BackEndPort       # Write message to screen
-                        Write-Host 'Change the target port to:'$LBNatRulePort               # Write message to screen
-                        Write-Host ''                                                       # Write message to screen
-                        $OpSelect = Read-Host '[Y] Yes [N] No'                              # Operator selection for change the target port too
-                        Clear-Host                                                          # Clears screen
-                        if ($OpSelect -eq 'y') {                                            # If $OpSelect equals 'y'
-                            $LBNatRuleTargetPort = $LBNatRulePort                           # Sets $LBNatRuleTargetPort
-                        }                                                                   # End if ($OpSelect -eq 'y')
-                        else {                                                              # All other inputs for $OpSelect
-                            $LBNatRuleTargetPort = $LBNatRule.BackEndPort                   # Sets $LBNatRuleTargetPort
-                        }                                                                   # End else (if ($OpSelect -eq 'y'))
-                        if ($LBNatRulePort -ne $LBNatRuleTargetPort) {                      # If $LBNatRulePort does not equal $LBNatRuleTargetPort
-                            Write-Host 'Enable floating IP'                                 # Write message to screen
-                            Write-Host ''                                                   # Write message to screen
-                            $OpSelect = Read-Host '[Y] Yes [N] No'                          # Operator selection to enable floating IP
-                            if ($OpSelect -eq 'y') {                                        # If $OpSelect equals 'y'
-                                $EFloatIP = $true                                           # Sets $EFloatIP
-                            }                                                               # End if ($OpSelect -eq 'y')
-                            else {                                                          # All other inputs for $OpSelect
-                                $EFloatIP = $true                                           # Sets $EnableFloatingIP
-                            }                                                               # End else (if ($OpSelect -eq 'y'))
-                        }                                                                   # End if ($LBNatRulePort -ne $LBNatRuleTargetPort)
-                        Break NewAzureLBNatRulePort                                         # Breaks :NewAzureLBNatRulePort        
-                    }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBNatRulePort)
                 else {                                                                      # Else if $LBNatRulePort is $null
                     Pause                                                                   # Pauses all actions for operator input
@@ -882,7 +888,7 @@ function SetAzLBNatRulePort {                                                   
                 Set-AzLoadBalancerInboundNatRuleConfig -LoadBalancer $LoadBalancerObject `
                     -Name $LBNatRule.Name -FrontendIpConfigurationId `
                         $LBNatRule.FrontendIpConfiguration.ID -Protocol $LBNatRule.Protocol `
-                        -FrontendPort $LBNatRulePort -BackendPort $LBNatRuleTargetPort `
+                        -FrontendPort $LBNatRulePort -BackendPort $LBNatRule.BackEndPort `
                         -EnableTcpReset:$ETCPReset -EnableFloatingIP:$EFloatIP `
                         -IdleTimeoutInMinutes  $LBNatRule.IdleTimeoutInMinutes -ErrorAction `
                         'Stop' | Out-Null                                                   # Changes the nat rule port config
@@ -905,7 +911,7 @@ function SetAzLBNatRulePort {                                                   
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function SetAzLBNatRulePort
+}                                                                                           # End function SetAzLBNatRuleSourcePort
 function SetAzLBNatRuleTargetPort {                                                         # Function to change an existing load balancer nat rule target port
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -950,9 +956,17 @@ function SetAzLBNatRuleTargetPort {                                             
                                 $EFloatIP = $true                                           # Sets $EFloatIP
                             }                                                               # End if ($OpSelect -eq 'y')
                             else {                                                          # All other inputs for $OpSelect
-                                $EFloatIP = $true                                           # Sets $EnableFloatingIP
+                                $EFloatIP = $false                                          # Sets $EnableFloatingIP
                             }                                                               # End else (if ($OpSelect -eq 'y'))
                         }                                                                   # End if ($LBNatRuleTargetPort -ne $LBNatRule.FrontendPort)
+                        else {                                                              # Else if $LBNatRuleTargetPort does equals $LBNatRule.FrontendPort
+                            if ($LBNatRule.EnableFloatingIP -eq $True) {                    # If $LBNatRule.EnableFloatingIP equals $True                          
+                                $EFloatIP = $true                                           # Sets $EFloatIP
+                            }                                                               # End if ($LBNatRule.EnableFloatingIP -eq $True)
+                            else {                                                          # Else if $LBNatRule.EnableFloatingIP does not equal $True 
+                                $EFloatIP = $false                                          # Sets $EFloatIP
+                            }                                                               # End else (if ($LBNatRule.EnableFloatingIP -eq $True))            
+                        }                                                                   # End else if ($LBNatRuleTargetPort -ne $LBNatRule.FrontendPort)
                         Break NewAzureLBNatRulePort                                         # Breaks :NewAzureLBNatRulePort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBNatRuleTargetPort)
@@ -964,14 +978,6 @@ function SetAzLBNatRuleTargetPort {                                             
                 }                                                                           # End else (if ($LBNatRuleTargetPort))
             }                                                                               # End :NewAzureLBNatRulePort while ($true)
             Write-Host 'Changing the nat rule target port'                                  # Write message to screen
-            if (!$EFloatIP) {                                                               # If (!$EFloatIP is $null
-                if ($LBNatRule.EnableFloatingIP -eq $True) {                                # If $LBNatRule.EnableFloatingIP equals $True                          
-                    $EFloatIP = $true                                                       # Sets $EFloatIP
-                }                                                                           # End if ($LBNatRule.EnableFloatingIP -eq $True)
-                else {                                                                      # Else if $LBNatRule.EnableFloatingIP does not equal $True 
-                    $EFloatIP = $false                                                      # Sets $EFloatIP
-                }                                                                           # End else (if ($LBNatRule.EnableFloatingIP -eq $True))
-            }                                                                               # End if (!$EFloatIP)
             if ($LBNatRule.EnableTcpReset -eq $true) {                                      # If $LBNatRule.EnableTcpReset equals $true                               
                 $ETCPReset = $true                                                          # Sets $ETCPReset
             }                                                                               # End if ($LBNatRule.EnableTcpReset -eq $true)
@@ -1119,6 +1125,162 @@ function SetAzLBNatRuleTO {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzLBNatRuleTO
+function SetAzLBNatRuleTCP {                                                                # Function to Enable/Disable TCP reset on nat rule 
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBNatRuleTCP'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBNatRule while ($true) {                                                  # Outer loop for managing function
+            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
+                Break SetAzureLBNatRule                                                     # Breaks :SetAzureLBNatRule
+            }                                                                               # End if (!$LBNatRule)
+            :SetAzureNatRuleTCP while ($true) {                                             # Inner loop for setting the nat rule enableTCPReset
+                Write-Host 'Rule Name:    '$LBNatRule.name                                  # Write message to screen
+                Write-Host 'Load Balancer:'$LoadBalancerObject.name                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'TCP reset options'                                              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Disabled'                                                   # Write message to screen
+                Write-Host '[2] Enabled'                                                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select TCP reset value
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureLBNatRule                                                 # Breaks SetAzureLBNatRule
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $ETCPReset = $false                                                     # Sets $ETCPReset
+                    Write-Host 'Disabling TCP Reset'                                        # Write message to screen
+                    Break SetAzureNatRuleTCP                                                # Breaks :SetAzureNatRuleTCP
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $ETCPReset = $true                                                      # Sets $ETCPReset
+                    Write-Host 'Enabling TCP Reset'                                         # Write message to screen
+                    Break SetAzureNatRuleTCP                                                # Breaks :SetAzureNatRuleTCP
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureNatRuleTCP while ($true) 
+            Clear-Host                                                                      # Clears screen
+            $LBNatRuleTargetPort = $LBNatRule.BackEndPort                                   # Sets $LBNatRuleTargetPort
+            if ($LBNatRule.EnableFloatingIP -eq $True) {                                    # If $LBNatRule.EnableFloatingIP equals $True                          
+                $EFloatIP = $true                                                           # Sets $EFloatIP
+            }                                                                               # End if ($LBNatRule.EnableFloatingIP -eq $True)
+            else {                                                                          # Else if $LBNatRule.EnableFloatingIP does not equal $True 
+                $EFloatIP = $false                                                          # Sets $EFloatIP
+            }                                                                               # End else (if ($LBNatRule.EnableFloatingIP -eq $True))
+            Try {                                                                           # Try the following
+                Set-AzLoadBalancerInboundNatRuleConfig -LoadBalancer $LoadBalancerObject `
+                    -Name $LBNatRule.Name -FrontendIpConfigurationId `
+                    $LBNatRule.FrontendIPConfiguration.ID -Protocol $LBNatRule.Protocol `
+                    -FrontendPort $LBNatRule.FrontEndPort -BackendPort `
+                    $LBNatRuleTargetPort -EnableTcpReset:$ETCPReset `
+                    -EnableFloatingIP:$EFloatIP -IdleTimeoutInMinutes `
+                    $LBNatRule.IdleTimeoutInMinutes -ErrorAction 'Stop' | Out-Null          # Changes the nat rule enableTCPReset value
+                Write-Host 'Saving the load balancer configuration'                         # Write message to screen
+                $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRule                                                     # Breaks :SetAzureLBNatRule
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Requested changes have been made'                                   # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureLBNatRule                                                         # Breaks :SetAzureLBNatRule
+        }                                                                                   # End :SetAzureLBNatRule while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBNatRuleTCP
+function SetAzLBNatRuleFloatIP {                                                            # Function to Enable/Disable floating IP on nat rule 
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBNatRuleFloatIP'                                      # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureLBNatRule while ($true) {                                                  # Outer loop for managing function
+            $LBNatRule, $LoadBalancerObject = GetAzLBNatRuleConfig ($CallingFunction)       # Calls function and assigns output to $var
+            if (!$LBNatRule) {                                                              # If $LBNatRule is $null
+                Break SetAzureLBNatRule                                                     # Breaks :SetAzureLBNatRule
+            }                                                                               # End if (!$LBNatRule)
+            :SetAzureNatRuleFIP while ($true) {                                             # Inner loop for setting the nat rule enablefloatingIP
+                Write-Host 'Rule Name:    '$LBNatRule.name                                  # Write message to screen
+                Write-Host 'Load Balancer:'$LoadBalancerObject.name                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Floating IP options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Disabled'                                                   # Write message to screen
+                Write-Host '[2] Enabled'                                                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select floating IP value
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureLBNatRule                                                 # Breaks SetAzureLBNatRule
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $EFloatIP = $false                                                      # Sets $EFloatIP
+                    Write-Host 'Disabling Floating IP'                                      # Write message to screen
+                    Break SetAzureNatRuleFIP                                                # Breaks :SetAzureNatRuleFIP
+                }                                                                           # End elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $EFloatIP = $true                                                       # Sets $EFloatIP
+                    Write-Host 'Enabling Floating IP'                                       # Write message to screen
+                    Break SetAzureNatRuleFIP                                                # Breaks :SetAzureNatRuleFIP
+                }                                                                           # End elseif ($OpSelect -eq '2')
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SetAzureNatRuleFIP while ($true) 
+            Clear-Host                                                                      # Clears screen
+            $LBNatRuleTargetPort = $LBNatRule.BackEndPort                                   # Sets $LBNatRuleTargetPort
+            if ($LBNatRule.enableTCPReset -eq $True) {                                      # If $LBNatRule.enableTCPReset equals $True                          
+                $ETCPReset = $true                                                          # Sets $EFloatIP
+            }                                                                               # End if ($LBNatRule.enableTCPReset -eq $True)
+            else {                                                                          # Else if $LBNatRule.enableTCPReset does not equal $True 
+                $ETCPReset = $false                                                         # Sets $EFloatIP
+            }                                                                               # End else (if ($LBNatRule.enableTCPReset -eq $True))
+            Try {                                                                           # Try the following
+                Set-AzLoadBalancerInboundNatRuleConfig -LoadBalancer $LoadBalancerObject `
+                    -Name $LBNatRule.Name -FrontendIpConfigurationId `
+                    $LBNatRule.FrontendIPConfiguration.ID -Protocol $LBNatRule.Protocol `
+                    -FrontendPort $LBNatRule.FrontEndPort -BackendPort `
+                    $LBNatRuleTargetPort -EnableTcpReset:$ETCPReset `
+                    -EnableFloatingIP:$EFloatIP -IdleTimeoutInMinutes `
+                    $LBNatRule.IdleTimeoutInMinutes -ErrorAction 'Stop' | Out-Null          # Changes the nat rule enableFloatingIP value
+                Write-Host 'Saving the load balancer configuration'                         # Write message to screen
+                $LoadBalancerObject | Set-AzLoadBalancer -ErrorAction 'Stop' | Out-Null     # Saves the changes to $LoadBalancerObject
+            }                                                                               # End try
+            Catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureLBNatRule                                                     # Breaks :SetAzureLBNatRule
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'Requested changes have been made'                                   # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureLBNatRule                                                         # Breaks :SetAzureLBNatRule
+        }                                                                                   # End :SetAzureLBNatRule while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBNatRuleFloatIP
 function SetAzLBNatRuleVM {                                                                 # Function to associate a VM to a nat rule
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
