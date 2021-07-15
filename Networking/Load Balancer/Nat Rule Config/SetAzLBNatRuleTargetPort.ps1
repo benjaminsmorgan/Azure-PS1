@@ -84,9 +84,17 @@ function SetAzLBNatRuleTargetPort {                                             
                                 $EFloatIP = $true                                           # Sets $EFloatIP
                             }                                                               # End if ($OpSelect -eq 'y')
                             else {                                                          # All other inputs for $OpSelect
-                                $EFloatIP = $true                                           # Sets $EnableFloatingIP
+                                $EFloatIP = $false                                          # Sets $EnableFloatingIP
                             }                                                               # End else (if ($OpSelect -eq 'y'))
                         }                                                                   # End if ($LBNatRuleTargetPort -ne $LBNatRule.FrontendPort)
+                        else {                                                              # Else if $LBNatRuleTargetPort does equals $LBNatRule.FrontendPort
+                            if ($LBNatRule.EnableFloatingIP -eq $True) {                    # If $LBNatRule.EnableFloatingIP equals $True                          
+                                $EFloatIP = $true                                           # Sets $EFloatIP
+                            }                                                               # End if ($LBNatRule.EnableFloatingIP -eq $True)
+                            else {                                                          # Else if $LBNatRule.EnableFloatingIP does not equal $True 
+                                $EFloatIP = $false                                          # Sets $EFloatIP
+                            }                                                               # End else (if ($LBNatRule.EnableFloatingIP -eq $True))            
+                        }                                                                   # End else if ($LBNatRuleTargetPort -ne $LBNatRule.FrontendPort)
                         Break NewAzureLBNatRulePort                                         # Breaks :NewAzureLBNatRulePort        
                     }                                                                       # End if ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBNatRuleTargetPort)
@@ -98,14 +106,6 @@ function SetAzLBNatRuleTargetPort {                                             
                 }                                                                           # End else (if ($LBNatRuleTargetPort))
             }                                                                               # End :NewAzureLBNatRulePort while ($true)
             Write-Host 'Changing the nat rule target port'                                  # Write message to screen
-            if (!$EFloatIP) {                                                               # If (!$EFloatIP is $null
-                if ($LBNatRule.EnableFloatingIP -eq $True) {                                # If $LBNatRule.EnableFloatingIP equals $True                          
-                    $EFloatIP = $true                                                       # Sets $EFloatIP
-                }                                                                           # End if ($LBNatRule.EnableFloatingIP -eq $True)
-                else {                                                                      # Else if $LBNatRule.EnableFloatingIP does not equal $True 
-                    $EFloatIP = $false                                                      # Sets $EFloatIP
-                }                                                                           # End else (if ($LBNatRule.EnableFloatingIP -eq $True))
-            }                                                                               # End if (!$EFloatIP)
             if ($LBNatRule.EnableTcpReset -eq $true) {                                      # If $LBNatRule.EnableTcpReset equals $true                               
                 $ETCPReset = $true                                                          # Sets $ETCPReset
             }                                                                               # End if ($LBNatRule.EnableTcpReset -eq $true)
