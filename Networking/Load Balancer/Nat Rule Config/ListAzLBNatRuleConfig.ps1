@@ -99,6 +99,8 @@ Function ListAzLBNatRuleConfig {                                                
                             'BEPriIP'=$BackEndConfig.PrivateIpAddress;                      # Target private IP address
                             'BEPriIPAll'=$BackEndConfig.PrivateIpAllocationMethod;          # Target private IP allocation 
                             'BESub'=$BackEndSub;                                            # Target subnet
+                            'ETCPR'=$_.EnableTCPReset;                                      # Nat rule TCP reset setting
+                            'EFIP'=$_.EnableFloatingIP;                                     # Nat rule floating IP setting
                             'VMName'=$VMObject.Name                                         # VM object name        
                         }                                                                   # End $ObjectList = [PSCustomObject]@
                         $ObjectArray.Add($ObjectList) | Out-Null                            # Adds ObjectList to $ObjectArray
@@ -152,6 +154,8 @@ Function ListAzLBNatRuleConfig {                                                
                 if ($_.VMName) {                                                            # If $_.VMName has a value
                     Write-Host 'Target VM Name:'$_.VMName                                   # Write message to screen
                 }                                                                           # End if ($_.VMName)
+                Write-Host 'TCP Reset:     '$_.ETCPR                                        # Write message to screen
+                Write-Host 'Floating IP:   '$_.EFIP                                         # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
