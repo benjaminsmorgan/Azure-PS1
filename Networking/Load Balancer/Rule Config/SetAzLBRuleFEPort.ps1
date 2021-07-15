@@ -24,9 +24,13 @@
     $CurrentBEID:               Current rule back end object ID
     $CurrentRules:              List of all rules on $LBRuleObject.FrontendIpConfiguration.ID
     $CurrentNatRules:           List of all nat rules on $LBRuleObject.FrontendIpConfiguration.ID
+    $ObjectArray:               Array holding all the currently in use front end ports and protocols
+    $PortandProtocol:           Current item .Protocol and .FrontEndPort 
+    $ObjectInput:               $var used to load info into $ObjectArray
     $ValidArray:                Array of valid charaters for $LBRuleFrontEndPort
     $LBRuleFrontEndPort:        Operator input for the rule new front end port
     $LBRuleArray:               $LBRuleFrontEndPort converted to array
+    $LBRulePortProto:           $LBRuleObject.Protocol and $LBRuleFrontEndPort
     $EFloatIP:                  Current value of $LBRuleObject.EnableFloatingIP
     $ETCPReset:                 Current value of $LBRuleObject.EnableTCPReset
     $OpConfirm:                 Operator confirmation to make the change
@@ -77,25 +81,39 @@ function SetAzLBRuleFEPort {                                                    
             $CurrentNatRules = Get-AzLoadBalancerInboundNatRuleConfig -LoadBalancer `
                 $LoadBalancerObject | Where-Object {$_.FrontendIPConfiguration.ID -eq `
                 $LBRuleObject.FrontendIpConfiguration.ID}                                   # Gets a list of all nat rules using $LBRuleObject.FrontendIpConfiguration.ID
-                
+                [System.Collections.ArrayList]$ObjectArray = @()                            # Creates $ObjectArray
+                foreach ($_ in $CurrentRules) {                                             # For each item in $CurrentRules
+                    $PortandProtocol = $_.Protocol + ' ' + $_.FrontEndPort                  # $PortandProtocol is equal to current item .Protocol and .FrontEndPort                    
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates the item to loaded into array
+                        'PortandProto'=$PortandProtocol                                     # $PortandProtocol
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                    $PortandProtocol = $null                                                # Clears $var
+                }                                                                           # End foreach ($_ in $CurrentRules)
+                foreach ($_ in $CurrentNatRules) {                                          # For each item in $CurrentNatRules
+                    $PortandProtocol = $_.Protocol + ' ' + $_.FrontEndPort                  # $PortandProtocol is equal to current item .Protocol and .FrontEndPort                    
+                    $ObjectInput = [PSCustomObject]@{                                       # Creates the item to loaded into array
+                        'PortandProto'=$PortandProtocol                                     # $PortandProtocol
+                    }                                                                       # End $ObjectInput = [PSCustomObject]@
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Adds $ObjectInput to $ObjectArray
+                    $PortandProtocol = $null                                                # Clears $var
+                }                                                                           # End foreach ($_ in $CurrentNatRules)    
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
             :NewAzureLBRuleFEPort while ($true) {                                           # Inner loop for setting the rule front end port
-                if ($CurrentRules -or $CurrentNatRules) {                                   # If $CurrentRules or $CurrentNatRules has a value
+                if ($ObjectArray) {                                                         # If $ObjectArray has a value
                     Write-Host 'The following front end ports are already in use'           # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    foreach ($_ in $CurrentRules) {                                         # For each item in $CurrentRules
-                        Write-Host $_.FrontEndPort                                          # Write message to screen
-                    }                                                                       # End foreach ($_ in $CurrentRules)
-                    foreach ($_ in $CurrentNatRules) {                                      # For each item in $CurrentNatRules
-                        Write-Host $_.FrontEndPort                                          # Write message to screen
-                    }                                                                       # End foreach ($_ in $CurrentNatRules)
+                    foreach ($_ in $ObjectArray) {                                          # For each item in $ObjectArray
+                        Write-Host $_.PortandProto                                          # Write message to screen
+                    }                                                                       # End foreach ($_ in $ObjectArray)
                     Write-Host ''                                                           # Write message to screen
-                }                                                                           # End if ($CurrentRules -or $CurrentNatRules)
+                }                                                                           # End if ($ObjectArray)
                 Write-Host 'Enter the rule pool front end port'                             # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
                 $LBRuleFrontEndPort = Read-Host 'Port #'                                    # Operator input for the front end rule port 
                 $LBRuleArray = $LBRuleFrontEndPort.ToCharArray()                            # Adds $LBRuleFrontEndPort to array
+                $LBRulePortProto = $LBRuleObject.Protocol + ' ' + $LBRuleFrontEndPort       # $LBRulePortProto is equal to $LBRuleObject.Protocol and $LBRuleFrontEndPort
                 Clear-Host                                                                  # Clears screen
                 :CheckInput foreach ($_ in $LBRuleArray) {                                  # For each item in $LBRuleArray
                     if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
@@ -106,18 +124,17 @@ function SetAzLBRuleFEPort {                                                    
                     }                                                                       # End if ($_ -notin $ValidArray)
                 }                                                                           # End foreach ($_ in $LBRuleArray)
                 $LBRuleArray = $null                                                        # Clears $LBRuleArray
-                if ($LBRuleFrontEndPort -in $CurrentRules.FrontendPort -or `
-                    $LBRuleFrontEndPort -in $CurrentNatRules.FrontendPort) {                # If $LBRuleFrontEndPort is in $CurrentRules.FrontendPort or $CurrentNatRules.FrontendPort
-                    Write-Host 'Port:'$LBRuleFrontEndPort' is already in use'               # Write message to screen
+                if ($LBRulePortProto -in $ObjectArray.PortandProto) {                       # If $LBRulePortProto is in $ObjectArray.PortandProto
+                    Write-Host 'Port:'$LBRulePortProto' is already in use'                  # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Write-Host 'Please select another port'                                 # Write message to screen
                     Write-Host 'or move this rule to a different'                           # Write message to screen
                     Write-Host 'front end configuration'                                    # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $LBRuleFrontEndPort = $null                                             # Clears $LBRuleFrontEndPort
-                }                                                                           # End if ($LBRuleFrontEndPort -in $CurrentRules.FrontendPort -or $LBRuleFrontEndPort -in $CurrentNatRules.FrontendPort)
+                }                                                                           # End if ($LBRulePortProto -in $ObjectArray.PortandProto)
                 if ($LBRuleFrontEndPort) {                                                  # If $LBRuleFrontEndPort has a value
-                    Write-Host 'Use:'$LBRuleFrontEndPort' as the front end pool rule port'  # Write message to screen
+                    Write-Host 'Use:'$LBRulePortProto' as the front end pool rule port'     # Write message to screen
                     Write-Host ''                                                           # Writes message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the front end rule port
                     Clear-Host                                                              # Clears screen
