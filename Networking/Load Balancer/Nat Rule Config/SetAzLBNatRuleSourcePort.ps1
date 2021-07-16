@@ -89,7 +89,7 @@ function SetAzLBNatRuleSourcePort {                                             
                     }                                                                       # End foreach ($_ in $ObjectArray)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if ($ObjectArray)
-                Write-Host 'Enter the nat rule pool source port'                            # Write message to screen
+                Write-Host 'Enter the nat rule source port'                                 # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
                 $LBNatRulePort = Read-Host 'Port #'                                         # Operator input for the nat rule port 
                 $LBRuleArray = $LBNatRulePort.ToCharArray()                                 # Adds $LBNatRulePort to array
@@ -121,6 +121,9 @@ function SetAzLBNatRuleSourcePort {                                             
                     if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
                         Break SetAzureLBNatRule                                             # Breaks :SetAzureLBNatRule
                     }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm equals 'y'
+                        Break NewAzureLBNatRulePort                                         # Breaks :NewAzureLBNatRulePort
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
                 }                                                                           # End if ($LBNatRulePort)
                 else {                                                                      # Else if $LBNatRulePort is $null
                     Pause                                                                   # Pauses all actions for operator input
