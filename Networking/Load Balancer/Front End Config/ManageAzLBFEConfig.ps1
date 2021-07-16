@@ -34,16 +34,53 @@
 <# Variables: {      
     :ManageAzureLoadBalancer    Outer loop for managing function
     $OpSelect:                  Operator input for selecting the management function
-    AddAzLBFEPrivateConfig{}    Adds $LBFEObject
+    AddAzLBFEPrivateConfig{}    Creates $LBFEObject
         GetAzLoadBalancer{}         Gets $LBFEObject
         NewAzLBFEPriDynamicIpCon{}  Creates $LBFEObject
         NewAzLBFEPriStaticIpCon{}   Creates $LBFEObject
-    AddAzLBFEPublicConfig
+    AddAzLBFEPublicConfig{}     Creates $LBFEObject
+        NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
+            GetAzPublicIpAddress{}      Gets $PubIPObject
+    ListAzLBFEConfigs{}         Lists $LBFEObject
+    RemoveAzLBFEConfig{}        Removes $LBFEObject
+        GetAzLBFEConfig{}           Gets $LBFEObject,$LoadBalancerObject
 } #>
 <# Process Flow {
     function
         Call ManageAzLBFEConfig > Get $null
-
+            Call AddAzLBFEPrivateConfig > Get $null
+                Call GetAzLoadBalancer > Get $LoadBalancerObject
+                End GetAzLoadBalancer
+                    Return AddAzLBFEPrivateConfig > Send $LoadBalancerObject
+                Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                End NewAzLBFEPriDynamicIpCon
+                    Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject
+                Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                End NewAzLBFEPriStaticIpCon
+                    Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject            
+            End AddAzLBFEPrivateConfig
+                Return ManageAzLBFEConfig > Send $null
+            Call AddAzLBFEPublicConfig > Get $null
+                Call GetAzLoadBalancer > Get $LoadBalancerObject
+                End GetAzLoadBalancer
+                    Return AddAzLBFEPublicConfig > Send $LoadBalancerObject
+                Call NewAzLBFrontendIpConfig > Get $FrontEndIPConfigObject
+                    Call GetAzPublicIpAddress > Get $PubIPObject
+                    End GetAzPublicIpAddress
+                        Return NewAzLBFrontendIpConfig > Send $PubIPObject
+                End NewAzLBFrontendIpConfig
+                    Return AddAzLBFEPublicConfig > Send $FrontEndIPConfigObject
+            End AddAzLBFEPublicConfig
+                Return ManageAzLBFEConfig > Send $null
+            Call ListAzLBFEConfigs > Get $null
+            End ListAzLBFEConfigs
+                Return ManageAzLBFEConfig > Send $null
+            Call RemoveAzLBFEConfig > Get $null
+                Call GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
+                End GetAzLBFEConfig
+                    Return RemoveAzLBFEConfig > Send $LBFEObject,$LoadBalancerObject
+            End RemoveAzLBFEConfig
+                Return ManageAzLBFEConfig > Send $null
         End ManageAzLBFEConfig
             Return function > Send $null
 }#>
