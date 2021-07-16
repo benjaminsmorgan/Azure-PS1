@@ -2745,7 +2745,8 @@ function ManageAzLBProbeConfig {                                                
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Add Probe Config'                                               # Write message to screen
             Write-Host '[2] List Probe Configs'                                             # Write message to screen
-            Write-Host '[3] Remove ProbeConfig'                                             # Write message to screen
+            Write-Host '[3] Change Probe Interval Configs'                                  # Write message to screen
+            Write-Host '[4] Remove Probe Config'                                            # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -2760,9 +2761,13 @@ function ManageAzLBProbeConfig {                                                
                 ListAzLBProbeConfig                                                         # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Change Probe Interval Configs'                                  # Write message to screen
+                SetAzLBProbeInterval                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Remove Probe Config'                                            # Write message to screen
                 RemoveAzLBProbeConfig                                                       # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '3')
+            }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -3149,6 +3154,80 @@ function GetAzLBProbeConfig {                                                   
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function GetAzLBProbeConfig
+function SetAzLBProbeInterval {                                                             # Function to change an existing load balancer probe interval config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBProbeInterval'                                       # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureProbeConfig while ($true) {                                                # Outer loop for managing function
+            $LBProbeObject, $LoadBalancerObject = GetAzLBProbeConfig ($CallingFunction)     # Calls function and assigns output to $var
+            if (!$LBProbeObject) {                                                          # If $LBProbeObject is $null
+                Break SetAzureProbeConfig                                                   # Breaks :SetAzureProbeConfig
+            }                                                                               # End if (!$LBProbeObject)
+            $ValidArray = '0123456789'                                                      # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            :SetAzureLBProbeInt while ($true) {                                             # Inner loop for setting the probe interval
+                Write-Host 'Enter new probe interval in seconds'                            # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
+                $LBProbeinterval = Read-Host 'Probe interval (Seconds)'                     # Operator input for the probe interval 
+                $LBProbeArray = $LBProbeinterval.ToCharArray()                              # Adds $LBProbeinterval to array
+                Clear-Host                                                                  # Clears screen
+                foreach ($_ in $LBProbeArray) {                                             # For each item in $LBProbeArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $LBProbeinterval = $null                                            # Clears $LBProbeinterval
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $LBProbeArray)
+                $LBProbeintervalInt = [INT]$LBProbeinterval | Out-Null                      # Converts $LBProbeinterval to an integer
+                if ($LBProbeintervalInt -lt 5 -or $LBProbeintervalInt -gt 2147483646) {     # if ($LBProbeintervalInt less than 5 or $LBProbeintervalInt greater than 2147483646)
+                    Write-Host 'The interval out must be between 5 and 2 Billion seconds'   # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $LBProbeinterval = $null                                                # Clears $LBProbeinterval
+                }                                                                           # End if ($LBProbeintervalInt -lt 5 -or $LBProbeintervalInt -gt 2147483646)
+                $LBProbeArray = $null                                                       # Clears $LBProbeArray
+                if ($LBProbeinterval) {                                                     # If $LBProbeinterval has a value
+                    Write-Host 'Set'$LBProbeinterval' seconds as the probe interval'        # Write message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the probe interval
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break SetAzureProbeConfig                                           # Breaks :SetAzureProbeConfig
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureLBProbeInt                                            # Breaks :SetAzureLBProbeInt        
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($LBProbeinterval)
+                else {                                                                      # Else if $LBProbeinterval is $null
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($LBProbeinterval))
+            }                                                                               # End :SetAzureLBProbeInt while ($true)
+            Write-Host 'Updating the probe configuration'                                   # Write message to screen
+            Try {                                                                           # Try the following
+                Set-AzLoadBalancerProbeConfig -LoadBalancer $LoadBalancerObject -Name `
+                    $LBProbeObject.Name -IntervalInSeconds $LBProbeinterval -Protocol `
+                    $LBProbeObject.Protocol -Port $LBProbeObject.Port -ProbeCount `
+                    $LBProbeObject.NumberOfProbes -RequestPath $LBProbeObject.RequestPath `
+                    -ErrorAction 'Stop' | Out-Null                                          # Updates the probe interval
+                Write-Host 'Saving the load balancer config'                                # Write message to screen
+                Set-AzLoadBalancer -LoadBalancer $LoadBalancerObject -ErrorAction 'Stop'    # Saves the updated load balancer configuration
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureProbeConfig                                                   # Breaks :SetAzureProbeConfig  
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The requested changes have been made'                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureProbeConfig                                                       # Breaks :SetAzureProbeConfig
+        }                                                                                   # End :SetAzureProbeConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBProbeInterval
 function RemoveAzLBProbeConfig {                                                            # Function to remove a load balancer probe config
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
