@@ -14,7 +14,6 @@
 } #>
 <# Variables: {      
     :SetAzureProbeConfig        Outer loop for managing function
-    :SetAzureProbeProtocol      Inner loop for setting the probe protocol
     :SetAzureLBProbePort        Inner loop for setting the probe port
     $CallingFunction:           Name of this function or the one that called it
     $LBProbeObject:             Load balancer probe object
