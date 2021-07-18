@@ -4,11 +4,17 @@
     Get-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerprobeconfig?view=azps-6.1.0
     Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
     Remove-AzLoadBalancerProbeConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerprobeconfig?view=azps-6.1.0
+    Set-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerprobeconfig?view=azps-6.1.0
     Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-5.5.0 
 } #>
 <# Required Functions Links: {
     AddAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/AddAzLBProbeConfig.ps1
     ListAzLBProbeConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/ListAzLBProbeConfig.ps1
+    SetAzLBProbeProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeProtocol.ps1
+    SetAzLBProbePort:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbePort.ps1
+    SetAzLBProbeRequestPath:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeRequestPath.ps1
+    SetAzLBProbeCount:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeCount.ps1
+    SetAzLBProbeInterval:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeInterval.ps1
     GetAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/GetAzLBProbeConfig.ps1
     RemoveAzLBProbeConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/RemoveAzLBProbeConfig.ps1
     GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
@@ -17,6 +23,11 @@
     ManageAzLBProbeConfig:      Function to manage load balancer probe configurations
     AddAzLBProbeConfig:         Function to add a new load balancer probe config
     ListAzLBProbeConfig:        Function to list all load balancer probe configs
+    SetAzLBProbeProtocol:       Function to change an existing load balancer probe protocol config
+    SetAzLBProbePort:           Function to change an existing load balancer probe port config
+    SetAzLBProbeRequestPath:    Function to change an existing load balancer probe request path config
+    SetAzLBProbeCount:          Function to change an existing load balancer probe count config
+    SetAzLBProbeInterval:       Function to change an existing load balancer probe interval config
     RemoveAzLBProbeConfig:      Function to remove a load balancer probe config
     GetAzLBProbeConfig:         Function to get an existing load balancer probe config
     GetAzLoadBalancer:          Function to get a load balancer 
@@ -27,7 +38,18 @@
     AddAzLBProbeConfig{}        Creates $LBProbeObject
         GetAzLoadBalancer{}         Gets $LoadBalancerObject
     ListAzLBProbeConfig{}       Lists $LBProbeObject
+    SetAzLBProbeProtocol{}      Changes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
+    SetAzLBProbePort{}          Changes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
+    SetAzLBProbeRequestPath{}   Changes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
+    SetAzLBProbeCount{}         Changes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
+    SetAzLBProbeInterval{}      Changes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
     RemoveAzLBProbeConfig{}     Removes $LBProbeObject
+        GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
 } #>
 <# Process Flow {
     function
@@ -41,11 +63,35 @@
             Call ListAzLBProbeConfig > Get $null
             End ListAzLBProbeConfig
                 Return ManageAzLBProbeConfig > Send $null
-            Call RemoveAzLBProbeConfig > Get $null
-                Call GetAzLBProbeConfig > Get $LBProbeObject,$LoadBalancerObject
+            Call SetAzLBProbeProtocol > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
                 End GetAzLBProbeConfig
-                    Return RemoveAzLBProbeConfig > Send $LBProbeObject,$LoadBalancerObject
-            End RemoveAzLBProbeConfig
+                    Return SetAzLBProbeProtocol > Send $LBProbeObject, $LoadBalancerObject
+            End SetAzLBProbeProtocol
+                Return ManageAzLBProbeConfig > Send $null
+            Call SetAzLBProbePort > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                End GetAzLBProbeConfig
+                    Return SetAzLBProbePort > Send $LBProbeObject, $LoadBalancerObject
+            End SetAzLBProbePort
+                Return ManageAzLBProbeConfig > Send $null
+            Call SetAzLBProbeRequestPath > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                End GetAzLBProbeConfig
+                    Return SetAzLBProbeRequestPath > Send $LBProbeObject, $LoadBalancerObject
+            End SetAzLBProbeRequestPath
+                Return ManageAzLBProbeConfig > Send $null
+            Call SetAzLBProbeCount > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                End GetAzLBProbeConfig
+                    Return SetAzLBProbeCount > Send $LBProbeObject, $LoadBalancerObject
+            End SetAzLBProbeCount
+                Return ManageAzLBProbeConfig > Send $null
+            Call SetAzLBProbeInterval > Get $null
+                Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                End GetAzLBProbeConfig
+                    Return SetAzLBProbeInterval > Send $LBProbeObject, $LoadBalancerObject
+            End SetAzLBProbeInterval
                 Return ManageAzLBProbeConfig > Send $null
         End ManageAzLBProbeConfig
             Return function > Send $null
@@ -59,9 +105,10 @@ function ManageAzLBProbeConfig {                                                
             Write-Host '[2] List Probe Configs'                                             # Write message to screen
             Write-Host '[3] Change Probe Protocol'                                          # Write message to screen
             Write-Host '[4] Change Probe Port'                                              # Write message to screen
-            Write-Host '[5] Change Probe Count'                                             # Write message to screen
-            Write-Host '[6] Change Probe Interval'                                          # Write message to screen
-            Write-Host '[7] Remove Probe Config'                                            # Write message to screen
+            Write-Host '[5] Change Probe Request Path'                                      # Write message to screen
+            Write-Host '[6] Change Probe Count'                                             # Write message to screen
+            Write-Host '[7] Change Probe Interval'                                          # Write message to screen
+            Write-Host '[8] Remove Probe Config'                                            # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -84,17 +131,21 @@ function ManageAzLBProbeConfig {                                                
                 SetAzLBProbePort                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
-                Write-Host 'Change Probe Count'                                             # Write message to screen
-                SetAzLBProbeCount                                                           # Calls function
+                Write-Host 'Change Probe Request Path'                                      # Write message to screen
+                SetAzLBProbeRequestPath                                                     # Calls function
             }                                                                               # End elseif ($OpSelect -eq '5')
             elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect equals '6'
-                Write-Host 'Change Probe Interval'                                          # Write message to screen
-                SetAzLBProbeInterval                                                        # Calls function
+                Write-Host 'Change Probe Count'                                             # Write message to screen
+                SetAzLBProbeCount                                                           # Calls function
             }                                                                               # End elseif ($OpSelect -eq '6')
             elseif ($OpSelect -eq '7') {                                                    # Else if $OpSelect equals '7'
+                Write-Host 'Change Probe Interval'                                          # Write message to screen
+                SetAzLBProbeInterval                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '7')
+            elseif ($OpSelect -eq '8') {                                                    # Else if $OpSelect equals '8'
                 Write-Host 'Remove Probe Config'                                            # Write message to screen
                 RemoveAzLBProbeConfig                                                       # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '7')
+            }                                                                               # End elseif ($OpSelect -eq '8')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -692,6 +743,68 @@ function SetAzLBProbePort {                                                     
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function SetAzLBProbePort
+function SetAzLBProbeRequestPath {                                                          # Function to change an existing load balancer probe request path config
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzLBProbeRequestPath'                                    # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureProbeConfig while ($true) {                                                # Outer loop for managing function
+            $LBProbeObject, $LoadBalancerObject = GetAzLBProbeConfig ($CallingFunction)     # Calls function and assigns output to $var
+            if (!$LBProbeObject) {                                                          # If $LBProbeObject is $null
+                Break SetAzureProbeConfig                                                   # Breaks :SetAzureProbeConfig
+            }                                                                               # End if (!$LBProbeObject)
+            if ($LBProbeObject.Protocol -eq 'TCP') {                                        # If $LBProbeObject.Protocol equals 'TCP'
+                Write-Host "This probe's protocol is not set to HTTP/HTTPS"                 # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureProbeConfig                                                   # Breaks :SetAzureProbeConfig
+            }                                                                               # End if ($LBProbeObject.Protocol -eq 'TCP')
+            :SetAzureProbeRPath while ($true) {                                             # Inner loop for setting the request path
+                Write-Host 'Enter the URI for the probe request path'                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $RPath = Read-Host 'Request Path'                                           # Operator input for the request path
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'Use:'$RPath' as the request path'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the request path
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'e') {                                                   # If $OpConfirm equals 'e'
+                    Break SetAzureProbeConfig                                               # Breaks :SetAzureProbeConfig
+                }                                                                           # End if ($OpConfirm -eq 'e')
+                elseif ($OpConfirm -eq 'y') {                                               # Else if $OpConfirm equals 'y'
+                    Break SetAzureProbeRPath                                                # Breaks :SetAzureProbeRPath
+                }                                                                           # End elseif ($OpConfirm -eq 'y')
+            }                                                                               # End :SetAzureProbeRPath while ($true)
+            Write-Host 'Updating the probe configuration'                                   # Write message to screen
+            Try {                                                                           # Try the following
+                Set-AzLoadBalancerProbeConfig -LoadBalancer $LoadBalancerObject -Name `
+                    $LBProbeObject.Name -IntervalInSeconds $LBProbeObject.IntervalInSeconds `
+                    -Protocol $LBProbeObject.Protocol -Port $LBProbeObject.Port -ProbeCount `
+                    $LBProbeObject.NumberOfProbes -RequestPath $RPath -ErrorAction 'Stop' `
+                    | Out-Null                                                              # Updates the probe request path
+                Write-Host 'Saving the load balancer config'                                # Write message to screen
+                Set-AzLoadBalancer -LoadBalancer $LoadBalancerObject -ErrorAction 'Stop' `
+                    | Out-Null                                                              # Saves the updated load balancer configuration
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureProbeConfig                                                   # Breaks :SetAzureProbeConfig  
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The requested changes have been made'                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureProbeConfig                                                       # Breaks :SetAzureProbeConfig
+        }                                                                                   # End :SetAzureProbeConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzLBProbeRequestPath
 function SetAzLBProbeCount {                                                                # Function to change an existing load balancer probe count config
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
