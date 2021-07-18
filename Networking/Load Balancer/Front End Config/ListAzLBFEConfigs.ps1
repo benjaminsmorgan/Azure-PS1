@@ -57,11 +57,14 @@ function ListAzLBFEConfigs {                                                    
                             {$_.ID -eq $PublicIPID}                                         # Gets the public IP object
                     }                                                                       # End if ($_.PublicIPAddress.ID)
                     $ObjectInput = [PSCustomObject]@{                                       # Custom object to be added to $ObjectArray
-                        'Name'=$_.Name;'PriIP'=$_.PrivateIpAddress;`
-                        'PriIP2'=$_.PrivateIpAllocationMethod;'Sub'=$SubnetID;`
-                        'PubIP'=$PublicIPObject.IpAddress;`
-                        'PubIP2'=$PublicIPObject.PublicIpAllocationMethod;`
-                        'PubIP3'=$PublicIPObject.Sku.Name;'LB'=$LoadBalancerObject.Name     # Creates the item to loaded into array
+                        'Name'=$_.Name;                                                     # Front end name
+                        'PriIP'=$_.PrivateIpAddress;                                        # Private IP address
+                        'PriIP2'=$_.PrivateIpAllocationMethod;                              # Private IP allocation method
+                        'Sub'=$SubnetID;                                                    # Subnet name
+                        'PubIP'=$PublicIPObject.IpAddress;                                  # Public IP address
+                        'PubIP2'=$PublicIPObject.PublicIpAllocationMethod;                  # Public IP allocation method
+                        'PubIP3'=$PublicIPObject.Sku.Name;                                  # Public IP SKU
+                        'LB'=$LoadBalancerObject.Name                                       # Load balancer name
                     }                                                                       # End $ObjectInput = [PSCustomObject]@
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
                     $SubnetID = $null                                                       # Clears $SubnetID
@@ -70,6 +73,12 @@ function ListAzLBFEConfigs {                                                    
                 }                                                                           # End foreach ($_ in $ObjectList2)
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Write-Host 'No front end configurations exist'                              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureLBFEConfigs                                                  # Breaks :ListAzureLBFEConfigs
+            }                                                                               # End if (!$ObjectArray)
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
                 Write-Host 'Config Name:'$_.Name                                            # Write message to screen
                 Write-Host 'LB Name:    '$_.LB                                              # Write message to screen
