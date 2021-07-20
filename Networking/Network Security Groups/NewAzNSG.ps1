@@ -46,7 +46,7 @@ function NewAzNSG {                                                             
                     Write-Host ''                                                           # Write message to screen
                     $NSGName = $null                                                        # Clears $NSGName
                 }                                                                           # End if ($NSGName.Length -lt 2 -or $NSGName.Length -gt 64)
-                if ($NSGNameArray[0] -notin $VName1st) {                                    # If 0 position of $ProbeNameArray is not in $VName1st
+                if ($NSGNameArray[0] -notin $VName1st) {                                    # If 0 position of $NSGNameArray[0] is not in $VName1st
                     Write-Host  $NSGNameArray[0]' is not a valid start character'           # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $NSGName = $null                                                        # Clears $NSGName
