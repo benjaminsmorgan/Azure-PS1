@@ -6,7 +6,7 @@
     None
 } #>
 <# Functions Description: {
-    ManageAzLBNSG:              Function to get a network security group
+    GetAzNSG:                   Function to get a network security group
 } #>
 <# Variables: {      
     :GetAzureNSG                Outer loop for managing function
