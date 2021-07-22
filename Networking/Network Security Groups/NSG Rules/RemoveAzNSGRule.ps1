@@ -118,9 +118,9 @@ function RemoveAzNSGRule {                                                      
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureNSGRule                                                    # Breaks :RemoveAzureNSGRule
             }                                                                               # End if ($OpConfirm -eq 'y') 
-            else {
-                Write-Host 'No changes have been made'
-                Write-Host ''
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureNSGRule                                                    # Breaks :RemoveAzureNSGRule
             }                                                                               # End else (if ($OpConfirm -eq 'y') )
