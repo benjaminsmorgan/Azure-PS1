@@ -1,3 +1,36 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Set-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
+} #>
+<# Required Functions Links: {
+    None
+} #>
+<# Functions Description: {
+    UpdateAzNSGRuleConfig:      Function for updating network security group rule configs
+} #>
+<# Variables: {      
+    $NSGRuleObject:             Network security group rule object
+    $NSGObject:                 Network security group object
+    $RName:                     $NSGRuleObject.Name        
+    $RProto:                    $NSGRuleObject.Protocol         
+    $RAccess:                   $NSGRuleObject.Access                  
+    $RDirect:                   $NSGRuleObject.Direction           
+    $RPriori:                   $NSGRuleObject.Priority          
+    $RDescri:                   $NSGRuleObject.Description                                
+    $RSPRang:                   $NSGRuleObject.SourcePortRange                  
+    $RSAddre:                   $NSGRuleObject.SourceAddressPrefix        
+    $RSASGr:                    $NSGRuleObject.SourceApplicationSecurityGroups.ID  
+    $RDPRang:                   $NSGRuleObject.DestinationPortRange          
+    $RDAddre:                   $NSGRuleObject.DestinationAddressPrefix              
+    $RDASGr:                    $NSGRuleObject.DestinationApplicationSecurityGroups.ID 
+} #>
+<# Process Flow {
+    function
+        Call UpdateAzNSGRuleConfig > Get $null
+        End UpdateAzNSGRuleConfig
+            Return function > Send $null
+}#>
 function UpdateAzNSGRuleConfig {                                                            # Function for updating network security group rule configs
     Begin {                                                                                 # Begin function
         Write-Host 'Updating network security group rule'                                   # Write message to screen
