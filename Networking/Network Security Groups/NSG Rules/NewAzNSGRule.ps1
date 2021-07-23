@@ -1,3 +1,89 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Get-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-6.2.1
+    Add-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
+} #>
+<# Required Functions Links: {
+    GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+    SetAzNSGRuleProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleProtocol.ps1
+    SetAzNSGRuleAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAccess.ps1
+    SetAzNSGRuleDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDirection.ps1
+    SetAzNSGRulePriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
+    SetAzNSGRuleSPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleSPortRange.ps1
+    SetAzNSGRuleDPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDPortRange.ps1
+} #>
+<# Functions Description: {
+    NewAzNSGRule:               Function to create a new network security group rule
+    GetAzNSG:                   Function to get a network security group
+    SetAzNSGRuleProtocol:       Function to set a network security group rule protocol
+    SetAzNSGRuleAccess:         Function to set a network security group rule access
+    SetAzNSGRuleDirection:      Function to set a network security group rule direction
+    SetAzNSGRulePriority:       Function to set a network security group rule priority
+    SetAzNSGRuleSPortRange:     Function to set a network security rule source port range
+    SetAzNSGRuleDPortRange:     Function to set a network security rule destination port range
+} #>
+<# Variables: {      
+    :NewAzureNSGRule            Outer loop for managing function
+    :ConfirmRule                Inner loop for confirming all settings on new rule
+    $CallingFunction:           Name of this function or the one that called it
+    $NSGObject:                 Network security group object
+    $ObjectArray:               Array holding all info on existing rules on $NSGObject
+    $CRules:                    List of all rules on $NSGObject
+    $Direction:                 Current item .Direction
+    $Priority:                  Current item .Priority
+    $DirPri:                    Combination of $Direction and $Priority
+    $ObjectInput:               $var used to load into into $ObjectArray
+    $VName1st:                  Array of NSG rule name 1st characters
+    $VNameElse:                 Array of NSG rule name body characters
+    $VNameLast:                 Array of NSG rule name last characters
+    $NSGRuleName:               Operator input for the NSG rule name
+    $NSGNameArray:              $NSGRuleName converted to array
+    $OpConfirm:                 Operator confirmation of values
+    $NSGRuleProtocol:           NSG rule protocol
+    $NSGRuleAccess:             NSG rule access
+    $NSGRuleDirection:          NSG rule direction
+    $NSGRulePriority:           NSG rule priority
+    $NSGRuleSPRange:            NSG rule source port range
+    $NSGRuleDPRange:            NSG rule destination port range
+    $NSGRuleSAPrefix:           NSG rule address prefix
+    $NSGRuleDAPrefix:           NSG rule destination prefix
+    GetAzNSG{}                  Gets $NSGObject
+    SetAzNSGRuleProtocol{}      Gets $NSGRuleProtocol
+    SetAzNSGRuleAccess{}        Gets $NSGRuleAccess
+    SetAzNSGRuleDirection{}     Gets $NSGRuleDirection
+    SetAzNSGRulePriority{}      Gets $NSGRulePriority
+    SetAzNSGRuleSPortRange{}    Gets $NSGRuleSPRange
+    SetAzNSGRuleDPortRange{}    Gets $NSGRuleDPRange
+} #>
+<# Process Flow {
+    function
+        Call NewAzNSGRule > Get $null
+            Call GetAzNSG > Get $NSGObject
+            End GetAzNSG
+                Return NewAzNSGRule > Send $NSGObject
+            Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+            End SetAzNSGRuleProtocol
+                Return NewAzNSGRule > Send $NSGRuleProtocol
+            Call SetAzNSGRuleAccess > Get $NSGRuleAccess
+            End SetAzNSGRuleAccess
+                Return NewAzNSGRule > Send $NSGRuleAccess
+            Call SetAzNSGRuleDirection > Get $NSGRuleDirection
+            End SetAzNSGRuleDirection
+                Return NewAzNSGRule > Send $NSGRuleDirection
+            SetAzNSGRulePriority > Get $NSGRulePriority
+            End SetAzNSGRulePriority
+                Return NewAzNSGRule > Send $NSGRulePriority
+            Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+            End SetAzNSGRuleSPortRange
+                Return NewAzNSGRule > Send $NSGRuleSPRange
+            Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+            End SetAzNSGRuleDPortRange
+                Return NewAzNSGRule > Send $NSGRuleDPRange
+        End NewAzNSGRule
+            Return function > Send $null
+}#>
 function NewAzNSGRule {                                                                     # Function to create a new network security group rule
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -112,67 +198,10 @@ function NewAzNSGRule {                                                         
             }                                                                               # End if (!$NSGRuleDirection)            
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array    
-            :SetAzureNSGRulePriority while ($true) {                                        # Inner loop to set the rule priority
-                Write-Host 'NSG Rule priority'                                              # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'Rule priority must be between the values of 100 and 4096'       # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                if ($CRules.Direction -eq $NSGRuleDirection) {                              # If $CRules.Direction equals $NSGRuleDirection
-                    Write-Host 'The following priorities are'                               # Write message to screen
-                    Write-Host 'already in use for'$NSGRuleDirection' traffic'              # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    foreach ($_ in $CRules) {                                               # For each item in $CRules
-                        if ($_.Direction -eq $NSGRuleDirection) {                           # If current item .Direction equals $NSGRuleDirection
-                            Write-Host $_.Priority                                          # Write message to screen
-                        }                                                                   # if ($_.Direction -eq $NSGRuleDirection)
-                    }                                                                       # End foreach ($_ in $CRules)
-                    Write-Host ''                                                           # Write message to screen
-                }                                                                           # End if ($CRules.Direction -eq $NSGRuleDirection)
-                $NSGRulePriority = Read-Host 'Rule priority'                                # Operator input for the rule priority
-                Clear-Host                                                                  # Clears screen
-                $NSGRuleArray = $NSGRulePriority.ToCharArray()                              # Converts $NSGRulePriority into array
-                foreach ($_ in $NSGRuleArray) {                                             # For each item in $NSGRuleArray
-                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
-                        $NSGRulePriority = $null                                            # Clears $var
-                    }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $NSGRuleArray)                                                                       
-                $NSGRuleArray = $null                                                       # Clears $var
-                $NSGRuleDirPri = $NSGRuleDirection+' '+$NSGRulePriority                     # $NSGRuleDirPri is equal to $NSGRuleDirection and $NSGRulePriority                     
-                if ($NSGRuleDirPri -in $ObjectArray.DirPri) {                               # If $NSGRuleDirPri is in $ObjectArray.DirPri
-                    Write-Host 'This priority is already in use for'$NSGRuleDirection       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'Please select a different priority'                         # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $NSGRulePriority = $null                                                # Clears $var
-                }                                                                           # End if ($NSGRuleDirPri -in $ObjectArray.DirPri)
-                $NSGRuleInt = [INT]$NSGRulePriority                                         # Converts $NSGRulePriority to integer
-                if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096) {                         # if $NSGRuleInt is not between 100 and 4096
-                    Write-Host 'Rule priority must be between the values of 100 and 4096'   # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    $NSGRulePriority = $null                                                # Clears $var
-                    $NSGRuleInt = $null                                                     # Clears $var
-                    $NSGRuleDirPri = $null                                                  # Clears $var
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096)                                                                    
-                else {                                                                      # Else if $NSGRuleInt is between 100 and 4096
-                    Write-Host 'Use:'$NSGRulePriority' as the rule priority'                # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule priority
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break SetAzureNSGRulePriority                                       # Breaks :SetAzureNSGRulePriority
-                    }                                                                       # End if ($OpConfirm -eq 'y')
-                    elseif ($OpConfirm -eq 'e') {                                           # Else if $OpConfirm equals 'e'
-                        Break NewAzureNSGRule                                               # Breaks :NewAzureNSGRule
-                    }                                                                       # End elseif ($OpConfirm -eq 'e')
-                    else {                                                                  # All other inputs for $OpConfirm
-                        $NSGRulePriority = $null                                            # Clears $var
-                        $NSGRuleInt = $null                                                 # Clears $var
-                        $NSGRuleDirPri = $null                                              # Clears $var
-                    }                                                                       # End else (if ($OpConfirm -eq 'y'))
-                }                                                                           # End else (if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096))
-            }                                                                               # End :SetAzureNSGRulePriority while ($true)
+            $NSGRulePriority = SetAzNSGRulePriority ($NSGObject, $NSGRuleDirection, $CRules)# Calls function and assigns output to $var
+            if (!$NSGRulePriority) {                                                        # If NSGRulePriority is $null
+                Break NewAzureNSGRule                                                       # Breaks :NewAzureNSGRule                    
+            }                                                                               # End if (!$NSGRulePriority)
             $NSGRuleSPRange = SetAzNSGRuleSPortRange                                        # Calls function and assigns output to $var
             if (!$NSGRuleSPRange) {                                                         # If $NSGRuleSPRange is $null
                 Break NewAzureNSGRule                                                       # Breaks :NewAzureNSGRule                                                       
@@ -349,6 +378,91 @@ Function SetAzNSGRuleDirection {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End Function SetAzNSGRuleDirection
+Function SetAzNSGRulePriority {                                                             # Function to set a network security group rule priority
+    Begin {                                                                                 # Begin function
+        if (!$CRules) {                                                                     # If $CRules is $null
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array 
+            $CRules = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup $NSGObject      # List of current rules on $NSGObject
+            foreach ($_ in $CRules) {                                                       # For each item in $CRules
+                $Direction = $_.Direction                                                   # $Direction is equal to current item .Direction
+                $Priority = $_.Priority                                                     # $Priority is equal to current item .Priority
+                $DirPri = $Direction+' '+$Priority                                          # $DirPri and $Direction and $Priority 
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'DirPri'=$DirPri                                                        # Adds $DirPri to $ObjectInput 
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $Direction = $null                                                          # Clears $var
+                $Priority = $null                                                           # Clears $var
+                $DirPri = $null                                                             # Clears $var
+            }                                                                               # End foreach ($_ in $CRules) 
+        }                                                                                   # End if (!$CRules)
+        $ValidArray = '0123456789'                                                          # Creates a string of valid characters
+        $ValidArray = $ValidArray.ToCharArray()                                             # Loads all valid characters into array    
+        :SetAzureNSGRulePriority while ($true) {                                            # Inner loop to set the rule priority
+            Write-Host 'NSG Rule priority'                                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule priority must be between the values of 100 and 4096'           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            if ($CRules.Direction -eq $NSGRuleDirection) {                                  # If $CRules.Direction equals $NSGRuleDirection
+                Write-Host 'The following priorities are'                                   # Write message to screen
+                Write-Host 'already in use for'$NSGRuleDirection' traffic'                  # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $CRules) {                                                   # For each item in $CRules
+                    if ($_.Direction -eq $NSGRuleDirection) {                               # If current item .Direction equals $NSGRuleDirection
+                        Write-Host $_.Priority                                              # Write message to screen
+                    }                                                                       # if ($_.Direction -eq $NSGRuleDirection)
+                }                                                                           # End foreach ($_ in $CRules)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End if ($CRules.Direction -eq $NSGRuleDirection)
+            $NSGRulePriority = Read-Host 'Rule priority'                                    # Operator input for the rule priority
+            Clear-Host                                                                      # Clears screen
+            $NSGRuleArray = $NSGRulePriority.ToCharArray()                                  # Converts $NSGRulePriority into array
+            foreach ($_ in $NSGRuleArray) {                                                 # For each item in $NSGRuleArray
+                if ($_ -notin $ValidArray) {                                                # If current item is not in $ValidArray
+                    $NSGRulePriority = $null                                                # Clears $var
+                }                                                                           # End if ($_ -notin $ValidArray)
+            }                                                                               # End foreach ($_ in $NSGRuleArray)                                                                       
+            $NSGRuleArray = $null                                                           # Clears $var
+            $NSGRuleDirPri = $NSGRuleDirection+' '+$NSGRulePriority                         # $NSGRuleDirPri is equal to $NSGRuleDirection and $NSGRulePriority                     
+            if ($NSGRuleDirPri -in $ObjectArray.DirPri) {                                   # If $NSGRuleDirPri is in $ObjectArray.DirPri
+                Write-Host 'This priority is already in use for'$NSGRuleDirection           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Please select a different priority'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $NSGRulePriority = $null                                                    # Clears $var
+            }                                                                               # End if ($NSGRuleDirPri -in $ObjectArray.DirPri)
+            $NSGRuleInt = [INT]$NSGRulePriority                                             # Converts $NSGRulePriority to integer
+            if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096) {                             # if $NSGRuleInt is not between 100 and 4096
+                Write-Host 'Rule priority must be between the values of 100 and 4096'       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                $NSGRulePriority = $null                                                    # Clears $var
+                $NSGRuleInt = $null                                                         # Clears $var
+                $NSGRuleDirPri = $null                                                      # Clears $var
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096)                                                                    
+            else {                                                                          # Else if $NSGRuleInt is between 100 and 4096
+                Write-Host 'Use:'$NSGRulePriority' as the rule priority'                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the rule priority
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Return $NSGRulePriority                                                 # Returns to calling function with $NSGRulePriority
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                elseif ($OpConfirm -eq 'e') {                                               # Else if $OpConfirm equals 'e'
+                    Break NewAzureNSGRule                                                   # Breaks :NewAzureNSGRule
+                }                                                                           # End elseif ($OpConfirm -eq 'e')
+                else {                                                                      # All other inputs for $OpConfirm
+                    $NSGRulePriority = $null                                                # Clears $var
+                    $NSGRuleInt = $null                                                     # Clears $var
+                    $NSGRuleDirPri = $null                                                  # Clears $var
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
+            }                                                                               # End else (if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096))
+        }                                                                                   # End :SetAzureNSGRulePriority while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End functon SetAzNSGRulePriority
 Function SetAzNSGRuleSPortRange {                                                           # Function to set a network security rule source port range
     Begin {                                                                                 # Begin Function
         :SetAzureNSGRuleSPRange while ($true) {                                             # Outer loop for managing function
