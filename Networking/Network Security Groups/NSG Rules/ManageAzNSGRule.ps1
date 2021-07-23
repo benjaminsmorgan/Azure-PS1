@@ -1,14 +1,128 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Mircosoft docs links
+    Get-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-6.2.1
+    Add-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
+    Remove-AzNetworkSecurityRuleConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecurityruleconfig?view=azps-6.2.1
+} #>
+<# Required Functions Links: {
+    GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+    SetAzNSGRuleProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleProtocol.ps1
+    SetAzNSGRuleAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAccess.ps1
+    SetAzNSGRuleDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDirection.ps1
+    SetAzNSGRulePriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
+    SetAzNSGRuleSPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleSPortRange.ps1
+    SetAzNSGRuleDPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDPortRange.ps1
+    ListAzNSGRule:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzNSGRule.ps1
+    ListAzAllNSGsRule:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzAllNSGsRule.ps1
+    GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
+    GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
+    RemoveAzNSGRule:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/RemoveAzNSGRule.ps1
+} #>
+<# Functions Description: {
+    NewAzNSGRule:               Function to create a new network security group rule
+    GetAzNSG:                   Function to get a network security group
+    SetAzNSGRuleProtocol:       Function to set a network security group rule protocol
+    SetAzNSGRuleAccess:         Function to set a network security group rule access
+    SetAzNSGRuleDirection:      Function to set a network security group rule direction
+    SetAzNSGRulePriority:       Function to set a network security group rule priority
+    SetAzNSGRuleSPortRange:     Function to set a network security rule source port range
+    SetAzNSGRuleDPortRange:     Function to set a network security rule destination port range
+    ListAzNSGRule:              Function to list a network security group rules
+    ListAzAllNSGsRule:          Function to list all rules from all network security groups
+    GetAzAllNSGsRule:           Function to get a rule from all network security groups
+    GetAzNSGRule:               Function to get a network security group rule
+    RemoveAzNSGRule:            Function to remove a network security group rule
+} #>
+<# Variables: {      
+    :ManageAzureNSGRule         Outer loop for managing function
+    $OpSelect:                  Operator input to select the management function
+    NewAzNSGRule{}              Creates $NSGRuleObject
+        GetAzNSG{}                  Gets $NSGObject
+        SetAzNSGRuleProtocol{}      Gets $NSGRuleProtocol
+        SetAzNSGRuleAccess{}        Gets $NSGRuleAccess
+        SetAzNSGRuleDirection{}     Gets $NSGRuleDirection
+        SetAzNSGRulePriority{}      Gets $NSGRulePriority
+        SetAzNSGRuleSPortRange{}    Gets $NSGRuleSPRange
+        SetAzNSGRuleDPortRange{}    Gets $NSGRuleDPRange
+    ListAzNSGRule{}             Lists $NSGRuleObject
+        GetAzNSG{}                  Gets $NSGObject
+    ListAzAllNSGsRule{}         Lists $NSGRuleObject
+    RemoveAzNSGRule{}           Removes $NSGRuleObject
+        GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+        GetAzNSGRule{}              Gets $NSGRuleObject
+            GetAzNSG{}                  Gets $NSGObject
+} #>
+<# Process Flow {
+    function
+        Call ManageAzNSGRule > Get $null
+            Call NewAzNSGRule > Get $null
+                Call GetAzNSG > Get $NSGObject
+                End GetAzNSG
+                    Return NewAzNSGRule > Send $NSGObject
+                Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                End SetAzNSGRuleProtocol
+                    Return NewAzNSGRule > Send $NSGRuleProtocol
+                Call SetAzNSGRuleAccess > Get $NSGRuleAccess
+                End SetAzNSGRuleAccess
+                    Return NewAzNSGRule > Send $NSGRuleAccess
+                Call SetAzNSGRuleDirection > Get $NSGRuleDirection
+                End SetAzNSGRuleDirection
+                    Return NewAzNSGRule > Send $NSGRuleDirection
+                SetAzNSGRulePriority > Get $NSGRulePriority
+                End SetAzNSGRulePriority
+                    Return NewAzNSGRule > Send $NSGRulePriority
+                Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                End SetAzNSGRuleSPortRange
+                    Return NewAzNSGRule > Send $NSGRuleSPRange
+                Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                End SetAzNSGRuleDPortRange
+                    Return NewAzNSGRule > Send $NSGRuleDPRange
+            End NewAzNSGRule
+                Return function > Send $null
+            Call ListAzNSGRule > Get $null
+                Call GetAzNSG > Get $NSGObject
+                End GetAzNSG
+                    Return ListAzNSGRule > Send $NSGObject
+            End ListAzNSGRule
+                Return ManageAzNSGRule > Send $null
+            Call ListAzAllNSGsRule > Get $null
+            End ListAzAllNSGsRule
+                Return ManageAzNSGRule > Send $null
+            Call RemoveAzNSGRule > Get $null
+                Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                End GetAzAllNSGsRule
+                    Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
+                Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    Call GetAzNSG > Get $NSGObject
+                    End GetAzNSG
+                        Return GetAzNSGRule > Send $NSGObject
+                End GetAzNSGRule
+                    Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
+            End RemoveAzNSGRule
+                Return ManageAzNSGRule > Send $null
+
+
+        End ManageAzNSGRule 
+            Return function > Send $null
+}#>
 function ManageAzNSGRule {                                                                  # Function to manage network security group rules
     Begin {                                                                                 # Begin function
         :ManageAzureNSGRule while ($true) {                                                 # Outer loop for managing function
             Write-Host 'Manage Network Security Group Rules'                                # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] New NSG Rule'                                                   # Write message to screen
-            Write-Host '[2] List NSG Rules'                                                 # Write message to screen
-            Write-Host '[3] List All NSG Rules'                                             # Write message to screen
-            Write-Host '[4] Remove NSG Rule'                                                # Write message to screen
-            Write-Host '[5] Update NSG Rule Protocol'                                       # Write message to screen
+            Write-Host '[0]  Exit'                                                          # Write message to screen
+            Write-Host '[1]  New NSG Rule'                                                  # Write message to screen
+            Write-Host '[2]  List NSG Rules'                                                # Write message to screen
+            Write-Host '[3]  List All NSG Rules'                                            # Write message to screen
+            Write-Host '[4]  Remove NSG Rule'                                               # Write message to screen
+            Write-Host '[5]  Update NSG Rule Access'                                        # Write message to screen
+            Write-Host '[6]  Update NSG Rule Direction'                                     # Write message to screen
+            Write-Host '[7]  Update NSG Rule Priority'                                      # Write message to screen
+            Write-Host '[8]  Update NSG Rule Protocol'                                      # Write message to screen
+            Write-Host '[9]  Update NSG Rule Source Port Range'                             # Write message to screen
+            Write-Host '[10] Update NSG Rule Desination Port Range'                         # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -27,13 +141,33 @@ function ManageAzNSGRule {                                                      
                 ListAzAllNSGsRule                                                           # Calls function
             }                                                                               # elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host '[4] Remove NSG Rule'                                            # Write message to screen
+                Write-Host 'Remove NSG Rule'                                                # Write message to screen
                 RemoveAzNSGRule                                                             # Calls function
             }                                                                               # elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Update NSG Rule Access'                                         # Write message to screen
+                UpdateAzNSGRAccess                                                          # Calls function
+            }                                                                               # elseif ($OpSelect -eq '5')
+            elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect equals '6'
+                Write-Host 'Update NSG Rule Direction'                                      # Write message to screen
+                UpdateAzNSGRDirection                                                       # Calls function
+            }                                                                               # elseif ($OpSelect -eq '6')
+            elseif ($OpSelect -eq '7') {                                                    # Else if $OpSelect equals '7'
+                Write-Host 'Update NSG Rule Priority'                                       # Write message to screen
+                UpdateAzNSGRPriority                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '7')
+            elseif ($OpSelect -eq '8') {                                                    # Else if $OpSelect equals '8'
                 Write-Host 'Update NSG Rule Protocol'                                       # Write message to screen
                 UpdateAzNSGRProtocol                                                        # Calls function
-            }                                                                               # elseif ($OpSelect -eq '5')
+            }                                                                               # elseif ($OpSelect -eq '8')
+            elseif ($OpSelect -eq '9') {                                                    # Else if $OpSelect equals '9'
+                Write-Host 'Update NSG Rule Source Port Range'                              # Write message to screen
+                UpdateAzNSGRSPRange                                                         # Calls function
+            }                                                                               # elseif ($OpSelect -eq '9')
+            elseif ($OpSelect -eq '10') {                                                   # Else if $OpSelect equals '10'
+                Write-Host 'Update NSG Rule Desination Port Range'                          # Write message to screen
+                UpdateAzNSGRDPRange                                                         # Calls function
+            }                                                                               # elseif ($OpSelect -eq '10')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -159,67 +293,10 @@ function NewAzNSGRule {                                                         
             }                                                                               # End if (!$NSGRuleDirection)            
             $ValidArray = '0123456789'                                                      # Creates a string of valid characters
             $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array    
-            :SetAzureNSGRulePriority while ($true) {                                        # Inner loop to set the rule priority
-                Write-Host 'NSG Rule priority'                                              # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'Rule priority must be between the values of 100 and 4096'       # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                if ($CRules.Direction -eq $NSGRuleDirection) {                              # If $CRules.Direction equals $NSGRuleDirection
-                    Write-Host 'The following priorities are'                               # Write message to screen
-                    Write-Host 'already in use for'$NSGRuleDirection' traffic'              # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    foreach ($_ in $CRules) {                                               # For each item in $CRules
-                        if ($_.Direction -eq $NSGRuleDirection) {                           # If current item .Direction equals $NSGRuleDirection
-                            Write-Host $_.Priority                                          # Write message to screen
-                        }                                                                   # if ($_.Direction -eq $NSGRuleDirection)
-                    }                                                                       # End foreach ($_ in $CRules)
-                    Write-Host ''                                                           # Write message to screen
-                }                                                                           # End if ($CRules.Direction -eq $NSGRuleDirection)
-                $NSGRulePriority = Read-Host 'Rule priority'                                # Operator input for the rule priority
-                Clear-Host                                                                  # Clears screen
-                $NSGRuleArray = $NSGRulePriority.ToCharArray()                              # Converts $NSGRulePriority into array
-                foreach ($_ in $NSGRuleArray) {                                             # For each item in $NSGRuleArray
-                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
-                        $NSGRulePriority = $null                                            # Clears $var
-                    }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $NSGRuleArray)                                                                       
-                $NSGRuleArray = $null                                                       # Clears $var
-                $NSGRuleDirPri = $NSGRuleDirection+' '+$NSGRulePriority                     # $NSGRuleDirPri is equal to $NSGRuleDirection and $NSGRulePriority                     
-                if ($NSGRuleDirPri -in $ObjectArray.DirPri) {                               # If $NSGRuleDirPri is in $ObjectArray.DirPri
-                    Write-Host 'This priority is already in use for'$NSGRuleDirection       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'Please select a different priority'                         # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $NSGRulePriority = $null                                                # Clears $var
-                }                                                                           # End if ($NSGRuleDirPri -in $ObjectArray.DirPri)
-                $NSGRuleInt = [INT]$NSGRulePriority                                         # Converts $NSGRulePriority to integer
-                if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096) {                         # if $NSGRuleInt is not between 100 and 4096
-                    Write-Host 'Rule priority must be between the values of 100 and 4096'   # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    $NSGRulePriority = $null                                                # Clears $var
-                    $NSGRuleInt = $null                                                     # Clears $var
-                    $NSGRuleDirPri = $null                                                  # Clears $var
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096)                                                                    
-                else {                                                                      # Else if $NSGRuleInt is between 100 and 4096
-                    Write-Host 'Use:'$NSGRulePriority' as the rule priority'                # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the rule priority
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break SetAzureNSGRulePriority                                       # Breaks :SetAzureNSGRulePriority
-                    }                                                                       # End if ($OpConfirm -eq 'y')
-                    elseif ($OpConfirm -eq 'e') {                                           # Else if $OpConfirm equals 'e'
-                        Break NewAzureNSGRule                                               # Breaks :NewAzureNSGRule
-                    }                                                                       # End elseif ($OpConfirm -eq 'e')
-                    else {                                                                  # All other inputs for $OpConfirm
-                        $NSGRulePriority = $null                                            # Clears $var
-                        $NSGRuleInt = $null                                                 # Clears $var
-                        $NSGRuleDirPri = $null                                              # Clears $var
-                    }                                                                       # End else (if ($OpConfirm -eq 'y'))
-                }                                                                           # End else (if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096))
-            }                                                                               # End :SetAzureNSGRulePriority while ($true)
+            $NSGRulePriority = SetAzNSGRulePriority ($NSGObject, $NSGRuleDirection, $CRules)# Calls function and assigns output to $var
+            if (!$NSGRulePriority) {                                                        # If NSGRulePriority is $null
+                Break NewAzureNSGRule                                                       # Breaks :NewAzureNSGRule                    
+            }                                                                               # End if (!$NSGRulePriority)
             $NSGRuleSPRange = SetAzNSGRuleSPortRange                                        # Calls function and assigns output to $var
             if (!$NSGRuleSPRange) {                                                         # If $NSGRuleSPRange is $null
                 Break NewAzureNSGRule                                                       # Breaks :NewAzureNSGRule                                                       
@@ -396,6 +473,91 @@ Function SetAzNSGRuleDirection {                                                
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End Function SetAzNSGRuleDirection
+Function SetAzNSGRulePriority {                                                             # Function to set a network security group rule priority
+    Begin {                                                                                 # Begin function
+        if (!$CRules) {                                                                     # If $CRules is $null
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array 
+            $CRules = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup $NSGObject      # List of current rules on $NSGObject
+            foreach ($_ in $CRules) {                                                       # For each item in $CRules
+                $Direction = $_.Direction                                                   # $Direction is equal to current item .Direction
+                $Priority = $_.Priority                                                     # $Priority is equal to current item .Priority
+                $DirPri = $Direction+' '+$Priority                                          # $DirPri and $Direction and $Priority 
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'DirPri'=$DirPri                                                        # Adds $DirPri to $ObjectInput 
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $Direction = $null                                                          # Clears $var
+                $Priority = $null                                                           # Clears $var
+                $DirPri = $null                                                             # Clears $var
+            }                                                                               # End foreach ($_ in $CRules) 
+        }                                                                                   # End if (!$CRules)
+        $ValidArray = '0123456789'                                                          # Creates a string of valid characters
+        $ValidArray = $ValidArray.ToCharArray()                                             # Loads all valid characters into array    
+        :SetAzureNSGRulePriority while ($true) {                                            # Inner loop to set the rule priority
+            Write-Host 'NSG Rule priority'                                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule priority must be between the values of 100 and 4096'           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            if ($CRules.Direction -eq $NSGRuleDirection) {                                  # If $CRules.Direction equals $NSGRuleDirection
+                Write-Host 'The following priorities are'                                   # Write message to screen
+                Write-Host 'already in use for'$NSGRuleDirection' traffic'                  # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $CRules) {                                                   # For each item in $CRules
+                    if ($_.Direction -eq $NSGRuleDirection) {                               # If current item .Direction equals $NSGRuleDirection
+                        Write-Host $_.Priority                                              # Write message to screen
+                    }                                                                       # if ($_.Direction -eq $NSGRuleDirection)
+                }                                                                           # End foreach ($_ in $CRules)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End if ($CRules.Direction -eq $NSGRuleDirection)
+            $NSGRulePriority = Read-Host 'Rule priority'                                    # Operator input for the rule priority
+            Clear-Host                                                                      # Clears screen
+            $NSGRuleArray = $NSGRulePriority.ToCharArray()                                  # Converts $NSGRulePriority into array
+            foreach ($_ in $NSGRuleArray) {                                                 # For each item in $NSGRuleArray
+                if ($_ -notin $ValidArray) {                                                # If current item is not in $ValidArray
+                    $NSGRulePriority = $null                                                # Clears $var
+                }                                                                           # End if ($_ -notin $ValidArray)
+            }                                                                               # End foreach ($_ in $NSGRuleArray)                                                                       
+            $NSGRuleArray = $null                                                           # Clears $var
+            $NSGRuleDirPri = $NSGRuleDirection+' '+$NSGRulePriority                         # $NSGRuleDirPri is equal to $NSGRuleDirection and $NSGRulePriority                     
+            if ($NSGRuleDirPri -in $ObjectArray.DirPri) {                                   # If $NSGRuleDirPri is in $ObjectArray.DirPri
+                Write-Host 'This priority is already in use for'$NSGRuleDirection           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Please select a different priority'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $NSGRulePriority = $null                                                    # Clears $var
+            }                                                                               # End if ($NSGRuleDirPri -in $ObjectArray.DirPri)
+            $NSGRuleInt = [INT]$NSGRulePriority                                             # Converts $NSGRulePriority to integer
+            if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096) {                             # if $NSGRuleInt is not between 100 and 4096
+                Write-Host 'Rule priority must be between the values of 100 and 4096'       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                $NSGRulePriority = $null                                                    # Clears $var
+                $NSGRuleInt = $null                                                         # Clears $var
+                $NSGRuleDirPri = $null                                                      # Clears $var
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096)                                                                    
+            else {                                                                          # Else if $NSGRuleInt is between 100 and 4096
+                Write-Host 'Use:'$NSGRulePriority' as the rule priority'                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                            # Operator confirmation of the rule priority
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Return $NSGRulePriority                                                 # Returns to calling function with $NSGRulePriority
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                elseif ($OpConfirm -eq 'e') {                                               # Else if $OpConfirm equals 'e'
+                    Break NewAzureNSGRule                                                   # Breaks :NewAzureNSGRule
+                }                                                                           # End elseif ($OpConfirm -eq 'e')
+                else {                                                                      # All other inputs for $OpConfirm
+                    $NSGRulePriority = $null                                                # Clears $var
+                    $NSGRuleInt = $null                                                     # Clears $var
+                    $NSGRuleDirPri = $null                                                  # Clears $var
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
+            }                                                                               # End else (if ($NSGRuleInt -lt 100 -or $NSGRuleInt -gt 4096))
+        }                                                                                   # End :SetAzureNSGRulePriority while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End functon SetAzNSGRulePriority
 Function SetAzNSGRuleSPortRange {                                                           # Function to set a network security rule source port range
     Begin {                                                                                 # Begin Function
         :SetAzureNSGRuleSPRange while ($true) {                                             # Outer loop for managing function
@@ -1309,6 +1471,309 @@ function RemoveAzNSGRule {                                                      
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNSGRule
+function UpdateAzNSGRAccess {                                                               # Function to update a network security group rule access
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRAccess'                                         # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRuleAccess = SetAzNSGRuleAccess ($CallingFunction)                      # Calls function and assigns output to $var
+                if (!$NSGRuleAccess) {                                                      # If $NSGRuleAccess is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRuleAccess)
+                else {                                                                      # Else if $NSGRuleAccess has a value
+                    $RAccess = $NSGRuleAccess                                               # Updates $RAccess     
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRuleAccess))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Access'                                                  # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.Access                                    # Write message to screen
+            Write-Host 'New:      '$RAccess                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRAccess
+function UpdateAzNSGRDirection {                                                            # Function to update a network security group rule direction
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRDirection'                                      # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)     
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            $CRules = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup $NSGObject      # List of current rules on $NSGObject
+            foreach ($_ in $CRules) {                                                       # For each item in $CRules
+                $Direction = $_.Direction                                                   # $Direction is equal to current item .Direction
+                $Priority = $_.Priority                                                     # $Priority is equal to current item .Priority
+                $DirPri = $Direction+' '+$Priority                                          # $DirPri and $Direction and $Priority 
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'DirPri'=$DirPri                                                        # Adds $DirPri to $ObjectInput 
+                }                                                                           # End $ObjectInput = [PSCustomObject]@
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Addes $ObjectInput to $ObjectArray
+                $Direction = $null                                                          # Clears $var
+                $Priority = $null                                                           # Clears $var
+                $DirPri = $null                                                             # Clears $var
+            }                                                                               # End foreach ($_ in $CRules)        
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRuleDirection = SetAzNSGRuleDirection ($CallingFunction)                # Calls function and assigns output to $var
+                if (!$NSGRuleDirection) {                                                   # If $NSGRuleDirection is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRuleDirection)
+                else {                                                                      # Else if $NSGRuleDirection has a value
+                    $NSGRuleDirPri = $NSGRuleDirection+' '+$RPriori                         # $NSGRuleDirPri is equal to $NSGRuleDirection and $RPriori                     
+                    if ($NSGRuleDirPri -in $ObjectArray.DirPri) {                           # If $NSGRuleDirPri is in $ObjectArray.DirPri
+                        Write-Host 'The priority:'$RPriori' is already'                     # Write message to screen
+                        Write-Host 'is already in use on an'$NSGRuleDirection' rule'        # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'You will need to change the priority'                   # Write message to screen
+                        Write-Host 'of this rule before you can change'                     # Write message to screen
+                        Write-Host 'the direction of this rule'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'No changes have been made'                              # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input    
+                        Break ChangeAzureNSRGConfig                                         # Breaks :ChangeAzureNSRGConfig    
+                    }                                                                       # End if ($NSGRuleDirPri -in $ObjectArray.DirPri)
+                    $RDirect = $NSGRuleDirection                                            # Updates $RDirect     
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRuleDirection))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Direction'                                               # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.Direction                                 # Write message to screen
+            Write-Host 'New:      '$RDirect                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRDirection
+function UpdateAzNSGRPriority {                                                             # Function to update a network security group rule priotiry
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRPriority'                                       # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            $NSGRuleDirection = $NSGRuleObject.Direction                                    # $NSGRuleDirection is equal to $NSGRuleObject.Direction       
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRulePriority = SetAzNSGRulePriority ($CallingFunction, $NSGObject, `
+                    $NSGRuleObject, $NSGRuleDirection)                                      # Calls function and assigns output to $var
+                if (!$NSGRulePriority) {                                                    # If $NSGRulePriority is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRulePriority)
+                else {                                                                      # Else if $NSGRulePriority has a value
+                    $RPriori = $NSGRulePriority                                             # Updates $RPriori     
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRulePriority))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Priority'                                                # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.Priority                                  # Write message to screen
+            Write-Host 'New:      '$RPriori                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRPriority
 function UpdateAzNSGRProtocol {                                                             # Function to update a network security group rule protocol
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction has a value
@@ -1376,13 +1841,12 @@ function UpdateAzNSGRProtocol {                                                 
             }                                                                               # End :GetAzureNSGRSetting while ($true)
             Write-Host 'Update the following'                                               # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Rule Name:       '$RName                                            # Write message to screen
-            Write-Host 'Current Protocol:'$NSGRuleObject.Protocol                           # Write message to screen
-            Write-Host 'New Protocol:    '$NSGRuleProtocol                                  # Write message to screen
-            Write-Host $RSASGr
-            Write-Host $RDASGr
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Protocol'                                                # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.Protocol                                  # Write message to screen
+            Write-Host 'New:      '$NSGRuleProtocol                                         # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the rule
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
             Clear-Host                                                                      # Clears screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
@@ -1401,6 +1865,188 @@ function UpdateAzNSGRProtocol {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function UpdateAzNSGRProtocol
+function UpdateAzNSGRSPRange {                                                              # Function to update a network security group rule source port range
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRSPRange'                                        # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRuleSPRange = SetAzNSGRuleSPortRange ($CallingFunction)                 # Calls function and assigns output to $var
+                if (!$NSGRuleSPRange) {                                                     # If $NSGRuleSPRange is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRuleSPRange)
+                else {                                                                      # Else if $NSGRuleSPRange has a value
+                    $RSPRang = $NSGRuleSPRange                                              # Updates $RSPRang     
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRuleSPRange))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Source Port Range'                                       # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.SourcePortRange                           # Write message to screen
+            Write-Host 'New:      '$RSPRang                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRSPRange
+function UpdateAzNSGRDPRange {                                                              # Function to update a network security group rule destination port range
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRDPRange'                                        # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRuleDPRange = SetAzNSGRuleDPortRange ($CallingFunction)                 # Calls function and assigns output to $var
+                if (!$NSGRuleDPRange) {                                                     # If $NSGRuleDPRange is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRuleDPRange)
+                else {                                                                      # Else if $NSGRuleDPRange has a value
+                    $RDPRang = $NSGRuleDPRange                                              # Updates $RDPRang     
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRuleDPRange))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Destination Port Range'                                  # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.DestinationPortRange                      # Write message to screen
+            Write-Host 'New:      '$RDPRang                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRDPRange
 function UpdateAzNSGRuleConfig {                                                            # Function for updating network security group rule configs
     Begin {                                                                                 # Begin function
         Write-Host 'Updating network security group rule'                                   # Write message to screen
