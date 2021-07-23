@@ -1,12 +1,12 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
     Set-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-6.2.1
-    Remove-AzNetworkSecurityRuleConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecurityruleconfig?view=azps-6.2.1
     Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
     Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
     Get-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
+    UpdateAzNSGRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRuleConfig.ps1
     SetAzNSGRuleProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleProtocol.ps1
     GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
     GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
@@ -14,6 +14,7 @@
 } #>
 <# Functions Description: {
     UpdateAzNSGRProtocol:       Function to update a network security group rule protocol
+    UpdateAzNSGRuleConfig:      Function for updating network security group rule configs
     SetAzNSGRuleProtocol:       Function to set a network security group rule protocol
     GetAzAllNSGsRule:           Function to get a rule from all network security groups
     GetAzNSGRule:               Function to get a network security group rule
@@ -21,7 +22,30 @@
 } #>
 <# Variables: {      
     :ChangeAzureNSRGConfig      Outer loop for managing function
-
+    :GetAzureNSGRule            Inner loop for selecting the network security group rule
+    :GetAzureNSGRSetting        Inner loop for setting the new netwrok security group rule config
+    $OpSelect:                  Operator selection for getting the NSG rule
+    $NSGRuleObject:             Network security group rule object
+    $NSGObject:                 Network security group object
+    $RName:                     $NSGRuleObject.Name        
+    $RProto:                    $NSGRuleObject.Protocol         
+    $RAccess:                   $NSGRuleObject.Access                  
+    $RDirect:                   $NSGRuleObject.Direction           
+    $RPriori:                   $NSGRuleObject.Priority          
+    $RDescri:                   $NSGRuleObject.Description                                
+    $RSPRang:                   $NSGRuleObject.SourcePortRange                  
+    $RSAddre:                   $NSGRuleObject.SourceAddressPrefix        
+    $RSASGr:                    $NSGRuleObject.SourceApplicationSecurityGroups.ID  
+    $RDPRang:                   $NSGRuleObject.DestinationPortRange          
+    $RDAddre:                   $NSGRuleObject.DestinationAddressPrefix              
+    $RDASGr:                    $NSGRuleObject.DestinationApplicationSecurityGroups.ID 
+    $NSGRuleProtocol:           Network security group rule protocol
+    $OpConfirm:                 Operator confirmation to update the NSG rule object
+    GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+    GetAzNSG{}                  Gets $NSGObject
+    GetAzNSGRule{}              Gets $NSGRuleObject
+    SetAzNSGRuleProtocol{}      Gets $NSGRuleProtocol
+    UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
 } #>
 <# Process Flow {
     function
@@ -38,10 +62,12 @@
             Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
             End SetAzNSGRuleProtocol
                 Return UpdateAzNSGRProtocol > Send $NSGRuleProtocol
+            Call UpdateAzNSGRuleConfig > Get $null
+            End UpdateAzNSGRuleConfig
+                Return UpdateAzNSGRProtocol > Send $null
         End UpdateAzNSGRProtocol
             Return function > Send $null
 }#>
-
 function UpdateAzNSGRProtocol {                                                             # Function to update a network security group rule protocol
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction has a value
@@ -109,13 +135,12 @@ function UpdateAzNSGRProtocol {                                                 
             }                                                                               # End :GetAzureNSGRSetting while ($true)
             Write-Host 'Update the following'                                               # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Rule Name:       '$RName                                            # Write message to screen
-            Write-Host 'Current Protocol:'$NSGRuleObject.Protocol                           # Write message to screen
-            Write-Host 'New Protocol:    '$NSGRuleProtocol                                  # Write message to screen
-            Write-Host $RSASGr
-            Write-Host $RDASGr
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Protocol'                                                # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.Protocol                                  # Write message to screen
+            Write-Host 'New:      '$NSGRuleProtocol                                         # Write message to screen
             Write-Host ''                                                                   # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to remove the rule
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
             Clear-Host                                                                      # Clears screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
