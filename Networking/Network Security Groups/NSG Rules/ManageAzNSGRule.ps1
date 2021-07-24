@@ -123,6 +123,8 @@ function ManageAzNSGRule {                                                      
             Write-Host '[8]  Update NSG Rule Protocol'                                      # Write message to screen
             Write-Host '[9]  Update NSG Rule Source Port Range'                             # Write message to screen
             Write-Host '[10] Update NSG Rule Desination Port Range'                         # Write message to screen
+            Write-Host '[11] Update NSG Rule Source App Sec Group'                          # Write message to screen
+            Write-Host '[12] Update NSG Rule Desination App Sec Group'                      # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -168,6 +170,14 @@ function ManageAzNSGRule {                                                      
                 Write-Host 'Update NSG Rule Desination Port Range'                          # Write message to screen
                 UpdateAzNSGRDPRange                                                         # Calls function
             }                                                                               # elseif ($OpSelect -eq '10')
+            elseif ($OpSelect -eq '11') {                                                   # Else if $OpSelect equals '11'
+                Write-Host 'Update NSG Rule Source App Sec Group'                           # Write message to screen
+                UpdateAzNSGRSAppSecG                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '11')
+            elseif ($OpSelect -eq '12') {                                                   # Else if $OpSelect equals '12'
+                Write-Host 'Update NSG Rule Desination App Sec Group'                       # Write message to screen
+                UpdateAzNSGRDAppSecG                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '12')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -1040,6 +1050,14 @@ function ListAzNSGRule {                                                        
             }                                                                               # End if (!$NSGObject)
             $ObjectList = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup $NSGObject  # Gets a list of all non-default rules on $NSGObject
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                if ($_.SourceApplicationSecurityGroups.ID) {                                # If ($_.SourceApplicationSecurityGroups.ID has a value
+                    $SAppSecGID = $_.SourceApplicationSecurityGroups.ID                     # $SAppSecGID is equal to $_.SourceApplicationSecurityGroups.ID
+                    $SAppSecGID = $SAppSecGID.Split('/')[-1]                                # Isolates the name of the application security group
+                }                                                                           # End if ($_.SourceApplicationSecurityGroups.ID)
+                if ($_.DestinationApplicationSecurityGroups.ID) {                           # If ($_.DestinationApplicationSecurityGroups.ID has a value
+                    $DAppSecGID = $_.DestinationApplicationSecurityGroups.ID                # DSAppSecGID is equal to $_.DestinationApplicationSecurityGroups.ID
+                    $DAppSecGID = $DAppSecGID.Split('/')[-1]                                # Isolates the name of the application security group
+                }                                                                           # End if ($_.DestinationApplicationSecurityGroups.ID)
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Name'=$_.Name;                                                         # Rule config name
                     'Descript'=$_.Description;                                              # Rule config description
@@ -1048,13 +1066,15 @@ function ListAzNSGRule {                                                        
                     'DPRange'=$_.DestinationPortRange;                                      # Rule config destination port range
                     'SAPrefix'=$_.SourceAddressPrefix;                                      # Rule config source address prefix
                     'DAPrefix'=$_.DestinationAddressPrefix;                                 # Rule config destination address prefix
-                    'SASG'=$_.SourceApplicationSecurityGroups;                              # Rule config source application security groups
-                    'DASG'=$_.DestinationApplicationSecurityGroups;                         # Rule config destination application security groups
+                    'SASG'=$SAppSecGID;                                                     # Rule config source application security groups
+                    'DASG'=$DAppSecGID;                                                     # Rule config destination application security groups
                     'Access'=$_.Access;                                                     # Rule config access
                     'PRI'=$_.Priority;                                                      # Rule config priority
                     'Direction'=$_.Direction                                                # Rule config direction
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Addes $ObjectInput to $ObjectArray
+                $SAppSecGID = $null                                                         # Clears $var
+                $DAppSecGID = $null                                                         # Clears $var
             }                                                                               # End foreach ($_ in $NSGList)
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null
                 Clear-Host                                                                  # Clears screen
@@ -1068,13 +1088,17 @@ function ListAzNSGRule {                                                        
                 Write-Host 'Protocol:       '$_.Proto                                       # Write message to screen
                 Write-Host 'Source'                                                         # Write message to screen
                 Write-Host ' Port Range:    '$_.SPRange                                     # Write message to screen
-                Write-Host ' Address Prefix:'$_.SAPrefix                                    # Write message to screen
+                if ($_.SAPrefix) {                                                          # If $_.SAPrefix has a value
+                    Write-Host ' Address Prefix:'$_.SAPrefix                                # Write message to screen
+                }                                                                           # End if ($_.SAPrefix)
                 if ($_.SASG) {                                                              # If $_.SASG has a value
                     Write-Host ' Security Group:'$_.SASG                                    # Write message to screen
                 }                                                                           # End if ($_.SASG)
                 Write-Host 'Destination'                                                    # Write message to screen
                 Write-Host ' Port Range:    '$_.DPRange                                     # Write message to screen
-                Write-Host ' Address Prefix:'$_.DAPrefix                                    # Write message to screen
+                if ($_.DAPrefix) {                                                          # If $_.DAPrefix has a value
+                    Write-Host ' Address Prefix:'$_.DAPrefix                                # Write message to screen
+                }                                                                           # End if ($_.DAPrefix)
                 if ($_.DASG) {                                                              # If $_.DASG has a value
                     Write-Host ' Security Group:'$_.DASG                                    # Write message to screen
                 }                                                                           # End if ($_.DASG)
@@ -1110,6 +1134,14 @@ function ListAzAllNSGsRule {                                                    
                 $ObjectList = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup `
                     $NSGObject                                                              # Gets a list of all non-default rules on $NSGObject
                 foreach ($_ in $ObjectList) {                                               # For each item in $ObjectList
+                    if ($_.SourceApplicationSecurityGroups.ID) {                            # If ($_.SourceApplicationSecurityGroups.ID has a value
+                        $SAppSecGID = $_.SourceApplicationSecurityGroups.ID                 # $SAppSecGID is equal to $_.SourceApplicationSecurityGroups.ID
+                        $SAppSecGID = $SAppSecGID.Split('/')[-1]                            # Isolates the name of the application security group
+                    }                                                                       # End if ($_.SourceApplicationSecurityGroups.ID)
+                    if ($_.DestinationApplicationSecurityGroups.ID) {                       # If ($_.DestinationApplicationSecurityGroups.ID has a value
+                        $DAppSecGID = $_.DestinationApplicationSecurityGroups.ID            # DSAppSecGID is equal to $_.DestinationApplicationSecurityGroups.ID
+                        $DAppSecGID = $DAppSecGID.Split('/')[-1]                            # Isolates the name of the application security group
+                    }                                                                       # End if ($_.DestinationApplicationSecurityGroups.ID)
                     $ObjectInput = [PSCustomObject]@{                                       # custom object to add info to $ObjectArray
                         'Name'=$_.Name;                                                     # Rule config name
                         'NSGName'=$NSGName;                                                 # Network security group name
@@ -1120,13 +1152,15 @@ function ListAzAllNSGsRule {                                                    
                         'DPRange'=$_.DestinationPortRange;                                  # Rule config destination port range
                         'SAPrefix'=$_.SourceAddressPrefix;                                  # Rule config source address prefix
                         'DAPrefix'=$_.DestinationAddressPrefix;                             # Rule config destination address prefix
-                        'SASG'=$_.SourceApplicationSecurityGroups;                          # Rule config source application security groups
-                        'DASG'=$_.DestinationApplicationSecurityGroups;                     # Rule config destination application security groups
+                        'SASG'=$SAppSecGID;                                                 # Rule config source application security groups
+                        'DASG'=$DAppSecGID;                                                 # Rule config destination application security groups
                         'Access'=$_.Access;                                                 # Rule config access
                         'PRI'=$_.Priority;                                                  # Rule config priority
                         'Direction'=$_.Direction                                            # Rule config direction
                     }                                                                       # End $ObjectInput = [PSCustomObject]@
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Addes $ObjectInput to $ObjectArray
+                    $SAppSecGID = $null                                                     # Clears $var
+                    $DAppSecGID = $null                                                     # Clears $var
                 }                                                                           # End foreach ($_ in $ObjectList)
                 $NSGObject = $null                                                          # Clears $var
                 $NSGName = $null                                                            # Clears $var
@@ -1150,13 +1184,17 @@ function ListAzAllNSGsRule {                                                    
                 Write-Host 'Protocol:       '$_.Proto                                       # Write message to screen
                 Write-Host 'Source'                                                         # Write message to screen
                 Write-Host ' Port Range:    '$_.SPRange                                     # Write message to screen
-                Write-Host ' Address Prefix:'$_.SAPrefix                                    # Write message to screen
+                if ($_.SAPrefix) {                                                          # If $_.SAPrefix has a value
+                    Write-Host ' Address Prefix:'$_.SAPrefix                                # Write message to screen
+                }                                                                           # End if ($_.SAPrefix)
                 if ($_.SASG) {                                                              # If $_.SASG has a value
                     Write-Host ' Security Group:'$_.SASG                                    # Write message to screen
                 }                                                                           # End if ($_.SASG)
                 Write-Host 'Destination'                                                    # Write message to screen
                 Write-Host ' Port Range:    '$_.DPRange                                     # Write message to screen
-                Write-Host ' Address Prefix:'$_.DAPrefix                                    # Write message to screen
+                if ($_.DAPrefix) {                                                          # If $_.DAPrefix has a value
+                    Write-Host ' Address Prefix:'$_.DAPrefix                                # Write message to screen
+                }                                                                           # End if ($_.DAPrefix)
                 if ($_.DASG) {                                                              # If $_.DASG has a value
                     Write-Host ' Security Group:'$_.DASG                                    # Write message to screen
                 }                                                                           # End if ($_.DASG)
@@ -1254,13 +1292,17 @@ function GetAzAllNSGsRule {                                                     
                     Write-Host 'Protocol:       '$_.Proto                                   # Write message to screen
                     Write-Host 'Source'                                                     # Write message to screen
                     Write-Host ' Port Range:    '$_.SPRange                                 # Write message to screen
-                    Write-Host ' Address Prefix:'$_.SAPrefix                                # Write message to screen
+                    if ($_.SAPrefix) {                                                      # If $_.SAPrefix has a value
+                        Write-Host ' Address Prefix:'$_.SAPrefix                            # Write message to screen
+                    }                                                                       # End if ($_.SAPrefix)
                     if ($_.SASG) {                                                          # If $_.SASG has a value
                         Write-Host ' Security Group:'$_.SASG                                # Write message to screen
                     }                                                                       # End if ($_.SASG)
                     Write-Host 'Destination'                                                # Write message to screen
                     Write-Host ' Port Range:    '$_.DPRange                                 # Write message to screen
-                    Write-Host ' Address Prefix:'$_.DAPrefix                                # Write message to screen
+                    if ($_.DAPrefix) {                                                      # If $_.DAPrefix has a value
+                        Write-Host ' Address Prefix:'$_.DAPrefix                            # Write message to screen
+                    }                                                                       # End if ($_.DAPrefix)
                     if ($_.DASG) {                                                          # If $_.DASG has a value
                         Write-Host ' Security Group:'$_.DASG                                # Write message to screen
                     }                                                                       # End if ($_.DASG)
@@ -2157,6 +2199,107 @@ function UpdateAzNSGRSAppSecG {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function UpdateAzNSGRSAppSecG
+function UpdateAzNSGRDAppSecG {                                                             # Function to update a network security group rule destination application security group
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRDAppSecG'                                       # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $ASGObject = GetAzASG ($CallingFunction)                                    # Calls function and assigns output to $var
+                if (!$ASGObject) {                                                          # If $ASGObject is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$ASGObject)
+                else {                                                                      # Else if $ASGObject has a value
+                    $RDASGr = $ASGObject.ID                                                 # Updates $RDASGr    
+                    $AppSecGroupName = $ASGObject.ID.split('/')[-1]                         # Isolates the application security group name 
+                    $RDAddre = $null                                                        # Clears $RDAddre
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$ASGObject))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            if ($NSGRuleObject.DestinationApplicationSecurityGroups.ID) {                   # If $NSGRuleObject.DestinationApplicationSecurityGroups.ID has a value
+                $CurrentAppSecGroup = `
+                    $NSGRuleObject.DestinationApplicationSecurityGroups.ID                  # $CurrentAppSecGroup is equal to $NSGRuleObject.DestinationApplicationSecurityGroups.ID 
+                $CurrentAppSecGroup = $CurrentAppSecGroup.Split('/')[-1]                    # Isolates the app security group name
+            }                                                                               # End if ($NSGRuleObject.DestinationApplicationSecurityGroups.ID)
+            else {                                                                          # Else if $NSGRuleObject.DestinationApplicationSecurityGroups.ID is $null
+                $CurrentAppSecGroup = 'N/A'                                                 # $CurrentAppSecGroup is equal to 'N/A'
+            }                                                                               # End else (if ($NSGRuleObject.DestinationApplicationSecurityGroups.ID))
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Destination App Sec Group'                               # Write message to screen
+            Write-Host 'Current:  '$CurrentAppSecGroup                                      # Write message to screen
+            Write-Host 'New:      '$AppSecGroupName                                         # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRDAppSecG
 function UpdateAzNSGRuleConfig {                                                            # Function for updating network security group rule configs
     Begin {                                                                                 # Begin function
         Write-Host 'Updating network security group rule'                                   # Write message to screen
@@ -2372,3 +2515,101 @@ function GetAzASG {                                                             
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzASG
+function SetCIDRAddress {                                                                   # Function to add a CIDR address to $var
+    Begin {                                                                                 # Begin function
+        $ValidArray = '0123456789.'                                                         # Creates $ValidArray
+        $ValidArray = $ValidArray.ToCharArray()                                             # Converts $ValidArray to array
+        :SetCIDRAddressLoop while ($true) {                                                 # Outer loop for managing function
+            :SetIPAddress while ($true) {                                                   # Inner loop for setting the starting IP
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'You are setting the IP for:'$CallingFunction                # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                Write-Host 'Enter the starting IP address (Must end with .0)'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $IPAddress = Read-Host 'IP Address'                                         # Operator input for the starting IP address
+                Clear-Host                                                                  # Clears screen
+                if ($IPAddress -notlike '*.*.*.0') {                                        # If $IPAddress is not like '*.*.*.0'
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $IPAddress = $null                                                      # Clears $var
+                }                                                                           # End if ($IPAddress -notlike '*.*.*.0') 
+                else {                                                                      # Else if $IPAddress is like '*.*.*.0'
+                    $IPAddressArray = $IPAddress.ToCharArray()                              # Converts $IPAddress to array
+                    foreach ($_ in $IPAddressArray) {                                       # For each item in $IPAddressArray
+                        if ($_ -notin $ValidArray) {                                        # If current item not in $ValidArray
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                            $IPAddress = $null                                              # Clears $var
+                            Write-Host ''                                                   # Write message to screen
+                        }                                                                   # End if ($_ -notin $ValidArray)
+                    }                                                                       # End foreach ($_ in $IPAddressArray)
+                    $IPAddressArray = $null                                                 # Clears $var
+                }                                                                           # End else (if ($IPAddress -notlike '*.*.*.0') )
+                if ($IPAddress) {                                                           # If $IPAddress has a value
+                    Write-Host 'Use'$IPAddress' as the starting IP'                         # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the IP address
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break SetCIDRAddressLoop                                            # Breaks :SetCIDRAddressLoop
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm equals 'y'
+                        Break SetIPAddress                                                  # Breaks :SetIPAddress  
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                    else {                                                                  # All other inputs for $OpConfirm
+                        $IPAddress = $null                                                  # Clears $var
+                    }                                                                       # End else (if ($OpConfirm -eq 'e'))
+                }                                                                           # End if ($IPAddress)
+                else {                                                                      # If $IPAddress is $null
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($IPAddress))
+            }                                                                               # End :SetIPAddress while ($true) 
+            $ValidArray = '0123456789'                                                      # Creates $ValidArray
+            $ValidArray = $ValidArray.ToCharArray()                                         # Converts $ValidArray to array
+            :SetCIDRBlock while ($true) {                                                   # Inner loop for setting the CIDR block
+                Write-Host 'Enter the CIDR Block (0-32)'                                    # Write message to screen
+                Write-Host  ''                                                              # Write message to screen
+                $CIDRBlock = Read-Host 'CIDR Block'                                         # Operator input for the CIDR block
+                Clear-Host                                                                  # Clears screen
+                $CIDRBlockArray = $CIDRBlock.ToCharArray()                                  # Converts $CIDRBlock to array
+                foreach ($_ in $CIDRBlockArray) {                                           # For each item in $CIDRBlockArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        $CIDRBlock = $null                                                  # Clears $var
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $CIDRBlockArray)
+                $CIDRBlockArray = $null                                                     # Clears $var
+                if ($CIDRBlock) {                                                           # If $CIDRBlock has a value
+                    $CIDRBlockInt = [INT]$CIDRBlock                                         # Converts $CIDRBlock to integer
+                    if ($CIDRBlockInt -lt 0 -or $CIDRBlockInt -gt 32) {                     # If $CIDRBlockInt is less than 0 or greater than 32)
+                        $CIDRBlock = $null                                                  # Clears $var
+                    }                                                                       # End if ($CIDRBlockInt -lt 0 -or $CIDRBlockInt -gt 32)
+                    $CIDRBlockInt = $null                                                   # Clears $var
+                }                                                                           # End if ($CIDRBlock)
+                if ($CIDRBlock) {                                                           # If $CIDRBlock has a value
+                    Write-Host 'Use'$CIDRBlock' as the CIDR block'                          # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the CIDR block
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break SetCIDRAddressLoop                                            # Breaks :SetCIDRAddressLoop
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    elseif ($OpConfirm -eq 'y') {                                           # Else if $OpConfirm equals 'y'
+                        $CIDRAddress = $IPAddress+'/'+$CIDRBlock                            # $CIDRAddress is equal to $IPAddress and $CIDRBlock
+                        Return $CIDRAddress                                                 # Returns to calling function with $var
+                    }                                                                       # End elseif ($OpConfirm -eq 'y')
+                    else {                                                                  # All other inputs for $OpConfirm
+                        $CIDRBlock = $null                                                  # Clears $var
+                    }                                                                       # End else (if ($OpConfirm -eq 'e'))
+                }                                                                           # End if ($CIDRBlock)
+                else {                                                                      # Else if $CIDRBlock is $null
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($CIDRBlock))
+            }                                                                               # End :SetCIDRBlock while ($true)
+        }                                                                                   # Outer loop for managing function
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetCIDRAddress
