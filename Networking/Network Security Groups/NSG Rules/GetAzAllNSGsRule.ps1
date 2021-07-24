@@ -18,6 +18,8 @@
     $NSGObject:                 Network security group
     $NSGName:                   Network security group name
     $NSGRG:                     Network security group resource group name
+    $SAppSecGID:                Current item source app sec group name
+    $DAppSecGID:                Current item destination app sec group name
     $ObjectList:                List of all rules on $NSGObject
     $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .number, used for formatting
@@ -113,13 +115,17 @@ function GetAzAllNSGsRule {                                                     
                     Write-Host 'Protocol:       '$_.Proto                                   # Write message to screen
                     Write-Host 'Source'                                                     # Write message to screen
                     Write-Host ' Port Range:    '$_.SPRange                                 # Write message to screen
-                    Write-Host ' Address Prefix:'$_.SAPrefix                                # Write message to screen
+                    if ($_.SAPrefix) {                                                      # If $_.SAPrefix has a value
+                        Write-Host ' Address Prefix:'$_.SAPrefix                            # Write message to screen
+                    }                                                                       # End if ($_.SAPrefix)
                     if ($_.SASG) {                                                          # If $_.SASG has a value
                         Write-Host ' Security Group:'$_.SASG                                # Write message to screen
                     }                                                                       # End if ($_.SASG)
                     Write-Host 'Destination'                                                # Write message to screen
                     Write-Host ' Port Range:    '$_.DPRange                                 # Write message to screen
-                    Write-Host ' Address Prefix:'$_.DAPrefix                                # Write message to screen
+                    if ($_.DAPrefix) {                                                      # If $_.DAPrefix has a value
+                        Write-Host ' Address Prefix:'$_.DAPrefix                            # Write message to screen
+                    }                                                                       # End if ($_.DAPrefix)
                     if ($_.DASG) {                                                          # If $_.DASG has a value
                         Write-Host ' Security Group:'$_.DASG                                # Write message to screen
                     }                                                                       # End if ($_.DASG)
