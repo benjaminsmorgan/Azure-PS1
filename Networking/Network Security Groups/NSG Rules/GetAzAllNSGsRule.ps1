@@ -51,7 +51,15 @@ function GetAzAllNSGsRule {                                                     
                 $NSGRG = $_.ResourceGroupName                                               # $NSGRG is equal to current item .ResourceGroupName
                 $ObjectList = Get-AzNetworkSecurityRuleConfig -NetworkSecurityGroup `
                     $NSGObject                                                              # Gets a list of all non-default rules on $NSGObject
-                foreach ($_ in $ObjectList) {                                               # For each item in $ObjectList
+                foreach ($_ in $ObjectList) {                                               # For each item in $ObjectList  
+                    if ($_.SourceApplicationSecurityGroups.ID) {                            # If ($_.SourceApplicationSecurityGroups.ID has a value
+                        $SAppSecGID = $_.SourceApplicationSecurityGroups.ID                 # $SAppSecGID is equal to $_.SourceApplicationSecurityGroups.ID
+                        $SAppSecGID = $SAppSecGID.Split('/')[-1]                            # Isolates the name of the application security group
+                    }                                                                       # End if ($_.SourceApplicationSecurityGroups.ID)
+                    if ($_.DestinationApplicationSecurityGroups.ID) {                       # If ($_.DestinationApplicationSecurityGroups.ID has a value
+                        $DAppSecGID = $_.DestinationApplicationSecurityGroups.ID            # DSAppSecGID is equal to $_.DestinationApplicationSecurityGroups.ID
+                        $DAppSecGID = $DAppSecGID.Split('/')[-1]                            # Isolates the name of the application security group
+                    }                                                                       # End if ($_.DestinationApplicationSecurityGroups.ID)
                     $ObjectInput = [PSCustomObject]@{                                       # custom object to add info to $ObjectArray
                         'Number'=$ObjectNumber;                                             # Object number
                         'Name'=$_.Name;                                                     # Rule config name
@@ -63,14 +71,16 @@ function GetAzAllNSGsRule {                                                     
                         'DPRange'=$_.DestinationPortRange;                                  # Rule config destination port range
                         'SAPrefix'=$_.SourceAddressPrefix;                                  # Rule config source address prefix
                         'DAPrefix'=$_.DestinationAddressPrefix;                             # Rule config destination address prefix
-                        'SASG'=$_.SourceApplicationSecurityGroups;                          # Rule config source application security groups
-                        'DASG'=$_.DestinationApplicationSecurityGroups;                     # Rule config destination application security groups
+                        'SASG'=$SAppSecGID;                                                 # Rule config source application security groups
+                        'DASG'=$DAppSecGID;                                                 # Rule config destination application security groups
                         'Access'=$_.Access;                                                 # Rule config access
                         'PRI'=$_.Priority;                                                  # Rule config priority
                         'Direction'=$_.Direction                                            # Rule config direction
                     }                                                                       # End $ObjectInput = [PSCustomObject]@
                     $ObjectArray.Add($ObjectInput) | Out-Null                               # Addes $ObjectInput to $ObjectArray
                     $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber up by 1
+                    $SAppSecGID = $null                                                     # Clears $var
+                    $DAppSecGID = $null                                                     # Clears $var
                 }                                                                           # End foreach ($_ in $ObjectList)
                 $NSGObject = $null                                                          # Clears $var
                 $NSGName = $null                                                            # Clears $var
