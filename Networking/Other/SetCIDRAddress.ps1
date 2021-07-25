@@ -15,6 +15,8 @@
     $ValidArray:                Array of valid characters
     $IPAddress:                 Operator input for the starting IP address
     $IPAddressArray:            $IPAddress converted to array
+    $OctetCheck:                Array of $IPAddress split by '.'
+    $OctetInt:                  Current item converted to integer
     $OpConfirm:                 Operator confirmation of inputs
     $CIDRBlock:                 Operator input for the CIDR block
     $CIDRBlockArray:            $CIDRBlock converted to array
@@ -36,7 +38,7 @@ function SetCIDRAddress {                                                       
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
                     Write-Host 'You are setting the IP for:'$CallingFunction                # Write message to screen
                 }                                                                           # End if ($CallingFunction)
-                Write-Host 'Enter the starting IP address (Must end with .0)'               # Write message to screen
+                Write-Host 'Enter the starting IP address (Must be x.x.x.0)'                # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 $IPAddress = Read-Host 'IP Address'                                         # Operator input for the starting IP address
                 Clear-Host                                                                  # Clears screen
@@ -45,17 +47,36 @@ function SetCIDRAddress {                                                       
                     Write-Host ''                                                           # Write message to screen
                     $IPAddress = $null                                                      # Clears $var
                 }                                                                           # End if ($IPAddress -notlike '*.*.*.0') 
-                else {                                                                      # Else if $IPAddress is like '*.*.*.0'
+                if ($IPAddress) {                                                           # If $IPAddress has a value
+                    if ($IPAddress.Split('.')[4]) {                                         # If $IPAddress .Split 4th position has a value
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        $IPAddress = $null                                                  # Clears $var
+                    }                                                                       # End if ($IPAddress.Split('.')[4])
+                }                                                                           # End  if ($IPAddress)
+                if ($IPAddress) {                                                           # If $IPAddress has a value
                     $IPAddressArray = $IPAddress.ToCharArray()                              # Converts $IPAddress to array
                     foreach ($_ in $IPAddressArray) {                                       # For each item in $IPAddressArray
                         if ($_ -notin $ValidArray) {                                        # If current item not in $ValidArray
                             Write-Host $_' is not a valid character'                        # Write message to screen
-                            $IPAddress = $null                                              # Clears $var
                             Write-Host ''                                                   # Write message to screen
+                            $IPAddress = $null                                              # Clears $var
                         }                                                                   # End if ($_ -notin $ValidArray)
                     }                                                                       # End foreach ($_ in $IPAddressArray)
                     $IPAddressArray = $null                                                 # Clears $var
-                }                                                                           # End else (if ($IPAddress -notlike '*.*.*.0') )
+                }                                                                           # End if ($IPAddress)
+                if ($IPAddress) {                                                           # If $IPAddress has a value
+                    $OctetCheck = $IPAddress.Split('.')                                     # $OctetCheck is equal to $IPAdress.Split '.'
+                    foreach ($_ in $OctetCheck) {                                           # For each item in $OctetCheck
+                        $OctetInt = [INT]$_                                                 # $OctetInt is equal to current item converted to integer
+                        if ($OctetInt -lt 0 -or $OctetInt -gt 255) {                        # If $OctetInt less than 0 or  $OctetInt greater than 255
+                            Write-Host $_' is not a valid octet'                            # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            $IPAddress = $null                                              # Clears $var
+                        }                                                                   # End if ($OctetInt -lt 0 -or $OctetInt -gt 255)
+                        $OctetInt = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($_ in $OctetCheck)
+                }                                                                           # End if ($IPAddress)
                 if ($IPAddress) {                                                           # If $IPAddress has a value
                     Write-Host 'Use'$IPAddress' as the starting IP'                         # Write message to screen
                     Write-Host ''                                                           # Write message to screen
