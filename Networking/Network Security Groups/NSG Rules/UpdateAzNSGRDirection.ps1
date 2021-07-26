@@ -48,7 +48,7 @@
     $OpConfirm:                 Operator confirmation to update the NSG rule object
     GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
     GetAzNSG{}                  Gets $NSGObject
-    GetAzNSGRule{}              Gets $NSGRuleObject
+        GetAzNSGRule{}              Gets $NSGRuleObject
     SetAzNSGRuleDirection{}     Gets $NSGRuleDirection
     UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
 } #>
