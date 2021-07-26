@@ -1,5 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Mircosoft docs links
+    Remove-AzNetworkSecurityRuleConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecurityruleconfig?view=azps-6.2.1
+    Add-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworksecurityruleconfig?view=azps-6.2.1
     Set-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-6.2.1
     Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
     Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
@@ -13,14 +15,18 @@
     GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
     GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
     GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+    SetIPAddress:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetIPAddress.ps1
+    SetCIDRAddress:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetCIDRAddress.ps1
 } #>
 <# Functions Description: {
-    UpdateAzNSGRSAddPrefix:       Function to update a network security group rule source application security group
+    UpdateAzNSGRSAddPrefix:     Function to update a network security group rule source application security group
     UpdateAzNSGRuleConfig:      Function for updating network security group rule configs
     GetAzASG:                   Function to get a application security group
     GetAzAllNSGsRule:           Function to get a rule from all network security groups
     GetAzNSGRule:               Function to get a network security group rule
     GetAzNSG:                   Function to get a network security group
+    SetIPAddress:               Function to add an IP address to $var
+    SetCIDRAddress:             Function to add a CIDR address to $var
 } #>
 <# Variables: {      
     :ChangeAzureNSRGConfig      Outer loop for managing function
@@ -46,9 +52,11 @@
     $CurrentAppSecGroup:        Name of $RSASGr
     $OpConfirm:                 Operator confirmation to update the NSG rule object
     GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
-    GetAzNSG{}                  Gets $NSGObject
+        GetAzNSG{}                  Gets $NSGObject
     GetAzNSGRule{}              Gets $NSGRuleObject
     SetAzNSGRuleAddPrefix{}     Gets $NSGRuleAddPrefix
+        SetIPAddress{}              Gets $IPAddress
+        SetCIDRAddress{}            Gets $CIDRAddress
     UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
 } #>
 <# Process Flow {
@@ -148,7 +156,7 @@ function UpdateAzNSGRSAddPrefix {                                               
                 Write-Host 'Powershell tools cannot convert source'                         # Write message to screen
                 Write-Host 'application secruity groups to address prefixes'                # Write message to screen
                 Write-Host ''                                                               # Write message to screen
-                Write-Host 'executing this change will remove the'                          # Write message to screen
+                Write-Host 'Executing this change will remove the'                          # Write message to screen
                 Write-Host 'and rebuild it using the existing settings'                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'Update the following'                                           # Write message to screen
