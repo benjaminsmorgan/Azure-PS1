@@ -7,7 +7,7 @@
 } #>
 <# Required Functions Links: {
     UpdateAzNSGRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRuleConfig.ps1
-    SetAzNSGRulePriority:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
+    SetAzNSGRulePriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
     GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
     GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
     GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
@@ -44,7 +44,7 @@
     $OpConfirm:                 Operator confirmation to update the NSG rule object
     GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
     GetAzNSG{}                  Gets $NSGObject
-    GetAzNSGRule{}              Gets $NSGRuleObject
+        GetAzNSGRule{}              Gets $NSGRuleObject
     SetAzNSGRulePriority{}      Gets $NSGRulePriority
     UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
 } #>
