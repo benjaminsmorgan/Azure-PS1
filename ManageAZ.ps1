@@ -12714,14 +12714,25 @@ function ListAzNetworkInterface {                                               
                     $NicList = Get-AzNetworkInterface | Where-Object `
                         {$_.IpConfigurations.Subnet.ID -eq $Subnet}                         # Gets a list of all nics on subnet
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
-                        $ObjectInput = [PSCustomObject]@{
-                            'NicName'=$_.Name;'NicRG'=$_.ResourceGroupName;`
-                            'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='NIC'
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # IP configurations
+                            'Type'='NIC';                                                   # Object Type
+                            'NSG'=$NSGName                                                  # Network security group   
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
@@ -12745,15 +12756,28 @@ function ListAzNetworkInterface {                                               
                         $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet `
                             | Where-Object {$_.ID -eq $SubnetID}                            # Gets the subnet
                         $SubnetName = $Subnet.Name                                          # Isolates the subnet name
-                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix         
-                        $ObjectInput = [PSCustomObject]@{
-                            'NicName'=$_.Name;'NicRG'=$_.ResourceGroupName;`
-                            'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNetname;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='Scaleset';'VmssName'=$VmssName;'VmssRg'=$VmssRG
+                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix   
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)       
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # Ip configuration
+                            'Type'='Scaleset';                                              # Object type
+                            'VmssName'=$VmssName;                                           # VMSS name
+                            'VmssRg'=$VmssRG;                                               # VMSS resource group
+                            'NSG'=$NSGName                                                  # Network security group    
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssObject)
             }                                                                               # End if ($VmssObject)
@@ -12799,6 +12823,12 @@ function ListAzNetworkInterface {                                               
                 else {                                                                      # If $_.VM does not have a value
                     Write-Host 'Attached VM:     N/A'                                       # Write message to screen
                 }                                                                           # End else (if ($_.VM))
+                if ($_.NSG) {                                                               # If $_.NSG has a value
+                    Write-Host 'Net Sec Group  :'$_.NSG                                     # Write message to screen
+                }                                                                           # End if ($_.NSG)
+                else {                                                                      # Else if $_.NSG is $null
+                    Write-Host 'Net Sec Group  : N/A'                                       # Write message to screen    
+                }                                                                           # End else if ($_.NSG)
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -12836,15 +12866,27 @@ function GetAzNetworkInterface {                                                
                     $NicList = Get-AzNetworkInterface | Where-Object `
                         {$_.IpConfigurations.Subnet.ID -eq $Subnet}                         # Gets a list of all nics on subnet
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
-                        $ObjectInput = [PSCustomObject]@{
-                            'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
-                            $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='NIC'
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'Number'=$ListNumber;                                           # List number
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # IP configurations
+                            'Type'='NIC';                                                   # Object Type
+                            'NSG'=$NSGName                                                  # Network security group                  
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
@@ -12868,16 +12910,30 @@ function GetAzNetworkInterface {                                                
                         $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet `
                             | Where-Object {$_.ID -eq $SubnetID}                            # Gets the subnet
                         $SubnetName = $Subnet.Name                                          # Isolates the subnet name
-                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix         
-                        $ObjectInput = [PSCustomObject]@{
-                            'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
-                            $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNetname;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='Scaleset';'VmssName'=$VmssName;'VmssRg'=$VmssRG
+                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix  
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)       
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'Number'=$ListNumber;                                           # List number
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # Ip configuration
+                            'Type'='Scaleset';                                              # Object type
+                            'VmssName'=$VmssName;                                           # VMSS name
+                            'VmssRg'=$VmssRG;                                               # VMSS resource group
+                            'NSG'=$NSGName                                                  # Network security group     
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssObject)
             }                                                                               # End if ($VmssObject)
@@ -12932,6 +12988,12 @@ function GetAzNetworkInterface {                                                
                     else {                                                                  # If $_.VM does not have a value
                         Write-Host 'Attached VM:     N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.VM))
+                    if ($_.NSG) {                                                           # If $_.NSG has a value
+                        Write-Host 'Net Sec Group  :'$_.NSG                                 # Write message to screen
+                    }                                                                       # End if ($_.NSG)
+                    else {                                                                  # Else if $_.NSG is $null
+                        Write-Host 'Net Sec Group  : N/A'                                   # Write message to screen    
+                    }                                                                       # End else if ($_.NSG)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                     if ($CallingFunction) {                                                 # If $CallingFunction has a value
@@ -20678,6 +20740,7 @@ function ManageAzNSG {                                                          
             Write-Host '[2] List Network Security Groups'                                   # Write message to screen
             Write-Host '[3] Remove Network Security Group'                                  # Write message to screen
             Write-Host '[4] Manage NSG Rules'                                               # Write message to screen
+            Write-Host '[5] Manage NSG NIC Associations'                                    # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
@@ -20700,6 +20763,10 @@ function ManageAzNSG {                                                          
                 Write-Host 'Manage NSG Rules'                                               # Write message to screen
                 ManageAzNSGRule                                                             # Calls function
             }                                                                               # elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Manage NSG NIC Associations'                                    # Write message to screen
+                ManageAzNSGNIC                                                              # Calls function
+            }                                                                               # elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -20995,10 +21062,11 @@ function ManageAzNSGRule {                                                      
             Write-Host '[7]  Update NSG Rule Priority'                                      # Write message to screen
             Write-Host '[8]  Update NSG Rule Protocol'                                      # Write message to screen
             Write-Host '[9]  Update NSG Rule Source Port Range'                             # Write message to screen
-            Write-Host '[10] Update NSG Rule Desination Port Range'                         # Write message to screen
+            Write-Host '[10] Update NSG Rule Destination Port Range'                        # Write message to screen
             Write-Host '[11] Update NSG Rule Source Address Prefix'                         # Write message to screen
-            Write-Host '[12] Update NSG Rule Source App Sec Group'                          # Write message to screen
-            Write-Host '[13] Update NSG Rule Desination App Sec Group'                      # Write message to screen
+            Write-Host '[12] Update NSG Rule Destination Address Prefix'                    # Write message to screen
+            Write-Host '[13] Update NSG Rule Source App Sec Group'                          # Write message to screen
+            Write-Host '[14] Update NSG Rule Destination App Sec Group'                     # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the function selection
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'    
@@ -21041,21 +21109,25 @@ function ManageAzNSGRule {                                                      
                 UpdateAzNSGRSPRange                                                         # Calls function
             }                                                                               # elseif ($OpSelect -eq '9')
             elseif ($OpSelect -eq '10') {                                                   # Else if $OpSelect equals '10'
-                Write-Host 'Update NSG Rule Desination Port Range'                          # Write message to screen
+                Write-Host 'Update NSG Rule Destination Port Range'                         # Write message to screen
                 UpdateAzNSGRDPRange                                                         # Calls function
             }                                                                               # elseif ($OpSelect -eq '10')
             elseif ($OpSelect -eq '11') {                                                   # Else if $OpSelect equals '11'
                 Write-Host 'Update NSG Rule Source Address Prefix'                          # Write message to screen
-                SetAzNSGRuleAddPrefix                                                       # Calls function
+                UpdateAzNSGRSAddPrefix                                                      # Calls function
             }                                                                               # elseif ($OpSelect -eq '11')
             elseif ($OpSelect -eq '12') {                                                   # Else if $OpSelect equals '12'
-                Write-Host 'Update NSG Rule Source App Sec Group'                           # Write message to screen
-                UpdateAzNSGRSAppSecG                                                        # Calls function
+                Write-Host 'Update NSG Rule Destination Address Prefix'                     # Write message to screen
+                UpdateAzNSGRDAddPrefix                                                      # Calls function
             }                                                                               # elseif ($OpSelect -eq '12')
             elseif ($OpSelect -eq '13') {                                                   # Else if $OpSelect equals '13'
-                Write-Host 'Update NSG Rule Desination App Sec Group'                       # Write message to screen
-                UpdateAzNSGRDAppSecG                                                        # Calls function
+                Write-Host 'Update NSG Rule Source App Sec Group'                           # Write message to screen
+                UpdateAzNSGRSAppSecG                                                        # Calls function
             }                                                                               # elseif ($OpSelect -eq '13')
+            elseif ($OpSelect -eq '14') {                                                   # Else if $OpSelect equals '14'
+                Write-Host 'Update NSG Rule Destination App Sec Group'                      # Write message to screen
+                UpdateAzNSGRDAppSecG                                                        # Calls function
+            }                                                                               # elseif ($OpSelect -eq '14')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -23358,6 +23430,177 @@ function UpdateAzNSGRSAddPrefix {                                               
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function UpdateAzNSGRSAddPrefix
+function UpdateAzNSGRDAddPrefix {                                                           # Function to update a network security group rule destination address prefix
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction has a value
+            $CallingFunction = 'UpdateAzNSGRDAddPrefix'                                     # Sets $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ChangeAzureNSRGConfig while ($true) {                                              # Outer loop for managing function
+            :GetAzureNSGRule while ($true) {                                                # Inner loop for getting the NSG rule
+                Write-Host 'Select Rule Options'                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] Select Rule From All NSGs'                                  # Write message to screen
+                Write-Host '[2] Select NSG, then Select Rule'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the NSG rule selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -eq '1') {                                                # Else if $OpSelect equals '1'
+                    $NSGRuleObject, $NSGObject =  GetAzAllNSGsRule ($CallingFunction)       # Calls function and assigns output to $var
+                    if ($NSGRuleObject) {                                                   # If $NSGRuleObject has a value
+                        Break GetAzureNSGRule                                               # Breaks :GetAzureNSGRule
+                    }                                                                       # End if ($NSGRuleObject)
+                }                                                                           # elseif ($OpSelect -eq '1')
+                elseif ($OpSelect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $NSGObject = GetAzNSG ($CallingFunction)                                # Calls function and assigns output to $var
+                    if ($NSGObject) {                                                       # If $NSGObject has a value
+                        $NSGRuleObject = GetAzNSGRule ($CallingFunction, $NSGObject)        # Calls function and assigns output to $var
+                        if ($NSGRuleObject) {                                               # If $NSGRuleObject has a value
+                            Break GetAzureNSGRule                                           # Breaks :GetAzureNSGRule
+                        }                                                                   # End if ($NSGRuleObject)
+                    }                                                                       # End if ($NSGObject)
+                }                                                                           # elseif ($OpSelect -eq '2')                
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :GetAzureNSGRule while ($true)            
+            $RName = $NSGRuleObject.Name                                                    # $RName is equal to $NSGRuleObject.Name
+            $RProto = $NSGRuleObject.Protocol                                               # $RProto is equal to $NSGRuleObject.Protocol
+            $RAccess = $NSGRuleObject.Access                                                # $RAccess is equal to $NSGRuleObject.Access
+            $RDirect = $NSGRuleObject.Direction                                             # $RDirect is equal to $NSGRuleObject.Direction
+            $RPriori = $NSGRuleObject.Priority                                              # $RPriori is equal to $NSGRuleObject.Priority
+            $RDescri = $NSGRuleObject.Description                                           # $RDescri is equal to $NSGRuleObject.Description
+            if (!$RDescri) {                                                                # If $RDescri is $null
+                $RDescri = 'N/A'                                                            # Sets 'N/A' value for $RDescri 
+            }                                                                               # End if (!$RDescri)
+            $RSPRang = $NSGRuleObject.SourcePortRange                                       # $RSPRang is equal to $NSGRuleObject.SourcePortRange
+            $RSAddre = $NSGRuleObject.SourceAddressPrefix                                   # $RSAddre is equal to $NSGRuleObject.SourceAddressPrefix
+            $RSASGr = $NSGRuleObject.SourceApplicationSecurityGroups.ID                     # $RSASGr is equal to $NSGRuleObject.SourceApplicationSecurityGroups.ID
+            $RDPRang = $NSGRuleObject.DestinationPortRange                                  # $RDPRang is equal to $NSGRuleObject.DestinationPortRange
+            $RDAddre = $NSGRuleObject.DestinationAddressPrefix                              # $RDAddre is equal to $NSGRuleObject.DestinationAddressPrefix
+            $RDASGr = $NSGRuleObject.DestinationApplicationSecurityGroups.ID                # $RDASGr is equal to $NSGRuleObject.DestinationApplicationSecurityGroups.ID
+            :GetAzureNSGRSetting while ($true) {                                            # Inner loop for getting the updated rule config
+                $NSGRuleAddPrefix = SetAzNSGRuleAddPrefix ($CallingFunction)                # Calls function and assigns output to $var
+                if (!$NSGRuleAddPrefix) {                                                   # If $NSGRuleAddPrefix is $null
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig    
+                }                                                                           # End if (!$NSGRuleAddPrefix)
+                else {                                                                      # Else if $NSGRuleAddPrefix has a value
+                    $RDAddre = $NSGRuleAddPrefix                                            # Updates $RSAddre
+                    $RDASGr = $null                                                         # clears $var    
+                    Break GetAzureNSGRSetting                                               # Breaks :GetAzureNSGRSetting
+                }                                                                           # End else (if (!$NSGRuleAddPrefix))
+            }                                                                               # End :GetAzureNSGRSetting while ($true)
+            if (!$NSGRuleObject.DestinationAddressPrefix) {                                 # If $NSGRuleObject.DestinationAddressPrefix is $null
+                Write-Host 'Powershell tools cannot convert destination'                    # Write message to screen
+                Write-Host 'application secruity groups to address prefixes'                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Executing this change will remove the'                          # Write message to screen
+                Write-Host 'and rebuild it using the existing settings'                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Update the following'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Rule Name:'$RName                                               # Write message to screen
+                Write-Host 'Setting:   Source Address Prefix'                               # Write message to screen
+                Write-Host 'Current:   N/A'                                                 # Write message to screen
+                Write-Host 'New:      '$RDAddre                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No'                                     # Operator confirmation to rebuild the rule
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Try {                                                                   # Try the following
+                        Write-Host 'Removing the rule'                                      # Write message to screen
+                        Remove-AzNetworkSecurityRuleConfig -NetworkSecurityGroup `
+                            $NSGObject -Name $NSGRuleObject.Name -ErrorAction 'Stop' `
+                            | Out-Null                                                      # Removes the rule
+                        Set-AzNetworkSecurityGroup -NetworkSecurityGroup $NSGObject `
+                            -ErrorAction 'Stop' | Out-Null                                  # Saves the updated network security group    
+                    }                                                                       # End Try
+                    Catch {                                                                 # If try fails
+                        Clear-Host                                                          # Clears screen
+                        Write-Host 'There was an error removing the NSG rule'               # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'No changes have been made'                              # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Break ChangeAzureNSRGConfig                                         # Breaks :ChangeAzureNSRGConfig
+                    }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'Rebuilding the rule'                                        # Write message to screen
+                    Try {                                                                   # Try the following
+                        if ($RSAddre) {                                                     # If $RSAddre has a value
+                            Add-AzNetworkSecurityRuleConfig -NetworkSecurityGroup `
+                                $NSGObject -Name $RName -Description $RDescri -Protocol `
+                                $RProto -Access $RAccess -Priority $RPriori -Direction `
+                                $RDirect -SourcePortRange $RSPRang -SourceAddressPrefix `
+                                $RSAddre -DestinationPortRange $RDPRang `
+                                -DestinationAddressPrefix $RDAddre -ErrorAction 'Stop' `
+                                | Out-Null                                                  # Rebuilds the rule
+                        }                                                                   # End if ($RSAddre)
+                        else {                                                              # Else if $RSAddre is $null
+                            Add-AzNetworkSecurityRuleConfig -NetworkSecurityGroup `
+                                $NSGObject -Name $RName -Description $RDescri -Protocol `
+                                $RProto -Access $RAccess -Priority $RPriori -Direction `
+                                $RDirect -SourcePortRange $RSPRang `
+                                -SourceApplicationSecurityGroupId $RSASGr `
+                                -DestinationPortRange $RDPRang `
+                                -DestinationAddressPrefix $RDAddre -ErrorAction 'Stop' `
+                                | Out-Null                                                  # Rebuilds the rule
+                        }                                                                   # End else (if ($RSAddre))   
+                        Write-Host 'Saving the network security group'                      # Write message to screen             
+                        Set-AzNetworkSecurityGroup -NetworkSecurityGroup $NSGObject `
+                        -ErrorAction 'Stop' | Out-Null                                      # Saves the updated network security group
+                    }                                                                       # End Try
+                    Catch {                                                                 # End catch
+                        Clear-Host                                                          # Clears screen
+                        Write-Host 'An error occured rebuilding the rule'                   # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'No changes have been made'                              # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Break ChangeAzureNSRGConfig                                         # Breaks :ChangeAzureNSRGConfig
+                    }                                                                       # End catch
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'The rule has been rebuilt with the new address prefix'      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig
+                }                                                                           # End if ($OpConfirm -eq 'y') 
+                else {                                                                      # All other inputs for $OpConfim
+                    Break ChangeAzureNSRGConfig                                             # Breaks :ChangeAzureNSRGConfig
+                }                                                                           # End if ($OpConfirm -eq 'y')
+            }                                                                               # End if (!$NSGRuleObject.SourceAddressPrefix)
+            Write-Host 'Update the following'                                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Rule Name:'$RName                                                   # Write message to screen
+            Write-Host 'Setting:   Source Address Prefix'                                   # Write message to screen
+            Write-Host 'Current:  '$NSGRuleObject.DestinationAddressPrefix                  # Write message to screen
+            Write-Host 'New:      '$RDAddre                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to change the rule
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                UpdateAzNSGRuleConfig ($NSGRuleObject, $NSGObject, $RName, $RProto, `
+                    $RAccess, $RDirect, $RPriori, $RDescri, $RSPRang, $RSAddre, $RSASGr, `
+                    $RDPRang, $RDAddre, $RDASGr)                                            # Calls function
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # Else if $OpConfirm does not equal 'y'
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ChangeAzureNSRGConfig                                                 # Breaks :ChangeAzureNSRGConfig
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+        }                                                                                   # End :ChangeAzureNSRGConfig while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function UpdateAzNSGRDAddPrefix
 function UpdateAzNSGRSAppSecG {                                                             # Function to update a network security group rule source application security group
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction has a value
@@ -23620,6 +23863,157 @@ function UpdateAzNSGRuleConfig {                                                
             Return $null                                                                    # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End UpdateAzNSGRuleConfig
+# Functions for ManageAzNSGNIC
+function ManageAzNSGNIC {                                                                   # Function to manage NSG Nic associations
+    Begin {                                                                                 # Begin function
+        :ManageAzureNSGNic while ($true) {                                                  # Outer loop for managing function
+            Write-Host 'Manage NSG NIC assoications'                                        # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Add/Change Association'                                         # Write message to screen
+            Write-Host '[2] List Associations'                                              # Write message to screen
+            Write-Host '[3] Remove Association'                                             # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select the management function
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
+                Break ManageAzureNSGNic                                                     # Breaks :ManageAzureNSGNic
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Add/Change Association'                                         # Write message to screen
+                AddAzNSGNIC                                                                 # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Remove Association'                                             # Write message to screen
+                RemoveAzNSGNIC                                                              # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen 
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureNSGNic while ($true)
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzNSGNIC 
+function AddAzNSGNIC {                                                                      # Function to add a NSG to NIC
+    Begin {                                                                                 # Begin function
+        if ($CallingFunction) {                                                             # If $CallingFunction is $null
+            $CallingFunction = 'AddAzNSGNIC'                                                # Creates $CallingFunction
+        }                                                                                   # End if ($CallingFunction)
+        :AddAzureNSGNic while ($true) {                                                     # Outer loop for managing function
+            $NSGObject = GetAzNSG ($CallingFunction)                                        # Calls function and assigns output to $var
+            if (!$NSGObject) {                                                              # If $NSGObject is $null
+                Break AddAzureNSGNic                                                        # Breaks :AddAzureNSGNic
+            }                                                                               # End if (!$NSGObject) 
+            $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface ($CallingFunction) # Calls function and assigns output to $vars
+            if (!$NicObject) {                                                              # If $NicObject is $null
+                Break AddAzureNSGNic                                                        # Breaks :AddAzureNSGNic
+            }                                                                               # End if (!$NicObject) 
+            if ($NicObject.NetworkSecurityGroup.ID) {                                       # If $NicObject.NetworkSecurityGroup.ID has a value
+                $CurrentNSG = $NicObject.NetworkSecurityGroup.ID                            # Isolates the current NSG ID
+                $CurrentNSG = $CurrentNSG.Split('/')[-1]                                    # Isolates the current NSG name
+                Write-Host 'Replace:'$CurrentNSG                                            # Write message to screen
+                Write-Host 'With:   '$NSGObject.name                                        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'On NIC: '$NicObject.name                                        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End if ($NicObject.NetworkSecurityGroup.ID)
+            else {                                                                          # Else if $NicObject.NetworkSecurityGroup.ID is $null
+                Write-Host 'Add:'$NSGObject.name                                            # Write message to screen
+                Write-Host 'To: '$NicObject.name                                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End else (if ($NicObject.NetworkSecurityGroup.ID) )
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to add the NSG to the NIC
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Updating the NIC config'                                    # Write message to screen
+                    $NicObject.NetworkSecurityGroup = $NSGObject                            # Assigns $NSGObject to $NICObject
+                    Write-Host 'Saving the NIC config'                                      # Write message to screen
+                    $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-null      # Saves $NicObject
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break AddAzureNSGNic                                                    # Breaks :AddAzureNSGNic
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The NSG has been added to the NIC'                              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break AddAzureNSGNic                                                        # Breaks :AddAzureNSGNic
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break AddAzureNSGNic                                                        # Breaks :AddAzureNSGNic
+            }                                                                               # End if ($OpConfirm -eq 'y')
+        }                                                                                   # End :AddAzureNSGNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzNSGNIC
+function RemoveAzNSGNIC {                                                                   # Function to remove a NSG from NIC
+    Begin {                                                                                 # Begin function
+        if ($CallingFunction) {                                                             # If $CallingFunction is $null
+            $CallingFunction = 'RemoveAzNSGNIC'                                             # Creates $CallingFunction
+        }                                                                                   # End if ($CallingFunction)
+        :RemoveAzureNSGNic while ($true) {                                                  # Outer loop for managing function
+            $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface ($CallingFunction) # Calls function and assigns output to $vars
+            if (!$NicObject) {                                                              # If $NicObject is $null
+                Break RemoveAzureNSGNic                                                     # Breaks :RemoveAzureNSGNic
+            }                                                                               # End if (!$NicObject) 
+            if ($NicObject.NetworkSecurityGroup.ID) {                                       # If $NicObject.NetworkSecurityGroup.ID has a value
+                $CurrentNSG = $NicObject.NetworkSecurityGroup.ID                            # Isolates the current NSG ID
+                $CurrentNSG = $CurrentNSG.Split('/')[-1]                                    # Isolates the current NSG name
+                Write-Host 'Remove:  '$CurrentNSG                                           # Write message to screen
+                Write-Host 'From NIC:'$NicObject.name                                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End if ($NicObject.NetworkSecurityGroup.ID)
+            else {                                                                          # Else if $NicObject.NetworkSecurityGroup.ID is $null
+                Write-Host 'No NSG associated to:'$NicObject.name                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureNSGNic                                                     # Breaks :RemoveAzureNSGNic
+            }                                                                               # End else (if ($NicObject.NetworkSecurityGroup.ID) )
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to add the NSG to the NIC
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Try {                                                                       # Try the following
+                    Write-Host 'Updating the NIC config'                                    # Write message to screen
+                    $NicObject.NetworkSecurityGroup = $null                                 # Removes $NSGObject to $NICObject
+                    Write-Host 'Saving the NIC config'                                      # Write message to screen
+                    $NicObject | Set-AzNetworkInterface -ErrorAction 'Stop' | Out-null      # Saves $NicObject
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureNSGNic                                                 # Breaks :RemoveAzureNSGNic
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The NSG has been removed from the NIC'                          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureNSGNic                                                     # Breaks :RemoveAzureNSGNic
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureNSGNic                                                     # Breaks :RemoveAzureNSGNic
+            }                                                                               # End if ($OpConfirm -eq 'y')
+        }                                                                                   # End :RemoveAzureNSGNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzNSGNIC
+# End ManageAzNSGNIC
 # Additional functions required for ManageAzNSG
 function GetAzASG {                                                                         # Function to get a application security group
     Begin {                                                                                 # Begin function
