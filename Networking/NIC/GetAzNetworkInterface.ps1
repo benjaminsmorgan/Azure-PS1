@@ -25,6 +25,7 @@
     $SubnetName:                The current subnet name 
     $SubnetPFX:                 The current subnet prefix
     $NicList:                   List of all nics under the current subnet
+    $NSGName:                   Network security group name
     $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .Number, used for formatting
     $PubID:                     Current item .PublicIPAddress.ID
@@ -73,15 +74,27 @@ function GetAzNetworkInterface {                                                
                     $NicList = Get-AzNetworkInterface | Where-Object `
                         {$_.IpConfigurations.Subnet.ID -eq $Subnet}                         # Gets a list of all nics on subnet
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
-                        $ObjectInput = [PSCustomObject]@{
-                            'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
-                            $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNet;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='NIC'
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'Number'=$ListNumber;                                           # List number
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # IP configurations
+                            'Type'='NIC';                                                   # Object Type
+                            'NSG'=$NSGName                                                  # Network security group                  
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $SubnetList)
             }                                                                               # End foreach ($_ in $VnetList)
@@ -105,16 +118,30 @@ function GetAzNetworkInterface {                                                
                         $Subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet `
                             | Where-Object {$_.ID -eq $SubnetID}                            # Gets the subnet
                         $SubnetName = $Subnet.Name                                          # Isolates the subnet name
-                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix         
-                        $ObjectInput = [PSCustomObject]@{
-                            'Number'=$ListNumber;'NicName'=$_.Name;'NicRG'=`
-                            $_.ResourceGroupName;'SubName'=$Subnetname;'SubPFX'=$SubnetPFX;`
-                            'VNetName'=$VNetname;'VnetPFX'=$VnetPFX;'VnetRG'= $VNetRG;`
-                            'VM'=$_.VirtualMachine.ID;'IPCon'=$_.IpConfigurations;`
-                            'Type'='Scaleset';'VmssName'=$VmssName;'VmssRg'=$VmssRG
+                        $SubnetPFX = $Subnet.AddressPrefix                                  # Isolates the subnet addressPrefix  
+                        if ($_.NetworkSecurityGroup.ID) {                                   # If current item .NetworkSecurityGroup.ID has a value
+                            $NSGName = $_.NetworkSecurityGroup.ID                           # Isloates the network security group ID
+                            $NSGName = $NSGName.Split('/')[-1]                              # Isolates the network security group name
+                        }                                                                   # End if ($_.NetworkSecurityGroup.ID)       
+                        $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput
+                            'Number'=$ListNumber;                                           # List number
+                            'NicName'=$_.Name;                                              # Nic name
+                            'NicRG'=$_.ResourceGroupName;                                   # Nic resource group name
+                            'SubName'=$Subnetname;                                          # Subnet name
+                            'SubPFX'=$SubnetPFX;                                            # Subnet address prefix
+                            'VNetName'=$VNet;                                               # Virtual network name
+                            'VnetPFX'=$VnetPFX;                                             # Virtual network address prefix
+                            'VnetRG'= $VNetRG;                                              # Virtual network resource group
+                            'VM'=$_.VirtualMachine.ID;                                      # VM ID
+                            'IPCon'=$_.IpConfigurations;                                    # Ip configuration
+                            'Type'='Scaleset';                                              # Object type
+                            'VmssName'=$VmssName;                                           # VMSS name
+                            'VmssRg'=$VmssRG;                                               # VMSS resource group
+                            'NSG'=$NSGName                                                  # Network security group     
                         }                                                                   # Creates the item to loaded into array
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                        $NSGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssObject)
             }                                                                               # End if ($VmssObject)
@@ -169,6 +196,12 @@ function GetAzNetworkInterface {                                                
                     else {                                                                  # If $_.VM does not have a value
                         Write-Host 'Attached VM:     N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.VM))
+                    if ($_.NSG) {                                                           # If $_.NSG has a value
+                        Write-Host 'Net Sec Group  :'$_.NSG                                 # Write message to screen
+                    }                                                                       # End if ($_.NSG)
+                    else {                                                                  # Else if $_.NSG is $null
+                        Write-Host 'Net Sec Group  : N/A'                                   # Write message to screen    
+                    }                                                                       # End else if ($_.NSG)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                     if ($CallingFunction) {                                                 # If $CallingFunction has a value
