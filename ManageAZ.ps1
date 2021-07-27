@@ -1,5 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     None:                       See each area management function for details
 } #>
 <# Required Functions Links: {
@@ -84,7 +84,7 @@ function ManageAz {                                                             
 }                                                                                           # End function ManageAz
 # ManageAzResourceGroup
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
     Get-AzResource:             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-5.1.0
     New-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroup?view=azps-5.1.0
@@ -3165,7 +3165,7 @@ function GetAzLocation {                                                        
 # End ManageAzResourceGroups
 # ManageAzStorage
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     New-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/new-azstorageaccount?view=azps-5.2.0
     Get-AzStorageAccount:       https://docs.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccount?view=azps-5.2.0
     Remove-AzStorageAccount:    https://docs.microsoft.com/en-us/powershell/module/az.storage/remove-azstorageaccount?view=azps-5.2.0
@@ -8007,7 +8007,7 @@ function RemoveAzKVCertificate {                                                
 # End ManageAzStorage
 # Functions for Manage Compute
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     New-Object:                 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-object?view=powershell-7.1
     Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.4.0
     New-AzVMConfig:             https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmconfig?view=azps-5.4.0
@@ -11090,7 +11090,7 @@ function GetAzVMSize {                                                          
 # End Manage Compute
 # Manage Network
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     New-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Remove-AzVirtualNetwork:                    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetwork?view=azps-5.4.0
@@ -20778,7 +20778,7 @@ function ManageAzNSG {                                                          
         return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzLBNSG
-function NewAzNSG {                                                                         # Function to create a new network securit group
+function NewAzNSG {                                                                         # Function to create a new network security group
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
             $CallingFunction = 'NewAzNSG'                                                   # Creates $CallingFunction
@@ -23863,6 +23863,7 @@ function UpdateAzNSGRuleConfig {                                                
             Return $null                                                                    # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End UpdateAzNSGRuleConfig
+# End ManageAzNSGRuleConfig
 # Functions for ManageAzNSGNIC
 function ManageAzNSGNIC {                                                                   # Function to manage NSG Nic associations
     Begin {                                                                                 # Begin function
@@ -23883,6 +23884,10 @@ function ManageAzNSGNIC {                                                       
                 Write-Host 'Add/Change Association'                                         # Write message to screen
                 AddAzNSGNIC                                                                 # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Associations'                                              # Write message to screen
+                ListAzNSGNIC                                                                # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove Association'                                             # Write message to screen
                 RemoveAzNSGNIC                                                              # Calls function
@@ -23957,6 +23962,84 @@ function AddAzNSGNIC {                                                          
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function AddAzNSGNIC
+function ListAzNSGNIC {                                                                     # Function to list all NICs associated with network security groups       
+    Begin {                                                                                 # Begin function
+        :ListAzureNSGNic while ($true) {                                                    # Outer loop for managing function
+            Write-Host 'Gathering NSG info'                                                 # Write message to sceen
+            $ObjectList = Get-AzNetworkSecurityGroup                                        # Creates $ObjectList
+            Clear-Host                                                                      # Clears screen
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No network security groups present in this subscription'        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureNSGNic                                                       # Breaks :ListAzureNSGNic
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            Write-Host 'Gathering NIC info'                                                 # Write message to sceen
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $NSGObject = $_                                                             # NSGObject is equal to current item
+                $NicList = $_.NetworkInterfaces.ID                                          # $NicList is equal to current item .NetworkInterfaces.ID
+                if ($NicList) {                                                             # If $NicList has a value
+                    foreach ($_ in $NicList) {                                              # For each item in $NicList
+                        $ID = $_                                                            # ID is equal to current item
+                        $NicObject = Get-AzNetworkInterface | Where-Object {$_.ID -eq $ID}  # Pulls the full nic object
+                        if ($NicObject.VirtualMachine.ID) {                                 # If $NicObject.VirtualMachine.ID has a value
+                            $VMObject = $NicObject.VirtualMachine.ID                        # Isolates the VM id
+                            $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMObject}       # Pulls the full VM object
+                            if ($VMObject.OSProfile.LinuxConfiguration) {                   # If $VMObject.OSProfile.LinuxConfiguration has a value
+                                $OsType = 'Linux'                                           # Sets $OSType
+                            }                                                               # End if ($VMObject.OSProfile.LinuxConfiguration)
+                            else {                                                          # Else if $VMObject.OSProfile.LinuxConfiguration is $null
+                                $OsType = 'Windows'                                         # Sets $OSType
+                            }                                                               # End else (if ($VMObject.OSProfile.LinuxConfiguration))
+                        }                                                                   # End if ($NicObject.VirtualMachine.ID) 
+                        $ObjectInput = [PSCustomObject]@{                                   # custom object to add info to $ObjectArray
+                            'NSGName'=$NSGObject.Name;                                      # NSG name
+                            'NSGRG'=$NSGObject.ResourceGroupName;                           # NSG resource group
+                            'RuleCount'=$NSGObject.SecurityRules.Count;                     # Count of non-default rules
+                            'NICName'=$NICObject.Name;                                      # NIC name
+                            'NICRG'=$NicObject.ResourceGroupName;                           # NIC resource group
+                            'NicVM'=$VMObject.Name;                                         # NIC VM name
+                            'NicVMRG'=$VMObject.ResourceGroupName;                          # NIC VM resource group
+                            'NICVMOS'=$OsType                                               # NIC VM OS                                    
+                        }                                                                   # End $ObjectInput = [PSCustomObject]@
+                        $ObjectArray.Add($ObjectInput) | Out-Null                           # Adds $ObjectInput to $ObjectArray
+                        $ID = $null                                                         # Clears $var
+                        $NicObject = $null                                                  # Clears $var
+                        $VMObject = $null                                                   # Clears $var
+                        $OSType = $null                                                     # Clears $var
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End if ($NicList)
+                $NSGObject = $null                                                          # Clears $var
+                $NicList = $null                                                            # Clears $var
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Write-Host 'There are not NICs associated with network security groups'     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureNSGNic                                                       # Breaks :ListAzureNSGNic
+            }                                                                               # End if (!$ObjectArray)
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                Write-Host 'Sec Group Name: '$_.NSGName                                     # Write message to screen
+                Write-host 'Sec Group RG:   '$_.NSGRG                                       # Write message to screen
+                Write-Host 'Sec Rules count:'$_.RuleCount                                   # Write message to screen
+                Write-Host 'NIC Name:       '$_.NICName                                     # Write message to screen
+                Write-Host 'NIC RG:         '$_.NICRG                                       # Write message to screen
+                if ($_.NicVM) {                                                             # If current item .NicVM has a value
+                    Write-Host 'VM Name:        '$_.NicVM                                   # Write message to screen
+                    Write-Host 'VM RG:          '$_.NicVMRG                                 # Write message to screen
+                    Write-Host 'VM OS Type:     '$_.NICVMOS                                 # Write message to screen
+                }                                                                           # End if ($_.NicVM)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureNSGNic                                                           # Breaks :ListAzureNSGNic
+        }                                                                                   # End :ListAzureNSGNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzNSGNIC
 function RemoveAzNSGNIC {                                                                   # Function to remove a NSG from NIC
     Begin {                                                                                 # Begin function
         if ($CallingFunction) {                                                             # If $CallingFunction is $null
@@ -24013,6 +24096,7 @@ function RemoveAzNSGNIC {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNSGNIC
+# End ManageAzNSGNIC
 # End ManageAzNSGNIC
 # Additional functions required for ManageAzNSG
 function GetAzASG {                                                                         # Function to get a application security group
