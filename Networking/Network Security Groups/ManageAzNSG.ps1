@@ -1,59 +1,497 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
-    New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
-    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.0.0
-    Remove-AzLoadBalancerFrontendIpConfig:      https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerfrontendipconfig?view=azps-6.1.0
-    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-6.1.0
-    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0    
+<# Ref: { Microsoft docs links
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
+    New-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-6.2.1
+    Remove-AzNetworkSecurityGroup:              https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-6.2.1
+    Add-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Remove-AzNetworkSecurityRuleConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.2.1
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0  
-    Add-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerbackendaddresspoolconfig?view=azps-6.1.0
-    Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
-    Get-AzLoadBalancerBackendAddressPool:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerbackendaddresspool?view=azps-6.1.0
-    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
-    Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
-    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.1.0
-    Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.1.0
-    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.1.0
-    Remove-AzLoadBalancerBackendAddressPool:    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerbackendaddresspool?view=azps-6.1.0
-    Add-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerprobeconfig?view=azps-6.1.0
-    Get-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerprobeconfig?view=azps-6.1.0
-    Remove-AzLoadBalancerProbeConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerprobeconfig?view=azps-6.1.0
-    Set-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerprobeconfig?view=azps-6.1.0
-    Add-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerruleconfig?view=azps-6.1.0
-    Get-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerruleconfig?view=azps-6.1.0
-    Remove-AzLoadBalancerRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerruleconfig?view=azps-6.1.0
-    Set-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerruleconfig?view=azps-6.1.0    
-    Add-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
-    Get-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
-    Set-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerinboundnatruleconfig?view=azps-6.2.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.2.1
     Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
-    Remove-AzLoadBalancerInboundNatRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
 } #>
 <# Required Functions Links: {
-    ManageAzLBFEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/.ps1
-    
+    NewAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NewAzNSG.ps1
+    ListAzNSG:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/ListAzNSG.ps1
+    GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+    RemoveNSG:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/RemoveNSG.ps1
+    ManageAzNSGRule:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ManageAzNSGRule.ps1
+        GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+        SetAzNSGRuleProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleProtocol.ps1
+        SetAzNSGRuleAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAccess.ps1
+        SetAzNSGRuleDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDirection.ps1
+        SetAzNSGRulePriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
+        SetAzNSGRuleSPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleSPortRange.ps1
+        SetAzNSGRuleDPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDPortRange.ps1
+        SetAzNSGRuleAddPrefix:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAddPrefix.ps1  
+        SetIPAddress:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetIPAddress.ps1
+        SetCIDRAddress:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetCIDRAddress.ps1
+        ListAzNSGRule:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzNSGRule.ps1
+        ListAzAllNSGsRule:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzAllNSGsRule.ps1
+        UpdateAzNSGRAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRAccess.ps1
+        UpdateAzNSGRDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDirection.ps1
+        UpdateAzNSGRPriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRPriority.ps1
+        UpdateAzNSGRProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRProtocol.ps1
+        UpdateAzNSGRSPRange:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSPRange.ps1
+        UpdateAzNSGRDPRange:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDPRange.ps1
+        UpdateAzNSGRSAddPrefix:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSAddPrefix.ps1
+        UpdateAzNSGRDAddPrefix:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDAddPrefix.ps1
+        UpdateAzNSGRSAppSecG:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSAppSecG.ps1
+        UpdateAzNSGRDAppSecG:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDAppSecG.ps1
+        GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
+        GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
+        RemoveAzNSGRule:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/RemoveAzNSGRule.ps1
+        UpdateAzNSGRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRuleConfig.ps1
+        GetAzASG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/NSG%20Rules/GetAzASG.ps1
+    ManageAzNSGNIC:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/ManageAzNSGNIC.ps1
+        AddAzNSGNIC:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/AddAzNSGNIC.ps1
+        ListAzNSGNIC:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/ListAzNSGNIC.ps1
+        RemoveAzNSGNIC:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/RemoveAzNSGNIC.ps1
+        GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+        GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1    
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
 } #>
 <# Functions Description: {
-    :SetAzureNSGRulePortSingle
-    ManageAzLBNSG:              Function to manage network security groups
-    GetAzNSG:                   
-
-
+    ManageAzNSG:                Function to manage network security groups
+    NewAzNSG:                   Function to create a new network security group
+    ListAzNSG:                  Function to list all network security groups
+    GetAzNSG:                   Function to get a network security group
+    RemoveNSG:                  Function to remove a network security group
+    ManageAzNSGRule:            Function to manage network security group rules
+        NewAzNSGRule:               Function to create a new network security group rule
+        GetAzNSG:                   Function to get a network security group
+        SetAzNSGRuleProtocol:       Function to set a network security group rule protocol
+        SetAzNSGRuleAccess:         Function to set a network security group rule access
+        SetAzNSGRuleDirection:      Function to set a network security group rule direction
+        SetAzNSGRulePriority:       Function to set a network security group rule priority
+        SetAzNSGRuleSPortRange:     Function to set a network security rule source port range
+        SetAzNSGRuleDPortRange:     Function to set a network security rule destination port range
+        SetAzNSGRuleAddPrefix:      Function to set a network security rule address prefix     
+        SetIPAddress:               Function to add an IP address to $var
+        SetCIDRAddress:             Function to add a CIDR address to $var
+        ListAzNSGRule:              Function to list a network security group rules
+        ListAzAllNSGsRule:          Function to list all rules from all network security groups
+        GetAzAllNSGsRule:           Function to get a rule from all network security groups
+        GetAzNSGRule:               Function to get a network security group rule
+        RemoveAzNSGRule:            Function to remove a network security group rule
+        UpdateAzNSGRAccess:         Function to update a network security group rule access
+        UpdateAzNSGRuleConfig:      Function for updating network security group rule configs
+        UpdateAzNSGRDirection:      Function to update a network security group rule direction
+        UpdateAzNSGRPriority:       Function to update a network security group rule priority
+        UpdateAzNSGRProtocol:       Function to update a network security group rule protocol
+        UpdateAzNSGRSPRange:        Function to update a network security group rule source port range
+        UpdateAzNSGRDPRange:        Function to update a network security group rule destination port range
+        UpdateAzNSGRSAddPrefix:     Function to update a network security group rule source application security group
+        GetAzASG:                   Function to get a application security group
+        UpdateAzNSGRDAddPrefix:     Function to update a network security group rule source application security group
+        UpdateAzNSGRSAppSecG:       Function to update a network security group rule source application security group
+        UpdateAzNSGRDAppSecG:       Function to update a network security group rule destination application security group
+    ManageAzNSGNIC:             Function to manage NSG Nic associations
+        AddAzNSGNIC:                Function to add a NSG to NIC
+        ListAzNSGNIC:               Function to list all NICs associated with network security groups
+        RemoveAzNSGNIC:             Function to remove a NSG from NIC
+        GetAzNSG:                   Function to get a network security group
+        GetAzNetworkInterface:      Function to get a network interface
+    GetAzResourceGroup:         Function to get a resource group
 } #>
 <# Variables: {      
     :ManageAzureNSG             Outer loop for managing function
     $OpSelect:                  Operator input for selecting the management function
-    SetAzNSGRuleSPortRange{}
-    SetAzNSGRuleProtocol
-
+    NewAzNSG{}                  Creates $NSGObject
+        GetAzResourceGroup{}        Gets $RGObject
+    ListAzNSG{}                 Lists $NSGObject
+    RemoveNSG{}                 Removes $NSGObject
+        GetAzNSG{}                  Gets $NSGObject
+    ManageAzNSGRule{}           Manages $NSGRuleObject
+        NewAzNSGRule{}              Creates $NSGRuleObject
+            GetAzNSG{}                  Gets $NSGObject
+            SetAzNSGRuleProtocol{}      Gets $NSGRuleProtocol
+            SetAzNSGRuleAccess{}        Gets $NSGRuleAccess
+            SetAzNSGRuleDirection{}     Gets $NSGRuleDirection
+            SetAzNSGRulePriority{}      Gets $NSGRulePriority
+            SetAzNSGRuleSPortRange{}    Gets $NSGRuleSPRange
+            SetAzNSGRuleDPortRange{}    Gets $NSGRuleDPRange
+            SetAzNSGRuleAddPrefix{}     Gets $NSGRuleAddPrefix
+                SetIPAddress{}              Gets $IPAddress
+                SetCIDRAddress{}            Gets $CIDRAddress
+            GetAzASG{}                  Gets $ASGObject    
+        ListAzNSGRule{}             Lists $NSGRuleObject
+            GetAzNSG{}                  Gets $NSGObject
+        ListAzAllNSGsRule{}         Lists $NSGRuleObject
+        RemoveAzNSGRule{}           Removes $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSGRule{}              Gets $NSGRuleObject
+                GetAzNSG{}                  Gets $NSGObject
+        UpdateAzNSGRAccess{}        Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleAccess{}        Gets $NSGRuleAccess
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
+        UpdateAzNSGRDirection{}     Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleDirection{}     Gets $NSGRuleDirection
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject    
+        UpdateAzNSGRPriority{}      Updates $NSGRuleObject
+            $OpConfirm:                 Operator confirmation to update the NSG rule object
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRulePriority{}      Gets $NSGRulePriority
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject    
+        UpdateAzNSGRProtocol{}      Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleProtocol{}      Gets $NSGRuleProtocol
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
+        UpdateAzNSGRSPRange{}       Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleSPortRange{}    Gets $NSGRuleSPRange
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject    
+        UpdateAzNSGRDPRange{}       Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleDPortRange{}    Gets $NSGRuleDPRange
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject      
+        UpdateAzNSGRSAddPrefix{}    Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+                GetAzNSG{}                  Gets $NSGObject
+            GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleAddPrefix{}     Gets $NSGRuleAddPrefix
+                SetIPAddress{}              Gets $IPAddress
+                SetCIDRAddress{}            Gets $CIDRAddress
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject
+        UpdateAzNSGRDAddPrefix{}    Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            SetAzNSGRuleAddPrefix{}     Gets $NSGRuleAddPrefix
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject    
+        UpdateAzNSGRSAppSecG{}      Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            GetAzASG{}                  Gets $ASGObject
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject  
+        UpdateAzNSGRDAppSecG{}      Updates $NSGRuleObject
+            GetAzAllNSGsRule{}          Gets $NSGRuleObject, $NSGObject
+            GetAzNSG{}                  Gets $NSGObject
+                GetAzNSGRule{}              Gets $NSGRuleObject
+            GetAzASG{}                  Gets $ASGObject
+            UpdateAzNSGRuleConfig{}     Changes $NSGRuleObject, $NSGObject      
+    ManageAzNSGNic              Manages $NicObject, $NSGObject
+        AddAzNSGNIC{}               Updates $NicObject
+            GetAzNSG{}                  Gets $NSGObject
+            GetAzNetworkInterface{}     Gets $NicObject, $SubnetObject, $VnetObject
+        ListAzNSGNIC{}              Lists $NSGObject, $NICObject, $VMObject
+        RemoveAzNSGNIC{}            Updates $NicObject
+            GetAzNetworkInterface{}     Gets $NicObject, $SubnetObject, $VnetObject
 } #>
 <# Process Flow {
     function
-        Call ManageAzLBNSG > Get $null
-
-        
-        End ManageAzLBNSG
+        Call ManageAzNSG > Get $null
+            Call NewAzNSG > Get $null   
+                Call GetAzResourceGroup > Get $RGObject
+                End GetAzResourceGroup
+                    Return NewAzNSG > Send $RGObject
+            End NewAzNSG
+                Return ManageAzNSG > Send $null
+            Call ListAzNSG > Get $null
+            End ListAzNSG
+                Return ManageAzNSG > Send $null
+            Call RemoveNSG > Get $null
+                Call GetAzNSG > Get $NSGObject
+                End GetAzNSG
+                    Return RemoveNSG > Send $NSGObject
+            End RemoveNSG
+                Return ManageAzNSG > Send $null                 
+            Call ManageAzNSGRule > Get $null
+                Call NewAzNSGRule > Get $null
+                    Call GetAzNSG > Get $NSGObject
+                    End GetAzNSG
+                        Return NewAzNSGRule > Send $NSGObject
+                    Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                    End SetAzNSGRuleProtocol
+                        Return NewAzNSGRule > Send $NSGRuleProtocol
+                    Call SetAzNSGRuleAccess > Get $NSGRuleAccess
+                    End SetAzNSGRuleAccess
+                        Return NewAzNSGRule > Send $NSGRuleAccess
+                    Call SetAzNSGRuleDirection > Get $NSGRuleDirection
+                    End SetAzNSGRuleDirection
+                        Return NewAzNSGRule > Send $NSGRuleDirection
+                    SetAzNSGRulePriority > Get $NSGRulePriority
+                    End SetAzNSGRulePriority
+                        Return NewAzNSGRule > Send $NSGRulePriority
+                    Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                    End SetAzNSGRuleSPortRange
+                        Return NewAzNSGRule > Send $NSGRuleSPRange
+                    Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                    End SetAzNSGRuleDPortRange
+                        Return NewAzNSGRule > Send $NSGRuleDPRange
+                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        Call SetIPAddress > Get $IPAddress
+                        End SetIPAddress
+                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
+                        Call SetCIDRAddress > Get $CIDRAddress
+                        End SetCIDRAddress
+                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
+                    End SetAzNSGRuleAddPrefix
+                        Return NewAzNSGRule > Send $NSGRuleAddPrefix
+                    Call GetAzASG > Get $ASGObject
+                    End GetAzASG
+                        Return NewAzNSGRule > Send $ASGObject                
+                End NewAzNSGRule
+                    Return ManageAzNSGRule > Send $null        
+                Call ListAzNSGRule > Get $null
+                    Call GetAzNSG > Get $NSGObject
+                    End GetAzNSG
+                        Return ListAzNSGRule > Send $NSGObject
+                End ListAzNSGRule
+                    Return ManageAzNSGRule > Send $null
+                Call ListAzAllNSGsRule > Get $null
+                End ListAzAllNSGsRule
+                    Return ManageAzNSGRule > Send $null
+                Call RemoveAzNSGRule > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
+                End RemoveAzNSGRule
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRAccess > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRAccess > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRAccess > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleAccess > Get $NSGRuleAccess
+                    End SetAzNSGRuleAccess
+                        Return UpdateAzNSGRAccess > Send $NSGRuleAccess
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRAccess > Send $null
+                End UpdateAzNSGRAccess
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRDirection > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRDirection > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRDirection > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleDirection > Get $NSGRuleDirection
+                    End SetAzNSGRuleDirection
+                        Return UpdateAzNSGRDirection > Send $NSGRuleDirection
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRDirection > Send $null
+                End UpdateAzNSGRDirection
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRPriority > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRPriority > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRPriority > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRulePriority > Get $NSGRulePriority
+                    End SetAzNSGRulePriority
+                        Return UpdateAzNSGRPriority > Send $NSGRulePriority
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRPriority > Send $null
+                End UpdateAzNSGRPriority
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRProtocol > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRProtocol > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRProtocol > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                    End SetAzNSGRuleProtocol
+                        Return UpdateAzNSGRProtocol > Send $NSGRuleProtocol
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRProtocol > Send $null
+                End UpdateAzNSGRProtocol
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRSPRange > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRSPRange > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRSPRange > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                    End SetAzNSGRuleSPortRange
+                        Return UpdateAzNSGRSPRange > Send $NSGRuleSPRange
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRSPRange > Send $null
+                End UpdateAzNSGRSPRange
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRDPRange > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRDPRange > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRDPRange > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                    End SetAzNSGRuleDPortRange
+                        Return UpdateAzNSGRDPRange > Send $NSGRuleDPRange
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRDPRange > Send $null
+                End UpdateAzNSGRDPRange
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRSAddPrefix > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        Call SetIPAddress > Get $IPAddress
+                        End SetIPAddress
+                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
+                        Call SetCIDRAddress > Get $CIDRAddress
+                        End SetCIDRAddress
+                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
+                    End SetAzNSGRuleAddPrefix
+                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleAddPrefix                
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRSAddPrefix > Send $null
+                End UpdateAzNSGRSAddPrefix
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRDAddPrefix > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleObject, $NSGObject
+                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        Call SetIPAddress > Get $IPAddress
+                        End SetIPAddress
+                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
+                        Call SetCIDRAddress > Get $CIDRAddress
+                        End SetCIDRAddress
+                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
+                    End SetAzNSGRuleAddPrefix
+                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleAddPrefix                
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRDAddPrefix > Send $null
+                End UpdateAzNSGRDAddPrefix
+                    Return ManageAzNSGRule > Send $null            
+                Call UpdateAzNSGRSAppSecG > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRSAppSecG > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRSAppSecG > Send $NSGRuleObject, $NSGObject
+                    Call GetAzASG > Get $ASGObject
+                    End GetAzASG
+                        Return UpdateAzNSGRSAppSecG > Send $ASGObject
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRSAppSecG > Send $null
+                End UpdateAzNSGRSAppSecG
+                    Return ManageAzNSGRule > Send $null
+                Call UpdateAzNSGRDAppSecG > Get $null
+                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    End GetAzAllNSGsRule
+                        Return UpdateAzNSGRDAppSecG > Send $NSGRuleObject, $NSGObject
+                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        Call GetAzNSG > Get $NSGObject
+                        End GetAzNSG
+                            Return GetAzNSGRule > Send $NSGObject
+                    End GetAzNSGRule
+                        Return UpdateAzNSGRDAppSecG > Send $NSGRuleObject, $NSGObject
+                    Call GetAzASG > Get $ASGObject
+                    End GetAzASG
+                        Return UpdateAzNSGRDAppSecG > Send $ASGObject
+                    Call UpdateAzNSGRuleConfig > Get $null
+                    End UpdateAzNSGRuleConfig
+                        Return UpdateAzNSGRDAppSecG > Send $null
+                End UpdateAzNSGRDAppSecG
+                    Return ManageAzNSGRule > Send $null
+            End ManageAzNSGRule 
+                Return ManageAzNSG > Send $null
+            Call ManageAzNSGNIC > Get $null
+                Call AddAzNSGNIC > Get $null
+                    Call GetAzNSG > Get $NSGObject
+                    End GetAzNSG
+                        Return AddAzNSGNIC > Send $NSGObject
+                    Call GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
+                    End GetAzNetworkInterface
+                        Return AddAzNSGNIC > Send $NicObject, $SubnetObject, $VnetObject
+                End AddAzNSGNIC
+                    Return ManageAzNSGNIC > Send $null
+                Call ListAzNSGNIC > Get $null
+                End ListAzNSGNIC
+                    Return ManageAzNSGNIC > Send $null
+                Call RemoveAzNSGNIC > Get $null
+                    Call GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
+                    End GetAzNetworkInterface
+                        Return RemoveAzNSGNIC > Send $NicObject, $SubnetObject, $VnetObject
+                End RemoveAzNSGNIC
+                    Return ManageAzNSGNIC > Send $null                
+            End ManageAzNSGNIC
+                Return ManageAzNSG > Send $null
+        End ManageAzNSG
             Return function > Send $null
 }#>
 function ManageAzNSG {                                                                      # Function to manage network security groups
@@ -104,7 +542,7 @@ function ManageAzNSG {                                                          
         return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzLBNSG
-function NewAzNSG {                                                                         # Function to create a new network securit group
+function NewAzNSG {                                                                         # Function to create a new network security group
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
             $CallingFunction = 'NewAzNSG'                                                   # Creates $CallingFunction
@@ -372,6 +810,7 @@ function RemoveNSG {                                                            
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveNSG
+# Functions for ManageAzNSGRule
 function ManageAzNSGRule {                                                                  # Function to manage network security group rules
     Begin {                                                                                 # Begin function
         :ManageAzureNSGRule while ($true) {                                                 # Outer loop for managing function
@@ -3188,6 +3627,8 @@ function UpdateAzNSGRuleConfig {                                                
             Return $null                                                                    # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End UpdateAzNSGRuleConfig
+# End ManageAzNSGRuleConfig
+# Functions for ManageAzNSGNIC
 function ManageAzNSGNIC {                                                                   # Function to manage NSG Nic associations
     Begin {                                                                                 # Begin function
         :ManageAzureNSGNic while ($true) {                                                  # Outer loop for managing function
@@ -3207,6 +3648,10 @@ function ManageAzNSGNIC {                                                       
                 Write-Host 'Add/Change Association'                                         # Write message to screen
                 AddAzNSGNIC                                                                 # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Associations'                                              # Write message to screen
+                ListAzNSGNIC                                                                # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove Association'                                             # Write message to screen
                 RemoveAzNSGNIC                                                              # Calls function
@@ -3281,6 +3726,84 @@ function AddAzNSGNIC {                                                          
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function AddAzNSGNIC
+function ListAzNSGNIC {                                                                     # Function to list all NICs associated with network security groups       
+    Begin {                                                                                 # Begin function
+        :ListAzureNSGNic while ($true) {                                                    # Outer loop for managing function
+            Write-Host 'Gathering NSG info'                                                 # Write message to sceen
+            $ObjectList = Get-AzNetworkSecurityGroup                                        # Creates $ObjectList
+            Clear-Host                                                                      # Clears screen
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No network security groups present in this subscription'        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureNSGNic                                                       # Breaks :ListAzureNSGNic
+            }                                                                               # End if (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
+            Write-Host 'Gathering NIC info'                                                 # Write message to sceen
+            foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $NSGObject = $_                                                             # NSGObject is equal to current item
+                $NicList = $_.NetworkInterfaces.ID                                          # $NicList is equal to current item .NetworkInterfaces.ID
+                if ($NicList) {                                                             # If $NicList has a value
+                    foreach ($_ in $NicList) {                                              # For each item in $NicList
+                        $ID = $_                                                            # ID is equal to current item
+                        $NicObject = Get-AzNetworkInterface | Where-Object {$_.ID -eq $ID}  # Pulls the full nic object
+                        if ($NicObject.VirtualMachine.ID) {                                 # If $NicObject.VirtualMachine.ID has a value
+                            $VMObject = $NicObject.VirtualMachine.ID                        # Isolates the VM id
+                            $VMObject = Get-AzVM | Where-Object {$_.ID -eq $VMObject}       # Pulls the full VM object
+                            if ($VMObject.OSProfile.LinuxConfiguration) {                   # If $VMObject.OSProfile.LinuxConfiguration has a value
+                                $OsType = 'Linux'                                           # Sets $OSType
+                            }                                                               # End if ($VMObject.OSProfile.LinuxConfiguration)
+                            else {                                                          # Else if $VMObject.OSProfile.LinuxConfiguration is $null
+                                $OsType = 'Windows'                                         # Sets $OSType
+                            }                                                               # End else (if ($VMObject.OSProfile.LinuxConfiguration))
+                        }                                                                   # End if ($NicObject.VirtualMachine.ID) 
+                        $ObjectInput = [PSCustomObject]@{                                   # custom object to add info to $ObjectArray
+                            'NSGName'=$NSGObject.Name;                                      # NSG name
+                            'NSGRG'=$NSGObject.ResourceGroupName;                           # NSG resource group
+                            'RuleCount'=$NSGObject.SecurityRules.Count;                     # Count of non-default rules
+                            'NICName'=$NICObject.Name;                                      # NIC name
+                            'NICRG'=$NicObject.ResourceGroupName;                           # NIC resource group
+                            'NicVM'=$VMObject.Name;                                         # NIC VM name
+                            'NicVMRG'=$VMObject.ResourceGroupName;                          # NIC VM resource group
+                            'NICVMOS'=$OsType                                               # NIC VM OS                                    
+                        }                                                                   # End $ObjectInput = [PSCustomObject]@
+                        $ObjectArray.Add($ObjectInput) | Out-Null                           # Adds $ObjectInput to $ObjectArray
+                        $ID = $null                                                         # Clears $var
+                        $NicObject = $null                                                  # Clears $var
+                        $VMObject = $null                                                   # Clears $var
+                        $OSType = $null                                                     # Clears $var
+                    }                                                                       # End foreach ($_ in $NicList)
+                }                                                                           # End if ($NicList)
+                $NSGObject = $null                                                          # Clears $var
+                $NicList = $null                                                            # Clears $var
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Clear-Host                                                                      # Clears screen
+            if (!$ObjectArray) {                                                            # If $ObjectArray is $null
+                Write-Host 'There are not NICs associated with network security groups'     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureNSGNic                                                       # Breaks :ListAzureNSGNic
+            }                                                                               # End if (!$ObjectArray)
+            foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
+                Write-Host 'Sec Group Name: '$_.NSGName                                     # Write message to screen
+                Write-host 'Sec Group RG:   '$_.NSGRG                                       # Write message to screen
+                Write-Host 'Sec Rules count:'$_.RuleCount                                   # Write message to screen
+                Write-Host 'NIC Name:       '$_.NICName                                     # Write message to screen
+                Write-Host 'NIC RG:         '$_.NICRG                                       # Write message to screen
+                if ($_.NicVM) {                                                             # If current item .NicVM has a value
+                    Write-Host 'VM Name:        '$_.NicVM                                   # Write message to screen
+                    Write-Host 'VM RG:          '$_.NicVMRG                                 # Write message to screen
+                    Write-Host 'VM OS Type:     '$_.NICVMOS                                 # Write message to screen
+                }                                                                           # End if ($_.NicVM)
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureNSGNic                                                           # Breaks :ListAzureNSGNic
+        }                                                                                   # End :ListAzureNSGNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzNSGNIC
 function RemoveAzNSGNIC {                                                                   # Function to remove a NSG from NIC
     Begin {                                                                                 # Begin function
         if ($CallingFunction) {                                                             # If $CallingFunction is $null
@@ -3337,6 +3860,7 @@ function RemoveAzNSGNIC {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzNSGNIC
+# End ManageAzNSGNIC
 # Additional functions required for ManageAzNSG
 function GetAzASG {                                                                         # Function to get a application security group
     Begin {                                                                                 # Begin function
