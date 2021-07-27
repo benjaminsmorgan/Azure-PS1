@@ -1,5 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     New-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azresourcelock?view=azps-5.2.0
     Get-AzResourceLock:         https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-5.0.0
     Remove-AzResourceLock:      https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-5.0.0

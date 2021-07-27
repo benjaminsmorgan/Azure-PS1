@@ -1,4 +1,42 @@
-function NewAzNSG {                                                                         # Function to create a new network securit group
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Microsoft docs links
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
+    New-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-6.2.1
+} #>
+<# Required Functions Links: {
+    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+} #>
+<# Functions Description: {
+    NewAzNSG:                   Function to create a new network security group
+    GetAzResourceGroup:         Function to get a resource group
+} #>
+<# Variables: {      
+    :NewAzureNSG                Outer loop for managing functions
+    :SetAzureNSGName            Inner loop for setting the network security group name
+    $CallingFunction:           Name of this function or the one that called it
+    $RGObject:                  Resource group object     
+    $RGName:                    Resource group name
+    $RGLoc:                     Resource group location
+    $CurrentNSGNames:           List of current NSG names on $RGObject
+    $VName1st:                  Array of valid first characters to NSG name
+    $VNameElse:                 Array of valid body characters to NSG name
+    $VNameLast:                 Array of valid lsdt characters to NSG name
+    $NSGName:                   Operator input for the NSG name
+    $NSGNameArray:              $NSGName converted to array
+    $OpConfirm:                 Operator confirmation for the name
+    GetAzResourceGroup{}        Gets $RGObject
+} #>
+<# Process Flow {
+    function
+        Call NewAzNSG > Get $null   
+            Call GetAzResourceGroup > Get $RGObject
+            End GetAzResourceGroup
+                Return NewAzNSG > Send $RGObject
+        End NewAzNSG
+            Return function > Send $null
+}#>
+function NewAzNSG {                                                                         # Function to create a new network security group
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
             $CallingFunction = 'NewAzNSG'                                                   # Creates $CallingFunction

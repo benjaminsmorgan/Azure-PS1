@@ -1,5 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     Remove-AzNetworkSecurityGroup:              https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecuritygroup?view=azps-6.2.1
     Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
 } #>

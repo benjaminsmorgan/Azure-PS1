@@ -1,5 +1,5 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
-<# Ref: { Mircosoft docs links
+<# Ref: { Microsoft docs links
     New-AzVmssConfig:           https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssconfig
     New-AzVmssIPConfig:         https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmssipconfig
     Add-AzVmssNetworkInterfaceConfiguration: https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmssnetworkinterfaceconfiguration
