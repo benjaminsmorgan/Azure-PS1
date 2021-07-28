@@ -3,6 +3,7 @@
     Remove-AzApplicationSecurityGroup:          https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azapplicationsecuritygroup?view=azps-6.2.1
     Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
     GetAzASG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/GetAzASG.ps1
@@ -15,7 +16,8 @@
     :RemoveAzureASG             Outer loop for managing function
     $CallingFunction:           Name of this function or the one that called it
     $ASGObject:                 Application security group object
-    $AttachedNics:              List of nics $ASGObject is attached to
+    $AttachedNics:              List of nics attached to $ASGObject
+    $AttachedNSGs:              List of NSGs attached to $ASGObject
     $OpConfirm:                 Operator confirmation to remove the ASG
     GetAzASG{}                  Gets $ASGObject
 } #>
@@ -40,6 +42,9 @@ function RemoveAzASG {                                                          
             }                                                                               # End if (!$ASGObject)
             $AttachedNics = Get-AzNetworkInterface | Where-Object `
                 {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGObject.ID}        # Gets a list of attached NICs to $ASGObject
+            $AttachedNSGs = Get-AzNetworkSecurityGroup | Where-Object `
+                {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGObject.ID -or `
+                $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGObject.ID} # Gets a list of all NSGs in $ASGID
             if ($AttachedNics) {                                                            # If $AttachedNics has a value
                 Write-Host 'The following NICs have configs referencing'                    # Write message to screen
                 Write-Host 'this Application Security Group:'                               # Write message to screen
@@ -55,7 +60,23 @@ function RemoveAzASG {                                                          
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureASG                                                        # Breaks :RemoveAzureASG    
-            }                                                                               # End if ($AttachedNics)
+            }                                                                               # End if ($AttachedNSGs)
+            if ($AttachedNSGs) {                                                            # If $AttachedNSGs has a value
+                Write-Host 'The following NSGs have rules referencing'                      # Write message to screen
+                Write-Host 'this Application Security Group:'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $AttachedNSGs) {                                             # For each item in $AttachedNSGs
+                    Write-Host $_.Name                                                      # Write message to screen
+                }                                                                           # End foreach ($_ in $AttachedNSGs)
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'The ASG will need to be removed from the'                       # Write message to screen
+                Write-Host 'NSG rules before it can be deleted'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureASG                                                        # Breaks :RemoveAzureASG    
+            }                                                                               # End if ($AttachedNSGs)
             Write-Host 'Remove ASG:'$ASGObject.name                                         # Write message to screen
             Write-Host 'From RG:   '$ASGObject.ResourceGroupName                            # Write message to screen
             Write-Host ''                                                                   # Write message to screen
