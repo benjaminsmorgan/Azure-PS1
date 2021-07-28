@@ -2,6 +2,7 @@
 <# Ref: { Microsoft docs links
     Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
     None
@@ -14,6 +15,7 @@
     $ObjectList:                List of all application security groups
     $ObjectArray:               Array holding all application security group info
     $ASGID:                     Current item .ID
+    NSGList:                    List of nsgs using $ASGID
     $NICList:                   List of nics using $ASGID
     $ObjectInput:               $var used to load info into $ObjectArray
 } #>
@@ -40,15 +42,20 @@ function ListAzASG {                                                            
                 $ASGID = $_.ID                                                              # $ASGID is equal to current item .ID
                 $NICList = Get-AzNetworkInterface | Where-Object `
                     {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGID}           # Gets a list of nics in $ASGID
+                $NSGList = Get-AzNetworkSecurityGroup | Where-Object `
+                    {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGID -or `
+                    $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGID}    # Gets a list of all NSGs in $ASGID
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
-                    'NicNames'=$NICList.Name                                                # Nic names
+                    'NicNames'=$NICList.Name;                                               # Nic names
+                    'NSGNames'=$NSGList.Name                                                # NSG names
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ASGID = $null                                                              # Clears $var
                 $NicList = $null                                                            # Clears $var
+                $NSGList = $null                                                            # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
@@ -61,6 +68,12 @@ function ListAzASG {                                                            
                 else {                                                                      # Else if current item .NicNames is $null
                     Write-Host 'Associated NICS: N/A'                                       # Write message to screen
                 }                                                                           # End else (if ($_.NicNames))
+                if ($_.NSGNames) {                                                          # If current item .NSGNames has a value
+                    Write-Host 'Associated NSGs:'$_.NSGNames                                # Write message to screen
+                }                                                                           # End if ($_.NSGNames)
+                else {                                                                      # Else if current item .NSGNames is $null
+                    Write-Host 'Associated NSGs: N/A'                                       # Write message to screen
+                }                                                                           # End else (if ($_.NSGNames))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
