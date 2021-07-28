@@ -13186,15 +13186,20 @@ function ListAzASG {                                                            
                 $ASGID = $_.ID                                                              # $ASGID is equal to current item .ID
                 $NICList = Get-AzNetworkInterface | Where-Object `
                     {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGID}           # Gets a list of nics in $ASGID
+                $NSGList = Get-AzNetworkSecurityGroup | Where-Object `
+                    {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGID -or `
+                    $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGID}    # Gets a list of all NSGs in $ASGID
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
-                    'NicNames'=$NICList.Name                                                # Nic names
+                    'NicNames'=$NICList.Name;                                               # Nic names
+                    'NSGNames'=$NSGList.Name                                                # NSG names
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ASGID = $null                                                              # Clears $var
                 $NicList = $null                                                            # Clears $var
+                $NSGList = $null                                                            # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
@@ -13207,6 +13212,12 @@ function ListAzASG {                                                            
                 else {                                                                      # Else if current item .NicNames is $null
                     Write-Host 'Associated NICS: N/A'                                       # Write message to screen
                 }                                                                           # End else (if ($_.NicNames))
+                if ($_.NSGNames) {                                                          # If current item .NSGNames has a value
+                    Write-Host 'Associated NSGs:'$_.NSGNames                                # Write message to screen
+                }                                                                           # End if ($_.NSGNames)
+                else {                                                                      # Else if current item .NSGNames is $null
+                    Write-Host 'Associated NSGs: N/A'                                       # Write message to screen
+                }                                                                           # End else (if ($_.NSGNames))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -13234,17 +13245,22 @@ function GetAzASG {                                                             
                 $ASGID = $_.ID                                                              # $ASGID is equal to current item .ID
                 $NICList = Get-AzNetworkInterface | Where-Object `
                     {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGID}           # Gets a list of nics in $ASGID
+                $NSGList = Get-AzNetworkSecurityGroup | Where-Object `
+                    {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGID -or `
+                    $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGID}    # Gets a list of all NSGs in $ASGID
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Number'=$ObjectNumber;                                                 # Object number
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
-                    'NicNames'=$NICList.Name                                                # Nic names
+                    'NicNames'=$NICList.Name;                                               # Nic names
+                    'NSGNames'=$NSGList.Name                                                # NSG names
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
                 $ASGID = $null                                                              # Clears $var
                 $NicList = $null                                                            # Clears $var
+                $NSGList = $null                                                            # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             :SelectAzureASG while ($true) {                                                 # Inner loop for selecting the application security group
@@ -13261,11 +13277,17 @@ function GetAzASG {                                                             
                     Write-Host 'ASG RG:         '$_.RG                                      # Write message to screen
                     Write-Host 'ASG Loc:        '$_.Location                                # Write message to screen
                     if ($_.NicNames) {                                                      # If current item .NicNames has a value
-                        Write-Host 'Associated NICS:'$_.NicNames                            # Write message to screen
+                        Write-Host 'Associated NICs:'$_.NicNames                            # Write message to screen
                     }                                                                       # End if ($_.NicNames)
                     else {                                                                  # Else if current item .NicNames is $null
-                        Write-Host 'Associated NICS: N/A'                                   # Write message to screen
+                        Write-Host 'Associated NICs: N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.NicNames))
+                    if ($_.NSGNames) {                                                      # If current item .NSGNames has a value
+                        Write-Host 'Associated NSGs:'$_.NSGNames                            # Write message to screen
+                    }                                                                       # End if ($_.NSGNames)
+                    else {                                                                  # Else if current item .NSGNames is $null
+                        Write-Host 'Associated NSGs: N/A'                                   # Write message to screen
+                    }                                                                       # End else (if ($_.NSGNames))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
@@ -13308,6 +13330,9 @@ function RemoveAzASG {                                                          
             }                                                                               # End if (!$ASGObject)
             $AttachedNics = Get-AzNetworkInterface | Where-Object `
                 {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGObject.ID}        # Gets a list of attached NICs to $ASGObject
+            $AttachedNSGs = Get-AzNetworkSecurityGroup | Where-Object `
+                {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGObject.ID -or `
+                $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGObject.ID} # Gets a list of all NSGs in $ASGID
             if ($AttachedNics) {                                                            # If $AttachedNics has a value
                 Write-Host 'The following NICs have configs referencing'                    # Write message to screen
                 Write-Host 'this Application Security Group:'                               # Write message to screen
@@ -13323,7 +13348,23 @@ function RemoveAzASG {                                                          
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureASG                                                        # Breaks :RemoveAzureASG    
-            }                                                                               # End if ($AttachedNics)
+            }                                                                               # End if ($AttachedNSGs)
+            if ($AttachedNSGs) {                                                            # If $AttachedNSGs has a value
+                Write-Host 'The following NSGs have rules referencing'                      # Write message to screen
+                Write-Host 'this Application Security Group:'                               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $AttachedNSGs) {                                             # For each item in $AttachedNSGs
+                    Write-Host $_.Name                                                      # Write message to screen
+                }                                                                           # End foreach ($_ in $AttachedNSGs)
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'The ASG will need to be removed from the'                       # Write message to screen
+                Write-Host 'NSG rules before it can be deleted'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureASG                                                        # Breaks :RemoveAzureASG    
+            }                                                                               # End if ($AttachedNSGs)
             Write-Host 'Remove ASG:'$ASGObject.name                                         # Write message to screen
             Write-Host 'From RG:   '$ASGObject.ResourceGroupName                            # Write message to screen
             Write-Host ''                                                                   # Write message to screen
