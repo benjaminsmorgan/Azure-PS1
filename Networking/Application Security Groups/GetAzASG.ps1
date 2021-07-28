@@ -2,6 +2,7 @@
 <# Ref: { Microsoft docs links
     Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
     None
@@ -17,6 +18,7 @@
     $ObjectArray:               Array holding all application security group info
     $ASGID:                     Current item .ID
     $NICList:                   List of nics using $ASGID
+    NSGList:                    List of nsgs using $ASGID
     $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .number, used for formatting
     $CallingFunction:           Name of the function that called this one
@@ -47,17 +49,22 @@ function GetAzASG {                                                             
                 $ASGID = $_.ID                                                              # $ASGID is equal to current item .ID
                 $NICList = Get-AzNetworkInterface | Where-Object `
                     {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGID}           # Gets a list of nics in $ASGID
+                $NSGList = Get-AzNetworkSecurityGroup | Where-Object `
+                    {$_.SecurityRules.SourceApplicationSecurityGroups.ID -eq $ASGID -or `
+                    $_.SecurityRules.DestinationApplicationSecurityGroups.ID -eq $ASGID}    # Gets a list of all NSGs in $ASGID
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Number'=$ObjectNumber;                                                 # Object number
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
-                    'NicNames'=$NICList.Name                                                # Nic names
+                    'NicNames'=$NICList.Name;                                               # Nic names
+                    'NSGNames'=$NSGList.Name                                                # NSG names
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
                 $ASGID = $null                                                              # Clears $var
                 $NicList = $null                                                            # Clears $var
+                $NSGList = $null                                                            # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             :SelectAzureASG while ($true) {                                                 # Inner loop for selecting the application security group
@@ -74,11 +81,17 @@ function GetAzASG {                                                             
                     Write-Host 'ASG RG:         '$_.RG                                      # Write message to screen
                     Write-Host 'ASG Loc:        '$_.Location                                # Write message to screen
                     if ($_.NicNames) {                                                      # If current item .NicNames has a value
-                        Write-Host 'Associated NICS:'$_.NicNames                            # Write message to screen
+                        Write-Host 'Associated NICs:'$_.NicNames                            # Write message to screen
                     }                                                                       # End if ($_.NicNames)
                     else {                                                                  # Else if current item .NicNames is $null
-                        Write-Host 'Associated NICS: N/A'                                   # Write message to screen
+                        Write-Host 'Associated NICs: N/A'                                   # Write message to screen
                     }                                                                       # End else (if ($_.NicNames))
+                    if ($_.NSGNames) {                                                      # If current item .NSGNames has a value
+                        Write-Host 'Associated NSGs:'$_.NSGNames                            # Write message to screen
+                    }                                                                       # End if ($_.NSGNames)
+                    else {                                                                  # Else if current item .NSGNames is $null
+                        Write-Host 'Associated NSGs: N/A'                                   # Write message to screen
+                    }                                                                       # End else (if ($_.NSGNames))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
