@@ -29,7 +29,7 @@
         End GetAzASG
             Return function > Send $ASGObject
 }#>
-function GetAzASG {                                                                         # Function to get a application security group
+function GetAzASG {                                                                         # Function to get an application security group
     Begin {                                                                                 # Begin function
         :GetAzureASG while ($true) {                                                        # Outer loop for managing function
             Write-Host 'Gathering application security group info'                          # Write message to screen
@@ -52,7 +52,7 @@ function GetAzASG {                                                             
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
-                    'NICCount'=$NICList.Count                                               # Count of nic associated to the current application security group
+                    'NicNames'=$NICList.Name                                                # Nic names
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
@@ -71,14 +71,14 @@ function GetAzASG {                                                             
                     else  {                                                                 # Else if $Number is more than 9
                         Write-Host "[$Number]            "$_.Name                           # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'Rule RG:        '$_.RG                                      # Write message to screen
-                    Write-Host 'Rule Loc:       '$_.Location                                # Write message to screen
-                    if ($_.NicCount) {                                                      # If $NicCount has a value
-                        Write-Host 'Associated NICS:'$_.NICCount                            # Write message to screen
-                    }                                                                       # End if ($_.NicCount)
-                    else {                                                                  # Else if $NicCount is $null
+                    Write-Host 'ASG RG:         '$_.RG                                      # Write message to screen
+                    Write-Host 'ASG Loc:        '$_.Location                                # Write message to screen
+                    if ($_.NicNames) {                                                      # If current item .NicNames has a value
+                        Write-Host 'Associated NICS:'$_.NicNames                            # Write message to screen
+                    }                                                                       # End if ($_.NicNames)
+                    else {                                                                  # Else if current item .NicNames is $null
                         Write-Host 'Associated NICS: N/A'                                   # Write message to screen
-                    }                                                                       # End else (if ($_.NicCount))
+                    }                                                                       # End else (if ($_.NicNames))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
