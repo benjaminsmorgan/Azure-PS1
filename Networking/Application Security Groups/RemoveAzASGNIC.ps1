@@ -4,7 +4,7 @@ function RemoveAzASGNIC {                                                       
             $CallingFunction = 'RemoveASGNIC'                                               # Creates $CallingFunction
         }                                                                                   # End if (!$CallingFunction)
         :RemoveAzureASGNIC while ($true) {                                                  # Outer loop for managing function
-            $NicIPConfigObject,$NicObject  = GetAzNICIpConfig                               # Calls function and assigns output to $var
+            $NicIPConfigObject, $NicObject  = GetAzNICIpConfig                              # Calls function and assigns output to $var
             if (!$NicIPConfigObject) {                                                      # If $NicIPConfigObject is $null
                 Break RemoveAzureASGNIC                                                     # Breaks :RemoveAzureASGNIC
             }                                                                               # End if (!$NicIPConfigObject)
