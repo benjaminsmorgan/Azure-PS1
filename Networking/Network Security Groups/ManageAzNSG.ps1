@@ -667,14 +667,39 @@ function ListAzNSG {                                                            
             }                                                                               # End if (!$ObjectList)
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $SASGArray = @()                                                            # Creates $SASGArray
+                if ($_.SecurityRules.SourceApplicationSecurityGroups.ID) {                  # If current item .SecurityRules.SourceApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.SourceApplicationSecurityGroups.ID          # ASGList is equal to current item .SecurityRules.SourceApplicationSecurityGroups.ID 
+                    foreach ($SID in $ASGList) {                                            # For each item in $ASGList
+                        $SASGName = $SID                                                    # Isolates the ASG ID
+                        $SASGName = $SASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $SASGArray += $SASGName                                             # Adds $SASGName to $SASGArray
+                        $SASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($SID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.SourceApplicationSecurityGroups.ID)
+                $DASGArray = @()                                                            # Creates $DASGArray
+                if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID) {             # If current item .SecurityRules.DestinationApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.DestinationApplicationSecurityGroups.ID     # ASGList is equal to current item .SecurityRules.DestinationApplicationSecurityGroups.ID
+                    foreach ($DID in $ASGList) {                                            # For each item in $ASGList
+                        $DASGName = $DID                                                    # Isolates the ASG ID
+                        $DASGName = $DASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $DASGArray += $DASGName                                             # Adds $DASGName to $DASGArray
+                        $DASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($DID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID)
+                $SASGArray = $SASGArray | Select-Object -Unique                             # Filters out duplicate entries
+                $DASGArray = $DASGArray | Select-Object -Unique                             # Filters out duplicate entries
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
                     'SrulesCount'=$_.SecurityRules.Count;                                   # Security rules count
-                    'DrulesCount'=$_.DefaultSecurityRules.Count                             # Default security rules count
+                    'SASGNames'=$SASGArray;                                                 # Source app sec groups
+                    'DASGNames'=$DASGArray                                                  # Destination app sec groups
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $SASGArray = $null                                                          # Clears $var
+                $DASGArray = $null                                                          # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
@@ -682,7 +707,18 @@ function ListAzNSG {                                                            
                 Write-Host 'Rule RG:            '$_.RG                                      # Write message to screen
                 Write-Host 'Rule Loc:           '$_.Location                                # Write message to screen
                 Write-Host 'Sec Rules Count:    '$_.SrulesCount                             # Write message to screen
-                Write-Host 'Default Rules Count:'$_.DRulesCount                             # Write message to screen
+                if ($_.SASGNames) {                                                         # If current item .SASGnames has a value
+                    Write-Host 'Source ASGs:        '$_.SASGNames                           # Write message to screen
+                }                                                                           # End if ($_.SASGNames)
+                else {                                                                      # else if current item .SASGNames is $null
+                    Write-Host 'Source ASGs:         N/A'                                   # Write message to screen
+                }                                                                           # End else (if ($_.SASGNames))
+                if ($_.DASGNames) {                                                         # If current item .DASGnames has a value
+                    Write-Host 'Destination ASGs:   '$_.DASGNames                           # Write message to screen
+                }                                                                           # End if ($_.DASGNames)
+                else {                                                                      # else if current item .DASGNames is $null
+                    Write-Host 'Destination ASGs:    N/A'                                   # Write message to screen
+                }                                                                           # End else (if ($_.DASGNames))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -707,16 +743,41 @@ function GetAzNSG {                                                             
             $ObjectNumber = 1                                                               # Sets $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $SASGArray = @()                                                            # Creates $SASGArray
+                if ($_.SecurityRules.SourceApplicationSecurityGroups.ID) {                  # If current item .SecurityRules.SourceApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.SourceApplicationSecurityGroups.ID          # ASGList is equal to current item .SecurityRules.SourceApplicationSecurityGroups.ID 
+                    foreach ($SID in $ASGList) {                                            # For each item in $ASGList
+                        $SASGName = $SID                                                    # Isolates the ASG ID
+                        $SASGName = $SASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $SASGArray += $SASGName                                             # Adds $SASGName to $SASGArray
+                        $SASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($SID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.SourceApplicationSecurityGroups.ID)
+                $DASGArray = @()                                                            # Creates $DASGArray
+                if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID) {             # If current item .SecurityRules.DestinationApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.DestinationApplicationSecurityGroups.ID     # ASGList is equal to current item .SecurityRules.DestinationApplicationSecurityGroups.ID
+                    foreach ($DID in $ASGList) {                                            # For each item in $ASGList
+                        $DASGName = $DID                                                    # Isolates the ASG ID
+                        $DASGName = $DASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $DASGArray += $DASGName                                             # Adds $DASGName to $DASGArray
+                        $DASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($DID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID)
+                $SASGArray = $SASGArray | Select-Object -Unique                             # Filters out duplicate entries
+                $DASGArray = $DASGArray | Select-Object -Unique                             # Filters out duplicate entries
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Number'=$ObjectNumber;                                                 # Object number
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
                     'SrulesCount'=$_.SecurityRules.Count;                                   # Security rules count
-                    'DrulesCount'=$_.DefaultSecurityRules.Count                             # Default security rules count
+                    'SASGNames'=$SASGArray;                                                 # Source app sec groups
+                    'DASGNames'=$DASGArray                                                  # Destination app sec groups
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
+                $SASGArray = $null                                                          # Clears $var
+                $DASGArray = $null                                                          # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             :SelectAzureNSG while ($true) {                                                 # Inner loop for selecting the network security group
@@ -733,7 +794,18 @@ function GetAzNSG {                                                             
                     Write-Host 'Rule RG:            '$_.RG                                  # Write message to screen
                     Write-Host 'Rule Loc:           '$_.Location                            # Write message to screen
                     Write-Host 'Sec Rules Count:    '$_.SrulesCount                         # Write message to screen
-                    Write-Host 'Default Rules Count:'$_.DRulesCount                         # Write message to screen
+                    if ($_.SASGNames) {                                                     # If current item .SASGnames has a value
+                        Write-Host 'Source ASGs:        '$_.SASGNames                       # Write message to screen
+                    }                                                                       # End if ($_.SASGNames)
+                    else {                                                                  # else if current item .SASGNames is $null
+                        Write-Host 'Source ASGs:         N/A'                               # Write message to screen
+                    }                                                                       # End else (if ($_.SASGNames))
+                    if ($_.DASGNames) {                                                     # If current item .DASGnames has a value
+                        Write-Host 'Destination ASGs:   '$_.DASGNames                       # Write message to screen
+                    }                                                                       # End if ($_.DASGNames)
+                    else {                                                                  # else if current item .DASGNames is $null
+                        Write-Host 'Destination ASGs:    N/A'                               # Write message to screen
+                    }                                                                       # End else (if ($_.DASGNames))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
