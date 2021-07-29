@@ -2115,19 +2115,48 @@ function ListAzNICIpConfig {                                                    
                     $NICName = $_.Name                                                      # $NICName is equal to current item .Name
                     $NicRG = $_.ResourceGroupName                                           # Gets the NIC resource group
                     $NicVM = $_.VirtualMachine.ID                                           # Gets the NIC VM if attached
+                    $NicNSG = $_.NetworkSecurityGroup.ID                                    # Gets the NIC NSG if attached
                     if ($NicVM) {                                                           # If $NicVM has a value 
                         $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}              # Gets the currently attached VM
                     }                                                                       # End if ($NicVM)
+                    if ($NicNSG) {                                                          # If $NicNSG has a value
+                        $NSGObject = Get-AzNetworkSecurityGroup | Where-Object `
+                            {$_.ID -eq $NicNSG}                                             # Gets the currently attached NSG
+                    }                                                                       # End if ($NicNSG)
                     $IPConfigList = $_.IPConfigurations                                     # IPConfigList is equal to current item .IPConfigurations
                     foreach ($_ in $IPConfigList) {                                         # For each item in $IPConfigList
+                        $ASGName = @()                                                      # Creates ASGName array
+                        if ($_.ApplicationSecurityGroups.ID) {                              # If current item .ApplicationSecurityGroups.ID has a value
+                            $ASGID = $_.ApplicationSecurityGroups.ID                        # Isolates the ASG IDs
+                            foreach ($ID in $ASGID) {                                       # For each item in $ASGID
+                                $ASGIDSplit = $ID                                           # ASGID is equal to current item
+                                $ASGIDSplit = $ASGIDSplit.Split('/')[-1]                    # Isolates the ASG name
+                                $ASGName += $ASGIDSplit                                     # Adds ASGIDSplit to $ASGName
+                                $ASGIDSplit = $null                                         # Clears $var                      
+                            }                                                               # End foreach ($_ in $ASGID)
+                            $ASGID = $null                                                  # Clears $var
+                        }                                                                   # End if ($_.ApplicationSecurityGroups.ID)          
                         $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput            
-                            'Name'=$_.Name;'PrivIP'=$_.PrivateIPAddress;`
-                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                            'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                            'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name        # Collects the information for the array
+                            'Name'=$_.Name;                                                 # Nic IP config name
+                            'PrivIP'=$_.PrivateIPAddress;                                   # Nic IP config private IP address
+                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;                      # Nic IP config private IP allocation method
+                            'PubIP'=$_.PublicIPAddress;                                     # Nic IP config public IP address
+                            'Pri'=$_.Primary;                                               # Nic IP config primary status
+                            'NICName'=$NICName;                                             # Nic name
+                            'NICRG'=$NicRG;                                                 # Nic RG name
+                            'NICVM'=$VMObject.Name;                                         # Nic VM name
+                            'NICNSG'=$NSGObject.Name;                                       # Nic NSG name
+                            'NICASG'=$ASGName                                               # Nic IP config ASGs
                         }                                                                   # End $ObjectInput = [PSCustomObject]
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
+                        $ASGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $IPConfigList)
+                    $NICName = $null                                                        # Clears $var
+                    $NicRG = $null                                                          # Clears $var
+                    $NicVM = $null                                                          # Clears $var
+                    $VMObject = $null                                                       # Clears $var
+                    $NicNSG = $null                                                         # Clears $var
+                    $NSGObject = $null                                                      # Clears $var
                 }                                                                           # End foreach ($_ in $ObjectList)
             }                                                                               # End else (if (!$ObjectList))
             Write-Host 'Gathering scale set interfaces'                                     # Write message to screen
@@ -2142,17 +2171,45 @@ function ListAzNICIpConfig {                                                    
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
                         $NicName = $_.Name                                                  # $NicName is equal to current item .Name
                         $NicRG = $_.ResourceGroupName                                       # $NicRG is equal to current item .ResourceGroupName
+                        $NicNSG = $_.NetworkSecurityGroup.ID                                # Gets the NIC NSG if attached
+                        if ($NicNSG) {                                                      # If $NicNSG has a value
+                            $NSGObject = Get-AzNetworkSecurityGroup | Where-Object `
+                                {$_.ID -eq $NicNSG}                                         # Gets the currently attached NSG
+                        }                                                                   # End if ($NicNSG)    
                         $IPConfigList = $_.IPConfigurations                                 # IPConfigList is equal to current item .IPConfigurations
                         foreach ($_ in $IPConfigList) {                                     # For each item in $IPConfigList
+                            $ASGName = @()                                                  # Creates ASGName array
+                            if ($_.ApplicationSecurityGroups.ID) {                          # If current item .ApplicationSecurityGroups.ID has a value
+                                $ASGID = $_.ApplicationSecurityGroups.ID                    # Isolates the ASG IDs
+                                foreach ($ID in $ASGID) {                                   # For each item in $ASGID
+                                    $ASGIDSplit = $ID                                       # ASGID is equal to current item
+                                    $ASGIDSplit = $ASGIDSplit.Split('/')[-1]                # Isolates the ASG name
+                                    $ASGName += $ASGIDSplit                                 # Adds ASGIDSplit to $ASGName
+                                    $ASGIDSplit = $null                                     # Clears $var                      
+                                }                                                           # End foreach ($_ in $ASGID)
+                                $ASGID = $null                                              # Clears $var
+                            }                                                               # End if ($_.ApplicationSecurityGroups.ID) 
                             $ObjectInput = [PSCustomObject]@{                               # Creates $ObjectInput            
-                                'Name'=$_.Name;'PrivIP'=$_.PrivateIPAddress;`
-                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                                'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                                'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name;`
-                                'Type'='ScaleSetNic';'VmssName'=$VmssName;'VmssRG'=$VmssRG  # Collects the information for the array
+                                'Name'=$_.Name;                                             # Nic IP config name
+                                'PrivIP'=$_.PrivateIPAddress;                               # Nic IP config private IP address
+                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;                  # Nic IP config private allocation method
+                                'PubIP'=$_.PublicIPAddress;                                 # Nic IP config public IP
+                                'Pri'=$_.Primary;                                           # Nic IP config primary status
+                                'NICName'=$NICName;                                         # Nic name
+                                'NICRG'=$NicRG;                                             # Nic rg name
+                                'Type'='ScaleSetNic';                                       # Nic IP config type
+                                'VmssName'=$VmssName;                                       # Vmss Name
+                                'VmssRG'=$VmssRG;                                           # Vmss RG
+                                'Etag'=$_.Etag;                                             # Nic IP config Etag
+                                'NICNSG'=$NSGObject.Name;                                   # Nic NSG name
+                                'NICASG'=$ASGName                                           # Nic IP config ASGs
                             }                                                               # End $ObjectInput = [PSCustomObject]
                             $ObjectArray.Add($ObjectInput) | Out-Null                       # Loads item into array, out-null removes write to screen
+                            $ASGName = $null                                                # Clears $var
                         }                                                                   # End foreach ($_ in $IPConfigList)
+                        $NicName = $null                                                    # Clears $var
+                        $NicRG = $null                                                      # Clears $var
+                        $NicNSG = $null                                                     # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssObject)
             }                                                                               # End if ($VmssObject)
@@ -2183,6 +2240,18 @@ function ListAzNICIpConfig {                                                    
                 if ($_.NICVM) {                                                             # If current item .NICVM has a value
                     Write-Host 'Attached VM:          '$_.NicVM                             # Write message to screen
                 }                                                                           # End if ($_.NICVM)
+                if ($_.NicNSG) {                                                            # If current item .NicNSG has a value
+                    Write-Host 'Attached NSG:         '$_.NicNSG                            # Write message to screen
+                }                                                                           # End if ($_.NicNSG)
+                else {                                                                      # Else if current item .NicNSG is $null
+                    Write-Host 'Attached NSG:          N/A'                                 # Write message to screen
+                }                                                                           # End else (if ($_.NicNSG))
+                if ($_.NICASG) {                                                            # If current item .NICASG has a value
+                    Write-Host 'App Security Groups:  '$_.NicASG                            # Write message to screen
+                }                                                                           # End if ($_.NICASG)
+                else {                                                                      # Else if current item .NICASG is $null
+                    Write-Host 'App Security Groups:   N/A'                                 # Write message to screen
+                }                                                                           # End else (if ($_.NICASG))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -2209,25 +2278,50 @@ function GetAzNICIpConfig {                                                     
                     $NICName = $_.Name                                                      # $NICName is equal to current item .Name
                     $NicRG = $_.ResourceGroupName                                           # Gets the NIC resource group
                     $NicVM = $_.VirtualMachine.ID                                           # Gets the NIC VM if attached
+                    $NicNSG = $_.NetworkSecurityGroup.ID                                    # Gets the NIC NSG if attached
                     if ($NicVM) {                                                           # If $NicVM has a value 
                         $VMObject = Get-AzVM | Where-Object {$_.ID -eq $NICVM}              # Gets the currently attached VM
                     }                                                                       # End if ($NicVM)
+                    if ($NicNSG) {                                                          # If $NicNSG has a value
+                        $NSGObject = Get-AzNetworkSecurityGroup | Where-Object `
+                            {$_.ID -eq $NicNSG}                                             # Gets the currently attached NSG
+                    }                                                                       # End if ($NicNSG)
                     $IPConfigList = $_.IPConfigurations                                     # IPConfigList is equal to current item .IPConfigurations
                     foreach ($_ in $IPConfigList) {                                         # For each item in $IPConfigList
+                        $ASGName = @()                                                      # Creates ASGName array
+                        if ($_.ApplicationSecurityGroups.ID) {                              # If current item .ApplicationSecurityGroups.ID has a value
+                            $ASGID = $_.ApplicationSecurityGroups.ID                        # Isolates the ASG IDs
+                            foreach ($ID in $ASGID) {                                       # For each item in $ASGID
+                                $ASGIDSplit = $ID                                           # ASGID is equal to current item
+                                $ASGIDSplit = $ASGIDSplit.Split('/')[-1]                    # Isolates the ASG name
+                                $ASGName += $ASGIDSplit                                     # Adds ASGIDSplit to $ASGName
+                                $ASGIDSplit = $null                                         # Clears $var                      
+                            }                                                               # End foreach ($_ in $ASGID)
+                            $ASGID = $null                                                  # Clears $var
+                        }                                                                   # End if ($_.ApplicationSecurityGroups.ID)                                                                
                         $ObjectInput = [PSCustomObject]@{                                   # Creates $ObjectInput            
-                            'Number'=$ObjectNumber;'Name'=$_.Name;`
-                            'PrivIP'=$_.PrivateIPAddress;`
-                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                            'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                            'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name        # Collects the information for the array
+                            'Number'=$ObjectNumber;                                         # Array item number
+                            'Name'=$_.Name;                                                 # Nic IP config name
+                            'PrivIP'=$_.PrivateIPAddress;                                   # Nic IP config private IP address
+                            'PrivIPAllo'=$_.PrivateIpAllocationMethod;                      # Nic IP config private IP allocation method
+                            'PubIP'=$_.PublicIPAddress;                                     # Nic IP config public IP address
+                            'Pri'=$_.Primary;                                               # Nic IP config primary status
+                            'NICName'=$NICName;                                             # Nic name
+                            'NICRG'=$NicRG;                                                 # Nic RG name
+                            'NICVM'=$VMObject.Name;                                         # Nic VM name
+                            'NICNSG'=$NSGObject.Name;                                       # Nic NSG name
+                            'NICASG'=$ASGName                                               # Nic IP config ASGs
                         }                                                                   # End $ObjectInput = [PSCustomObject]
                         $ObjectArray.Add($ObjectInput) | Out-Null                           # Loads item into array, out-null removes write to screen
                         $ObjectNumber = $ObjectNumber +1                                    # Increments $ObjectNumber up by 1
+                        $ASGName = $null                                                    # Clears $var
                     }                                                                       # End foreach ($_ in $IPConfigList)
                     $NICName = $null                                                        # Clears $var
                     $NicRG = $null                                                          # Clears $var
                     $NicVM = $null                                                          # Clears $var
                     $VMObject = $null                                                       # Clears $var
+                    $NicNSG = $null                                                         # Clears $var
+                    $NSGObject = $null                                                      # Clears $var
                 }                                                                           # End foreach ($_ in $ObjectList)
             }                                                                               # End else (if (!$ObjectList))
             Write-Host 'Gathering scale set interfaces'                                     # Write message to screen
@@ -2242,20 +2336,47 @@ function GetAzNICIpConfig {                                                     
                     foreach ($_ in $NicList) {                                              # For each item in $NicList
                         $NicName = $_.Name                                                  # $NicName is equal to current item .Name
                         $NicRG = $_.ResourceGroupName                                       # $NicRG is equal to current item .ResourceGroupName
+                        $NicNSG = $_.NetworkSecurityGroup.ID                                # Gets the NIC NSG if attached
+                        if ($NicNSG) {                                                      # If $NicNSG has a value
+                            $NSGObject = Get-AzNetworkSecurityGroup | Where-Object `
+                                {$_.ID -eq $NicNSG}                                         # Gets the currently attached NSG
+                        }                                                                   # End if ($NicNSG)    
                         $IPConfigList = $_.IPConfigurations                                 # IPConfigList is equal to current item .IPConfigurations
                         foreach ($_ in $IPConfigList) {                                     # For each item in $IPConfigList
+                            $ASGName = @()                                                  # Creates ASGName array
+                            if ($_.ApplicationSecurityGroups.ID) {                          # If current item .ApplicationSecurityGroups.ID has a value
+                                $ASGID = $_.ApplicationSecurityGroups.ID                    # Isolates the ASG IDs
+                                foreach ($ID in $ASGID) {                                   # For each item in $ASGID
+                                    $ASGIDSplit = $ID                                       # ASGID is equal to current item
+                                    $ASGIDSplit = $ASGIDSplit.Split('/')[-1]                # Isolates the ASG name
+                                    $ASGName += $ASGIDSplit                                 # Adds ASGIDSplit to $ASGName
+                                    $ASGIDSplit = $null                                     # Clears $var                      
+                                }                                                           # End foreach ($_ in $ASGID)
+                                $ASGID = $null                                              # Clears $var
+                            }                                                               # End if ($_.ApplicationSecurityGroups.ID)                                                                
                             $ObjectInput = [PSCustomObject]@{                               # Creates $ObjectInput            
-                                'Number'=$ObjectNumber;'Name'=$_.Name;`
-                                'PrivIP'=$_.PrivateIPAddress;`
-                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;`
-                                'PubIP'=$_.PublicIPAddress;'Pri'=$_.Primary;`
-                                'NICName'=$NICName;'NICRG'=$NicRG;'NICVM'=$VMObject.Name;`
-                                'Type'='ScaleSetNic';'VmssName'=$VmssName;'VmssRG'=$VmssRG;`
-                                'Etag'=$_.Etag                                              # Collects the information for the array
+                                'Number'=$ObjectNumber;                                     # Array number
+                                'Name'=$_.Name;                                             # Nic IP config name
+                                'PrivIP'=$_.PrivateIPAddress;                               # Nic IP config private IP address
+                                'PrivIPAllo'=$_.PrivateIpAllocationMethod;                  # Nic IP config private allocation method
+                                'PubIP'=$_.PublicIPAddress;                                 # Nic IP config public IP
+                                'Pri'=$_.Primary;                                           # Nic IP config primary status
+                                'NICName'=$NICName;                                         # Nic name
+                                'NICRG'=$NicRG;                                             # Nic rg name
+                                'Type'='ScaleSetNic';                                       # Nic IP config type
+                                'VmssName'=$VmssName;                                       # Vmss Name
+                                'VmssRG'=$VmssRG;                                           # Vmss RG
+                                'Etag'=$_.Etag;                                             # Nic IP config Etag
+                                'NICNSG'=$NSGObject.Name;                                   # Nic NSG name
+                                'NICASG'=$ASGName                                           # Nic IP config ASGs
                             }                                                               # End $ObjectInput = [PSCustomObject]
                             $ObjectArray.Add($ObjectInput) | Out-Null                       # Loads item into array, out-null removes write to screen
                             $ObjectNumber = $ObjectNumber +1                                # Increments $ObjectNumber up by 1
+                            $ASGName = $null                                                # Clears $var
                         }                                                                   # End foreach ($_ in $IPConfigList)
+                        $NicName = $null                                                    # Clears $var
+                        $NicRG = $null                                                      # Clears $var
+                        $NicNSG = $null                                                     # Clears $var
                     }                                                                       # End foreach ($_ in $NicList)
                 }                                                                           # End foreach ($_ in $VmssObject)
             }                                                                               # End if ($VmssObject)
@@ -2295,6 +2416,21 @@ function GetAzNICIpConfig {                                                     
                     if ($_.NICVM) {                                                         # If current item .NICVM has a value
                         Write-Host 'Attached VM:          '$_.NicVM                         # Write message to screen
                     }                                                                       # End if ($_.NICVM)
+                    else {                                                                  # Else if current item .NICVM is $null
+                        Write-Host 'Attached VM:           N/A'                             # Write message to screen
+                    }                                                                       # End else (if ($_.NICVM))
+                    if ($_.NicNSG) {                                                        # If current item .NicNSG has a value
+                        Write-Host 'Attached NSG:         '$_.NicNSG                        # Write message to screen
+                    }                                                                       # End if ($_.NicNSG)
+                    else {                                                                  # Else if current item .NicNSG is $null
+                        Write-Host 'Attached NSG:          N/A'                             # Write message to screen
+                    }                                                                       # End else (if ($_.NicNSG))
+                    if ($_.NICASG) {                                                        # If current item .NICASG has a value
+                        Write-Host 'App Security Groups:  '$_.NicASG                        # Write message to screen
+                    }                                                                       # End if ($_.NICASG)
+                    else {                                                                  # Else if current item .NICASG is $null
+                        Write-Host 'App Security Groups:   N/A'                             # Write message to screen
+                    }                                                                       # End else (if ($_.NICASG))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
@@ -9817,14 +9953,39 @@ function ListAzNSG {                                                            
             }                                                                               # End if (!$ObjectList)
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $SASGArray = @()                                                            # Creates $SASGArray
+                if ($_.SecurityRules.SourceApplicationSecurityGroups.ID) {                  # If current item .SecurityRules.SourceApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.SourceApplicationSecurityGroups.ID          # ASGList is equal to current item .SecurityRules.SourceApplicationSecurityGroups.ID 
+                    foreach ($SID in $ASGList) {                                            # For each item in $ASGList
+                        $SASGName = $SID                                                    # Isolates the ASG ID
+                        $SASGName = $SASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $SASGArray += $SASGName                                             # Adds $SASGName to $SASGArray
+                        $SASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($SID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.SourceApplicationSecurityGroups.ID)
+                $DASGArray = @()                                                            # Creates $DASGArray
+                if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID) {             # If current item .SecurityRules.DestinationApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.DestinationApplicationSecurityGroups.ID     # ASGList is equal to current item .SecurityRules.DestinationApplicationSecurityGroups.ID
+                    foreach ($DID in $ASGList) {                                            # For each item in $ASGList
+                        $DASGName = $DID                                                    # Isolates the ASG ID
+                        $DASGName = $DASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $DASGArray += $DASGName                                             # Adds $DASGName to $DASGArray
+                        $DASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($DID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID)
+                $SASGArray = $SASGArray | Select-Object -Unique                             # Filters out duplicate entries
+                $DASGArray = $DASGArray | Select-Object -Unique                             # Filters out duplicate entries
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
                     'SrulesCount'=$_.SecurityRules.Count;                                   # Security rules count
-                    'DrulesCount'=$_.DefaultSecurityRules.Count                             # Default security rules count
+                    'SASGNames'=$SASGArray;                                                 # Source app sec groups
+                    'DASGNames'=$DASGArray                                                  # Destination app sec groups
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
+                $SASGArray = $null                                                          # Clears $var
+                $DASGArray = $null                                                          # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
@@ -9832,7 +9993,18 @@ function ListAzNSG {                                                            
                 Write-Host 'Rule RG:            '$_.RG                                      # Write message to screen
                 Write-Host 'Rule Loc:           '$_.Location                                # Write message to screen
                 Write-Host 'Sec Rules Count:    '$_.SrulesCount                             # Write message to screen
-                Write-Host 'Default Rules Count:'$_.DRulesCount                             # Write message to screen
+                if ($_.SASGNames) {                                                         # If current item .SASGnames has a value
+                    Write-Host 'Source ASGs:        '$_.SASGNames                           # Write message to screen
+                }                                                                           # End if ($_.SASGNames)
+                else {                                                                      # else if current item .SASGNames is $null
+                    Write-Host 'Source ASGs:         N/A'                                   # Write message to screen
+                }                                                                           # End else (if ($_.SASGNames))
+                if ($_.DASGNames) {                                                         # If current item .DASGnames has a value
+                    Write-Host 'Destination ASGs:   '$_.DASGNames                           # Write message to screen
+                }                                                                           # End if ($_.DASGNames)
+                else {                                                                      # else if current item .DASGNames is $null
+                    Write-Host 'Destination ASGs:    N/A'                                   # Write message to screen
+                }                                                                           # End else (if ($_.DASGNames))
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
             Pause                                                                           # Pauses all actions for operator input
@@ -9857,16 +10029,41 @@ function GetAzNSG {                                                             
             $ObjectNumber = 1                                                               # Sets $ObjectNumber
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
+                $SASGArray = @()                                                            # Creates $SASGArray
+                if ($_.SecurityRules.SourceApplicationSecurityGroups.ID) {                  # If current item .SecurityRules.SourceApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.SourceApplicationSecurityGroups.ID          # ASGList is equal to current item .SecurityRules.SourceApplicationSecurityGroups.ID 
+                    foreach ($SID in $ASGList) {                                            # For each item in $ASGList
+                        $SASGName = $SID                                                    # Isolates the ASG ID
+                        $SASGName = $SASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $SASGArray += $SASGName                                             # Adds $SASGName to $SASGArray
+                        $SASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($SID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.SourceApplicationSecurityGroups.ID)
+                $DASGArray = @()                                                            # Creates $DASGArray
+                if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID) {             # If current item .SecurityRules.DestinationApplicationSecurityGroups.ID has a value
+                    $ASGList = $_.SecurityRules.DestinationApplicationSecurityGroups.ID     # ASGList is equal to current item .SecurityRules.DestinationApplicationSecurityGroups.ID
+                    foreach ($DID in $ASGList) {                                            # For each item in $ASGList
+                        $DASGName = $DID                                                    # Isolates the ASG ID
+                        $DASGName = $DASGName.Split('/')[-1]                                # Isolates the ASG name
+                        $DASGArray += $DASGName                                             # Adds $DASGName to $DASGArray
+                        $DASGName = $null                                                   # Clears $var
+                    }                                                                       # End foreach ($DID in $ASGList)
+                }                                                                           # End if ($_.SecurityRules.DestinationApplicationSecurityGroups.ID)
+                $SASGArray = $SASGArray | Select-Object -Unique                             # Filters out duplicate entries
+                $DASGArray = $DASGArray | Select-Object -Unique                             # Filters out duplicate entries
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Number'=$ObjectNumber;                                                 # Object number
                     'Name'=$_.Name;                                                         # Rule name
                     'RG'=$_.ResourceGroupName;                                              # Rule resource group name
                     'Location'=$_.Location;                                                 # Rule location
                     'SrulesCount'=$_.SecurityRules.Count;                                   # Security rules count
-                    'DrulesCount'=$_.DefaultSecurityRules.Count                             # Default security rules count
+                    'SASGNames'=$SASGArray;                                                 # Source app sec groups
+                    'DASGNames'=$DASGArray                                                  # Destination app sec groups
                 }                                                                           # End $ObjectInput = [PSCustomObject]@
                 $ObjectArray.Add($ObjectInput) | Out-Null                                   # Adds $ObjectInput to $ObjectArray
                 $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber up by 1
+                $SASGArray = $null                                                          # Clears $var
+                $DASGArray = $null                                                          # Clears $var
             }                                                                               # End foreach ($_ in $ObjectList)
             Clear-Host                                                                      # Clears screen
             :SelectAzureNSG while ($true) {                                                 # Inner loop for selecting the network security group
@@ -9883,7 +10080,18 @@ function GetAzNSG {                                                             
                     Write-Host 'Rule RG:            '$_.RG                                  # Write message to screen
                     Write-Host 'Rule Loc:           '$_.Location                            # Write message to screen
                     Write-Host 'Sec Rules Count:    '$_.SrulesCount                         # Write message to screen
-                    Write-Host 'Default Rules Count:'$_.DRulesCount                         # Write message to screen
+                    if ($_.SASGNames) {                                                     # If current item .SASGnames has a value
+                        Write-Host 'Source ASGs:        '$_.SASGNames                       # Write message to screen
+                    }                                                                       # End if ($_.SASGNames)
+                    else {                                                                  # else if current item .SASGNames is $null
+                        Write-Host 'Source ASGs:         N/A'                               # Write message to screen
+                    }                                                                       # End else (if ($_.SASGNames))
+                    if ($_.DASGNames) {                                                     # If current item .DASGnames has a value
+                        Write-Host 'Destination ASGs:   '$_.DASGNames                       # Write message to screen
+                    }                                                                       # End if ($_.DASGNames)
+                    else {                                                                  # else if current item .DASGNames is $null
+                        Write-Host 'Destination ASGs:    N/A'                               # Write message to screen
+                    }                                                                       # End else (if ($_.DASGNames))
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
