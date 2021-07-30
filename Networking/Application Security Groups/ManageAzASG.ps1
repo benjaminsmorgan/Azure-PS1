@@ -54,12 +54,12 @@
 function ManageAzASG {                                                                      # Function for managing application security groups
     Begin {                                                                                 # Begin function
         :ManageAzureASG while ($true) {                                                     # Outer loop for managing function
-            Write-Host 'Manage Application Secruity Groups'                                 # Write message to screen
+            Write-Host 'Manage Application Security Groups'                                 # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] New Application Secruity Group'                                 # Write message to screen
-            Write-Host '[2] List Application Secruity Groups'                               # Write message to screen
-            Write-Host '[3] Remove Application Secruity Group'                              # Write message to screen
+            Write-Host '[1] New Application Security Group'                                 # Write message to screen
+            Write-Host '[2] List Application Security Groups'                               # Write message to screen
+            Write-Host '[3] Remove Application Security Group'                              # Write message to screen
             Write-Host '[4] Manage NIC ASG Associations'                                    # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator selection for management function
@@ -68,15 +68,15 @@ function ManageAzASG {                                                          
                 Break ManageAzureASG                                                        # Breaks :ManageAzureASG
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
-                Write-Host 'New Application Secruity Group'                                 # Write message to screen
+                Write-Host 'New Application Security Group'                                 # Write message to screen
                 NewAzASG                                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1') 
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
-                Write-Host 'List Application Secruity Groups'                               # Write message to screen
+                Write-Host 'List Application Security Groups'                               # Write message to screen
                 ListAzASG                                                                   # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2') 
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host 'Remove Application Secruity Group'                              # Write message to screen
+                Write-Host 'Remove Application Security Group'                              # Write message to screen
                 RemoveAzASG                                                                 # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3') 
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '3'
@@ -447,7 +447,7 @@ function RemoveAzASG {                                                          
 function ManageAzASGNIC {                                                                   # Function for managing application security group NIC associations
     Begin {                                                                                 # Begin function
         :ManageAzureASGNic while ($true) {                                                  # Outer loop for managing function
-            Write-Host 'Manage Application Secruity Group NIC Associations'                 # Write message to screen
+            Write-Host 'Manage Application Security Group NIC Associations'                 # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New ASG NIC Association'                                        # Write message to screen
@@ -497,6 +497,22 @@ function AddAzASGNIC {                                                          
             if (!$ASGObject) {                                                              # If $ASGObject is $null
                 Break AddAzureASGNIC                                                        # Breaks :AddAzureASGNIC
             }                                                                               # End if (!$ASGObject)
+            $ASGNICList = Get-AzNetworkInterface | Where-Object `
+                {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGObject.ID}        # Gets a list of all nics on ASGObject
+            if ($ASGNICList) {                                                              # If $ASGNICList has a value
+                $ASGVNet = $ASGNICList.IpConfigurations.subnet.ID.split('/')[8]             # Isolates the ASG NIC vnet name
+                $NICVnet = $VnetObject.ID.Split('/')[-1]                                    # Isolates the NIC vnet name
+                if ($ASGVNet -ne $NICVnet) {                                                # If $ASGVnet does not equal $NICVnet
+                    Write-Host 'This NIC is in a different VNet'                            # Write message to screen
+                    Write-Host 'then other NICs currently associated'                       # Write message to screen
+                    Write-Host 'with the application security group'                        # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input    
+                    Break AddAzureASGNIC                                                    # Breaks :AddAzureASGNIC
+                }
+            }
             $AppendedObjectList = @()                                                       # Creates $AppendedObjectList
             $AppendedObjectList += $ASGObject.ID                                            # Adds $ASGObject.ID to $AppendedObjectList
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
@@ -848,50 +864,6 @@ function GetAzResourceGroup {                                                   
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzResourceGroup
-function RemoveASGNIC {                                                                     # Function to remove an application security group from a nic
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction = 'RemoveASGNIC'                                               # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-    $NicIPConfigObject,$NicObject  = GetAzNICIpConfig
-    $ASGList = $NicIPConfigObject.ApplicationSecurityGroups.ID
-    $ObjectNumber = 1                                                               # Sets $ObjectNumber
-    [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
-    foreach ($_ in $ASGList) {                                                   # For each item in $ObjectList
-        $ASGName = $_
-        $ASGName =$ASGName.split('/')[-1]
-        $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
-            'Number'=$ObjectNumber
-            'ID'=$_
-            'Name'=$ASGName
-        }
-        $ObjectArray.Add($ObjectInput) | Out-Null
-        $ObjectNumber = $ObjectNumber + 1
-        $ASGName = $null
-    }
-    :SelectAzureASG while ($true) {
-        foreach ($_ in $ObjectArray) {
-            Write-Host $_.Number $_.name
-            Write-Host $_.ID
-        }
-        $OpSelect = Read-Host 'Option [#]'
-        if ($OpSelect -in $ObjectArray.Number) {
-            $ASGObject = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}
-            $IndexNumber = $ASGList.Indexof($ASGObject.ID)
-            Break SelectAzureASG
-        }
-    }
-    $AppendedASGList = @()
-    foreach ($_ in $ASGList) {
-        if ($_ -ne $ASGObject.ID) {
-            $AppendedASGList += $_
-        }
-    }
-    Set-AzNetworkInterfaceIpConfig -NetworkInterface $NicObject -Name $NicIPConfigObject.Name -ApplicationSecurityGroupId $AppendedASGList
-    $NicObject | Set-AzNetworkInterface
-    }
-}                                                                                           # End function RemoveASGNIC
-
 function GetAzNICIpConfig {                                                                 # Function to get network interface config
     Begin {                                                                                 # Begin function
         :GetAzureNICIpConfig while ($true) {                                                # Outer loop for managing function
