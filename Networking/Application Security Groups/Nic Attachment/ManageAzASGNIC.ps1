@@ -3,6 +3,7 @@
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.2.1
     Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.2.1
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
@@ -39,7 +40,6 @@
 <# Process Flow {
     function
         Call ManageAzASGNIC > Get $null
-
             Call AddAzASGNIC > Get $null
                 Call GetAzNetworkInterface > Get $NicObject
                 End GetAzNetworkInterface
@@ -49,16 +49,22 @@
                     Return AddAzASGNIC > Send $ASGObject                
             End AddAzASGNIC
                 Return ManageAzASGNIC > Send $null
-
-
-
+            Call ListAzASGNIC > Get $null              
+            End ListAzASGNIC
+                Return ManageAzASGNIC > Send $null     
+            Call RemoveAzASGNIC > Get $null
+                Call GetAzASGNIC > Get $NicObject              
+                End GetAzASGNIC
+                    Return RemoveAzASGNIC > Send $NicObject
+            End RemoveAzASGNIC
+                Return ManageAzASGNIC > Send $null
         End ManageAzASGNIC
             Return function > Send $null
 }#>
 function ManageAzASGNIC {                                                                   # Function for managing application security group NIC associations
     Begin {                                                                                 # Begin function
         :ManageAzureASGNic while ($true) {                                                  # Outer loop for managing function
-            Write-Host 'Manage Application Secruity Group NIC Associations'                 # Write message to screen
+            Write-Host 'Manage Application Security Group NIC Associations'                 # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] New ASG NIC Association'                                        # Write message to screen
@@ -76,7 +82,7 @@ function ManageAzASGNIC {                                                       
             }                                                                               # End elseif ($OpSelect -eq '1') 
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
                 Write-Host 'List ASG NIC Associations'                                      # Write message to screen
-                ListAzASGNIC                                                                   # Calls function
+                ListAzASGNIC                                                                # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2') 
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
                 Write-Host 'Remove ASG NIC Association'                                     # Write message to screen
