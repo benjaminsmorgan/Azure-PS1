@@ -13668,6 +13668,22 @@ function AddAzASGNIC {                                                          
             if (!$ASGObject) {                                                              # If $ASGObject is $null
                 Break AddAzureASGNIC                                                        # Breaks :AddAzureASGNIC
             }                                                                               # End if (!$ASGObject)
+            $ASGNICList = Get-AzNetworkInterface | Where-Object `
+                {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGObject.ID}        # Gets a list of all nics on ASGObject
+            if ($ASGNICList) {                                                              # If $ASGNICList has a value
+                $ASGVNet = $ASGNICList.IpConfigurations.subnet.ID.split('/')[8]             # Isolates the ASG NIC vnet name
+                $NICVnet = $VnetObject.ID.Split('/')[-1]                                    # Isolates the NIC vnet name
+                if ($ASGVNet -ne $NICVnet) {                                                # If $ASGVnet does not equal $NICVnet
+                    Write-Host 'This NIC is in a different VNet'                            # Write message to screen
+                    Write-Host 'then other NICs currently associated'                       # Write message to screen
+                    Write-Host 'with the application security group'                        # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input    
+                    Break AddAzureASGNIC                                                    # Breaks :AddAzureASGNIC
+                }
+            }
             $AppendedObjectList = @()                                                       # Creates $AppendedObjectList
             $AppendedObjectList += $ASGObject.ID                                            # Adds $ASGObject.ID to $AppendedObjectList
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
