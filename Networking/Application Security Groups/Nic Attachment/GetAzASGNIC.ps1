@@ -22,19 +22,12 @@
     $ASGList:                   Current item .ASGNames
     $OpSelect:                  Operator input to select the NIC
     $NicObject                  NIC object
-    *Get-AzNetworkInterface
 } #>
 <# Process Flow {
     function
-        Call AddAzASGNIC > Get $null
-            Call GetAzNetworkInterface > Get $NicObject
-            End GetAzNetworkInterface
-                Return AddAzASGNIC > Send $NicObject, $SubnetObject, $VnetObject
-            Call GetAzASG > Get $ASGObject
-            End GetAzASG
-                Return AddAzASGNIC > Send $ASGObject                
-        End AddAzASGNIC
-            Return function > Send $null
+        Call GetAzASGNIC > Get $NicObject              
+        End GetAzASGNIC
+            Return function > Send $NicObject
 }#>
 function GetAzASGNIC {                                                                      # Function to get a nic with an ASG attached
     Begin {                                                                                 # Begin function
