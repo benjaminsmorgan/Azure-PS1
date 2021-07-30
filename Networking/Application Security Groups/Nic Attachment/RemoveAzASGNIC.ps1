@@ -1,33 +1,44 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
+    Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.2.1
+    Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.2.1
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
-    None
+    GetAzASGNIC:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/Nic%20Attachment/GetAzASGNIC.ps1
 } #>
 <# Functions Description: {
+    RemoveAzASGNIC:             Function to remove an application security group from a nic
     GetAzASGNIC:                Function to get a nic with an ASG attached
 } #>
 <# Variables: {      
-    :GetAzureASGNIC             Outer loop for managing function
-    :SelectAzureASGNIC          Inner loop for selecting the nic object
-    $ObjectList:                List containing all nic objects that have ASGs
-    $ObjectNumber:              $var used for listing a selecting NIC
-    $ObjectArray:               Array holding all the NIC info
-    $ASGNames:                  Array holding all ASG names names on current nic
-    $ASGIDList:                 Current item .IPConfigurations.ApplicationSecurityGroups.ID   
-    $ASGName:                   Current item ASG name
-    $ObjectInput:               $var used to load info into array
+    :RemoveAzureASGNIC          Outer loop for managing function
+    :SelectAzureASG             Inner loop for selecting ASG to remove
+    $CallingFunction:           Name of this function or the one that called it
+    $NicObject:                 Network interface object
+    $ObjectList:                $NicObject.IPConfigurations.ApplicationSecurityGroups.ID
+    $ObjectList2:               Array used to get only all ASGs on $NICObject and remove duplicate entries
+    $ObjectNumber:              $var used for listing and selecting ASG
+    $ObjectArray:               Array holding all ASG info
+    $ASGName:                   Current item .split (ASG name)
+    $ObjectInput:               $var used to load info into $ObjectArray
     $Number:                    Current item .number
-    $ASGList:                   Current item .ASGNames
-    $OpSelect:                  Operator input to select the NIC
-    $NicObject                  NIC object
+    $OpSelect:                  Operator selection of the ASG to remove
+    $ASGObject:                 Application security group object ID
+    $AppendedObjectList:        List of all ASGs on $NicObject that are not being removed
+    $OpConfirm:                 Operator confirmation to make these changes
+    $NICIPConfigs:              List of all IP configs on $NicObject
+    GetAzASGNIC{}               Gets $NicObject
 } #>
 <# Process Flow {
     function
-        Call GetAzASGNIC > Get $NicObject              
-        End GetAzASGNIC
-            Return function > Send $NicObject
+        Call RemoveAzASGNIC > Get $null
+            Call GetAzASGNIC > Get $NicObject              
+            End GetAzASGNIC
+                Return RemoveAzASGNIC > Send $NicObject
+        End RemoveAzASGNIC
+            Return function > Send $null
 }#>
 function RemoveAzASGNIC {                                                                   # Function to remove an application security group from a nic
     Begin {                                                                                 # Begin function
@@ -49,7 +60,7 @@ function RemoveAzASGNIC {                                                       
             [System.Collections.ArrayList]$ObjectArray = @()                                # Creates object list array
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
                 $ASGName = $_                                                               # Isloates the current item
-                $ASGName =$ASGName.split('/')[-1]                                           # Isolates the current item ASG name
+                $ASGName = $ASGName.split('/')[-1]                                          # Isolates the current item ASG name
                 $ObjectInput = [PSCustomObject]@{                                           # custom object to add info to $ObjectArray
                     'Number'=$ObjectNumber                                                  # Object number
                     'ID'=$_                                                                 # ID
