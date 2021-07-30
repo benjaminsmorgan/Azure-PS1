@@ -2,6 +2,7 @@
 <# Ref: { Microsoft docs links
     Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.2.1
     Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.2.1
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.2.1
     Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-5.4.0
     Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
@@ -26,6 +27,9 @@
     $VnetObject:                Virtual network object (Unused)
     $ObjectList:                $NicObject.IpConfigurations.ApplicationSecurityGroups.ID
     $ASGObject:                 Application security group object
+    $ASGNICList:                List of NICs currently associated to $ASGObject
+    $ASGVNet:                   Virtual network name of NICs currently on $ASGObject
+    $NICVnet:                   Virtual network name of $NICObject
     $AppendedObjectList:        List of ASG IDs to be saved to all $NICIPConfigs 
     $OpConfirm:                 Operator confirmation to make this change
     $NICIPConfigs:              List of all IP configs on $NicObject
@@ -59,6 +63,22 @@ function AddAzASGNIC {                                                          
             if (!$ASGObject) {                                                              # If $ASGObject is $null
                 Break AddAzureASGNIC                                                        # Breaks :AddAzureASGNIC
             }                                                                               # End if (!$ASGObject)
+            $ASGNICList = Get-AzNetworkInterface | Where-Object `
+                {$_.IpConfigurations.ApplicationSecurityGroups.ID -eq $ASGObject.ID}        # Gets a list of all nics on ASGObject
+            if ($ASGNICList) {                                                              # If $ASGNICList has a value
+                $ASGVNet = $ASGNICList.IpConfigurations.subnet.ID.split('/')[8]             # Isolates the ASG NIC vnet name
+                $NICVnet = $VnetObject.ID.Split('/')[-1]                                    # Isolates the NIC vnet name
+                if ($ASGVNet -ne $NICVnet) {                                                # If $ASGVnet does not equal $NICVnet
+                    Write-Host 'This NIC is in a different VNet'                            # Write message to screen
+                    Write-Host 'then other NICs currently associated'                       # Write message to screen
+                    Write-Host 'with the application security group'                        # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input    
+                    Break AddAzureASGNIC                                                    # Breaks :AddAzureASGNIC
+                }
+            }
             $AppendedObjectList = @()                                                       # Creates $AppendedObjectList
             $AppendedObjectList += $ASGObject.ID                                            # Adds $ASGObject.ID to $AppendedObjectList
             foreach ($_ in $ObjectList) {                                                   # For each item in $ObjectList
