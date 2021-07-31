@@ -79,10 +79,10 @@ function ManageAzASG {                                                          
                 Write-Host 'Remove Application Security Group'                              # Write message to screen
                 RemoveAzASG                                                                 # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3') 
-            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '3'
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Manage NIC ASG Associations'                                    # Write message to screen
                 ManageAzASGNIC                                                              # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '3') 
+            }                                                                               # End elseif ($OpSelect -eq '4') 
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
