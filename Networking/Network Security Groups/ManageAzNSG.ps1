@@ -541,7 +541,7 @@ function ManageAzNSG {                                                          
         Clear-Host                                                                          # Clears screen
         return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function ManageAzLBNSG
+}                                                                                           # End function ManageAzNSG
 function NewAzNSG {                                                                         # Function to create a new network security group
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
