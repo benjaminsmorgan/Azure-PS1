@@ -49,6 +49,8 @@ function ManageAzFWPolicy {                                                     
             Write-Host '[1] New Firewall Policy'                                            # Write message to screen
             Write-Host '[2] List Firewall Policies'                                         # Write message to screen
             Write-Host '[3] Remove Firewall Policy'                                         # Write message to screen
+            Write-Host '[4] Associate Firewall Policy'                                      # Write message to screen
+            Write-Host '[5] Dissociate Firewall Policy'                                     # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator selection for management function
             Clear-Host                                                                      # Clears screen
@@ -67,6 +69,14 @@ function ManageAzFWPolicy {                                                     
                 Write-Host 'Remove Firewall Policy'                                         # Write message to screen
                 RemoveAzFWPolicy                                                            # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3') 
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Associate Firewall Policy'                                      # Write message to screen
+                AssociateAzFWPolicy                                                         # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4') 
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Dissociate Firewall Policy'                                     # Write message to screen
+                DissociateAzFWPolicy                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5') 
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -541,3 +551,65 @@ function AssociateAzFWPolicy {                                                  
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function AssociateAzFWPolicy
+function DissociateAzFWPolicy {                                                             # Function to dissociate a firewall policy to a firewall
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'DissociateAzFWPolicy'                                       # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureFWPolicy while ($true) {                                                   # Outer loop for managing function
+            $FirewallObject = GetAzFirewall ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$FirewallObject) {                                                         # If $FirewallObject is $null
+                Break SetAzureFWPolicy                                                      # Breaks :SetAzureFWPolicy
+            }                                                                               # End if (!$FirewallObject)
+            if (!$FirewallObject.FirewallPolicy.ID) {                                       # If $FirewallObject.FirewallPolicy.ID is $null
+                Write-Host 'There is no policy associated to this firewall'                 # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureFWPolicy                                                      # Breaks :SetAzureFWPolicy    
+            }                                                                               # End if (!$FirewallObject.FirewallPolicy.ID)
+            Write-Host 'Update Firewall:'$FirewallObject.name                               # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $CurrentPolicy = $FirewallObject.FirewallPolicy.ID.Split('/')[-1]               # Isolates the current policy name
+            Write-Host 'Remove Policy:  '$CurrentPolicy                                     # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to remove the firewall
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                Write-Host 'Dissociating the firewall policy'                               # Write message to screen
+                Write-Host 'This will take a while'                                         # Write message to screen
+                Try {                                                                       # Try the following
+                    $FirewallObject.FirewallPolicy = $null                                  # Updates the firewall policy
+                    $FirewallObject | Set-AzFirewall -ErrorAction 'Stop' | Out-Null         # Saves the firewall config
+                }                                                                           # End Try
+                Catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureFWPolicy                                                  # Breaks :SetAzureFWPolicy    
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The firewall policy has been dissociated'                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureFWPolicy                                                      # Breaks :SetAzureFWPolicy    
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureFWPolicy                                                      # Breaks :SetAzureFWPolicy    
+            }                                                                               # End else (if ($OpConfirm -eq 'y'))
+        }                                                                                   # End :SetAzureFWPolicy while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function DissociateAzFWPolicy
