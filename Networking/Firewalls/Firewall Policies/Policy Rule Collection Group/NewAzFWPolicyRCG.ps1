@@ -105,7 +105,7 @@ function NewAzFWPolicyRCG {                                                     
                     if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
                         if ($_ -eq ' ') {                                                   # If current item equals 'space'
                             Write-Host ''                                                   # Write message to screen    
-                            Write-Host 'Firewall name cannot include any spaces'            # Write message to screen
+                            Write-Host 'Rule collection name cannot include any spaces'     # Write message to screen
                         }                                                                   # End if ($_ -eq ' ')
                         else {                                                              # If current item is not equal to 'space'
                             Write-Host ''                                                   # Write message to screen    
@@ -120,7 +120,7 @@ function NewAzFWPolicyRCG {                                                     
                     $FWNameObject = $null                                                   # Clears $var
                 }                                                                           # End if ($FWNameObject -in $ObjectArray) 
                 if ($FWNameObject) {                                                        # If $FWNameObject has a value
-                    Write-Host 'Use:'$FWNameObject' as the firewall name'                   # Write message to screen
+                    Write-Host 'Use:'$FWNameObject' as the rule collection name'            # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the firewall name
                     Clear-Host                                                              # Clears screen
@@ -226,7 +226,7 @@ function NewAzFWPolicyRCG {                                                     
                 Break NewAzureFWPolicyRCG                                                   # Breaks :NewAzureFWPolicyRCG    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
-            Write-Host 'The firewall policy has been created'                               # Write message to screen
+            Write-Host 'The policy rule collection group has been created'                  # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
             Break NewAzureFWPolicyRCG                                                       # Breaks :NewAzureFWPolicyRCG
