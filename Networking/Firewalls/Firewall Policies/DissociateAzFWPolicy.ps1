@@ -1,12 +1,10 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.2.1
-    Get-AzFirewallPolicy:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewallpolicy?view=azps-6.2.1
     Get-AzFirewall:                             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewall?view=azps-6.2.1
     Set-AzFirewall:                             https://docs.microsoft.com/en-us/powershell/module/az.network/set-azfirewall?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
-    GetAzFWPolicy:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/Firewall%20Policies/GetAzFWPolicy.ps1
     GetAzFirewall:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/GetAzFirewall.ps1
 } #>
 <# Functions Description: {
@@ -16,22 +14,15 @@
 <# Variables: {      
     :SetAzureFWPolicy           Outer loop for managing function
     $CallingFunction:           Name of this function or the one that called it
-    $FWPolicyObject:            Firewall policy object
-    $CurrentFWObject:           Firewall object attached to $FWPolicyObject
-    $VNetName:                  Vnet name attached to $CurrentFWObject
     $FirewallObject:            Firewall object
     $CurrentPolicy:             Name of the current policy attached to $FirewallObject
     $OpConfirm:                 Operator confirmation to make the change
     $MSG:                       Last powershell error message
-    GetAzFWPolicy{}             Gets $FWPolicyObject
     GetAzFirewall{}             Gets $FirewallObject
 } #>
 <# Process Flow {
     function
         Call DissociateAzFWPolicy > Get $null
-            Call GetAzFWPolicy > Get $FWPolicyObject            
-            End GetAzFWPolicy
-                Return DissociateAzFWPolicy > Send $FWPolicyObject
             Call GetAzFirewall > Get $FirewallObject            
             End GetAzFirewall
                 Return DissociateAzFWPolicy > Send $FirewallObject
