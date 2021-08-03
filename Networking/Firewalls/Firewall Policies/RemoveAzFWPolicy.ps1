@@ -39,7 +39,7 @@ function RemoveAzFWPolicy {                                                     
             $FWPolicyObject = GetAzFWPolicy ($CallingFunction)                              # Calls function and assigns output to $var
             if (!$FWPolicyObject) {                                                         # If $FWPolicyObject does not have a value
                 Break RemoveAzureFWPolicy                                                   # Breaks :RemoveAzureFWPolicy
-            }                                                                               # End if (!$FirewallObject) 
+            }                                                                               # End if (!$FWPolicyObject) 
             $FirewallObject = Get-AzFirewall | Where-Object `
                 {$_.FirewallPolicy.ID -eq $FWPolicyObject.ID}                               # Pulls the firewall object if attached
             if ($FirewallObject) {                                                          # If $FirewallObject has a value
