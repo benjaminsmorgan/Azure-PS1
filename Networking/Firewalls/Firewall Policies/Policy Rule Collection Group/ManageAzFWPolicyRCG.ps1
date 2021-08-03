@@ -182,6 +182,7 @@ function RemoveAzFWPolicyRCG {                                                  
             Write-Host 'Firewall Policy:'$FWPolicyObject.name                               # Write message to screen
             if ($FirewallObject) {                                                          # If $FirewallObject has a value
                 Write-Host 'Firewall Name:  '$FirewallObject.name                           # Write message to screen
+                $VNetName = $FirewallObject.IPConfigurations.Subnet.ID.Split('/')[8]        # Isolates the Vnet name
                 Write-Host 'VNet Name:      '$VNetName                                      # Write message to screen    
             }                                                                               # End if ($FirewallObject)
             else {                                                                          # Else if $FirewallObject is $null
