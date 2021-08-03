@@ -77,7 +77,7 @@ function ListAzFWPolicy {                                                       
                 Write-Host 'Policy RG:    '$_.RG                                            # Write message to screen
                 Write-Host 'Policy Loc:   '$_.Location                                      # Write message to screen
                 Write-Host 'Policy TIM:   '$_.ThreatIntelMode                               # Write message to screen
-                if ($_.RCGList) {                                                           # If current item .RCGLust has a value
+                if ($_.RCGList) {                                                           # If current item .RCGList has a value
                     $RCGList = $_.RCGList                                                   # $RCGList is equal to current item.RCGList
                     Write-Host 'Policy RCG {'                                               # Write message to screen
                     foreach ($Name in $RCGList) {                                           # For each item in $RCGList
