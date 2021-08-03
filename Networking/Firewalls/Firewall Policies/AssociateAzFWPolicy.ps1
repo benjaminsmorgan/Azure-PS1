@@ -83,7 +83,12 @@ function AssociateAzFWPolicy {                                                  
                 Write-Host 'Updating the firewall policy'                                   # Write message to screen
                 Write-Host 'This will take a while'                                         # Write message to screen
                 Try {                                                                       # Try the following
-                    $FirewallObject.FirewallPolicy.ID = $FWPolicyObject.ID                  # Updates the firewall policy
+                    if ($FirewallObject.FirewallPolicy.ID) {                                # If $FirewallObject.FirewallPolicy.ID has a value
+                        $FirewallObject.FirewallPolicy.ID = $FWPolicyObject.ID              # Updates the firewall policy    
+                    }                                                                       # End if ($FirewallObject.FirewallPolicy.ID)
+                    else {                                                                  # Else if $FirewallObject.FirewallPolicy.ID is $null
+                        $FirewallObject.FirewallPolicy = $FWPolicyObject.ID                 # Updates the firewall policy
+                    }                                                                       # End else (if ($FirewallObject.FirewallPolicy.ID))
                     $FirewallObject | Set-AzFirewall -ErrorAction 'Stop' | Out-Null         # Saves the firewall config
                 }                                                                           # End Try
                 Catch {                                                                     # If Try fails
