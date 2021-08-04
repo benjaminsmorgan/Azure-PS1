@@ -1,40 +1,49 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-6.2.1
+    Get-AzFirewallPolicyRuleCollectionGroup:    https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewallpolicyrulecollectiongroup?view=azps-6.3.0
+    New-AzFirewallPolicyRuleCollectionGroup:    https://docs.microsoft.com/en-us/powershell/module/az.network/new-azfirewallpolicyrulecollectiongroup?view=azps-6.3.0
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.2.1
-    New-AzFirewallPolicy:                       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azfirewallpolicy?view=azps-6.2.1
+    Get-AzFirewallPolicy:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewallpolicy?view=azps-6.2.1
+    Get-AzFirewall:                             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewall?view=azps-6.2.1
 } #>
 <# Required Functions Links: {
-    GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+    GetAzFWPolicy:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/Firewall%20Policies/GetAzFWPolicy.ps1
 } #>
 <# Functions Description: {
-    NewAzFWPolicyRCG:              Function to create a new firewall policy
-    GetAzResourceGroup:         Function to get a resource group
+    NewAzFWPolicyRCG:           Function to create a new firewall policy rule collection group
+    GetAzResourceGroup:         Function to get firewall policy
 } #>
 <# Variables: {      
-    :NewAzureFWPolicyRCG           Outer loop for managing function
-    :SetAzureFWName             Inner loop for setting the policy name
-    :SetAzureFWPolicyRCGPri        Inner loop for setting the policy tier sku
+    :NewAzureFWPolicyRCG        Outer loop for managing function
+    :SetAzureFWPolicyRCGName    Inner loop for setting the rule collection group name
+    :SetAzureFWPolicyRCGPri     Inner loop for setting the rule collection group priority
+    :ConfirmSetting             Inner loop for confirming the RCG priority
     $CallingFunction:           Name of this function or the one that called it
-    $RGObject:                  Resource group object
-    $ValidArray:                Array of policy name valid body characters
-    $Valid1stChar:              Array of policy name valid first characters
-    $ValidLastChar:             Array of policy name valid last characters
-    $ObjectList:                List of existing policies on $RGObject
-    $FWNameObject:              Operator input for the firewall policy name
-    $FWNameArray:               $FWNameObject converted to $array
-    $OpConfirm:                 Operator confirmation of the policy name
-    $OpSelect:                  Operator selection of the policy sku
-    $SkuTierObject:             Sku tier object
-    $MSG:                       Last error message
-    GetAzResourceGroup{}        Gets $RGObject
+    $FWPolicyObject:            Firewall policy object
+    $ObjectArray:               Array of rule collection group names
+    $ObjectArray2:              Array of rule collection group priorities
+    $RuleCollectGroups:         $FWPolicyObject.RuleCollectionGroups  
+    $RCGName:                   Currently existing policy RCG names 
+    $RCGObject:                 Current item RCG object
+    $RCGPriority:               $RCGObject.Properties.Priority             
+    $ValidArray:                Array of valid body characters for the RCG name
+    $Valid1stChar:              Array of valid first characters for the RCG name
+    $ValidLastChar:             Array of valid last characters for the RCG name
+    $PolicyRCGName:             Operator input for the RCG name
+    $PolicyRCGNameArray:        $PolicyRCGName converted to array
+    $PolicyRCGPri:              Operator input for the RCG priority
+    $PolicyRCGPriArray:         $PolicyRCGPri converted to array
+    $PolicyRCGPriInt:           $PolicyRCGPri converted to integer
+    $OpConfirm:                 Operator confirmation on the RCG priority
+    $MSG:                       Last powershell error message
+    GetAzFWPolicy{}             Gets $FWPolicyObject
 } #>
 <# Process Flow {
     function
         Call NewAzFWPolicyRCG > Get $null
-            Call GetAzResourceGroup > Get $RGObject
-            End GetAzResourceGroup
-                Return NewAzFWPolicyRCG > Send $RGObject
+            Call GetAzFWPolicy > Get $FWPolicyObject            
+            End GetAzFWPolicy
+                Return NewAzFWPolicyRCG > Send $FWPolicyObject        
         End NewAzFWPolicyRCG
             Return function > Send $null
 }#>
@@ -69,7 +78,7 @@ function NewAzFWPolicyRCG {                                                     
             $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
             $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
             $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
-            :SetAzureFWName while ($true) {                                                 # Inner loop for setting the firewall name
+            :SetAzureFWPolicyRCGName while ($true) {                                        # Inner loop for setting the firewall name
                 if ($ObjectArray) {                                                         # If $ObjectArray has a value
                     Write-Host 'The following policy rule collection '                      # Write message to screen
                     Write-Host 'group names are already in use:'                            # Write message to screen
@@ -81,27 +90,27 @@ function NewAzFWPolicyRCG {                                                     
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 Write-Host 'Enter the policy rule collection group name'                    # Write message to screen
                 Write-Host ''                                                               # Writes message to screen
-                $FWNameObject = Read-Host 'Name'                                            # Operator input for the firewall policy name
-                $FWNameArray = $FWNameObject.ToCharArray()                                  # Loads $FWNameObject into array
+                $PolicyRCGName = Read-Host 'Name'                                           # Operator input for the firewall policy name
+                $PolicyRCGNameArray = $PolicyRCGName.ToCharArray()                          # Loads $PolicyRCGName into array
                 Clear-Host                                                                  # Clears screen
-                if ($FWNameObject.Length -lt 0 -or $FWNameObject.Length -ge 80) {           # If $FWNameObject.Length is less than 1 or greater than 80 characters
+                if ($PolicyRCGName.Length -lt 0 -or $PolicyRCGName.Length -ge 80) {         # If $PolicyRCGName.Length is less than 1 or greater than 80 characters
                     Write-Host 'The policy rule collection group name '                     # Write message to screen
                     Write-Host 'must be between 1 and 80 characters'                        # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    $FWNameObject = $null                                                   # Clears $FWNameObject
-                }                                                                           # End if ($FWNameObject.Length -ge 80)
-                if ($FWNameArray[0] -notin $Valid1stChar) {                                 # If 0 position of $FWNameArray is not in $Valid1stChar
+                    $PolicyRCGName = $null                                                  # Clears $PolicyRCGName
+                }                                                                           # End if ($PolicyRCGName.Length -ge 80)
+                if ($PolicyRCGNameArray[0] -notin $Valid1stChar) {                          # If 0 position of $PolicyRCGNameArray is not in $Valid1stChar
                     Write-Host 'The first character of the name must be a letter or number' # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    $FWNameObject = $null                                                   # Clears $FWNameObject
-                }                                                                           # End if ($FWNameArray[0] -notin $Valid1stChar)
-                if ($FWNameArray[-1] -notin $ValidLastChar) {                               # If last position of $FWNameArray is not in $ValidLastChar
+                    $PolicyRCGName = $null                                                  # Clears $PolicyRCGName
+                }                                                                           # End if ($PolicyRCGNameArray[0] -notin $Valid1stChar)
+                if ($PolicyRCGNameArray[-1] -notin $ValidLastChar) {                        # If last position of $PolicyRCGNameArray is not in $ValidLastChar
                     Write-Host `
                         'The last character of the name must be a letter, number or _ '     # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    $FWNameObject = $null                                                   # Clears $FWNameObject
-                }                                                                           # End if ($FWNameArray[0] -notin $Valid1stChar)
-                foreach ($_ in $FWNameArray) {                                              # For each item in $FWNameArray
+                    $PolicyRCGName = $null                                                  # Clears $PolicyRCGName
+                }                                                                           # End if ($PolicyRCGNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $PolicyRCGNameArray) {                                       # For each item in $PolicyRCGNameArray
                     if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
                         if ($_ -eq ' ') {                                                   # If current item equals 'space'
                             Write-Host ''                                                   # Write message to screen    
@@ -111,16 +120,16 @@ function NewAzFWPolicyRCG {                                                     
                             Write-Host ''                                                   # Write message to screen    
                             Write-Host $_' is not a valid character'                        # Write message to screen
                         }                                                                   # End else (if ($_ -eq ' '))
-                        $FWNameObject = $null                                               # Clears $FWNameObject
+                        $PolicyRCGName = $null                                              # Clears $PolicyRCGName
                     }                                                                       # End if ($_ -notin $ValidArray)
-                }                                                                           # End foreach ($_ in $FWNameArray)
-                if ($FWNameObject -in $ObjectArray) {                                       # If $FWNameObject in $ObjectArray
+                }                                                                           # End foreach ($_ in $PolicyRCGNameArray)
+                if ($PolicyRCGName -in $ObjectArray) {                                      # If $PolicyRCGName in $ObjectArray
                     Write-Host 'That name is already in use'                                # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    $FWNameObject = $null                                                   # Clears $var
-                }                                                                           # End if ($FWNameObject -in $ObjectArray) 
-                if ($FWNameObject) {                                                        # If $FWNameObject has a value
-                    Write-Host 'Use:'$FWNameObject' as the rule collection name'            # Write message to screen
+                    $PolicyRCGName = $null                                                  # Clears $var
+                }                                                                           # End if ($PolicyRCGName -in $ObjectArray) 
+                if ($PolicyRCGName) {                                                       # If $PolicyRCGName has a value
+                    Write-Host 'Use:'$PolicyRCGName' as the rule collection name'           # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the firewall name
                     Clear-Host                                                              # Clears screen
@@ -128,14 +137,14 @@ function NewAzFWPolicyRCG {                                                     
                         Break NewAzureFWPolicyRCG                                           # Breaks :NewAzureFWPolicyRCG
                     }                                                                       # End if ($OpConfirm -eq 'e')
                     if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break SetAzureFWName                                                # Breaks :SetAzureFWName
+                        Break SetAzureFWPolicyRCGName                                       # Breaks :SetAzureFWPolicyRCGName
                     }                                                                       # End if ($OpConfirm -eq 'y')
-                }                                                                           # End if ($FWNameObject)
-                else {                                                                      # If $FWNameObject does not have a value
+                }                                                                           # End if ($PolicyRCGName)
+                else {                                                                      # If $PolicyRCGName does not have a value
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($FWNameObject))
-            }                                                                               # End :SetAzureFWName while ($true)
+                }                                                                           # End else (if ($PolicyRCGName))
+            }                                                                               # End :SetAzureFWPolicyRCGName while ($true)
             $ValidArray = '1234567890'                                                      # Changes $ValidArray
             $ValidArray = $ValidArray.ToCharArray()                                         # Converts $ValidArray to Array
             :SetAzureFWPolicyRCGPri while ($true) {                                         # Inner loop for setting the policy rule collection group priority
@@ -207,7 +216,7 @@ function NewAzFWPolicyRCG {                                                     
             Try {                                                                           # Try the following
                 Write-Host 'Building the policy rule collection group'                      # Write message to screen   
                 Write-Host 'This may take a moment'                                         # Write message to screen
-                New-AzFirewallPolicyRuleCollectionGroup -Name $FWNameObject -Priority `
+                New-AzFirewallPolicyRuleCollectionGroup -Name $PolicyRCGName -Priority `
                     $PolicyRCGPri -FirewallPolicyName $FWPolicyObject.Name `
                     -ResourceGroupName $FWPolicyObject.ResourceGroupName `
                     -ErrorAction 'Stop' | Out-Null                                          # Builds the policy rule collection group
