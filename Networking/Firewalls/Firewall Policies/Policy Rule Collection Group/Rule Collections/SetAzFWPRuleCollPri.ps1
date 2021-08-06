@@ -102,13 +102,13 @@ function SetAzFWPRuleCollPri {                                                  
                 Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureFWPRuleCollection                                                   # Breaks :SetAzureFWPRuleCollection    
+                Break SetAzureFWPRuleCollection                                             # Breaks :SetAzureFWPRuleCollection    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
             Write-Host 'The policy rule collection has been updated'                        # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
-            Break SetAzureFWPRuleCollection                                                       # Breaks :SetAzureFWPRuleCollection
+            Break SetAzureFWPRuleCollection                                                 # Breaks :SetAzureFWPRuleCollection
         }                                                                                   # End :SetAzureFWPRuleCollection while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
