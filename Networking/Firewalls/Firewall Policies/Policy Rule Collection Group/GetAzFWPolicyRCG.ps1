@@ -103,7 +103,7 @@ function GetAzFWPolicyRCG {                                                     
                     Write-Host 'RCG Priority: '$_.Priority                                  # Write message to screen
                     if ($_.RuleColl) {                                                      # If current item .RuleColl has a value
                         $RuleList = $_.RuleColl                                             # $RuleList is equal to current item.RuleColl
-                        Write-Host 'Rules        {'                                         # Write message to screen
+                        Write-Host 'Collections  {'                                         # Write message to screen
                         foreach ($Name in $RuleList) {                                      # For each item in $RuleList
                             Write-Host '              '$Name.Name                           # Write message to screen
                         }                                                                   # End foreach ($Name in $RuleList)
@@ -111,7 +111,7 @@ function GetAzFWPolicyRCG {                                                     
                         $RuleList = $null                                                   # Clears $var
                     }                                                                       # End if ($_.RuleColl)
                     else {                                                                  # Else if current item .RuleColl is $null
-                        Write-Host 'Rules:         None'                                    # Write message to screen
+                        Write-Host 'Collections:   None'                                    # Write message to screen
                     }                                                                       # End else (if ($_.RuleColl))
                     Write-Host 'Policy Name:  '$_.PolicyName                                # Write message to screen
                     Write-Host 'Policy RG:    '$_.RG                                        # Write message to screen
