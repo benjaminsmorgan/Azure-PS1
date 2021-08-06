@@ -193,7 +193,7 @@ function NewAzFWPolicyRCG {                                                     
                     $PolicyRCGName = $null                                                  # Clears $var
                 }                                                                           # End if ($PolicyRCGName -in $ObjectArray) 
                 if ($PolicyRCGName) {                                                       # If $PolicyRCGName has a value
-                    Write-Host 'Use:'$PolicyRCGName' as the rule collection name'           # Write message to screen
+                    Write-Host 'Use:'$PolicyRCGName' as the rule collection group name'     # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the firewall name
                     Clear-Host                                                              # Clears screen
@@ -250,7 +250,7 @@ function NewAzFWPolicyRCG {                                                     
                 }                                                                           # End if ($PolicyRCGPri)
                 if ($PolicyRCGPri) {                                                        # If $PolicyRCGPri has a value
                     :ConfirmSetting while ($true) {                                         # Inner loop for confirming the RCG priority
-                        Write-Host 'Use:'$PolicyRCGPri' as the rulle collection priority'   # Write message to screen
+                        Write-Host 'Use:'$PolicyRCGPri' as the rule collection priority'    # Write message to screen
                         Write-Host ''                                                       # Write message to screen
                         $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the RCG priority
                         Clear-Host                                                          # Clears screen
@@ -366,7 +366,7 @@ function ListAzFWPolicyRCG {                                                    
                 Write-Host 'RCG Priority: '$_.Priority                                      # Write message to screen
                 if ($_.RuleColl) {                                                          # If current item .RuleColl has a value
                     $RuleList = $_.RuleColl                                                 # $RuleList is equal to current item.RuleColl
-                    Write-Host 'Rules        {'                                             # Write message to screen
+                    Write-Host 'Collections  {'                                             # Write message to screen
                     foreach ($Name in $RuleList) {                                          # For each item in $RuleList
                         Write-Host '              '$Name.Name                               # Write message to screen
                     }                                                                       # End foreach ($Name in $RuleList)
@@ -374,7 +374,7 @@ function ListAzFWPolicyRCG {                                                    
                     $RuleList = $null                                                       # Clears $var
                 }                                                                           # End if ($_.RuleColl)
                 else {                                                                      # Else if current item .RuleColl is $null
-                    Write-Host 'Rules:         None'                                        # Write message to screen
+                    Write-Host 'Collections:   None'                                        # Write message to screen
                 }                                                                           # End else (if ($_.RuleColl))
                 Write-Host 'Policy Name:  '$_.PolicyName                                    # Write message to screen
                 Write-Host 'Policy RG:    '$_.RG                                            # Write message to screen
@@ -654,7 +654,7 @@ function GetAzFWPolicyRCG {                                                     
                     Write-Host 'RCG Priority: '$_.Priority                                  # Write message to screen
                     if ($_.RuleColl) {                                                      # If current item .RuleColl has a value
                         $RuleList = $_.RuleColl                                             # $RuleList is equal to current item.RuleColl
-                        Write-Host 'Rules        {'                                         # Write message to screen
+                        Write-Host 'Collections  {'                                         # Write message to screen
                         foreach ($Name in $RuleList) {                                      # For each item in $RuleList
                             Write-Host '              '$Name.Name                           # Write message to screen
                         }                                                                   # End foreach ($Name in $RuleList)
@@ -662,7 +662,7 @@ function GetAzFWPolicyRCG {                                                     
                         $RuleList = $null                                                   # Clears $var
                     }                                                                       # End if ($_.RuleColl)
                     else {                                                                  # Else if current item .RuleColl is $null
-                        Write-Host 'Rules:         None'                                    # Write message to screen
+                        Write-Host 'Collections:   None'                                    # Write message to screen
                     }                                                                       # End else (if ($_.RuleColl))
                     Write-Host 'Policy Name:  '$_.PolicyName                                # Write message to screen
                     Write-Host 'Policy RG:    '$_.RG                                        # Write message to screen
@@ -714,9 +714,9 @@ function ManageAzFWPRuleCollections {                                           
             Write-Host 'Manage Firewall Policy Rule Collection'                             # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] New Firewall Rule Collection (In Dev)'                                   # Write message to screen
+            Write-Host '[1] New Firewall Rule Collection (Unavailable at this time)'        # Write message to screen
             Write-Host '[2] List Firewall Rule Collections'                                 # Write message to screen
-            Write-Host '[3] Remove Firewall Rule Collection (In Dev)'                                # Write message to screen
+            Write-Host '[3] Remove Firewall Rule Collection (Unavailable at this time)'     # Write message to screen
             Write-Host '[4] Update Firewall Rule Collection Priority'                       # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator selection for management function
@@ -725,16 +725,22 @@ function ManageAzFWPRuleCollections {                                           
                 Break ManageAzureFWPolicyRCG                                                # Breaks :ManageAzureFWPolicyRCG
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
-                Write-Host 'New Firewall Rule Collection (In Dev)'                                   # Write message to screen
-                #Functiongohere                                                             # Calls function
+                Write-Host 'This function is not available at this time'                    # Write message to screen
+                Write-Host 'Please visit the Azure portal to complete this action'          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End elseif ($OpSelect -eq '1') 
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
                 Write-Host 'List Firewall Rule Collections'                                 # Write message to screen
                 ListAzFWPRuleCollection                                                     # Calls function
             }                                                                               # End elseif ($OpSelect -eq '2') 
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host 'Remove Firewall Rule Collection (In Dev)'                                # Write message to screen
-                #Functiongohere                                                             # Calls function
+                Write-Host 'This function is not available at this time'                    # Write message to screen
+                Write-Host 'Please visit the Azure portal to complete this action'          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End elseif ($OpSelect -eq '3') 
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
                 Write-Host 'Update Firewall Rule Collection Priority'                       # Write message to screen
@@ -781,8 +787,9 @@ function ListAzFWPRuleCollection {                                              
                             'Number'=$ObjectNumber;                                         # Object number
                             'Name'=$RuleC.name;                                             # Rule collection name
                             'Priority'=$RuleC.Priority;                                     # Rule collection priority
+                            'RuleActionType'=$RuleC.Action.Type;                            # Rule collection action type
                             'RuleNames'=$RuleC.Rules.Name;                                  # Rule names
-                            'RuleCount'=$RuleC.Rules.Count;                                 # Rule collection rules count
+                            'RuleType'=$RuleC.RuleCollectionType;                           # Rule collection type
                             'RCGName'=$FWPolicyRCG.Name;                                    # Policy RCG name
                             'RCGPriority'=$FWPolicyRCG.Properties.Priority;                 # Policy RCG priority
                             'PolicyName'=$FWPolicy.Name;                                    # Policy name
@@ -810,12 +817,18 @@ function ListAzFWPRuleCollection {                                              
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
                 Write-Host 'Collection Name:       '$_.Name                                 # Write message to screen
                 Write-Host 'Collection Priority:   '$_.Priority                             # Write message to screen
-                Write-Host 'Collection Rule Count: '$_.RuleCount                            # Write message to screen
-                Write-Host 'Collection Rule Names {'                                        # Write message to screen
-                foreach ($RuleC in $_.RuleNames) {                                          # For each item in current item .RuleNames
-                    Write-Host '                       '$RuleC                              # Write message to screen
-                }                                                                           # End foreach ($RuleC in $_.RuleNames)
-                Write-Host '                      }'                                        # Write message to screen
+                Write-Host 'Collection Action Type:'$_.RuleActionType                       # Write message to screen
+                Write-Host 'Collection Type:       '$_.RuleType                             # Write message to screen
+                if ($_.RuleNames) {                                                         # If $_.RuleNames has a value
+                    Write-Host 'Collection Rule Names {'                                    # Write message to screen
+                    foreach ($RuleC in $_.RuleNames) {                                      # For each item in current item .RuleNames
+                        Write-Host '                       '$RuleC                          # Write message to screen
+                    }                                                                       # End foreach ($RuleC in $_.RuleNames)
+                    Write-Host '                      }'                                    # Write message to screen
+                }                                                                           # End if ($_.RuleNames)
+                else {                                                                      # Else if $_.RuleNames is $null
+                    Write-Host 'Collection Rule Names:  None'                               # Write message to screen
+                }                                                                           # End else (if ($_.RuleNames))
                 Write-Host 'RCG Name:              '$_.RCGName                              # Write message to screen
                 Write-Host 'RCG Priority:          '$_.RCGPriority                          # Write message to screen
                 Write-Host 'Policy Name:           '$_.PolicyName                           # Write message to screen
@@ -828,9 +841,11 @@ function ListAzFWPRuleCollection {                                              
                     Write-Host 'Firewall Name:          Not Assigned'                       # Write message to screen
                 }                                                                           # End else (if ($_.FWName))
                 Write-Host ''                                                               # Write message to screen
+                Write-Host '-------------------------------------------------------------'  # Write message to screen
+                Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
-        Pause                                                                               # Pauses all actions for operator input
-        Break ListAzureFWPRuleCol                                                           # Breaks :ListAzureFWPRuleCol
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureFWPRuleCol                                                       # Breaks :ListAzureFWPRuleCol
         }                                                                                   # End :ListAzureFWPRuleCol while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
@@ -940,13 +955,13 @@ function SetAzFWPRuleCollPri {                                                  
                 Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
-                Break SetAzureFWPRuleCollection                                                   # Breaks :SetAzureFWPRuleCollection    
+                Break SetAzureFWPRuleCollection                                             # Breaks :SetAzureFWPRuleCollection    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
             Write-Host 'The policy rule collection has been updated'                        # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
-            Break SetAzureFWPRuleCollection                                                       # Breaks :SetAzureFWPRuleCollection
+            Break SetAzureFWPRuleCollection                                                 # Breaks :SetAzureFWPRuleCollection
         }                                                                                   # End :SetAzureFWPRuleCollection while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
@@ -982,8 +997,9 @@ function GetAzFWPRuleCollection {                                               
                             'Number'=$ObjectNumber;                                         # Object number
                             'Name'=$RuleC.name;                                             # Rule collection name
                             'Priority'=$RuleC.Priority;                                     # Rule collection priority
+                            'RuleActionType'=$RuleC.Action.Type;                            # Rule collection action type
                             'RuleNames'=$RuleC.Rules.Name;                                  # Rule names
-                            'RuleCount'=$RuleC.Rules.Count;                                 # Rule collection rules count
+                            'RuleType'=$RuleC.RuleCollectionType;                           # Rule collection type
                             'RCGName'=$FWPolicyRCG.Name;                                    # Policy RCG name
                             'RCGPriority'=$FWPolicyRCG.Properties.Priority;                 # Policy RCG priority
                             'PolicyName'=$FWPolicy.Name;                                    # Policy name
@@ -1020,12 +1036,18 @@ function GetAzFWPRuleCollection {                                               
                         Write-Host "[$Number] Collection Name:  "$_.Name                    # Write message to screen
                     }                                                                       # End else (if ($Number -le 9))
                     Write-Host 'Collection Priority:   '$_.Priority                         # Write message to screen
-                    Write-Host 'Collection Rule Count: '$_.RuleCount                        # Write message to screen
-                    Write-Host 'Collection Rule Names {'                                    # Write message to screen
-                    foreach ($RuleC in $_.RuleNames) {                                      # For each item in current item .RuleNames
-                        Write-Host '                       '$RuleC                          # Write message to screen
-                    }                                                                       # End foreach ($RuleC in $_.RuleNames)
-                    Write-Host '                      }'                                    # Write message to screen
+                    Write-Host 'Collection Action Type:'$_.RuleActionType                   # Write message to screen
+                    Write-Host 'Collection Type:       '$_.RuleType                         # Write message to screen
+                    if ($_.RuleNames) {                                                     # If $_.RuleNames has a value
+                        Write-Host 'Collection Rule Names {'                                # Write message to screen
+                        foreach ($RuleC in $_.RuleNames) {                                  # For each item in current item .RuleNames
+                            Write-Host '                       '$RuleC                      # Write message to screen
+                        }                                                                   # End foreach ($RuleC in $_.RuleNames)
+                        Write-Host '                      }'                                # Write message to screen
+                    }                                                                       # End if ($_.RuleNames)
+                    else {                                                                  # Else if $_.RuleNames is $null
+                        Write-Host 'Collection Rule Names:  None'                           # Write message to screen
+                    }                                                                       # End else (if ($_.RuleNames))
                     Write-Host 'RCG Name:              '$_.RCGName                          # Write message to screen
                     Write-Host 'RCG Priority:          '$_.RCGPriority                      # Write message to screen
                     Write-Host 'Policy Name:           '$_.PolicyName                       # Write message to screen
