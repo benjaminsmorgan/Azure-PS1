@@ -58,8 +58,9 @@ function ListAzFWPRuleCollection {                                              
                             'Number'=$ObjectNumber;                                         # Object number
                             'Name'=$RuleC.name;                                             # Rule collection name
                             'Priority'=$RuleC.Priority;                                     # Rule collection priority
+                            'RuleActionType'=$RuleC.Action.Type;                            # Rule collection action type
                             'RuleNames'=$RuleC.Rules.Name;                                  # Rule names
-                            'RuleCount'=$RuleC.Rules.Count;                                 # Rule collection rules count
+                            'RuleType'=$RuleC.RuleCollectionType;                           # Rule collection type
                             'RCGName'=$FWPolicyRCG.Name;                                    # Policy RCG name
                             'RCGPriority'=$FWPolicyRCG.Properties.Priority;                 # Policy RCG priority
                             'PolicyName'=$FWPolicy.Name;                                    # Policy name
@@ -87,12 +88,18 @@ function ListAzFWPRuleCollection {                                              
             foreach ($_ in $ObjectArray) {                                                  # For each item in $ObjectArray
                 Write-Host 'Collection Name:       '$_.Name                                 # Write message to screen
                 Write-Host 'Collection Priority:   '$_.Priority                             # Write message to screen
-                Write-Host 'Collection Rule Count: '$_.RuleCount                            # Write message to screen
-                Write-Host 'Collection Rule Names {'                                        # Write message to screen
-                foreach ($RuleC in $_.RuleNames) {                                          # For each item in current item .RuleNames
-                    Write-Host '                       '$RuleC                              # Write message to screen
-                }                                                                           # End foreach ($RuleC in $_.RuleNames)
-                Write-Host '                      }'                                        # Write message to screen
+                Write-Host 'Collection Action Type:'$_.RuleActionType                       # Write message to screen
+                Write-Host 'Collection Type:       '$_.RuleType                             # Write message to screen
+                if ($_.RuleNames) {                                                         # If $_.RuleNames has a value
+                    Write-Host 'Collection Rule Names {'                                    # Write message to screen
+                    foreach ($RuleC in $_.RuleNames) {                                      # For each item in current item .RuleNames
+                        Write-Host '                       '$RuleC                          # Write message to screen
+                    }                                                                       # End foreach ($RuleC in $_.RuleNames)
+                    Write-Host '                      }'                                    # Write message to screen
+                }                                                                           # End if ($_.RuleNames)
+                else {                                                                      # Else if $_.RuleNames is $null
+                    Write-Host 'Collection Rule Names:  None'                               # Write message to screen
+                }                                                                           # End else (if ($_.RuleNames))
                 Write-Host 'RCG Name:              '$_.RCGName                              # Write message to screen
                 Write-Host 'RCG Priority:          '$_.RCGPriority                          # Write message to screen
                 Write-Host 'Policy Name:           '$_.PolicyName                           # Write message to screen
@@ -105,9 +112,11 @@ function ListAzFWPRuleCollection {                                              
                     Write-Host 'Firewall Name:          Not Assigned'                       # Write message to screen
                 }                                                                           # End else (if ($_.FWName))
                 Write-Host ''                                                               # Write message to screen
+                Write-Host '-------------------------------------------------------------'  # Write message to screen
+                Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ObjectArray)
-        Pause                                                                               # Pauses all actions for operator input
-        Break ListAzureFWPRuleCol                                                           # Breaks :ListAzureFWPRuleCol
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureFWPRuleCol                                                       # Breaks :ListAzureFWPRuleCol
         }                                                                                   # End :ListAzureFWPRuleCol while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
