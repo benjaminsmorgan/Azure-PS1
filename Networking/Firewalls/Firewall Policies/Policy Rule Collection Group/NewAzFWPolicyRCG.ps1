@@ -129,7 +129,7 @@ function NewAzFWPolicyRCG {                                                     
                     $PolicyRCGName = $null                                                  # Clears $var
                 }                                                                           # End if ($PolicyRCGName -in $ObjectArray) 
                 if ($PolicyRCGName) {                                                       # If $PolicyRCGName has a value
-                    Write-Host 'Use:'$PolicyRCGName' as the rule collection name'           # Write message to screen
+                    Write-Host 'Use:'$PolicyRCGName' as the rule collection group name'     # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the firewall name
                     Clear-Host                                                              # Clears screen
@@ -186,7 +186,7 @@ function NewAzFWPolicyRCG {                                                     
                 }                                                                           # End if ($PolicyRCGPri)
                 if ($PolicyRCGPri) {                                                        # If $PolicyRCGPri has a value
                     :ConfirmSetting while ($true) {                                         # Inner loop for confirming the RCG priority
-                        Write-Host 'Use:'$PolicyRCGPri' as the rulle collection priority'   # Write message to screen
+                        Write-Host 'Use:'$PolicyRCGPri' as the rule collection priority'    # Write message to screen
                         Write-Host ''                                                       # Write message to screen
                         $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the RCG priority
                         Clear-Host                                                          # Clears screen
