@@ -1,7 +1,7 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     None
@@ -27,7 +27,7 @@
 } #>
 <# Process Flow {
     Function
-        Call GetAzVNetSubnetConfig > Get $SubnetObject
+        Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
         End GetAzVNetSubnetConfig
             Return Function > Send $SubnetObject, $VNetObject
 }#>
