@@ -51,7 +51,7 @@ function ManageAzVNGateway {                                                    
             Write-Host 'Manage Gateways'                                                    # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] New Gateway (In dev)'                                           # Write message to screen
+            Write-Host '[1] New Gateway'                                                    # Write message to screen
             Write-Host '[2] List Gateways'                                                  # Write message to screen
             Write-Host '[3] Remove Gateway'                                                 # Write message to screen
             Write-Host '[4] Manage Gateway Configs (In dev)'                                # Write message to screen
@@ -63,7 +63,7 @@ function ManageAzVNGateway {                                                    
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
                 Write-Host 'New Gateway'                                                    # Write message to screen
-                #Function                                                                   # Calls function
+                NewAzVNGateway                                                              # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1') 
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
                 Write-Host 'List Gateways'                                                  # Write message to screen
@@ -88,6 +88,193 @@ function ManageAzVNGateway {                                                    
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVNGateway
+function NewAzVNGateway {                                                                   # Function to create a new virtual network gateway
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'NewAzVNGateway'                                             # Creates $CallingFunction 
+        }                                                                                   # End if (!$CallingFunction)
+        :NewAzureVNGateway while ($true) {                                                  # Outer loop for managing function
+            Write-Host 'The following must exist prior to building the gateway'             # Write message to screen
+            Write-Host 'A virtual network with a subnet named "GatewaySubnet"'              # Write message to screen   
+            Write-Host 'An available public IP sku matching gateway sku'                    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last character
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
+            :SetAzureGWName while ($true) {                                                 # Inner loop for setting the gateway name
+                Write-Host 'Enter the gateway name'                                         # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
+                $GWNameObject = Read-Host 'Name'                                            # Operator input for the gateway name
+                $GWNameArray = $GWNameObject.ToCharArray()                                  # Loads $GWNameObject into array
+                Clear-Host                                                                  # Clears screen
+                if ($GWNameObject.Length -ge 81) {                                          # If $GWNameObject.Length is greater or equal to 81
+                    Write-Host 'The gateway name is to long'                                # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWNameObject = $null                                                   # Clears $GWNameObject
+                }                                                                           # End if ($GWNameObject.Length -ge 80)
+                if ($GWNameArray[0] -notin $Valid1stChar) {                                 # If 0 position of $GWNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWNameObject = $null                                                   # Clears $GWNameObject
+                }                                                                           # End if ($GWNameArray[0] -notin $Valid1stChar)
+                if ($GWNameArray[-1] -notin $ValidLastChar) {                               # If last position of $GWNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWNameObject = $null                                                   # Clears $GWNameObject
+                }                                                                           # End if ($GWNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $GWNameArray) {                                              # For each item in $GWNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Gateway name cannot include any spaces'             # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $GWNameObject = $null                                               # Clears $GWNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $GWNameArray)
+                if ($GWNameObject) {                                                        # If $GWNameObject has a value
+                    Write-Host 'Use:'$GWNameObject' as the gateway name'                    # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the gateway name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureVNGateway                                             # Breaks :NewAzureVNGateway
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureGWName                                                # Breaks :SetAzureGWName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($GWNameObject)
+                else {                                                                      # If $GWNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($GWNameObject))
+            }                                                                               # End :SetAzureGWName while ($true)
+            :SetAzureGWIPName while ($true) {                                               # Inner loop for setting the gateway IP name
+                Write-Host 'Enter the gateway IP name'                                      # Write message to screen
+                Write-Host ''                                                               # Writes message to screen
+                $GWIPNameObject = Read-Host 'Name'                                          # Operator input for the gateway IP config name
+                $GWNameArray = $GWIPNameObject.ToCharArray()                                # Loads $GWIPNameObject into array
+                Clear-Host                                                                  # Clears screen
+                if ($GWIPNameObject.Length -ge 81) {                                        # If $GWIPNameObject.Length is greater or equal to 81
+                    Write-Host 'The gateway IP name is to long'                             # Write message to screen
+                    Write-Host 'Max length of the name is 80 characters'                    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWIPNameObject = $null                                                 # Clears $GWIPNameObject
+                }                                                                           # End if ($GWIPNameObject.Length -ge 80)
+                if ($GWNameArray[0] -notin $Valid1stChar) {                                 # If 0 position of $GWNameArray is not in $Valid1stChar
+                    Write-Host 'The first character of the name must be a letter or number' # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWIPNameObject = $null                                                 # Clears $GWIPNameObject
+                }                                                                           # End if ($GWNameArray[0] -notin $Valid1stChar)
+                if ($GWNameArray[-1] -notin $ValidLastChar) {                               # If last position of $GWNameArray is not in $ValidLastChar
+                    Write-Host `
+                        'The last character of the name must be a letter, number or _ '     # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $GWIPNameObject = $null                                                 # Clears $GWIPNameObject
+                }                                                                           # End if ($GWNameArray[0] -notin $Valid1stChar)
+                foreach ($_ in $GWNameArray) {                                              # For each item in $GWNameArray
+                    if ($_ -notin $ValidArray) {                                            # If current item is not in $ValidArray
+                        if ($_ -eq ' ') {                                                   # If current item equals 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host 'Gateway IP name cannot include any spaces'          # Write message to screen
+                        }                                                                   # End if ($_ -eq ' ')
+                        else {                                                              # If current item is not equal to 'space'
+                            Write-Host ''                                                   # Write message to screen    
+                            Write-Host $_' is not a valid character'                        # Write message to screen
+                        }                                                                   # End else (if ($_ -eq ' '))
+                        $GWIPNameObject = $null                                             # Clears $GWIPNameObject
+                    }                                                                       # End if ($_ -notin $ValidArray)
+                }                                                                           # End foreach ($_ in $GWNameArray)
+                if ($GWIPNameObject) {                                                      # If $GWIPNameObject has a value
+                    Write-Host 'Use:'$GWIPNameObject' as the gateway IP name'               # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the gateway name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureVNGateway                                             # Breaks :NewAzureVNGateway
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break SetAzureGWIPName                                              # Breaks :SetAzureGWIPName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End if ($GWIPNameObject)
+                else {                                                                      # If $GWIPNameObject does not have a value
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($GWIPNameObject))
+            }                                                                               # End :SetAzureGWIPName while ($true)
+            $VNetObject = GetAzVirtualNetwork ($CallingFunction)                            # Calls function and assigns output to $var
+            if (!$VnetObject) {                                                             # If $VnetObject is $null
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
+            }                                                                               # End if (!$VnetObject)
+            $SubnetList = $VNetObject.Subnets.Name                                          # SubnetList is equal to $VNetObject.Subnets.Name
+            foreach ($_ in $SubnetList) {                                                   # For each item in $SubnetList
+                if ($_ -eq 'GatewaySubnet') {                                               # If current item equals 'GatewaySubnet
+                    $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name 'GatewaySubnet' `
+                        -VirtualNetwork $VNetObject                                         # Gets the subnet object
+                }                                                                           # End if ($_ -eq 'GatewaySubnet')
+            }                                                                               # End foreach ($_ in $SubnetList)  
+            if (!$SubnetObject) {                                                           # If $SubnetObject is $null
+                Write-Host 'In order to complete this task, a new'                          # Write message to screen
+                Write-Host 'subnet named "GatewaySubnet" must exist.'                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Please create this subnet and rerun this function'              # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway    
+            }                                                                               # End if (!$SubnetObject)
+            $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                       # Calls function and assigns output to $var
+            if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
+            }                                                                               # End if (!$PublicIPObject)
+            Try {                                                                           # Try the following
+                Write-Host 'Creating the gateway IP config'                                 # End # Write message to screen
+                $GatewayIPConfig = New-AzVirtualNetworkGatewayIpConfig -Name `
+                    $GWIPNameObject -SubnetID $SubnetObject.ID -PublicIpAddressID `
+                    $PublicIPObject.ID -ErrorAction 'Stop'                                  # Creates the gateway IP config
+                Write-Host 'Creating the gateway'                                           # End # Write message to screen
+                Write-Host 'This will take awhile'                                          # End # Write message to screen
+                New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
+                    $VNetObject.ResourceGroupName -Location $VNetObject.Location -IpConfigurations `
+                    $GatewayIPConfig -ErrorAction 'Stop' | Out-Null                         # Creates the gateway
+            }                                                                               # End try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway    
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The gateway has been creater'                                       # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzureVNGateway                                                         # Breaks :NewAzureVNGateway    
+        }                                                                                   # End :NewAzureVNGateway while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzVNGateway
 function ListAzVNGateway {                                                                  # Function to list all virtual network gateways
     Begin {                                                                                 # Begin function
         :GetAzureGateway while ($true) {                                                    # Outer loop for managing function
