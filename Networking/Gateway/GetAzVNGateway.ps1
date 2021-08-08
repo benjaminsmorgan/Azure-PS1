@@ -38,6 +38,7 @@ function GetAzVNGateway {                                                       
             $ObjectList = Get-AzResource | Where-Object `
                 {$_.ResourceType -eq 'Microsoft.Network/virtualNetworkGateways'}            # Gets a list of all gateways
             if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'No gateways present in this subscription'                       # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'If the gateway was just created, please retry in 15 minutes'    # Write message to screen
@@ -128,58 +129,3 @@ function GetAzVNGateway {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzVNGateway
-function RemoveAzVNGateway {                                                                # Function to remove a gateway
-    Begin {                                                                                 # Begin function
-        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
-            $CallingFunction = 'RemoveAzVNGateway'                                          # Creates $CallingFunction
-        }                                                                                   # End if (!$CallingFunction)
-        :RemoveAzureGateway while ($true) {                                                 # Outer loop for managing function
-            $GatewayObject = GetAzVNGateway ($CallingFunction)                              # Calls function and assigns output to $var
-            if (!$GatewayObject) {                                                          # If $GatewayObject does not have a value
-                Break RemoveAzureGateway                                                    # Breaks :RemoveAzureGateway
-            }                                                                               # End if (!$GatewayObject)
-            $VNetName = $GatewayObject.IPConfigurations.Subnet.ID.Split('/')[8]             # Isolates the Vnet name
-            Write-Host 'Remove Gateway: '$GatewayObject.name                                # Write message to screen
-            Write-Host 'From VNet:      '$VNetName                                          # Write message to screen
-            Write-Host 'From RG:        '$GatewayObject.ResourceGroupName                   # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            $OpConfirm = Read-Host '[Y] Yes [N]'                                            # Operator confirmation to remove the gateway
-            Clear-Host                                                                      # Clears screen
-            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                Write-Host 'Removing the gateway'                                           # Write message to screen
-                Write-Host 'This will take a while'                                         # Write message to screen
-                Try {                                                                       # Try the following
-                    Remove-AzVirtualNetworkGateway -Name $GatewayObject.Name `
-                        -ResourceGroupName $GatewayObject.ResourceGroupName `
-                        -Force -ErrorAction 'Stop' | Out-Null                               # Removes the gateway
-                }                                                                           # End Try
-                Catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    $MSG = $Error[0]                                                        # Gets the error message
-                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Warning $MSG                                                      # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'No changes have been made'                                  # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Break RemoveAzureGateway                                                # Breaks :RemoveAzureGateway    
-                }                                                                           # End Catch
-                Clear-Host                                                                  # Clears screen
-                Write-Host 'The gateway has been removed'                                   # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break RemoveAzureGateway                                                    # Breaks :RemoveAzureGateway    
-            }                                                                               # End if ($OpConfirm -eq 'y')
-            else {                                                                          # All other inputs for $OpConfirm
-                Write-Host 'No changes have been made'                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break RemoveAzureGateway                                                    # Breaks :RemoveAzureGateway    
-            }                                                                               # End else (if ($OpConfirm -eq 'y'))
-        }                                                                                   # End :RemoveAzureGateway while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzVNGateway
