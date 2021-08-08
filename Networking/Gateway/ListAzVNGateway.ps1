@@ -32,6 +32,7 @@ function ListAzVNGateway {                                                      
             $ObjectList = Get-AzResource | Where-Object `
                 {$_.ResourceType -eq 'Microsoft.Network/virtualNetworkGateways'}            # Gets a list of all gateways
             if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'No gateways present in this subscription'                       # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'If the gateway was just created, please retry in 15 minutes'    # Write message to screen
