@@ -16304,114 +16304,26 @@ function NewAzVNGateway {                                                       
                 Pause                                                                       # Pauses all actions for operator input
                 Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway    
             }                                                                               # End if (!$SubnetObject)
-            :SetAzureGatewaySku while ($true) {                                             # Inner loop for setting the gateway sku
-                Write-Host 'Select the gateway sku'                                         # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Write-Host '[0]  Exit'                                                      # Write message to screen
-                Write-Host '[1]  Basic'                                                     # Write message to screen
-                Write-Host '[2]  Standard'                                                  # Write message to screen
-                Write-Host '[3]  HighPerformance'                                           # Write message to screen
-                Write-Host '[4]  UltraPerformance'                                          # Write message to screen
-                Write-Host '[5]  VpnGw1'                                                    # Write message to screen
-                Write-Host '[6]  VpnGw2'                                                    # Write message to screen
-                Write-Host '[7]  VpnGw3'                                                    # Write message to screen
-                Write-Host '[8]  VpnGw4'                                                    # Write message to screen
-                Write-Host '[9]  VpnGw5'                                                    # Write message to screen
-                Write-Host '[10] VpnGw1AZ'                                                  # Write message to screen
-                Write-Host '[11] VpnGw2AZ'                                                  # Write message to screen
-                Write-Host '[12] VpnGw3AZ'                                                  # Write message to screen
-                Write-Host '[13] VpnGw4AZ'                                                  # Write message to screen
-                Write-Host '[14] VpnGw5AZ'                                                  # Write message to screen
-                Write-Host '[15] ErGw1AZ'                                                   # Write message to screen
-                Write-Host '[16] ErGw2AZ'                                                   # Write message to screen
-                Write-Host '[17] ErGw3AZ'                                                   # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input to select the gateway sku
-                Clear-Host                                                                  # Clears screen
-                if ($Opselect -eq '0') {                                                    # If $OpSelect equals '0'  
+            $GatewayType = SetAzGatewayType ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$GatewayType) {                                                            # If $GatewayType is $null
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
+            }                                                                               # End if (!$GatewayType)    
+            $GatewaySku = SetAzGatewayVPNSku ($CallingFunction, $GatewayType)               # Calls function and assigns output to $var
+            if (!$GatewaySku) {                                                             # If $GatewaySku is $null
+                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
+            }                                                                               # End if (!$GatewaySku)
+            if ($GatewaySku -eq 'Basic') {                                                  # If $GatewaySku equals 'Basic'
+                $VPNType = 'PolicyBased'                                                    # Sets $VPNType
+            }                                                                               # End if ($GatewaySku -eq 'Basic')
+            if ($GatewaySku -ne 'Basic' -and $GatewayType -eq 'VPN') {                      # If $GatewaySku does not equal 'Basic' and $GatewayType equals 'VPN'
+                $VPNType = 'RouteBased'                                                     # Sets $VPNType
+            }                                                                               # End if ($GatewaySku -ne 'Basic' -and $GatewayType -eq 'VPN')
+            if ($GatewayType -eq 'VPN') {                                                   # If $GatewayType equals 'VPN'
+                $GatewaySkuGen = SetAzGatewayVPNSkuGen ($CallingFunction, $GatewaySku)      # Calls function and assigns output to $var
+                if (!$GatewaySkuGen) {                                                      # If $GatewaySkuGen is $null
                     Break NewAzureVNGateway                                                 # Breaks :NewAzureVNGateway
-                }                                                                           # End if ($Opselect -eq '0')
-                elseif ($Opselect -eq '1') {                                                # Else if $OpSelect equals '1'
-                    $GatewaySku = 'Basic'                                                   # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '1')
-                elseif ($Opselect -eq '2') {                                                # Else if $OpSelect equals '2'
-                    $GatewaySku = 'Standard'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '2')
-                elseif ($Opselect -eq '3') {                                                # Else if $OpSelect equals '3'
-                    $GatewaySku = 'HighPerformance'                                         # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '3')
-                elseif ($Opselect -eq '4') {                                                # Else if $OpSelect equals '4'
-                    $GatewaySku = 'UltraPerformance'                                        # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '4')
-                elseif ($Opselect -eq '5') {                                                # Else if $OpSelect equals '5'
-                    $GatewaySku = 'VpnGw1'                                                  # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '5')
-                elseif ($Opselect -eq '6') {                                                # Else if $OpSelect equals '6'
-                    $GatewaySku = 'VpnGw2'                                                  # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '6')
-                elseif ($Opselect -eq '7') {                                                # Else if $OpSelect equals '7'
-                    $GatewaySku = 'VpnGw3'                                                  # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '7')
-                elseif ($Opselect -eq '8') {                                                # Else if $OpSelect equals '8'
-                    $GatewaySku = 'VpnGw4'                                                  # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '8')
-                elseif ($Opselect -eq '9') {                                                # Else if $OpSelect equals '9'
-                    $GatewaySku = 'VpnGw5'                                                  # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '9')
-                elseif ($Opselect -eq '10') {                                               # Else if $OpSelect equals '10'
-                    $GatewaySku = 'VpnGw1AZ'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '10')
-                elseif ($Opselect -eq '11') {                                               # Else if $OpSelect equals '11'
-                    $GatewaySku = 'VpnGw2AZ'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '11')
-                elseif ($Opselect -eq '12') {                                               # Else if $OpSelect equals '12'
-                    $GatewaySku = 'VpnGw3AZ'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '12')
-                elseif ($Opselect -eq '13') {                                               # Else if $OpSelect equals '13'
-                    $GatewaySku = 'VpnGw4AZ'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '13')
-                elseif ($Opselect -eq '14') {                                               # Else if $OpSelect equals '14'
-                    $GatewaySku = 'VpnGw5AZ'                                                # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '14')
-                elseif ($Opselect -eq '15') {                                               # Else if $OpSelect equals '15'
-                    $GatewaySku = 'ErGw1AZ'                                                 # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '15')
-                elseif ($Opselect -eq '16') {                                               # Else if $OpSelect equals '16'
-                    $GatewaySku = 'ErGw2AZ'                                                 # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '16')
-                elseif ($Opselect -eq '17') {                                               # Else if $OpSelect equals '17'
-                    $GatewaySku = 'ErGw3AZ'                                                 # Sets the gateway sku
-                }                                                                           # End elseif ($Opselect -eq '17')
-                else {                                                                      # All other inputs for $OpSelect 
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($Opselect -eq '0'))
-                if ($GatewaySku) {                                                          # If $GatewaySku has a value                    
-                    :Confirm while ($true) {                                                # Inner loop for confirming the gateway sku
-                        Write-Host 'Use:'$GatewaySku' as the the gateway sku'               # Write message to screen
-                        Write-Host ''                                                       # Write message to screen
-                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the sku
-                        Clear-Host                                                          # Clears screen
-                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
-                            Break SetAzureGatewaySku                                        # Breaks :SetAzureGatewaySku
-                        }                                                                   # End if ($OpConfirm -eq 'y')
-                        elseif ($OpConfirm -eq 'n') {                                       # Else if $OpConfirm equals 'n'
-                            Break Confirm                                                   # Breaks :Break
-                        }                                                                   # End elseif ($OpConfirm -eq 'n') 
-                        elseif ($OpConfirm -eq 'e') {                                       # Else if $OpConfirm equals 'e'
-                            Break NewAzureVNGateway                                         # Breaks :NewAzureVNGateway
-                        }                                                                   # End elseif ($OpConfirm -eq 'e')
-                        else {                                                              # All other inputs for $OpConfirm
-                            Write-Host 'That was not a valid input'                         # Write message to screen
-                            Write-Host ''                                                   # Write message to screen
-                            Pause                                                           # Pauses all actions for operator input
-                            Clear-Host                                                      # Clears screen
-                        }                                                                   # End else (if ($OpConfirm -eq 'y'))
-                    }                                                                       # End :Confirm while ($true)
-                }                                                                           # End if ($GatewaySku)
-            }                                                                               # End :SetAzureGatewaySku while ($true)            
+                }                                                                           # End if (!$GatewaySkuGen)
+            }                                                                               # End if ($GatewayType -eq 'VPN')                                                                         
             $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                       # Calls function and assigns output to $var
             if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
                 Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
@@ -16425,8 +16337,9 @@ function NewAzVNGateway {                                                       
                 Write-Host 'This will take awhile'                                          # End # Write message to screen
                 New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
                     $VNetObject.ResourceGroupName -Location $VNetObject.Location `
-                    -GatewaySku $GatewaySku -IpConfigurations $GatewayIPConfig `
-                    -ErrorAction 'Stop' | Out-Null                                          # Creates the gateway
+                    -GatewayType $GatewayType -GatewaySku $GatewaySku `
+                    -VpnGatewayGeneration $GatewaySkuGen -VpnType $VPNType `
+                    -IpConfigurations $GatewayIPConfig -ErrorAction 'Stop' | Out-Null       # Creates the gateway
             }                                                                               # End try
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
@@ -16457,6 +16370,294 @@ function NewAzVNGateway {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzVNGateway
+function SetAzGatewayType {                                                                 # Function to set a virtual network gateway type
+    Begin {                                                                                 # Begin function
+        :SetAzureGatewayType while ($true) {                                                # Inner loop for setting the gateway type
+            Write-Host 'Select the gateway type'                                            # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '[0]  Exit'                                                          # Write message to screen
+            Write-Host '[1]  Vpn'                                                           # Write message to screen
+            Write-Host '[2]  ExpressRoute'                                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select the gateway type
+            Clear-Host                                                                      # Clears screen
+            if ($Opselect -eq '0') {                                                        # If $OpSelect equals '0'  
+                Break SetAzureGatewayType                                                   # Breaks :SetAzureGatewayType
+            }                                                                               # End if ($Opselect -eq '0')
+            elseif ($Opselect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                $GatewayType = 'Vpn'                                                        # Sets the gateway type
+            }                                                                               # End elseif ($Opselect -eq '1')
+            elseif ($Opselect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                $GatewayType = 'ExpressRoute'                                               # Sets the gateway type
+            }                                                                               # End elseif ($Opselect -eq '2')
+            else {                                                                          # All other inputs for $OpSelect 
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($Opselect -eq '0'))
+            if ($GatewayType) {                                                             # If $GatewayType has a value                    
+                :Confirm while ($true) {                                                    # Inner loop for confirming the gateway type
+                    Write-Host 'Use:'$GatewayType' as the the gateway type'                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the type
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Return $GatewayType                                                 # Returns to calling function with $var
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                    elseif ($OpConfirm -eq 'n') {                                           # Else if $OpConfirm equals 'n'
+                        Break Confirm                                                       # Breaks :Break
+                    }                                                                       # End elseif ($OpConfirm -eq 'n') 
+                    elseif ($OpConfirm -eq 'e') {                                           # Else if $OpConfirm equals 'e'
+                        Break SetAzureGatewayType                                           # Breaks :NewAzureVNGateway
+                    }                                                                       # End elseif ($OpConfirm -eq 'e')
+                    else {                                                                  # All other inputs for $OpConfirm
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpConfirm -eq 'y'))
+                }                                                                           # End :Confirm while ($true)
+            }                                                                               # End if ($GatewayType)
+        }                                                                                   # End :SetAzureGatewayType while ($true) 
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzGatewayType
+function SetAzGatewayVPNSku {                                                               # Function to set a virtual network gateway sku
+    Begin {                                                                                 # Begin function
+        :SetAzureGatewayVPNSku while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Select the gateway sku'                                             # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $VPNUrl ='https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpn-gateway-settings#gwsku'
+            $ERURL = 'https://docs.microsoft.com/en-us/azure/expressroute/expressroute-about-virtual-network-gateways'
+            if ($GatewayType -eq 'VPN') {                                                   # If $GatewayType equals 'VPN'
+                Write-Host $VPNURL                                                          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host '[1]  Basic           (Legacy)'                                  # Write message to screen
+                Write-Host '[2]  Standard        (Legacy)'                                  # Write message to screen
+                Write-Host '[3]  HighPerformance (Legacy)'                                  # Write message to screen
+                Write-Host '[4]  VpnGw1'                                                    # Write message to screen
+                Write-Host '[5]  VpnGw2'                                                    # Write message to screen
+                Write-Host '[6]  VpnGw3'                                                    # Write message to screen
+                Write-Host '[7]  VpnGw4'                                                    # Write message to screen
+                Write-Host '[8]  VpnGw5'                                                    # Write message to screen
+                <#
+                Write-Host '[9]  VpnGw1AZ'                                                  # Write message to screen
+                Write-Host '[10] VpnGw2AZ'                                                  # Write message to screen
+                Write-Host '[11] VpnGw3AZ'                                                  # Write message to screen
+                Write-Host '[12] VpnGw4AZ'                                                  # Write message to screen
+                Write-Host '[13] VpnGw5AZ'                                                  # Write message to screen 
+                #>
+            }                                                                               # End if ($GatewayType -eq 'VPN')
+            elseif ($GatewayType -eq 'ExpressRoute') {                                      # Else if $GatewayType equals 'ExpressRoute'
+                Write-Host $ERURL                                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host '[0] Exit'                                                       # Write message to screen
+                Write-Host '[1] ErGw1AZ'                                                    # Write message to screen
+                Write-Host '[2] ErGw2AZ'                                                    # Write message to screen
+                Write-Host '[3] ErGw3AZ'                                                    # Write message to screen
+            }                                                                               # End elseif ($GatewayType -eq 'ExpressRoute')
+            else {                                                                          # All other values for $GatewayType
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'A gateway type was not specified'                               # Write message to screen
+                Write-Host 'before this function was called'                                # Write message to screen   
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureGatewayVPNSku                                                 # Breaks :SetAzureGatewayVPNSku
+            }                                                                               # End else (if ($GatewayType -eq 'VPN'))
+            Write-Host ''                                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select the gateway sku
+            Clear-Host                                                                      # Clears screen
+            if ($Opselect -eq '0') {                                                        # If $OpSelect equals '0'  
+                Break SetAzureGatewayVPNSku                                                 # Breaks :SetAzureGatewayVPNSku
+            }                                                                               # End if ($Opselect -eq '0')
+            if ($GatewayType -eq 'VPN') {                                                   # If $GatewayType equals 'VPN'
+                if ($Opselect -eq '1') {                                                    # If $OpSelect equals '1'
+                    $GatewaySku = 'Basic'                                                   # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '1')
+                elseif ($Opselect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $GatewaySku = 'Standard'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '2')
+                elseif ($Opselect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $GatewaySku = 'HighPerformance'                                         # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '3')
+                elseif ($Opselect -eq '4') {                                                # Else if $OpSelect equals '4'
+                    $GatewaySku = 'VpnGw1'                                                  # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '4')
+                elseif ($Opselect -eq '5') {                                                # Else if $OpSelect equals '5'
+                    $GatewaySku = 'VpnGw2'                                                  # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '5')
+                elseif ($Opselect -eq '6') {                                                # Else if $OpSelect equals '6'
+                    $GatewaySku = 'VpnGw3'                                                  # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '6')
+                elseif ($Opselect -eq '7') {                                                # Else if $OpSelect equals '7'
+                    $GatewaySku = 'VpnGw4'                                                  # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '7')
+                elseif ($Opselect -eq '8') {                                                # Else if $OpSelect equals '8'
+                    $GatewaySku = 'VpnGw5'                                                  # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '8')
+                <#
+                elseif ($Opselect -eq '9') {                                                # Else if $OpSelect equals '9'
+                    $GatewaySku = 'VpnGw1AZ'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '9')
+                elseif ($Opselect -eq '10') {                                               # Else if $OpSelect equals '10'
+                    $GatewaySku = 'VpnGw2AZ'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '10')
+                elseif ($Opselect -eq '11') {                                               # Else if $OpSelect equals '11'
+                    $GatewaySku = 'VpnGw3AZ'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '11')
+                elseif ($Opselect -eq '12') {                                               # Else if $OpSelect equals '12'
+                    $GatewaySku = 'VpnGw4AZ'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '12')
+                elseif ($Opselect -eq '13') {                                               # Else if $OpSelect equals '13'
+                    $GatewaySku = 'VpnGw5AZ'                                                # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '13')
+                #>
+                else {                                                                      # All other inputs for $OpSelect 
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($Opselect -eq '1'))   
+            }                                                                               # End if ($GatewayType -eq 'VPN')
+            else {                                                                          # Else if $GatewayType does not equal 'VPN'
+                if ($Opselect -eq '1') {                                                    # If $OpSelect equals '1'
+                    $GatewaySku = 'ErGw1AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '1')
+                elseif ($Opselect -eq '2') {                                                # Else if $OpSelect equals '2'
+                    $GatewaySku = 'ErGw2AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '2')
+                elseif ($Opselect -eq '3') {                                                # Else if $OpSelect equals '3'
+                    $GatewaySku = 'ErGw3AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '3')
+                else {                                                                      # All other inputs for $OpSelect 
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($Opselect -eq '1'))    
+            }                                                                               # End else (if ($GatewayType -eq 'VPN'))
+            if ($GatewaySku) {                                                              # If $GatewaySku has a value                    
+                :Confirm while ($true) {                                                    # Inner loop for confirming the gateway sku
+                    Write-Host 'Use:'$GatewaySku' as the the gateway sku'                   # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the sku
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Return $GatewaySku                                                  # Returns to calling function with $var
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                    elseif ($OpConfirm -eq 'n') {                                           # Else if $OpConfirm equals 'n'
+                        Break Confirm                                                       # Breaks :Break
+                    }                                                                       # End elseif ($OpConfirm -eq 'n') 
+                    elseif ($OpConfirm -eq 'e') {                                           # Else if $OpConfirm equals 'e'
+                        Break SetAzureGatewayVPNSku                                         # Breaks :SetAzureGatewayVPNSku
+                    }                                                                       # End elseif ($OpConfirm -eq 'e')
+                    else {                                                                  # All other inputs for $OpConfirm
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpConfirm -eq 'y'))
+                }                                                                           # End :Confirm while ($true)
+            }                                                                               # End if ($GatewaySku)
+        }                                                                                   # End :SetAzureGatewayVPNSku while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzGatewayVPNSku
+function SetAzGatewayVPNSkuGen {                                                            # Function to set a virtual network gateway sku generation
+    Begin {                                                                                 # Begin function
+        $GEN1 =@('Basic','Standard','HighPerformance','VpnGw1','VpnGw2','VpnGw3',`
+            'VpnGw1AZ','VpnGw2AZ','VpnGw3AZ')                                               # Creates $Gen1 array
+        $Gen2 =@('VpnGw2','VpnGw3','VpnGw4','VpnGw5','VpnGw2AZ','VpnGw3AZ','VpnGw4AZ',`
+            'VpnGw5AZ')                                                                     # Creates $Gen2 array
+        :SetAzureGWVPNSkuGen while ($true) {                                                # Outer loop for managing function
+            Write-Host 'Select the gateway sku generation'                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $Url ='https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpn-gateway-settings#gwsku'
+            Write-Host $URL                                                                 # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Gateway SKU:'$GatewaySku                                            # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            if ($GatewaySku -in $Gen1) {                                                    # If $GatewaySku is in $Gen1 array
+                Write-Host '[1] Gen 1'                                                      # Write message to screen
+            }                                                                               # End if ($GatewaySku -in $Gen1)
+            else {                                                                          # Else if $GatewaySku is not in $Gen1 array
+                Write-Host '[1] Gen 1 (Unavailable)'                                        # Write message to screen
+            }                                                                               # End else (if ($GatewaySku -in $Gen1))
+            if ($GatewaySku -in $Gen2) {                                                    # If $GatewaySku is in $Gen2 array
+                Write-Host '[2] Gen 2'                                                      # Write message to screen
+            }                                                                               # End if ($GatewaySku -in $Gen2)
+            else {                                                                          # Else if $GatewaySku is not in $Gen2 array
+                Write-Host '[2] Gen 2 (Unavailable)'                                        # Write message to screen
+            }                                                                               # End else (if ($GatewaySku -in $Gen2))
+            Write-Host ''                                                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input to select the gateway sku
+            Clear-Host                                                                      # Clears screen
+            if ($Opselect -eq '0') {                                                        # If $OpSelect equals '0'  
+                Break SetAzureGWVPNSkuGen                                                   # Breaks :SetAzureGWVPNSkuGen
+            }                                                                               # End if ($Opselect -eq '0')
+            if ($OpSelect -eq '1') {                                                        # If $OpSelect equals '1'
+                if ($GatewaySku -in $Gen1) {                                                # If $GatewaySku is in $Gen1 array
+                    $GatewaySkuGen = 'Generation1'                                          # Sets $GatewaySkuGen
+                }                                                                           # End if ($GatewaySku -in $Gen1) 
+                else {                                                                      # Else if $GatewaySku is not in $Gen1 array
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($GatewaySku -in $Gen1) )
+            }                                                                               # End if ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                if ($GatewaySku -in $Gen2) {                                                # If $GatewaySku is in $Gen2 array
+                    $GatewaySkuGen = 'Generation2'                                          # Sets $GatewaySkuGen
+                }                                                                           # End if ($GatewaySku -in $Gen2) 
+                else {                                                                      # Else if $GatewaySku is not in $Gen2 array
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($GatewaySku -in $Gen2))               
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '1'))
+            if ($GatewaySkuGen) {                                                           # If $GatewaySkuGen has a value                    
+                :Confirm while ($true) {                                                    # Inner loop for confirming the gateway sku
+                    Write-Host 'Use:'$GatewaySkuGen' as the the gateway sku'                # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the sku
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Return $GatewaySkuGen                                               # Returns to calling function with $var
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                    elseif ($OpConfirm -eq 'n') {                                           # Else if $OpConfirm equals 'n'
+                        Break Confirm                                                       # Breaks :Break
+                    }                                                                       # End elseif ($OpConfirm -eq 'n') 
+                    elseif ($OpConfirm -eq 'e') {                                           # Else if $OpConfirm equals 'e'
+                        Break SetAzureGWVPNSkuGen                                           # Breaks :SetAzureGWVPNSkuGen
+                    }                                                                       # End elseif ($OpConfirm -eq 'e')
+                    else {                                                                  # All other inputs for $OpConfirm
+                        Write-Host 'That was not a valid input'                             # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($OpConfirm -eq 'y'))
+                }                                                                           # End :Confirm while ($true)
+            }                                                                               # End if ($GatewaySkuGen)
+        }                                                                                   # End :SetAzureGWVPNSkuGen while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzGatewayVPNSkuGen
 function ListAzVNGateway {                                                                  # Function to list all virtual network gateways
     Begin {                                                                                 # Begin function
         :GetAzureGateway while ($true) {                                                    # Outer loop for managing function
