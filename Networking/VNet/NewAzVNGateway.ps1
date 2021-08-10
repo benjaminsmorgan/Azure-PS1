@@ -86,16 +86,28 @@ function NewAzVNGateway {                                                       
                     }                                                                       # End if ($_ -notin $ValidArray)
                 }                                                                           # End foreach ($_ in $GWNameArray)
                 if ($GWNameObject) {                                                        # If $GWNameObject has a value
-                    Write-Host 'Use:'$GWNameObject' as the gateway name'                    # Writes message to screen
-                    Write-Host ''                                                           # Writes message to screen
-                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the gateway name
-                    Clear-Host                                                              # Clears screen
-                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
-                        Break NewAzureVNGateway                                             # Breaks :NewAzureVNGateway
-                    }                                                                       # End if ($OpConfirm -eq 'e')
-                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
-                        Break SetAzureGWName                                                # Breaks :SetAzureGWName
-                    }                                                                       # End if ($OpConfirm -eq 'y')
+                    :Confirm while ($true) {                                                # Inner loop for confirming the gateway name
+                        Write-Host 'Use:'$GWNameObject' as the gateway name'                # Writes message to screen
+                        Write-Host ''                                                       # Writes message to screen
+                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the gateway name
+                        Clear-Host                                                          # Clears screen
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Break SetAzureGWName                                            # Breaks :SetAzureGWName
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                        elseif ($OpConfirm -eq 'n') {                                       # Else if $OpConfirm equals 'n'
+                            $GWNameObject = $null                                           # Clears $var
+                            Break confirm                                                   # Breaks :Confirm
+                        }                                                                   # End elseif ($OpConfirm -eq 'n')
+                        elseif ($OpConfirm -eq 'e') {                                       # Else if $OpConfirm equals 'e'
+                            Break NewAzureVNGateway                                         # Breaks :NewAzureVNGateway
+                        }                                                                   # End elseif ($OpConfirm -eq 'e')
+                        else {                                                              # All other inputs for $OpConfirm
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Pause                                                           # Pauses all actions for operator input
+                            Clear-Host                                                      # Clears screen
+                        }                                                                   # End else (if ($OpConfirm -eq 'y'))
+                    }                                                                       # End :Confirm while ($true)
                 }                                                                           # End if ($GWNameObject)
                 else {                                                                      # If $GWNameObject does not have a value
                     Pause                                                                   # Pauses all actions for operator input
@@ -164,12 +176,23 @@ function NewAzVNGateway {                                                       
                 if ($_.Name -eq 'GatewaySubnet') {                                          # If current item equals 'GatewaySubnet
                     $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name 'GatewaySubnet' `
                         -VirtualNetwork $VNetObject                                         # Gets the subnet object
-                    foreach ($ID in $SubnetObject.IpConfigurations.ID) {                    # For each item in $SubnetObject.IpConfigurations.ID
-                        $CID = $ID.split('/')[7]                                            # Isolates the IP config type
+                    foreach ($ID in $SubnetObject.IpConfigurations.ID) {                    # For each item in $SubnetObject.IpConfigurations.ID    
+                        $IPConID = $ID                                                      # Isolates the full IPconfig ID
+                        $CID = $IPConID.split('/')[7]                                       # Isolates the IP config type
                         if ($CID -eq 'virtualNetworkGateways') {                            # If $CID equals 'virtualNetworkGateways'
+                            $ExistingGateway = $IPConID.split('/')[-3]                      # Isolates the Vnet Gateway
+                            Write-Host 'Gathering existing gateway info'                    # Write message to screen
+                            $ExistingGateway = Get-AzVirtualNetworkGateway -Name `
+                                $ExistingGateway -ResourceGroupName `
+                                $VNetObject.ResourceGroupName                               # Gets an existing gateway on $VNetObject
+                            Clear-Host                                                      # Clears screen 
                             Write-Host 'A network gateway already exists on this VNet'      # Write message to screen
                             Write-Host ''                                                   # Write message to screen
-                            Write-Host 'Please remove this gateway or select another VNet'  # Write message to screen
+                            Write-Host 'Please remove the following '                       # Write message to screen
+                            Write-Host 'before adding a new gateway'                        # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Write-Host 'Name:'$ExistingGateway.Name                         # Write message to screen
+                            Write-Host 'Type:'$ExistingGateway.GatewayType                  # Write message to screen
                             Write-Host ''                                                   # Write message to screen
                             Pause                                                           # Pauses all actions for operator input
                             Break NewAzureVNGateway                                         # Breaks :NewAzureVNGateway
@@ -205,11 +228,82 @@ function NewAzVNGateway {                                                       
                 if (!$GatewaySkuGen) {                                                      # If $GatewaySkuGen is $null
                     Break NewAzureVNGateway                                                 # Breaks :NewAzureVNGateway
                 }                                                                           # End if (!$GatewaySkuGen)
-            }                                                                               # End if ($GatewayType -eq 'VPN')                                                                         
-            $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                       # Calls function and assigns output to $var
-            if (!$PublicIPObject) {                                                         # If $PublicIPObject is $null
-                Break NewAzureVNGateway                                                     # Breaks :NewAzureVNGateway
-            }                                                                               # End if (!$PublicIPObject)
+            }                                                                               # End if ($GatewayType -eq 'VPN')
+            :SetVNGWPubIP while ($true) {                                                   # Inner loop to set the public IP sku
+                $PublicIPObject = GetAzPublicIpAddress ($CallingFunction)                   # Calls function and assigns output to $var
+                if (!$PublicIPObject) {                                                     # If $PublicIPObject is $null
+                    Break NewAzureVNGateway                                                 # Breaks :NewAzureVNGateway
+                }                                                                           # End if (!$PublicIPObject)
+                if ($GatewaySku -notlike '*AZ') {                                           # If $GatewaySku not like '*AZ'
+                    if ($PublicIPObject.PublicIpAllocationMethod -eq 'Static') {            # If $PublicIPObject.PublicIpAllocationMethod equals 'Static'                
+                        Write-Host 'This public IP sku cannot be used'                      # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'Please selected a public IP with'                       # Write message to screen
+                        Write-Host 'an allocation method of "Dynamic"'                      # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                        $PublicIPObject = $null                                             # Clears $var
+                    }                                                                       # End if ($PublicIPObject.PublicIpAllocationMethod -eq 'Static')
+                }                                                                           # End if ($GatewaySku -notlike '*AZ') 
+                if ($GatewaySku -like '*AZ') {                                              # If $GatewaySku like '*AZ'
+                    if ($PublicIPObject.PublicIpAllocationMethod -ne 'Static') {            # If $PublicIPObject.PublicIpAllocationMethod does not equal 'Static'                
+                        Write-Host 'This public IP sku cannot be used'                      # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'Please selected a public IP with'                       # Write message to screen
+                        Write-Host 'an allocation method of "Static"'                       # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                        $PublicIPObject = $null                                             # Clears $var
+                    }                                                                       # End if ($PublicIPObject.PublicIpAllocationMethod -ne 'Static')
+                    if ($PublicIPObject.sku.Name -eq 'Basic') {                             # If $PublicIPObject.sku.Name equals 'Basic'               
+                        Write-Host 'This public IP sku cannot be used'                      # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Write-Host 'Please selected a public IP with'                       # Write message to screen
+                        Write-Host 'an sku of "Standard"'                                   # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                        $PublicIPObject = $null                                             # Clears $var
+                    }                                                                       # End if ($PublicIPObject.sku.Name -eq 'Basic')
+                }                                                                           # End if ($GatewaySku -like '*AZ') 
+                if ($PublicIPObject.IpConfiguration.ID) {                                   # If $PublicIPObject.IpConfiguration.ID has a value
+                    Write-Host 'This public IP sku cannot be used'                          # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host 'Please selected a public IP with'                           # Write message to screen
+                    Write-Host 'that is not currently assigned to'                          # Write message to screen
+                    Write-Host 'another object'                                             # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                    $PublicIPObject = $null                                                 # Clears $var
+                }                                                                           # End if ($PublicIPObject.IpConfiguration.ID)
+                if ($PublicIPObject) {                                                      # If $PublicIPObject has a value
+                    :Confirm while ($true) {                                                # Inner loop for confirming the public IP address
+                        Write-Host 'Use:'$PublicIPObject.Name' as the gateway public IP'    # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator input for confirming the public IP address
+                        Clear-Host                                                          # Clears screen
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Break SetVNGWPubIP                                              # Breaks :SetVNGWPubIP
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                        if ($OpConfirm -eq 'e') {                                           # If $OpConfirm equals 'e'
+                            Break NewAzureVNGateway                                         # Breaks :NewAzureVNGateway 
+                        }                                                                   # End if ($OpConfirm -eq 'e')
+                        if ($OpConfirm -eq 'e') {                                           # If $OpConfirm equals 'n'
+                            $PublicIPObject = $null                                         # Clears $var
+                            Break Confirm                                                   # Breaks :confirm 
+                        }                                                                   # End if ($OpConfirm -eq 'n')
+                        else {                                                              # All other inputs for $OpConfirm
+                            Write-Host 'That was not a valid input'                         # Write message to screen
+                            Write-Host ''                                                   # Write message to screen
+                            Pause                                                           # Pauses all actions for operator input
+                            Clear-Host                                                      # Clears screen
+                        }                                                                   # End else (if ($OpConfirm -eq 'y'))
+                    }                                                                       # End :Confirm while ($true)
+                }                                                                           # End if ($PublicIPObject)
+            }                                                                               # End :SetVNGWPubIP while ($true)                                                 
             Try {                                                                           # Try the following
                 Write-Host 'Creating the gateway IP config'                                 # End # Write message to screen
                 $GatewayIPConfig = New-AzVirtualNetworkGatewayIpConfig -Name `
@@ -217,11 +311,19 @@ function NewAzVNGateway {                                                       
                     $PublicIPObject.ID -ErrorAction 'Stop'                                  # Creates the gateway IP config
                 Write-Host 'Creating the gateway'                                           # End # Write message to screen
                 Write-Host 'This will take awhile'                                          # End # Write message to screen
-                New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
+                if ($GatewayType -eq 'VPN') {                                               # If $GatewayType equals 'VPN'
+                    New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
+                        $VNetObject.ResourceGroupName -Location $VNetObject.Location `
+                        -GatewayType $GatewayType -GatewaySku $GatewaySku `
+                        -VpnGatewayGeneration $GatewaySkuGen -VpnType $VPNType `
+                        -IpConfigurations $GatewayIPConfig -ErrorAction 'Stop' | Out-Null   # Creates the gateway
+                }                                                                           # End if ($GatewayType -eq 'VPN')
+                else {                                                                      # Else if $GatewayType does not equal 'VPN
+                    New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
                     $VNetObject.ResourceGroupName -Location $VNetObject.Location `
                     -GatewayType $GatewayType -GatewaySku $GatewaySku `
-                    -VpnGatewayGeneration $GatewaySkuGen -VpnType $VPNType `
                     -IpConfigurations $GatewayIPConfig -ErrorAction 'Stop' | Out-Null       # Creates the gateway
+                }                                                                           # End else (if ($GatewayType -eq 'VPN'))
             }                                                                               # End try
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
@@ -252,67 +354,6 @@ function NewAzVNGateway {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzVNGateway
-function GetAzVirtualNetwork {                                                              # Function for getting an Azure virtual network
-    Begin {                                                                                 # Begin function
-        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
-            $ObjectList = Get-AzVirtualNetwork                                              # pulls all items into list for selection
-            if (!$ObjectList) {                                                             # If $ObjectList is $null
-                Write-Host ''                                                               # Write message to screen
-                Write-Host 'No virtual networks present in this subscription'               # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input
-                Break GetAzureVnet                                                          # Breaks :GetAzureVnet
-            }                                                                               # End if (!$ObjectList)
-            $ListNumber = 1                                                                 # $var used for selecting the virtual network
-            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
-            foreach ($_ in $ObjectList) {                                                   # For each $_ in $RGListList
-                $ArrayInput = [PSCustomObject]@{'Number' = $ListNumber; 'Name' = $_.Name; `
-                    'RG' = $_.ResourceGroupName; 'Location' = $_.Location; 'ASpace' = `
-                    $_.AddressSpace.AddressPrefixes}                                        # Creates the item to loaded into array
-                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads item into array, out-null removes write to screen
-                $ListNumber = $ListNumber + 1                                               # Increments $RGListNumber by 1
-            }                                                                               # End foreach ($_ in $RGList)
-            :SelectAzureVNet while ($true) {                                                # Inner loop for selecting the Vnet
-                Write-Host '[0]  Exit'                                                      # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
-                    $Number = $_.Number                                                     # $Number is equal to current item .number
-                    if ($Number -le 9) {                                                    # If $number is 9 or less
-                        Write-Host "[$Number]      "$_.Name                                 # Write message to screen
-                    }                                                                       # End if ($Number -le 9)
-                    else {                                                                  # If $number is greater than 9
-                        Write-Host "[$Number]     "$_.Name                                  # Write message to screen
-                    }                                                                       # End else (if ($Number -le 9))
-                    Write-Host 'RG:      '$_.RG                                             # Write message to screen
-                    Write-Host 'Loc:     '$_.Location                                       # Write message to screen
-                    Write-Host 'A Space: '$_.ASpace                                         # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                }                                                                           # End foreach ($Name in $Array)    
-                if ($CallingFunction) {                                                     # If $CallingFunction has a value
-                    Write-Host 'Selecting the VNet for:'$CallingFunction                    # Write message to screen
-                }                                                                           # End if ($CallingFunction)
-                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the VNet selection
-                Clear-Host                                                                  # Clears screen
-                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
-                    Break GetAzureVNet                                                      # Breaks :GetAzureVNet
-                }                                                                           # End if ($OpSelect -eq '0')
-                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect is in $ObjectArray.Number
-                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $OpSelect equals $ObjectArray.Number
-                    $VNetObject = Get-AzVirtualNetwork -Name $OpSelect.Name `
-                        -ResourceGroupName $OpSelect.RG                                     # Pulls the full object and assigns to $var
-                        Return $VNetObject                                                  # Returns to calling function with $var
-                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
-                else {                                                                      # All other inputs for $OpSelect
-                    Write-Host 'That was not a valid input'                                 # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Clear-Host                                                              # Clears screen
-                }                                                                           # End else (if ($OpSelect -eq '0'))
-            }                                                                               # End :SelectAzureVNet while ($true)
-        }                                                                                   # End :GetAzureVnet while ($true)
-        Clear-Host                                                                          # Clears screen
-        Return $null                                                                        # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function GetAzVirtualNetwork
 function SetAzGatewayType {                                                                 # Function to set a virtual network gateway type
     Begin {                                                                                 # Begin function
         :SetAzureGatewayType while ($true) {                                                # Inner loop for setting the gateway type
@@ -677,3 +718,64 @@ function GetAzPublicIpAddress {                                                 
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzPublicIpAddress
+function GetAzVirtualNetwork {                                                              # Function for getting an Azure virtual network
+    Begin {                                                                                 # Begin function
+        :GetAzureVnet while ($true) {                                                       # Outer loop for managing function
+            $ObjectList = Get-AzVirtualNetwork                                              # pulls all items into list for selection
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No virtual networks present in this subscription'               # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureVnet                                                          # Breaks :GetAzureVnet
+            }                                                                               # End if (!$ObjectList)
+            $ListNumber = 1                                                                 # $var used for selecting the virtual network
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $RGListList
+                $ArrayInput = [PSCustomObject]@{'Number' = $ListNumber; 'Name' = $_.Name; `
+                    'RG' = $_.ResourceGroupName; 'Location' = $_.Location; 'ASpace' = `
+                    $_.AddressSpace.AddressPrefixes}                                        # Creates the item to loaded into array
+                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            :SelectAzureVNet while ($true) {                                                # Inner loop for selecting the Vnet
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $number is 9 or less
+                        Write-Host "[$Number]      "$_.Name                                 # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # If $number is greater than 9
+                        Write-Host "[$Number]     "$_.Name                                  # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'RG:      '$_.RG                                             # Write message to screen
+                    Write-Host 'Loc:     '$_.Location                                       # Write message to screen
+                    Write-Host 'A Space: '$_.ASpace                                         # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($Name in $Array)    
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'Selecting the VNet for:'$CallingFunction                    # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the VNet selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureVNet                                                      # Breaks :GetAzureVNet
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect is in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $OpSelect equals $ObjectArray.Number
+                    $VNetObject = Get-AzVirtualNetwork -Name $OpSelect.Name `
+                        -ResourceGroupName $OpSelect.RG                                     # Pulls the full object and assigns to $var
+                        Return $VNetObject                                                  # Returns to calling function with $var
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureVNet while ($true)
+        }                                                                                   # End :GetAzureVnet while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzVirtualNetwork
