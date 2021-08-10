@@ -55,9 +55,12 @@ function SetAzGatewayVPNSku {                                                   
                 Write-Host $ERURL                                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host '[0] Exit'                                                       # Write message to screen
-                Write-Host '[1] ErGw1AZ'                                                    # Write message to screen
-                Write-Host '[2] ErGw2AZ'                                                    # Write message to screen
-                Write-Host '[3] ErGw3AZ'                                                    # Write message to screen
+                Write-Host '[2] Standard         (Legacy)'                                  # Write message to screen
+                Write-Host '[2] HighPerformance  (Legacy)'                                  # Write message to screen
+                Write-Host '[3] UltraPerformance (Legacy)'                                  # Write message to screen
+                Write-Host '[4] ErGw1AZ'                                                    # Write message to screen
+                Write-Host '[5] ErGw2AZ'                                                    # Write message to screen
+                Write-Host '[6] ErGw3AZ'                                                    # Write message to screen
             }                                                                               # End elseif ($GatewayType -eq 'ExpressRoute')
             else {                                                                          # All other values for $GatewayType
                 Clear-Host                                                                  # Clears screen
@@ -126,14 +129,23 @@ function SetAzGatewayVPNSku {                                                   
             }                                                                               # End if ($GatewayType -eq 'VPN')
             else {                                                                          # Else if $GatewayType does not equal 'VPN'
                 if ($Opselect -eq '1') {                                                    # If $OpSelect equals '1'
-                    $GatewaySku = 'ErGw1AZ'                                                 # Sets the gateway sku
+                    $GatewaySku = 'Standard'                                                # Sets the gateway sku
                 }                                                                           # End elseif ($Opselect -eq '1')
                 elseif ($Opselect -eq '2') {                                                # Else if $OpSelect equals '2'
-                    $GatewaySku = 'ErGw2AZ'                                                 # Sets the gateway sku
+                    $GatewaySku = 'HighPerformance'                                         # Sets the gateway sku
                 }                                                                           # End elseif ($Opselect -eq '2')
                 elseif ($Opselect -eq '3') {                                                # Else if $OpSelect equals '3'
-                    $GatewaySku = 'ErGw3AZ'                                                 # Sets the gateway sku
+                    $GatewaySku = 'UltraPerformance'                                        # Sets the gateway sku
                 }                                                                           # End elseif ($Opselect -eq '3')
+                elseif ($Opselect -eq '4') {                                                # Else if $OpSelect equals '4'
+                    $GatewaySku = 'ErGw1AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '4')
+                elseif ($Opselect -eq '5') {                                                # Else if $OpSelect equals '5'
+                    $GatewaySku = 'ErGw2AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '5')
+                elseif ($Opselect -eq '6') {                                                # Else if $OpSelect equals '6'
+                    $GatewaySku = 'ErGw3AZ'                                                 # Sets the gateway sku
+                }                                                                           # End elseif ($Opselect -eq '6')
                 else {                                                                      # All other inputs for $OpSelect 
                     Write-Host 'That was not a valid input'                                 # Write message to screen
                     Write-Host ''                                                           # Write message to screen
