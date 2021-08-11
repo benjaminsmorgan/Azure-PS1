@@ -21,9 +21,9 @@
 } #>
 <# Process Flow {
     function
-        Call SetAzGatewayVPNSkuGen > Get $GatewaySku            
+        Call SetAzGatewayVPNSkuGen > Get $GatewaySkuGen            
         End SetAzGatewayVPNSkuGen
-            Return function > Send $GatewaySku
+            Return function > Send $GatewaySkuGen
 }#>
 function SetAzGatewayVPNSkuGen {                                                            # Function to set a virtual network gateway sku generation
     Begin {                                                                                 # Begin function
