@@ -281,8 +281,9 @@ function NewAzVNGateway {                                                       
                 }                                                                           # End :SetAzureGWActiveActive while ($true)
             }                                                                               # End if ($GatewaySku -eq  'VpnGw1' -or 'VpnGw2' -or 'VpnGw3' -or 'VpnGw1AZ' -or 'VpnGw2AZ' -or 'VpnGw3Az' -or 'HighPerformance')
             Try {                                                                           # Try the following
-                if ($GatewayIPConfigPri) {
-                    Write-Host 'This will take awhile'                                      # Write message to screen
+                Write-Host 'Creating the gateway'                                           # End # Write message to screen
+                Write-Host 'This will take awhile'                                          # End # Write message to screen    
+                if ($GatewayIPConfigPri) {                                                  # If $GatewayIPConfigPri has a value
                     if ($GatewayType -eq 'VPN') {                                           # If $GatewayType equals 'VPN'
                         New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
                             $VNetObject.ResourceGroupName -Location $VNetObject.Location `
@@ -298,10 +299,8 @@ function NewAzVNGateway {                                                       
                             -IpConfigurations $GatewayIPConfig,$GatewayIPConfig2 `
                             -EnableActiveActiveFeature -ErrorAction 'Stop' | Out-Null       # Creates the gateway
                     }                                                                       # End else (if ($GatewayType -eq 'VPN'))
-                }                                                                           # End if ($PublicIPPri)
-                else {                                                                      # Else if $PublicIPPri is $null
-                    Write-Host 'Creating the gateway'                                       # End # Write message to screen
-                    Write-Host 'This will take awhile'                                      # End # Write message to screen
+                }                                                                           # End if ($GatewayIPConfigPri)
+                else {                                                                      # Else if $GatewayIPConfigPri is $null
                     if ($GatewayType -eq 'VPN') {                                           # If $GatewayType equals 'VPN'
                         New-AzVirtualNetworkGateway -Name $GWNameObject -ResourceGroupName `
                             $VNetObject.ResourceGroupName -Location $VNetObject.Location `
@@ -316,7 +315,7 @@ function NewAzVNGateway {                                                       
                         -GatewayType $GatewayType -GatewaySku $GatewaySku `
                         -IpConfigurations $GatewayIPConfig -ErrorAction 'Stop' | Out-Null   # Creates the gateway
                     }                                                                       # End else (if ($GatewayType -eq 'VPN'))
-                }                                                                           # End else (if ($PublicIPPri))
+                }                                                                           # End else (if ($GatewayIPConfigPri))
             }                                                                               # End try
             Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
