@@ -6,7 +6,7 @@
     None
 } #>
 <# Functions Description: {
-    GetAzPublicIpAddress:       Gets an existing public IP address
+    GetAzPublicIpAddress:       Function to get an existing public IP address
 } #>
 <# Variables: {      
     :GetAzurePublicIP           Outer loop for managing function
@@ -26,7 +26,7 @@
         End GetAzPublicIpAddress
             Return function > Send $PublicIPObject
 }#>
-function GetAzPublicIpAddress {                                                             # Function for getting a public IP sku
+function GetAzPublicIpAddress {                                                             # Function to get an existing public IP address
     Begin {                                                                                 # Begin function
         :GetAzurePublicIP while ($true) {                                                   # Outer loop for managing function
             $ObjectList = Get-AzPublicIpAddress                                             # Gets a list of all public IP address
