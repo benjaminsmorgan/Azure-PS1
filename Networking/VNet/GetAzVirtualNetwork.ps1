@@ -1,12 +1,12 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     None
 } #>
 <# Functions Description: {
-    GetAzVirtualNetwork:        Gets an azure virtual network
+    GetAzVirtualNetwork:        Function for getting an Azure virtual network
 } #>
 <# Variables: {
     :GetAzureVnet               Outer loop for managing function
