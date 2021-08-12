@@ -129,3 +129,48 @@ function GetAzVNGateway {                                                       
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function GetAzVNGateway
+function ResizeAzVNGateway {                                                                # Function to resize a gateway
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'ResizeAzVNGateway'                                          # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :ResizeAzureVNGateway while ($true) {                                               # Outer loop for managing function
+            $GatewayObject = GetAzVNGateway ($CallingFunction)                              # Calls function and assigns output to $var
+            if (!$GatewayObject) {                                                          # If $GatewayObject is $null
+                Break ResizeAzureVNGateway                                                  # Breaks :ResizeAzureVNGateway
+            }                                                                               # End if (!$GatewayObject)
+            :SetAzureVNGatewaySku while ($true) {                                           # Inner loop to set the gateway sku
+                if ($GatewayObject.Sku.Name -eq )
+            }                                                                               # End :SetAzureVNGatewaySku while ($true)
+            :Confirm while ($true) {                                                        # Inner loop to confirm the changes
+                Write-Host 'Make the following changes'                                     # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Gateway Name:    '$GatewayObject.Name                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Current Sku Name:'$GatewayObject.Sku.Name                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'New Sku Name:    '$GatewaySku                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N] No'                                     # Operator confirmation to make this change
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break Confirm                                                           # Breaks :Confirm
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                elseif ($OpConfirm -eq 'n') {                                               # Else if $OpConfirm equals 'n'
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break ResizeAzureVNGateway                                              # Breaks :ResizeAzureVNGateway
+                }                                                                           # End elseif ($OpConfirm -eq 'n')
+                else {                                                                      # All other inputs for $OpConfirm
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
+            }                                                                               # End :Confirm while ($true)
+        }                                                                                   # End :ResizeAzureVNGateway while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function ResizeAzVNGateway
