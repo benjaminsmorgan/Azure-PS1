@@ -1,34 +1,35 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
+    Resize-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/resize-azvirtualnetworkgateway?view=azps-6.3.0
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
     Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
 } #>
 <# Required Functions Links: {
-    None
+    GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
 } #>
 <# Functions Description: {
+    ResizeAzVNGateway:          Function to resize a gateway
     GetAzVNGateway:             Function to get a virtual network gateway
 } #>
 <# Variables: {      
-    :GetAzureGateway            Outer loop for managing function
-    :SelectAzureGateway         Inner loop to select the gateway
-    $ObjectList:                List of all resources that are gateways
-    $ObjectNumber:              $var used for listing and selecting the gateway
-    $ObjectArray:               Array holding all gateway info
-    $CGateway:                  Current gateway
-    $VNetName:                  Gateway virtual network
-    $PubIPName:                 Gateway public IP
-    $ObjectInput:               $var used to load info into $ObjectArray
-    $Number:                    Current item .number
-    $CallingFunction:           Name of the function that called this one
-    $OpSelect:                  Operator input to select the gateway
+    :ResizeAzureVNGateway       Outer loop for managing function
+    :SetAzureVNGatewaySku       Inner loop for selecting the new sku
+    :Confirm                    Inner loop to confirm the changes
+    $CallingFunction:           Name of this function
     $GatewayObject:             Gateway object
+    $OpSelect:                  Operator input to select the sku
+    $GatewaySku:                New gateway sku
+    $MSG:                       Last powershell error message
+    GetAzVNGateway{}            Gets $GatewayObject
 } #>
 <# Process Flow {
     function
-        Call GetAzVNGateway > Get $GatewayObject            
-        End GetAzVNGateway
-            Return function > Send $GatewayObject
+        Call ResizeAzVNGateway > Get $null
+            Call GetAzVNGateway > Get $GatewayObject            
+            End GetAzVNGateway
+                Return ResizeAzVNGateway > Send $GatewayObject
+        End ResizeAzVNGateway
+            Return function > Send $null
 }#>
 function ResizeAzVNGateway {                                                                # Function to resize a gateway
     Begin {                                                                                 # Begin function
@@ -175,7 +176,7 @@ function ResizeAzVNGateway {                                                    
             Write-Host 'The gateway has been resized'                                       # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
-            Break NewAzureVNGateway                                                         # Breaks :NewAzureVNGateway    
+            Break ResizeAzureVNGateway                                                      # Breaks :ResizeAzureVNGateway    
         }                                                                                   # End :ResizeAzureVNGateway while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
