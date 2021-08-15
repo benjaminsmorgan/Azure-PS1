@@ -265,42 +265,50 @@ function SetAzVNGatewayAA {                                                     
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpConfirm -eq 'y'))
             }                                                                               # End :Confirm while ($true)
-            #Try {                                                                           # Try the following
+            Try {                                                                           # Try the following
                 if ($GatewayObject.activeActive -eq $false) {                               # If $GatewayObject.activeActive equals $false
-                    Write-Host 'Enabling Active-Active'                                     # Write message to screen
+                    Write-Host 'Adding seconday IP config'                                  # Write message to screen
                     Add-AzVirtualNetworkGatewayIpConfig -VirtualNetworkGateway `
                         $GatewayObject -Name $GatewayIPConfig.Name -SubnetId `
                         $GatewayIPConfig.Subnet.Id -PublicIpAddressId `
-                        $GatewayIPConfig.PublicIPAddress.ID -force | Out-Null               # Adds the additional IP config
+                        $GatewayIPConfig.PublicIPAddress.ID | Out-Null                      # Adds the additional IP config
+                    Write-Host 'Enabling Active-Active'                                     # Write message to screen
+                    Write-Host 'This will take a while'                                     # Write message to screen
                     Set-AzVirtualNetworkGateway -VirtualNetworkGateway $GatewayObject `
                         -EnableActiveActiveFeature -ErrorAction 'Stop'                      # Enables Active-Active 
                 }                                                                           # End if ($GatewayObject.activeActive -eq $false)
                 else {                                                                      # Else if $GatewayObject.activeActive does not equal $false
+                    $GatewayIPConSec = $GatewayObject.IpConfigurations[1].Name              # Gets the secondary IP config      
+                    Write-Host 'Removing seconday IP config'                                # Write message to screen
+                    Remove-AzVirtualNetworkGatewayIpConfig -Name $GatewayIPConSec `
+                        -VirtualNetworkGateway $GatewayObject -ErrorAction 'Stop' `
+                        | Out-Null                                                          # Removes the secondary IP config 
                     Write-Host 'Disabling Active-Active'                                    # Write message to screen
+                    Write-Host 'This will take a while'                                     # Write message to screen
                     Set-AzVirtualNetworkGateway -VirtualNetworkGateway $GatewayObject `
-                        -DisableActiveActiveFeature -ErrorAction 'Stop'                     # Disables Active-Active
+                        -DisableActiveActiveFeature -ErrorAction 'Stop' | Out-Null          # Disables Active-Active
                 }                                                                           # End else (if ($GatewayObject.activeActive -eq $false))
-            #}                                                                               # End Try
-            #Catch {                                                                         # If Try fails
-            #    Clear-Host                                                                  # Clears screen
-            #    Write-Host 'An error has occured'                                           # Write message to screen
-            #    Write-Host ''                                                               # Write message to screen
-            #    $MSG = $Error[0]                                                            # Gets the error message
-            #    if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
-            #        $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
-            #        Write-Warning $MSG                                                      # Write message to screen
-            #        Write-Host ''                                                           # Write message to screen    
-            #    }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
-            #    else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
-            #        Write-Warning $MSG                                                      # Write message to screen
-            #        Write-Host ''                                                           # Write message to screen        
-            #    }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
-            #    Write-Host 'No changes have been made'                                      # Write message to screen
-            #    Write-Host ''                                                               # Write message to screen
-            #    Pause                                                                       # Pauses all actions for operator input
-            #    Break SetAzureVNGateway                                                     # Breaks :SetAzureVNGateway    
-            #}                                                                               # End Catch
-            #Clear-Host                                                                      # Clears screen
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureVNGateway                                                     # Breaks :SetAzureVNGateway    
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
             Write-Host 'The gateway Active-Active Config has been updated'                  # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
