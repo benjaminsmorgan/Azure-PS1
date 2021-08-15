@@ -1,5 +1,9 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
+    Get-AzVirtualNetwork:
+    Get-AzVirtualNetworkSubnetConfig:
+    Add-AzVirtualNetworkGatewayIpConfig:
+    Remove-AzVirtualNetworkGatewayIpConfig
     Set-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworkgateway?view=azps-6.3.0
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
     Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
@@ -13,11 +17,21 @@
 } #>
 <# Variables: {      
     :SetAzureVNGateway          Outer loop for managing function
-    :Confirm                    Inner loop to confirm the changes
+    :SetAzureGWActiveActive     Inner loop for setting the secondary IP config
+    :Confirm                    Inner loop for confirming changes
     $CallingFunction:           Name of this function
     $GatewayObject:             Gateway object
-    $MSG:                       Last powershell error message
+    $GatewaySku:                $GatewayObject.Sku.Name
+    $GatewayIPConfigPri:        $GatewayObject.IPConfigurations[0]
+    $GatewayIPConfig:           Secondary IP config object
+    $RGObject:                  Resource group name
+    $VNetObject:                Virtual network object
+    $SubnetObject:              Subnet object
+    $OpConfirm:                 Operator confirmation to make the changes
+    $GatewayIPConSec:           Secondary IP config object
+    $MSG:                       Last PS error message
     GetAzVNGateway{}            Gets $GatewayObject
+    NewAzVNGatewayIPcon{}       Gets $GatewayIPConfig
 } #>
 <# Process Flow {
     function
@@ -43,8 +57,14 @@ function SetAzVNGatewayAA {                                                     
                 $GatewaySku = $GatewayObject.Sku.Name                                       # $GatewaySku is equal to $GatewayObject.Sku.Name
                 if ($GatewaySku -eq 'VpnGw1' -or 'VpnGw2' -or 'VpnGw3' -or 'VpnGw1AZ' -or `
                     'VpnGw2AZ' -or 'VpnGw3Az' -or 'HighPerformance') {                      # If $GatewaySku equals  'VpnGw1', 'VpnGw2', 'VpnGw3', 'VpnGw1AZ', 'VpnGw2AZ', 'VpnGw3Az' -or 'HighPerformance'
+                    $GatewayIPConfigPri = $GatewayObject.IPConfigurations[0]                # $GatewayIPConfigPri is equal to $GatewayObject.IPConfigurations[0]
+                    $RGObject = $GatewayIPConfigPri.Subnet.ID.Split('/')[4]                 # Isolates the resource group name
+                    $VnetObject = $GatewayIPConfigPri.Subnet.ID.Split('/')[8]               # Isolates the Vnet name
+                    $VnetObject = Get-AzVirtualNetwork -Name $VnetObject `
+                        -ResourceGroupName $RGObject                                        # Pulls the full virtual network object
+                    $SubnetObject = Get-AzVirtualNetworkSubnetConfig -Name 'GatewaySubnet' `
+                        -VirtualNetwork $VnetObject                                         # Pulls the full subnet object    
                     :SetAzureGWActiveActive while ($true) {                                 # Inner loop for configuring an Active-Active gateway config
-                        $GatewayIPConfigPri = $GatewayObject.IPConfigurations[0]            # $GatewayIPConfigPri is equal to $GatewayObject.IPConfigurations[0]
                         $GatewayIPConfig = NewAzVNGatewayIPcon ($SubnetObject, $GatewaySku) # Calls function and assigns output to $var
                         if (!$GatewayIPConfig) {                                            # If $GatewayIPConfig is $null
                             Break SetAzureVNGateway
