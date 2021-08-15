@@ -198,7 +198,7 @@ function NewAzVNGatewayIPcon {                                                  
                 Break NewAzureVNGWIPCon                                                     # Breaks :NewAzureVNGWIPCon    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
-            Write-Host 'The gateway has been created'                                       # Write message to screen
+            Write-Host 'The gateway IP config has been created'                             # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
             Clear-Host                                                                      # Clears screen
