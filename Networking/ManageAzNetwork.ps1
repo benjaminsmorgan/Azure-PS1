@@ -2968,12 +2968,24 @@ function NewAzPublicIpAddress {                                                 
                     -DomainNameLabel $PublicIPNameObject -Sku $PubIPSkuObject -Force `
                     -ErrorAction 'Stop' | Out-Null                                          # Creates the new public IP address
             }                                                                               # End try
-            Catch {                                                                         # If try fails
+            Catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
-                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP
+                Break NewAzurePublicIP                                                      # Breaks :NewAzurePublicIP    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
             Write-Host 'The public IP has been created'                                     # Write message to screen
@@ -3158,17 +3170,25 @@ function SetAzPublicIPAddressAllo {                                             
                         Set-AzPublicIpAddress -PublicIpAddress $PublicIPObject `
                             -ErrorAction 'Stop' | Out-Null                                  # Saves the public IP configuration
                     }                                                                       # End try
-                    catch {                                                                 # If try fails
+                    Catch {                                                                 # If Try fails
                         Clear-Host                                                          # Clears screen
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Write-Host ''                                                       # Write message to screen
-                        Write-Host 'You may not have to the permissions'                    # Write message to screen
-                        Write-Host ''                                                       # Write message to screen
-                        Write-Host 'The resource or group maybe locked'                     # Write message to screen
+                        $MSG = $Error[0]                                                    # Gets the error message
+                        if ($MSG.Exception.InnerException.Body.Message) {                   # If $MSG.Exception.InnerException.Body.Message has a value             
+                            $MSG = $MSG.Exception.InnerException.Body.Message               # Isolates the error message
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen    
+                        }                                                                   # End if ($MSG.Exception.InnerException.Body.Message)
+                        else {                                                              # Else if $MSG.Exception.InnerException.Body.Message is $null
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen        
+                        }                                                                   # End else (if ($MSG.Exception.InnerException.Body.Message))
+                        Write-Host 'No changes have been made'                              # Write message to screen
                         Write-Host ''                                                       # Write message to screen
                         Pause                                                               # Pauses all actions for operator input
-                        Break SetAzurePublicIP                                              # Breaks :SetAzurePublicIP
-                    }                                                                       # End catch
+                        Break SetAzurePublicIP                                              # Breaks :SetAzurePublicIP    
+                    }                                                                       # End Catch
                     Clear-Host                                                              # Clears screen
                     Write-Host 'The selected public IP sku has been changed'                # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
@@ -3219,17 +3239,25 @@ function RemoveAzPublicIPAddress {                                              
                             -ResourceGroupName $PublicIPObject.ResourceGroupName `
                             -Force -ErrorAction 'Stop' | Out-Null                           # Removes the selected IP sku
                     }                                                                       # End try
-                    catch {                                                                 # If try fails
+                    Catch {                                                                 # If Try fails
                         Clear-Host                                                          # Clears screen
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Write-Host ''                                                       # Write message to screen
-                        Write-Host 'You may not have to the permissions'                    # Write message to screen
-                        Write-Host ''                                                       # Write message to screen
-                        Write-Host 'The resource or group maybe locked'                     # Write message to screen
+                        $MSG = $Error[0]                                                    # Gets the error message
+                        if ($MSG.Exception.InnerException.Body.Message) {                   # If $MSG.Exception.InnerException.Body.Message has a value             
+                            $MSG = $MSG.Exception.InnerException.Body.Message               # Isolates the error message
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen    
+                        }                                                                   # End if ($MSG.Exception.InnerException.Body.Message)
+                        else {                                                              # Else if $MSG.Exception.InnerException.Body.Message is $null
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen        
+                        }                                                                   # End else (if ($MSG.Exception.InnerException.Body.Message))
+                        Write-Host 'No changes have been made'                              # Write message to screen
                         Write-Host ''                                                       # Write message to screen
                         Pause                                                               # Pauses all actions for operator input
-                        Break RemoveAzurePublicIP                                           # Breaks :RemoveAzurePublicIP
-                    }                                                                       # End catch
+                        Break RemoveAzurePublicIP                                           # Breaks :RemoveAzurePublicIP    
+                    }                                                                       # End Catch
                     Clear-Host                                                              # Clears screen
                     Write-Host 'The selected public IP sku has been removed'                # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
@@ -16384,7 +16412,7 @@ function NewAzVNGateway {                                                       
                     }                                                                       # End else (if ($GatewayType -eq 'VPN'))
                 }                                                                           # End else (if ($GatewayIPConfigPri))
             }                                                                               # End try
-            Catch {                                                                         # If Try fails
+            catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -16395,8 +16423,8 @@ function NewAzVNGateway {                                                       
                     Write-Host ''                                                           # Write message to screen    
                 }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
                 else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
-                    Write-Warning $MSG                                                      # Write message to screen
-                    Write-Host ''                                                           # Write message to screen        
+                    Write-Warning $MSG                                                  # Write message to screen
+                    Write-Host ''                                                       # Write message to screen        
                 }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
                 Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -16875,7 +16903,7 @@ function NewAzVNGatewayIPcon {                                                  
                 Break NewAzureVNGWIPCon                                                     # Breaks :NewAzureVNGWIPCon    
             }                                                                               # End Catch
             Clear-Host                                                                      # Clears screen
-            Write-Host 'The gateway has been created'                                       # Write message to screen
+            Write-Host 'The gateway IP config has been created'                             # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
             Clear-Host                                                                      # Clears screen
@@ -17077,14 +17105,20 @@ function RemoveAzVNGateway {                                                    
                         -ResourceGroupName $GatewayObject.ResourceGroupName `
                         -Force -ErrorAction 'Stop' | Out-Null                               # Removes the gateway
                 }                                                                           # End Try
-                Catch {                                                                     # If Try fails
+                catch {                                                                     # If Try fails
                     Clear-Host                                                              # Clears screen
-                    $MSG = $Error[0]                                                        # Gets the error message
-                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    Write-Warning $MSG                                                      # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
                     Write-Host 'No changes have been made'                                  # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
@@ -17375,42 +17409,50 @@ function SetAzVNGatewayAA {                                                     
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpConfirm -eq 'y'))
             }                                                                               # End :Confirm while ($true)
-            #Try {                                                                           # Try the following
+            Try {                                                                           # Try the following
                 if ($GatewayObject.activeActive -eq $false) {                               # If $GatewayObject.activeActive equals $false
-                    Write-Host 'Enabling Active-Active'                                     # Write message to screen
+                    Write-Host 'Adding seconday IP config'                                  # Write message to screen
                     Add-AzVirtualNetworkGatewayIpConfig -VirtualNetworkGateway `
                         $GatewayObject -Name $GatewayIPConfig.Name -SubnetId `
                         $GatewayIPConfig.Subnet.Id -PublicIpAddressId `
-                        $GatewayIPConfig.PublicIPAddress.ID -force | Out-Null               # Adds the additional IP config
+                        $GatewayIPConfig.PublicIPAddress.ID | Out-Null                      # Adds the additional IP config
+                    Write-Host 'Enabling Active-Active'                                     # Write message to screen
+                    Write-Host 'This will take a while'                                     # Write message to screen
                     Set-AzVirtualNetworkGateway -VirtualNetworkGateway $GatewayObject `
                         -EnableActiveActiveFeature -ErrorAction 'Stop'                      # Enables Active-Active 
                 }                                                                           # End if ($GatewayObject.activeActive -eq $false)
                 else {                                                                      # Else if $GatewayObject.activeActive does not equal $false
+                    $GatewayIPConSec = $GatewayObject.IpConfigurations[1].Name              # Gets the secondary IP config      
+                    Write-Host 'Removing seconday IP config'                                # Write message to screen
+                    Remove-AzVirtualNetworkGatewayIpConfig -Name $GatewayIPConSec `
+                        -VirtualNetworkGateway $GatewayObject -ErrorAction 'Stop' `
+                        | Out-Null                                                          # Removes the secondary IP config 
                     Write-Host 'Disabling Active-Active'                                    # Write message to screen
+                    Write-Host 'This will take a while'                                     # Write message to screen
                     Set-AzVirtualNetworkGateway -VirtualNetworkGateway $GatewayObject `
-                        -DisableActiveActiveFeature -ErrorAction 'Stop'                     # Disables Active-Active
+                        -DisableActiveActiveFeature -ErrorAction 'Stop' | Out-Null          # Disables Active-Active
                 }                                                                           # End else (if ($GatewayObject.activeActive -eq $false))
-            #}                                                                               # End Try
-            #Catch {                                                                         # If Try fails
-            #    Clear-Host                                                                  # Clears screen
-            #    Write-Host 'An error has occured'                                           # Write message to screen
-            #    Write-Host ''                                                               # Write message to screen
-            #    $MSG = $Error[0]                                                            # Gets the error message
-            #    if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
-            #        $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
-            #        Write-Warning $MSG                                                      # Write message to screen
-            #        Write-Host ''                                                           # Write message to screen    
-            #    }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
-            #    else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
-            #        Write-Warning $MSG                                                      # Write message to screen
-            #        Write-Host ''                                                           # Write message to screen        
-            #    }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
-            #    Write-Host 'No changes have been made'                                      # Write message to screen
-            #    Write-Host ''                                                               # Write message to screen
-            #    Pause                                                                       # Pauses all actions for operator input
-            #    Break SetAzureVNGateway                                                     # Breaks :SetAzureVNGateway    
-            #}                                                                               # End Catch
-            #Clear-Host                                                                      # Clears screen
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureVNGateway                                                     # Breaks :SetAzureVNGateway    
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears screen
             Write-Host 'The gateway Active-Active Config has been updated'                  # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             Pause                                                                           # Pauses all actions for operator input
