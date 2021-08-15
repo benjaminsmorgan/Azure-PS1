@@ -317,7 +317,7 @@ function NewAzVNGateway {                                                       
                     }                                                                       # End else (if ($GatewayType -eq 'VPN'))
                 }                                                                           # End else (if ($GatewayIPConfigPri))
             }                                                                               # End try
-            Catch {                                                                         # If Try fails
+            catch {                                                                         # If Try fails
                 Clear-Host                                                                  # Clears screen
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host ''                                                               # Write message to screen
@@ -328,8 +328,8 @@ function NewAzVNGateway {                                                       
                     Write-Host ''                                                           # Write message to screen    
                 }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
                 else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
-                    Write-Warning $MSG                                                      # Write message to screen
-                    Write-Host ''                                                           # Write message to screen        
+                    Write-Warning $MSG                                                  # Write message to screen
+                    Write-Host ''                                                       # Write message to screen        
                 }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
                 Write-Host 'No changes have been made'                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
