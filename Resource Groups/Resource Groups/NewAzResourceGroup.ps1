@@ -22,6 +22,7 @@
     $TagNameInput:              Operator input for tag name
     $TagValueInput:             Operator input for tag value
     $Tag:                       Combined tag name and value
+    $MSG:                       Last PS error message
     GetAzLocation{}             Gets $LocationObject
 } #>
 <# Process Flow {
@@ -109,13 +110,22 @@ function NewAzResourceGroup {                                                   
                 catch {                                                                     # If Try fails
                     Clear-Host                                                              # Clears screen
                     Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen                                        
-                    Write-Host 'You may not have the permissions required'                  # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    Write-Host 'Policy may exist preventing this action'                    # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input 
-                    Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject  
-                }                                                                           # End catch
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break NewAzureVNGWIPCon                                                 # Breaks :NewAzureVNGWIPCon    
+                }                                                                           # End Catch
                 Clear-Host                                                                  # Clears Screen
                 Write-Host 'The resource group has been created'                            # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input 
