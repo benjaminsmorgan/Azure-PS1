@@ -17,6 +17,7 @@
     $AttachedNIC:               Nic object if attached to $PublicIPObject
     $AttachedNICIPConfig:       IP config object on $AttachedNIC
     $OpConfirm:                 Operator confirmation to change the public IP sku
+    $MSG:                       Last PS error message
 } #>
 <# Process Flow {
     function
@@ -75,17 +76,25 @@ function SetAzPublicIPAddressAllo {                                             
                         Set-AzPublicIpAddress -PublicIpAddress $PublicIPObject `
                             -ErrorAction 'Stop' | Out-Null                                  # Saves the public IP configuration
                     }                                                                       # End try
-                    catch {                                                                 # If try fails
+                    Catch {                                                                 # If Try fails
                         Clear-Host                                                          # Clears screen
                         Write-Host 'An error has occured'                                   # Write message to screen
                         Write-Host ''                                                       # Write message to screen
-                        Write-Host 'You may not have to the permissions'                    # Write message to screen
-                        Write-Host ''                                                       # Write message to screen
-                        Write-Host 'The resource or group maybe locked'                     # Write message to screen
+                        $MSG = $Error[0]                                                    # Gets the error message
+                        if ($MSG.Exception.InnerException.Body.Message) {                   # If $MSG.Exception.InnerException.Body.Message has a value             
+                            $MSG = $MSG.Exception.InnerException.Body.Message               # Isolates the error message
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen    
+                        }                                                                   # End if ($MSG.Exception.InnerException.Body.Message)
+                        else {                                                              # Else if $MSG.Exception.InnerException.Body.Message is $null
+                            Write-Warning $MSG                                              # Write message to screen
+                            Write-Host ''                                                   # Write message to screen        
+                        }                                                                   # End else (if ($MSG.Exception.InnerException.Body.Message))
+                        Write-Host 'No changes have been made'                              # Write message to screen
                         Write-Host ''                                                       # Write message to screen
                         Pause                                                               # Pauses all actions for operator input
-                        Break SetAzurePublicIP                                              # Breaks :SetAzurePublicIP
-                    }                                                                       # End catch
+                        Break SetAzurePublicIP                                              # Breaks :SetAzurePublicIP    
+                    }                                                                       # End Catch
                     Clear-Host                                                              # Clears screen
                     Write-Host 'The selected public IP sku has been changed'                # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
