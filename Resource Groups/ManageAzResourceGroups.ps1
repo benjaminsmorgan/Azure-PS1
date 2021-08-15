@@ -577,53 +577,46 @@ function NewAzResourceGroup {                                                   
                     Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject
                 }                                                                           # End elseif ($OpConfirm -eq 'e')
             }                                                                               # End :SetAzureTag while ($true)
-            if ($Tag) {                                                                     # If $Tag has a value
-                Try {                                                                       # Try the following
+            Try {                                                                       # Try the following
+                if ($Tag) {                                                                     # If $Tag has a value        
                     Write-Host 'Building the resource group with the following settings:'   # Write message to screen
                     Write-Host 'Name:'$RGObjectInput                                        # Write message to screen
                     Write-Host 'Loc: '$LocationObject.Location                              # Write message to screen
                     Write-Host 'Tags:'$TagNameInput $TagValueInput                          # Write message to screen
                     New-AzResourceGroup -Name $RGObjectInput -Location `
                         $LocationObject.Location -Tag $Tag -ErrorAction 'Stop'              # Creates the resouce group and assigns to $RGObject
-                }                                                                           # End Try
-                catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen                                        
-                    Write-Host 'You may not have the permissions required'                  # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'Policy may exist preventing this action'                    # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input 
-                    Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject  
-                }                                                                           # End catch
-                Clear-Host                                                                  # Clears Screen
-                Write-Host 'The resource group has been created'                            # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input 
-                Break NewAzureRGObject                                                      # Breaks :NewAzureRGObject  
-            }                                                                               # End if ($Tag)
-            else {                                                                          # If $Tag does not have a value
-                Try {                                                                       # Try the following
+                }                                                                           # End if ($Tag)
+                else {                                                                      # If $Tag is $null
                     Write-Host 'Building the resource group with the following settings:'   # Write message to screen
                     Write-Host 'Name:'$RGObjectInput                                        # Write message to screen
                     Write-Host 'Loc: '$LocationObject.Location                              # Write message to screen
                     New-AzResourceGroup -Name $RGObjectInput -Location `
                         $LocationObject.Location -Tag $Tag -ErrorAction 'Stop'              # Creates the resouce group and assigns to $RGObject
-                }                                                                           # End Try
-                catch {                                                                     # If Try fails
-                    Clear-Host                                                              # Clears screen
-                    Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host ''                                                           # Write message to screen                                        
-                    Write-Host 'You may not have the permissions required'                  # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'Policy may exist preventing this action'                    # Write message to screen
-                    Pause                                                                   # Pauses all actions for operator input
-                    Break NewAzureRGObject                                                  # Breaks :NewAzureRGObject  
-                }                                                                           # End catch
-                Clear-Host                                                                  # Clears Screen
-                Write-Host 'The resource group has been created'                            # Write message to screen
-                Pause                                                                       # Pauses all actions for operator input 
-                Break NewAzureRGObject                                                      # Breaks :NewAzureRGObject
-            }                                                                               # End else (if ($Tag))
+                }                                                                           # End else (if ($Tag))
+            }                                                                               # End Try
+            catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break NewAzureRGObject                                                      # Breaks :NewAzureRGObject    
+            }                                                                               # End Catch
+            Clear-Host                                                                      # Clears Screen
+            Write-Host 'The resource group has been created'                                # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input 
+            Break NewAzureRGObject                                                          # Breaks :NewAzureRGObject  
         }                                                                                   # End :NewAzureRGObject while ($true)
         Clear-Host                                                                          # Clears screen
         Return                                                                              # Returns to calling function with $null
@@ -766,7 +759,7 @@ function RemoveAzResourceGroup {                                                
             Clear-Host                                                                      # Clears screen
             $RGObjectName = $RGObject.ResourceGroupName                                     # Collects the name of the resource group for later use
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                    Write-Host 'Checking for locks on:'$RGObjectName.ResourceGroupName      # Write message to screen
+                    Write-Host 'Checking for locks on:'$RGObjectName                        # Write message to screen
                 $Locks = GetAzRGLocksAll ($RGObject)                                        # Calls function and assigns output to $vat
                 if ($Locks) {                                                               # If $Locks has a value
                     Write-Host 'Removing all locks'                                         # Write message to screen
@@ -785,14 +778,25 @@ function RemoveAzResourceGroup {                                                
                     Remove-AzResourceGroup -Name $RGObject.ResourceGroupName -Force `
                         -ErrorAction 'Stop' | Out-Null                                      # Removes the resource group
                 }                                                                           # End Try
-                Catch {                                                                     # If try fails
+                catch {                                                                     # If Try fails
                     Clear-Host                                                              # Clears screen
                     Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host 'The resource group was not removed'                         # Write message to screen
-                    Write-Host 'You may not have the permssions to complete this action'    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
-                    Break RemoveAzureRGObject                                               # Break RemoveAzureRGObject   
-                }                                                                           # End catch
+                    Break RemoveAzureRGObject                                               # Breaks :RemoveAzureRGObject    
+                }                                                                           # End Catch
                 Write-Host $RGObjectName'has been removed'                                  # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureRGObject                                                   # Break RemoveAzureRGObject
