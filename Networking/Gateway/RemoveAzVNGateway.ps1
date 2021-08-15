@@ -55,14 +55,20 @@ function RemoveAzVNGateway {                                                    
                         -ResourceGroupName $GatewayObject.ResourceGroupName `
                         -Force -ErrorAction 'Stop' | Out-Null                               # Removes the gateway
                 }                                                                           # End Try
-                Catch {                                                                     # If Try fails
+                catch {                                                                     # If Try fails
                     Clear-Host                                                              # Clears screen
-                    $MSG = $Error[0]                                                        # Gets the error message
-                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host ''                                                           # Write message to screen
-                    Write-Warning $MSG                                                      # Write message to screen
-                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
                     Write-Host 'No changes have been made'                                  # Write message to screen
                     Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
