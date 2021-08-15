@@ -24,6 +24,7 @@
     $OpConfirm:                 Operator confirmation to remove the resource group
     $Locks:                     List of all locks on resource group and contained resources
     $LocksRemoved:              Confirmation of $Locks being removed
+    $MSG:                       Last PS error message
     GetAzResourceGroup{}        Gets $RGObject
     GetAzRGLocksAll{}           Gets $Locks
     RemoveAzResourceLocks{}     Gets $LocksRemoved
@@ -68,7 +69,7 @@ function RemoveAzResourceGroup {                                                
             Clear-Host                                                                      # Clears screen
             $RGObjectName = $RGObject.ResourceGroupName                                     # Collects the name of the resource group for later use
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
-                    Write-Host 'Checking for locks on:'$RGObjectName.ResourceGroupName      # Write message to screen
+                    Write-Host 'Checking for locks on:'$RGObjectName                        # Write message to screen
                 $Locks = GetAzRGLocksAll ($RGObject)                                        # Calls function and assigns output to $vat
                 if ($Locks) {                                                               # If $Locks has a value
                     Write-Host 'Removing all locks'                                         # Write message to screen
@@ -87,14 +88,25 @@ function RemoveAzResourceGroup {                                                
                     Remove-AzResourceGroup -Name $RGObject.ResourceGroupName -Force `
                         -ErrorAction 'Stop' | Out-Null                                      # Removes the resource group
                 }                                                                           # End Try
-                Catch {                                                                     # If try fails
+                catch {                                                                     # If Try fails
                     Clear-Host                                                              # Clears screen
                     Write-Host 'An error has occured'                                       # Write message to screen
-                    Write-Host 'The resource group was not removed'                         # Write message to screen
-                    Write-Host 'You may not have the permssions to complete this action'    # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
-                    Break RemoveAzureRGObject                                               # Break RemoveAzureRGObject   
-                }                                                                           # End catch
+                    Break RemoveAzureRGObject                                               # Breaks :RemoveAzureRGObject    
+                }                                                                           # End Catch
                 Write-Host $RGObjectName'has been removed'                                  # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureRGObject                                                   # Break RemoveAzureRGObject
