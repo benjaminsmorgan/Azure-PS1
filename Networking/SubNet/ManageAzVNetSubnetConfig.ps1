@@ -7,6 +7,7 @@
 } #>
 <# Required Functions Links: {
     AddAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/AddAzVNetSubnetConfig.ps1
+    ListAzVNetSubnetConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/ListAzVNetSubnetConfig.ps1
     GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1
     RemoveAzVNetSubnetConfig:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/RemoveAzVNetSubnetConfig.ps1
     GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
@@ -14,6 +15,7 @@
 <# Functions Description: {
     ManageAzVNetSubnetConfig:   Management function for subnets    
     AddAzVNetSubnetConfig:      Adds an azure virtual network subnet
+    ListAzVNetSubnetConfig:     Function to list all subnets
     GetAzVNetSubnetConfig:      Gets an azure virtual network subnet
     RemoveAzVNetSubnetConfig:   Removes an azure virtual network subnet
     GetAzVirtualNetwork:        Gets a virutal network
