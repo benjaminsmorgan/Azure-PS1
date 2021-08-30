@@ -1,19 +1,21 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    Get-AzVirtualNetwork:
-    Get-AzVirtualNetworkSubnetConfig:
-    Add-AzVirtualNetworkGatewayIpConfig:
-    Remove-AzVirtualNetworkGatewayIpConfig
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-6.3.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-6.3.0
+    Add-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Remove-AzVirtualNetworkGatewayIpConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
     Set-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworkgateway?view=azps-6.3.0
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
     Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
 } #>
 <# Required Functions Links: {
     GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+    NewAzVNGatewayIPcon:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGatewayIPcon.ps1
 } #>
 <# Functions Description: {
-    ResizeAzVNGateway:          Function to enable or diable active-active
+    SetAzVNGatewayAA:           Function to enable or diable active-active
     GetAzVNGateway:             Function to get a virtual network gateway
+    NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
 } #>
 <# Variables: {      
     :SetAzureVNGateway          Outer loop for managing function
@@ -39,6 +41,9 @@
             Call GetAzVNGateway > Get $GatewayObject            
             End GetAzVNGateway
                 Return SetAzVNGatewayAA > Send $GatewayObject
+            Call NewAzVNGatewayIPcon >  Get $GatewayIPConfig
+            End NewAzVNGatewayIPcon
+                Return SetAzVNGatewayAA > Send $GatewayIPConfig
         End SetAzVNGatewayAA
             Return function > Send $null
 }#>
