@@ -1,3 +1,56 @@
+# Benjamin Morgan benjamin.s.morgan@outlook.com 
+<# Ref: { Microsoft docs links
+    Resize-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/resize-azvirtualnetworkgateway?view=azps-6.3.0
+    Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
+    Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-6.3.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-6.3.0
+    Add-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Remove-AzVirtualNetworkGatewayIpConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Set-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworkgateway?view=azps-6.3.0
+} #>
+<# Required Functions Links: {
+    ResizeAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/ResizeAzVNGateway.ps1
+    SetAzVNGatewayAA:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/SetAzVNGatewayAA.ps1
+    GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+    NewAzVNGatewayIPcon:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGatewayIPcon.ps1
+} #>
+<# Functions Description: {
+    ResizeAzVNGateway:          Function to resize a gateway
+    SetAzVNGatewayAA:           Function to enable or diable active-active
+    GetAzVNGateway:             Function to get a virtual network gateway
+    NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
+} #>
+<# Variables: {      
+    :ManageAzureGateway         Outer loop for managing function
+    $OpSelect:                  Operator input for selecting management function
+    ResizeAzVNGateway{}         Updates $GatewayObject
+        GetAzVNGateway{}            Gets $GatewayObject
+    SetAzVNGatewayAA {}         Updates $GatewayObject
+        GetAzVNGateway{}            Gets $GatewayObject
+        NewAzVNGatewayIPcon{}       Gets $GatewayIPConfig
+} #>
+<# Process Flow {
+    function
+        Call ManageAzVNGWConfig > Get $null
+            Call ResizeAzVNGateway > Get $null
+                Call GetAzVNGateway > Get $GatewayObject            
+                End GetAzVNGateway
+                    Return ResizeAzVNGateway > Send $GatewayObject
+            End ResizeAzVNGateway
+                Return ManageAzVNGWConfig > Send $null
+            Call SetAzVNGatewayAA > Get $null
+                Call GetAzVNGateway > Get $GatewayObject            
+                End GetAzVNGateway
+                    Return SetAzVNGatewayAA > Send $GatewayObject
+                Call NewAzVNGatewayIPcon >  Get $GatewayIPConfig
+                End NewAzVNGatewayIPcon
+                    Return SetAzVNGatewayAA > Send $GatewayIPConfig
+            End SetAzVNGatewayAA
+                Return ManageAzVNGWConfig > Send $null   
+        End ManageAzVNGWConfig
+            Return function > Send $null         
+}#>
 function ManageAzVNGWConfig {                                                               # Function to manage virtual network gateway configs
     Begin {                                                                                 # Begin function
         :ManageAzureGateway while ($true) {                                                 # Outer loop for managing function
