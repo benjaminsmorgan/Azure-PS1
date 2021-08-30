@@ -8,6 +8,10 @@
     New-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetworkgateway?view=azps-6.3.0
     Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
     Remove-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgateway?view=azps-6.3.0
+    Resize-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/resize-azvirtualnetworkgateway?view=azps-6.3.0
+    Add-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Remove-AzVirtualNetworkGatewayIpConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Set-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworkgateway?view=azps-6.3.0
 } #>
 <# Required Functions Links: {
     NewAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGateway.ps1
@@ -20,19 +24,29 @@
     ListAzVNGateway:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/ListAzVNGateway.ps1
     RemoveAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/RemoveAzVNGateway.ps1
     GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+    ManageAzVNGWConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/ManageAzVNGWConfig.ps1
+        ResizeAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/ResizeAzVNGateway.ps1
+        SetAzVNGatewayAA:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/SetAzVNGatewayAA.ps1
+        GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+        NewAzVNGatewayIPcon:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGatewayIPcon.ps1
 } #>
 <# Functions Description: {
     ManageAzVNGateway:          Function to manage virtual network gateways
     NewAzVNGateway:             Function to create a new virtual network gateway
-    GetAzVirtualNetwork:        Function for getting an Azure virtual network
     SetAzGatewayType:           Function to set a virtual network gateway type
     SetAzGatewayVPNSku:         Function to set a virtual network gateway sku
     SetAzGatewayVPNSkuGen:      Function to set a virtual network gateway sku generation
     NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
-    GetAzPublicIpAddress:       Function to get an existing public IP address
     ListAzVNGateway:            Function to list all virtual network gateways
     RemoveAzVNGateway:          Function to remove a virtual network gateway
     GetAzVNGateway:             Function to get a virtual network gateway
+    GetAzVirtualNetwork:        Function for getting an Azure virtual network
+    GetAzPublicIpAddress:       Function to get an existing public IP address
+    ManageAzVNGWConfig:         Function to manage virtual network gateway configs
+        ResizeAzVNGateway:          Function to resize a gateway
+        SetAzVNGatewayAA:           Function to enable or diable active-active
+        GetAzVNGateway:             Function to get a virtual network gateway
+        NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
 } #>
 <# Variables: {      
     :ManageAzureGateway         Outer loop for managing function
@@ -47,6 +61,13 @@
     ListAzVNGateway{}           Lists $GatewayObjects
     RemoveAzVNGateway{}         Removes $GatewayObject
         GetAzVNGateway{}            Gets $GatewayObject
+    ManageAzVNGWConfig{}        Manages $GatewayObjects
+        ResizeAzVNGateway{}         Updates $GatewayObject
+            GetAzVNGateway{}            Gets $GatewayObject
+        SetAzVNGatewayAA {}         Updates $GatewayObject
+            GetAzVNGateway{}            Gets $GatewayObject
+            NewAzVNGatewayIPcon{}       Gets $GatewayIPConfig
+
 } #>
 <# Process Flow {
     function
@@ -81,6 +102,24 @@
                     Return RemoveAzVNGateway > Send $GatewayObject
             End RemoveAzVNGateway
                 Return ManageAzVNGateway > Send $null
+            Call ManageAzVNGWConfig > Get $null
+                Call ResizeAzVNGateway > Get $null
+                    Call GetAzVNGateway > Get $GatewayObject            
+                    End GetAzVNGateway
+                        Return ResizeAzVNGateway > Send $GatewayObject
+                End ResizeAzVNGateway
+                    Return ManageAzVNGWConfig > Send $null
+                Call SetAzVNGatewayAA > Get $null
+                    Call GetAzVNGateway > Get $GatewayObject            
+                    End GetAzVNGateway
+                        Return SetAzVNGatewayAA > Send $GatewayObject
+                    Call NewAzVNGatewayIPcon >  Get $GatewayIPConfig
+                    End NewAzVNGatewayIPcon
+                        Return SetAzVNGatewayAA > Send $GatewayIPConfig
+                End SetAzVNGatewayAA
+                    Return ManageAzVNGWConfig > Send $null   
+            End ManageAzVNGWConfig
+                Return ManageAzVNGateway > Send $null                
         End ManageAzVNGateway
             Return function > Send $null    
 }#>
