@@ -80,8 +80,7 @@
             GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
             GetAzPublicIpAddress{}      Gets $PublicIPObject
         RemoveAzNICIpConPublicIP{}  Removes $NicIPConfigObject
-            GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-        
+            GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject    
 } #>
 <# Process Flow {
     Function
