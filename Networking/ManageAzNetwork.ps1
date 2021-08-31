@@ -23,6 +23,94 @@
     Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
     Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
     Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.0.0  
+    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    Set-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/set-azpublicipaddress?view=azps-5.5.0
+    Remove-AzPublicIpAddress:                   https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azpublicipaddress?view=azps-5.5.0 
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0  
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    New-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-6.3.0
+    Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
+    New-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetworkgateway?view=azps-6.3.0
+    Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
+    New-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancer?view=azps-5.5.0  
+    New-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerfrontendipconfig?view=azps-5.5.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    New-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/new-azpublicipaddress?view=azps-5.5.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0
+    New-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerbackendaddresspoolconfig?view=azps-5.5.0
+    New-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/new-azloadbalancerruleconfig?view=azps-5.5.0
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0  
+    Get-AzLoadBalancerFrontendIpConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerfrontendipconfig?view=azps-6.0.0
+    Remove-AzLoadBalancerFrontendIpConfig:      https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerfrontendipconfig?view=azps-6.1.0
+    Get-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancer?view=azps-6.1.0
+    Add-AzLoadBalancerBackendAddressPoolConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerbackendaddresspoolconfig?view=azps-6.1.0
+    Set-AzLoadBalancer:                         https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancer?view=azps-6.1.0
+    Get-AzLoadBalancerBackendAddressPool:       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerbackendaddresspool?view=azps-6.1.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.1.0
+    Get-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.1.0
+    Set-AzNetworkInterfaceIpConfig:             https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterfaceipconfig?view=azps-6.1.0
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.1.0
+    Remove-AzLoadBalancerBackendAddressPool:    https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerbackendaddresspool?view=azps-6.1.0
+    Add-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerprobeconfig?view=azps-6.1.0
+    Get-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerprobeconfig?view=azps-6.1.0
+    Remove-AzLoadBalancerProbeConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerprobeconfig?view=azps-6.1.0
+    Set-AzLoadBalancerProbeConfig:              https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerprobeconfig?view=azps-6.1.0
+    Add-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerruleconfig?view=azps-6.1.0
+    Get-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerruleconfig?view=azps-6.1.0
+    Remove-AzLoadBalancerRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerruleconfig?view=azps-6.1.0
+    Set-AzLoadBalancerRuleConfig:               https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerruleconfig?view=azps-6.1.0    
+    Add-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/add-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Get-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/get-azloadbalancerinboundnatruleconfig?view=azps-6.1.0
+    Set-AzLoadBalancerInboundNatRuleConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/set-azloadbalancerinboundnatruleconfig?view=azps-6.2.0
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
+    Remove-AzLoadBalancerInboundNatRuleConfig:  https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azloadbalancerinboundnatruleconfig?view=azps-6.1.0  
+    Get-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecuritygroup?view=azps-6.2.1
+    New-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-6.2.1
+    Remove-AzNetworkSecurityGroup:              https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-6.2.1
+    Add-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/add-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityGroup:                 https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-6.2.1
+    Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Remove-AzNetworkSecurityRuleConfig:         https://docs.microsoft.com/en-us/powershell/module/az.network/remove-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkSecurityRuleConfig:            https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-6.2.1
+    Set-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/set-aznetworkinterface?view=azps-6.2.1
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-6.2.1
+    Get-AzVmss:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmss?view=azps-6.1.0
+    New-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/new-azapplicationsecuritygroup?view=azps-6.2.1
+    Get-AzApplicationSecurityGroup:             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azapplicationsecuritygroup?view=azps-6.2.1
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    Get-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/get-aznetworkinterface?view=azps-6.2.1
+    Remove-AzApplicationSecurityGroup:          https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azapplicationsecuritygroup?view=azps-6.2.1
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Add-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    New-AzFirewall:                             https://docs.microsoft.com/en-us/powershell/module/az.network/new-azfirewall?view=azps-6.2.1
+    Get-AzFirewall:                             https://docs.microsoft.com/en-us/powershell/module/az.network/get-azfirewall?view=azps-6.2.1
+    Remove-AzFirewall:                          https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azfirewall?view=azps-6.2.1
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetwork?view=azps-5.4.0
+    Get-AzPublicIpAddress:                      https://docs.microsoft.com/en-us/powershell/module/az.network/get-azpublicipaddress?view=azps-5.5.0 
+    New-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-6.3.0
+    Get-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworkgateway?view=azps-6.3.0
+    New-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetworkgateway?view=azps-6.3.0
+    Get-AzResource:                             https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-6.3.0
+    Remove-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgateway?view=azps-6.3.0
+    Resize-AzVirtualNetworkGateway:             https://docs.microsoft.com/en-us/powershell/module/az.network/resize-azvirtualnetworkgateway?view=azps-6.3.0
+    Add-AzVirtualNetworkGatewayIpConfig:        https://docs.microsoft.com/en-us/powershell/module/az.network/add-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Remove-AzVirtualNetworkGatewayIpConfig:     https://docs.microsoft.com/en-us/powershell/module/az.network/remove-azvirtualnetworkgatewayipconfig?view=azps-6.3.0
+    Set-AzVirtualNetworkGateway:                https://docs.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworkgateway?view=azps-6.3.0
+
 } #>
 <# Required Functions Links: {
     ManageAzVirtualNetwork:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/ManageAzVirtualNetwork.ps1       
@@ -58,10 +146,164 @@
         GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
         GetAzLocation:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Locations/GetAzLocation.ps1    
     ManageAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ManageAzPublicIpAddress.ps1
-    
+        NewAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1    
+        ListAzPublicIPAddress:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/ListAzPublicIpAddress.ps1
+        GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        SetAzPublicIPAddressAllo:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/SetAzPublicIPAddressAllo.ps1
+        RemoveAzPublicIPAddress:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/RemoveAzPublicIpAddress.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
     ManageAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ManageAzLoadBalancer.ps1
-    
-    
+        NewAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLoadBalancer.ps1
+            ListAzLoadBalancer:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ListAzLoadBalancer.ps1
+            GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+            RemoveAzLoadBalancer:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/RemoveAzLoadBalancer.ps1
+            ManageAzLBConfig            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/ManageAzLBConfig.ps1
+                ManageAzLBFEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/ManageAzLBFEConfig.ps1
+                    AddAzLBFEPrivateConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/AddAzLBFEPrivateConfig.ps1
+                    AddAzLBFEPublicConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/AddAzLBFEPublicConfig.ps1
+                    ListAzLBFEConfigs:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/ListAzLBFEConfigs.ps1
+                    GetAzLBFEConfig:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/GetAzLBFEConfig.ps1
+                    RemoveAzLBFEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/RemoveAzLBFEConfig.ps1
+                    NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPriDynamicIpCon.ps1
+                    NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPriStaticIpCon.ps1
+                    NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Front%20End%20Config/NewAzLBFEPubIPCon.ps1
+                    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+                ManageAzLBBEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/ManageAzLBBEConfig.ps1
+                    AddAzLBBEPoolConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/AddAzLBBEPoolConfig.ps1
+                    ListAzLBBEPoolConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/ListAzLBBEPoolConfig.ps1
+                    GetAzLBBEPoolConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/GetAzLBBEPoolConfig.ps1
+                    SetAzLBBEPoolVM:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/SetAzLBBEPoolVM.ps1
+                    RemoveAzLBBEPoolVM:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/RemoveAzLBBEPoolVM.ps1
+                    RemoveAzLBBEConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Back%20End%20Config/RemoveAzLBBEConfig.ps1
+                    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+                    GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1
+                ManageAzLBProbeConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/ManageAzLBProbeConfig.ps1
+                    AddAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/AddAzLBProbeConfig.ps1
+                    ListAzLBProbeConfig:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/ListAzLBProbeConfig.ps1
+                    SetAzLBProbeProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeProtocol.ps1
+                    SetAzLBProbePort:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbePort.ps1
+                    SetAzLBProbeRequestPath:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeRequestPath.ps1
+                    SetAzLBProbeCount:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeCount.ps1
+                    SetAzLBProbeInterval:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/SetAzLBProbeInterval.ps1
+                    GetAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/GetAzLBProbeConfig.ps1
+                    RemoveAzLBProbeConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Probe%20Config/RemoveAzLBProbeConfig.ps1
+                    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+                ManageAzLBRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/ManageAzLBRuleConfig.ps1
+                    AddAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/AddAzLBRuleConfig.ps1
+                    GetAzLBRuleFE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleFE.ps1
+                    GetAzLBRuleBE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleBE.ps1
+                    GetAzLBRuleProbe:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleProbe.ps1
+                    ListAzLBRuleConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/ListAzLBRuleConfig.ps1
+                    RemoveAzLBRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/RemoveAzLBRuleConfig.ps1
+                    GetAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleConfig.ps1
+                    SetAzLBRuleFE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleFE.ps1
+                    SetAzLBRuleBE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleBE.ps1
+                    RemoveAzLBRuleBE:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/RemoveAzLBRuleBE.ps1
+                    SetAzLBRuleProbe:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleProbe.ps1
+                    SetAzLBRuleProtocol:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleProtocol.ps1
+                    SetAzLBRuleFEPort:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleFEPort.ps1
+                    SetAzLBRuleBEPort:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleBEPort.ps1
+                    SetAzLBRuleTimeOut:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleTimeOut.ps1
+                    SetAzLBRuleLoadDisto:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleLoadDisto.ps1
+                    SetAzLBRuleTCPReset:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleTCPReset.ps1
+                    SetAzLBRuleFloatingIP:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/SetAzLBRuleFloatingIP.ps1
+                    GetAzLoadBalancer:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/GetAzLoadBalancer.ps1
+                ManageAzLBNatRuleConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/ManageAzLBNatRuleConfig.ps1
+                    AddAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/AddAzLBNatRuleConfig.ps1
+                    ListAzLBNatRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/ListAzLBNatRuleConfig.ps1
+                    GetAzLBNatRuleConfig:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/GetAzLBNatRuleConfig.ps1
+                    SetAzLBNatRuleFE:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleFE.ps1
+                    SetAzLBNatRuleProtocol:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleProtocol.ps1
+                    SetAzLBNatRuleSourcePort:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleSourcePort.ps1
+                    SetAzLBNatRuleTargetPort:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleTargetPort.ps1
+                    SetAzLBNatRuleTO:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleTO.ps1
+                    SetAzLBNatRuleTCP:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleTCP.ps1
+                    SetAzLBNatRuleFloatIP:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleFloatIP.ps1
+                    SetAzLBNatRuleVM:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/SetAzLBNatRuleVM.ps1
+                    RemoveAzLBNatRuleVM:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/RemoveAzLBNatRuleVM.ps1
+                    RemoveAzLBNatRuleConfig:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Nat%20Rule%20Config/RemoveAzLBNatRuleConfig.ps1
+                    GetAzLBRuleFE:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/Rule%20Config/GetAzLBRuleFE.ps1
+                    GetAzNICIpConfig:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNICIpConfig.ps1    
+            NewAzLBFEPriDynamicIpCon:   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriDynamicIpCon.ps1
+            NewAzLBFEPriStaticIpCon:    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPriStaticIpCon.ps1
+            NewAzLBFEPubIPCon:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBFEPubIPCon.ps1
+            GetAzVNetSubnetConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/SubNet/GetAzVNetSubnetConfig.ps1    
+            NewAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/NewAzPublicIpAddress.ps1
+            GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+            NewAzLBBackendIpConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBBackendIpConfig.ps1
+            NewAzLBProbeConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBProbeConfig.ps1
+            NewAzLBIBNatPoolConfig:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBIBNatPoolConfig.ps1
+            NewAzLBRuleConfig:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Load%20Balancer/NewAzLBRuleConfig.ps1
+            GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/GetAzResourceGroup.ps1
+    ManageAzNSG:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/ManageAzNSG.ps1
+        NewAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NewAzNSG.ps1
+        ListAzNSG:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/ListAzNSG.ps1
+        GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+        RemoveNSG:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/RemoveNSG.ps1
+        ManageAzNSGRule:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ManageAzNSGRule.ps1
+            GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+            SetAzNSGRuleProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleProtocol.ps1
+            SetAzNSGRuleAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAccess.ps1
+            SetAzNSGRuleDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDirection.ps1
+            SetAzNSGRulePriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRulePriority.ps1
+            SetAzNSGRuleSPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleSPortRange.ps1
+            SetAzNSGRuleDPortRange:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleDPortRange.ps1
+            SetAzNSGRuleAddPrefix:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/SetAzNSGRuleAddPrefix.ps1  
+            SetIPAddress:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetIPAddress.ps1
+            SetCIDRAddress:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Other/SetCIDRAddress.ps1
+            ListAzNSGRule:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzNSGRule.ps1
+            ListAzAllNSGsRule:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/ListAzAllNSGsRule.ps1
+            UpdateAzNSGRAccess:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRAccess.ps1
+            UpdateAzNSGRDirection:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDirection.ps1
+            UpdateAzNSGRPriority:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRPriority.ps1
+            UpdateAzNSGRProtocol:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRProtocol.ps1
+            UpdateAzNSGRSPRange:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSPRange.ps1
+            UpdateAzNSGRDPRange:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDPRange.ps1
+            UpdateAzNSGRSAddPrefix:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSAddPrefix.ps1
+            UpdateAzNSGRDAddPrefix:     https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDAddPrefix.ps1
+            UpdateAzNSGRSAppSecG:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRSAppSecG.ps1
+            UpdateAzNSGRDAppSecG:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRDAppSecG.ps1
+            GetAzAllNSGsRule:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzAllNSGsRule.ps1
+            GetAzNSGRule:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/GetAzNSGRule.ps1
+            RemoveAzNSGRule:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/RemoveAzNSGRule.ps1
+            UpdateAzNSGRuleConfig:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NSG%20Rules/UpdateAzNSGRuleConfig.ps1
+            GetAzASG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/NSG%20Rules/GetAzASG.ps1
+        ManageAzNSGNIC:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/ManageAzNSGNIC.ps1
+            AddAzNSGNIC:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/AddAzNSGNIC.ps1
+            ListAzNSGNIC:               https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/ListAzNSGNIC.ps1
+            RemoveAzNSGNIC:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/NIC%20Attachment/RemoveAzNSGNIC.ps1
+            GetAzNSG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Network%20Security%20Groups/GetAzNSG.ps1
+            GetAzNetworkInterface:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/NIC/GetAzNetworkInterface.ps1    
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1    
+    ManageAzASG:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/ManageAzASG.ps1
+        NewAzASG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/NewAzASG.ps1
+        ListAzASG:                  https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/ListAzASG.ps1
+        GetAzASG:                   https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/GetAzASG.ps1
+        RemoveAzASG:                https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Application%20Security%20Groups/RemoveAzASG.ps1
+        GetAzResourceGroup:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Resource%20Groups/Resource%20Groups/GetAzResourceGroup.ps1
+    ManageAzFirewall:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/ManageAzFirewall.ps1
+        NewAzFirewall:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/NewAzFirewall.ps1
+        ListAzFirewall:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/ListAzFirewall.ps1
+        RemoveAzFirewall:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/RemoveAzFirewall.ps1
+        GetAzFirewall:              https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Firewalls/GetAzFirewall.ps1
+        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+        GetAzPublicIPAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+    ManageAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/ManageAzVNGateway.ps1
+        NewAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGateway.ps1
+        GetAzVirtualNetwork:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/VNet/GetAzVirtualNetwork.ps1
+        SetAzGatewayType:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/SetAzGatewayType.ps1
+        SetAzGatewayVPNSku:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/SetAzGatewayVPNSku.ps1
+        SetAzGatewayVPNSkuGen:      https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/SetAzGatewayVPNSkuGen.ps1
+        NewAzVNGatewayIPcon:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGatewayIPcon.ps1
+        GetAzPublicIpAddress:       https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Public%20IP/GetAzPublicIpAddress.ps1
+        ListAzVNGateway:            https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/ListAzVNGateway.ps1
+        RemoveAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/RemoveAzVNGateway.ps1
+        GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+        ManageAzVNGWConfig:         https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/ManageAzVNGWConfig.ps1
+            ResizeAzVNGateway:          https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/ResizeAzVNGateway.ps1
+            SetAzVNGatewayAA:           https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/Gateway%20Configs/SetAzVNGatewayAA.ps1
+            GetAzVNGateway:             https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/GetAzVNGateway.ps1
+            NewAzVNGatewayIPcon:        https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Networking/Gateway/NewAzVNGatewayIPcon.ps1
 } #>
 <# Functions Description: {
     ManageAzNetwork:            Management function for azure networking
@@ -103,7 +345,7 @@
         GetAzPublicIPAddress:       Gets an existing public IP address
         SetAzPublicIPAddressAllo:   Chages an existing public IP address allocation method
         RemoveAzPublicIPAddress:    Removes an existing public IP address
-        GetAzResourceGroup:         Gets a resource group
+        GetAzResourceGroup:         Gets a resource group    
     ManageAzLoadBalancer:       Function for managing load balancers
         NewAzLoadBalancer:          Creates a new load balancer    
         ListAzLoadBalancer:         Lists all existing load balancers
@@ -187,324 +429,407 @@
         NewAzLBIBNatPoolConfig:     Creates inbound pool configuration for load balancer
         NewAzLBRuleConfig:          Creates a new load balancer rule
         GetAzResourceGroup:         Gets an existing resource group
-    GetAzResourceGroup:         Gets a resource group object
-    GetAzLocation:              Gets an Azure location
+    ManageAzNSG:                Function to manage network security groups
+        NewAzNSG:                   Function to create a new network security group
+        ListAzNSG:                  Function to list all network security groups
+        GetAzNSG:                   Function to get a network security group
+        RemoveNSG:                  Function to remove a network security group
+        ManageAzNSGRule:            Function to manage network security group rules
+            NewAzNSGRule:               Function to create a new network security group rule
+            GetAzNSG:                   Function to get a network security group
+            SetAzNSGRuleProtocol:       Function to set a network security group rule protocol
+            SetAzNSGRuleAccess:         Function to set a network security group rule access
+            SetAzNSGRuleDirection:      Function to set a network security group rule direction
+            SetAzNSGRulePriority:       Function to set a network security group rule priority
+            SetAzNSGRuleSPortRange:     Function to set a network security rule source port range
+            SetAzNSGRuleDPortRange:     Function to set a network security rule destination port range
+            SetAzNSGRuleAddPrefix:      Function to set a network security rule address prefix     
+            SetIPAddress:               Function to add an IP address to $var
+            SetCIDRAddress:             Function to add a CIDR address to $var
+            ListAzNSGRule:              Function to list a network security group rules
+            ListAzAllNSGsRule:          Function to list all rules from all network security groups
+            GetAzAllNSGsRule:           Function to get a rule from all network security groups
+            GetAzNSGRule:               Function to get a network security group rule
+            RemoveAzNSGRule:            Function to remove a network security group rule
+            UpdateAzNSGRAccess:         Function to update a network security group rule access
+            UpdateAzNSGRuleConfig:      Function for updating network security group rule configs
+            UpdateAzNSGRDirection:      Function to update a network security group rule direction
+            UpdateAzNSGRPriority:       Function to update a network security group rule priority
+            UpdateAzNSGRProtocol:       Function to update a network security group rule protocol
+            UpdateAzNSGRSPRange:        Function to update a network security group rule source port range
+            UpdateAzNSGRDPRange:        Function to update a network security group rule destination port range
+            UpdateAzNSGRSAddPrefix:     Function to update a network security group rule source application security group
+            GetAzASG:                   Function to get a application security group
+            UpdateAzNSGRDAddPrefix:     Function to update a network security group rule source application security group
+            UpdateAzNSGRSAppSecG:       Function to update a network security group rule source application security group
+            UpdateAzNSGRDAppSecG:       Function to update a network security group rule destination application security group
+        ManageAzNSGNIC:             Function to manage NSG Nic associations
+            AddAzNSGNIC:                Function to add a NSG to NIC
+            ListAzNSGNIC:               Function to list all NICs associated with network security groups
+            RemoveAzNSGNIC:             Function to remove a NSG from NIC
+            GetAzNSG:                   Function to get a network security group
+            GetAzNetworkInterface:      Function to get a network interface
+        GetAzResourceGroup:         Function to get a resource group
+    ManageAzASG:                Function for managing application security groups
+        NewAzASG:                   Function to create a application security group
+        ListAzASG:                  Function to list all application security groups
+        GetAzASG:                   Function to get an application security group
+        RemoveAzASG:                Function to remove an application security group
+        GetAzResourceGroup:         Function to get a resource group
+    ManageAzFirewall:           Function to manage firewalls
+        NewAzFirewall:              Function to create a new firewall
+        ListAzFirewall:             Function to list all firewalls
+        RemoveAzFirewall:           Function to remove a firewall
+        GetAzFirewall:              Function to get a firewall
+        GetAzVirtualNetwork:        Function to get an existing azure virtual network
+        GetAzPublicIPAddress:       Function to get an existing public IP address
+    ManageAzVNGateway:          Function to manage virtual network gateways
+        NewAzVNGateway:             Function to create a new virtual network gateway
+        SetAzGatewayType:           Function to set a virtual network gateway type
+        SetAzGatewayVPNSku:         Function to set a virtual network gateway sku
+        SetAzGatewayVPNSkuGen:      Function to set a virtual network gateway sku generation
+        NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
+        ListAzVNGateway:            Function to list all virtual network gateways
+        RemoveAzVNGateway:          Function to remove a virtual network gateway
+        GetAzVNGateway:             Function to get a virtual network gateway
+        GetAzVirtualNetwork:        Function for getting an Azure virtual network
+        GetAzPublicIpAddress:       Function to get an existing public IP address
+        ManageAzVNGWConfig:         Function to manage virtual network gateway configs
+            ResizeAzVNGateway:          Function to resize a gateway
+            SetAzVNGatewayAA:           Function to enable or diable active-active
+            GetAzVNGateway:             Function to get a virtual network gateway
+            NewAzVNGatewayIPcon:        Function to create a new gateway ip configuration
 } #>
 <# Variables: {
     :ManageAzureNetwork         Outer loop for managing function
     $OpSelect:                  Operator input to select management function
-    ManageAzVirtualNetwork{}    Gets $VnetObject
-        NewAzVirtualNetwork{}       Creates $VNetObject
-            GetAzResourceGroup{}        Gets $RGObject
-            GetAzLocation{}             Gets $LocationObject
-        ListAzVirtualNetwork{}      Lists Vnets
-        RemoveAzVirtualNetwork{}    Removes $VnetObject
-            GetAzVirtualNetwork{}       Gets $VNetObject
-    ManageAzVNetSubnetConfig{}      Gets $SubnetObject
-        AddAzVNetSubnetConfig{}     Creates $SubnetObject
-            GetAzVirtualNetwork{}       Gets $VnetObject
-        ListAzVNetSubnetConfig{}    Lists subnets
-        RemoveAzVNetSubnetConfig{}  Removes $SubnetObject
-            GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
-    ManageAzNetworkInterface{}  Get $NicObject
-        NewAzNetworkInterface{}     Creates $NicObject
-            GetAzResourceGroup{}        Gets $RGObject
-            GetAzLocation{}             Gets $LocationObject
-            GetAzVNetSubnetConfig{}     Gets $SubnetObject
-        ListAzNetworkInterface{}    Lists $NicObjects
-        RemoveAzNetworkInterface{}  Removes $NicObject
-            GetAzNetworkInterface{}     Get $NicObject
-        ManageAzNICIpConfig{}       Manages $NicIPConfigObject
-            AddAzNICIpConfig{}          Adds $NicIPConfigObject
-                GetAzNetworkInterface{}     Gets $NicObject,$SubnetObject,$VnetObject
-            ListAzNICIpConfig{}         Lists $NicIPConfigObject
-            RemoveAzNICIpConfig{}       Removes $NicIPConfigObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-            SetAzNICIpConfig{}          Updates $NicIPConfigObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
-            SetAzNICPriIPConfig{}       Updates $NicIPConfigObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
-            SetAzNICIpConfigPublicIP{}  Updates $NicIPConfigObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-                GetAzPublicIpAddress{}      Gets $PublicIPObject
-            RemoveAzNICIpConPublicIP{}  Removes $NicIPConfigObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-    
-    ManageAzPublicIPAddress{}   Gets $PublicIPObject
-        NewAzPublicIPAddress{}      Creates $PublicIPObject
-            GetAzResourceGroup{}        Gets $RGObject
-        ListAzPublicIPAddress{}     Lists $PublicIPObject
-        SetAzPublicIPAddressAllo{}  Changes $PublicIPObject
-            GetAzPublicIPAddress{}      Gets $PublicIPObject
-        RemoveAzPublicIPAddress{}   Removes $PublicIPObject
-            GetAzPublicIPAddress{}      Gets $PublicIPObject      
-    ManageAzLoadBalancer{}      Gets $LoadBalancerObject
-        NewAzLoadBalancer{}         Creates $LoadBalancerObject
-            NewAzLBFEPriDynamicIpCon{}  Gets $FrontEndIPConfigObject
-                GetAzVNetSubnetConfig{}     Gets $SubnetObject
-            NewAzLBFEPriStaticIpCon{}   Gets $FrontEndIPConfigObject
-                GetAzVNetSubnetConfig{}     Gets $SubnetObject
-            NewAzLBFEPubIPCon{}         Gets $FrontEndIPConfigObject
-                GetAzPublicIpAddress{}      Gets $PublicIPObject
-            NewAzLBBackendIpConfig{}    Gets $BackEndIPConfigObject
-            NewAzLBProbeConfig{}        Gets $HealthProbeObject
-            NewAzLBIBNatPoolConfig{}    Gets $InboundNatPoolObject
-            NewAzLBRuleConfig{}         Gets $LoadBalanceRule 
-        ListAzLoadBalancer{}        Lists $LoadBalancerObject
-        GetAzLoadBalancer{}         Gets $LoadBalancerObject
-        RemoveAzLoadBalancer{}      Removes $LoadBalancerObject
-            GetAzLoadBalancer{}         Gets $LoadBalancerObject
-        ManageAzLBConfig{}          Manages $LoadBalancerObject
-            ManageAzLBFEConfig{}        Manages $LBFEObject
-                AddAzLBFEPrivateConfig{}    Creates $LBFEObject
-                    GetAzLoadBalancer{}         Gets $LBFEObject
-                    NewAzLBFEPriDynamicIpCon{}  Creates $LBFEObject
-                    NewAzLBFEPriStaticIpCon{}   Creates $LBFEObject
-                AddAzLBFEPublicConfig{}     Creates $LBFEObject
-                    NewAzLBFrontendIpConfig{}   Gets $FrontEndIPConfigObject
-                        GetAzPublicIpAddress{}      Gets $PubIPObject
-                ListAzLBFEConfigs{}         Lists $LBFEObject
-                RemoveAzLBFEConfig{}        Removes $LBFEObject
-                    GetAzLBFEConfig{}           Gets $LBFEObject,$LoadBalancerObject
-            ManageAzLBBEConfig{}        Manages $LBBackEndObject
-                AddAzLBBEPoolConfig{}       Creates $LBBackEndObject
-                    GetAzLoadBalancer{}         Gets $LoadBalancerObject
-                SetAzLBBEPoolVM{}           Changes $LBBackEndObject
-                    GetAzLBBEPoolConfig{}       Gets $LBBackEndObject, $LoadBalancerObject
-                    GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-                RemoveAzLBBEPoolVM{}        Changes $LBBackEndObject
-                    GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject
-                RemoveAzLBBEConfig{}        Removes $LBBackEndObject
-                    GetAzLBBEPoolConfig{}       Gets $LBBackEndObject,$LoadBalancerObject
-            ManageAzLBProbeConfig{}     Manages $LBProbeObject
-                AddAzLBProbeConfig{}        Creates $LBProbeObject
-                    GetAzLoadBalancer{}         Gets $LoadBalancerObject
-                ListAzLBProbeConfig{}       Lists $LBProbeObject
-                SetAzLBProbeProtocol{}      Changes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-                SetAzLBProbePort{}          Changes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-                SetAzLBProbeRequestPath{}   Changes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-                SetAzLBProbeCount{}         Changes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-                SetAzLBProbeInterval{}      Changes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-                RemoveAzLBProbeConfig{}     Removes $LBProbeObject
-                    GetAzLBProbeConfig{}        Gets $LBProbeObject, $LoadBalancerObject
-            ManageAzLBRuleConfig{}      Manages $LBRuleObject
-                AddAzLBRuleConfig{}         Creaates $LBRuleObject
-                GetAzLoadBalancer{}         Gets $LoadBalancerObject
-                    GetAzLBRuleFE{}             Gets $LBFEObject
-                    GetAzLBRuleBE{}             Gets $LBBackEndObject
-                    GetAzLBRuleProbe{}          Gets $LBProbeObject
-                ListAzLBRuleConfig{}        Lists $LBRuleObject
-                RemoveAzLBRuleConfig{}      Removes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject,$LoadBalancerObject
-                SetAzLBRuleFE{}             Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                    GetAzLBRuleFE{}             Gets $LBFEObject
-                SetAzLBRuleBE{}             Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                    GetAzLBRuleBE{}             Gets $LBBEObject
-                RemoveAzLBRuleBE{}          Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleProbe{}          Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                    GetAzLBRuleProbe{}          Gets $LBProbeObject
-                SetAzLBRuleProtocol{}       Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleFEPort{}         Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleBEPort{}         Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleTimeOut{}        Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleLoadDisto{}      Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleTCPReset{}       Changes $LBRuleObject
-                    GetAzLBRuleConfig{}         Gets $LBRuleObject, $LoadBalancerObject
-                SetAzLBRuleFloatingIP{}     Changes $LBRuleObject
-                GetAzLBRuleConfig{}             Gets $LBRuleObject, $LoadBalancerObject
-            ManageAzLBNatRuleConfig{}       Manages $LBNatRule
-                AddAzLBNatRuleConfig{}      Creates $LBNatRule
-                    GetAzLBFEConfig{}           Gets $FrontEndIPConfigObject,$LoadBalancerObject
-                ListAzLBNatRuleConfig{}     Lists $LBNatRule
-                SetAzLBNatRuleFE{}          Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                    GetAzLBRuleFE{}             Gets $LBFEObject
-                SetAzLBNatRuleProtocol{}    Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleSourcePort{}  Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleTargetPort{}  Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleTO{}          Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleTCP{}         Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleFloatIP{}     Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                SetAzLBNatRuleVM{}          Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                GetAzNICIpConfig{}          Gets $NicIPConfigObject,$NicObject
-                RemoveAzLBNatRuleVM{}       Changes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
-                RemoveAzLBNatRuleConfig{}   Removes $LBNatRule
-                    GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject     
-} #>
 <# Process Flow {
-    Function
-        Call ManageAzNetwork
-            Call ManageAzVirtualNetwork > Get $null
-                Call NewAzVirtualNetwork > Get $null
-                    Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGoup
-                        Return NewAzVirtualNetwork > Send $RGObject
-                    Call GetAzLocation > Get $LocationObject
-                    End GetAzLocation
-                        Return NewAzVirtualNetwork > Send $LocationObject
-                End NewAzVirtualNetwork
-                    Return Function > Send $null
-                Call ListAzVirtualNetwork > Get $null 
-                End ListAzVirtualNetwork
-                    Return ManageAzVirtualNetwork > Send $null
-                Call RemoveAzVirtualNetwork > Get $null
-                    Call GetAzVirtualNetwork > Get $VNetObject
-                    End GetAzVirtualNetwork
-                        Return RemoveAzVirtualNetwork > Send $VNetObject
-                End RemoveAzVirtualNetwork
-                    Return ManageAzVirtualNetwork > Send $null
-            End ManageAzVirtualNetwork
-                Return ManageAzVirtualNetwork > Send $null
-            Call ManageAzVnetSubnetConfig > Get $null
-                Call AddAzVNetSubnetConfig > Get $null
-                    Call GetAzVirtualNetwork > Get $VNetObject
-                    End GetAzVirtualNetwork
-                        Return AddAzVNetSubnetConfig > Send $VNetObject
-                End AddAzVNetSubnetConfig
-                    Return ManageAzVnetSubnetConfig > Send $null
-                Call ListAzVNetSubnetConfig > Get $null
-                End ListAzVNetSubnetConfig
-                    Return ManageAzVnetSubnetConfig > Send $null
-                Call RemoveAzVNetSubnetConfig > Get $null
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject
-                    End GetAzVNetSubnetConfig
-                        Return RemoveAzVNetSubnetConfig > Send $SubnetObject
-                End RemoveAzVNetSubnetConfig
-                    Return ManageAzVnetSubnetConfig > Send $null
-            End ManageAzVnetSubnetConfig
-                Return ManageAzNetwork > Send $SubnetObject
-            Call ManageAzNetworkInterface > Get $null        
-                Call NewAzNetworkInterface > Get $null
-                    Call GetAzResourceGroup > Get $RGObject
-                    End GetAzResourceGroup
-                        Return NewAzNetworkInterface > Send $RGObject
-                    Call GetAzLocation > Get $LocationObject
-                    End GetAzLocation
-                        Return NewAzNetworkInterface > Send $LocationObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                    End GetAzVNetSubnetConfig
-                        Return NewAzNetworkInterface > Send $SubnetObject, $VNetObject
-                End NewAzNetworkInterface
-                    Return ManageAzNetworkInterface > Send $null
-                Call ListAzNetworkInterface > Get $null
-                End ListAzNetworkInterface
-                    Return ManageAzNetworkInterface > Send $null
-                Call RemoveAzNetworkInterface > Get $null
-                    Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                    End GetAzNetworkInterface
-                        Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
-                End RemoveAzNetworkInterface
-                    Return ManageAzNetworkInterface > Send $null            
-                Call ManageAzNICIpConfig > Get $null
-                    Call AddAzNICIpConfig > Get $null
-                        Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                        End GetAzNetworkInterface
-                            Return AddAzNICIpConfig > Send $NicObject,$SubnetObject,$VnetObject
-                    End AddAzNICIpConfig
-                        Return ManageAzNICIpConfig > Send $null
-                    Call ListAzNICIpConfig > Get $null
-                    End ListAzNICIpConfig
-                        Return ManageAzNICIpConfig > Send $null
-                    Call RemoveAzNICIpConfig > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                        End GetAzNICIpConfig
-                            Return RemoveAzNICIpConfig > Send $NicIPConfigObject, $NicObject
-                    End RemoveAzNICIpConfig
-                        Return ManageAzNICIpConfig > Send $null
-                    Call SetAzNICIpConfig > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                        End GetAzNICIpConfig
-                            Return SetAzNICIpConfig > Send $NicIPConfigObject,$NicObject
-                    End SetAzNICIpConfig
-                        Return ManageAzNICIpConfig > Send $null
-                    Call SetAzNICPriIPConfig > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                        End GetAzNICIpConfig
-                            Return SetAzNICPriIPConfig > Send $NicIPConfigObject,$NicObject
-                    End SetAzNICPriIPConfig
-                        Return ManageAzNICIpConfig > Send $null
-                    Call SetAzNICIpConfigPublicIP > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                        End GetAzNICIpConfig
-                            Return SetAzNICIpConfigPublicIP > Send $NicIPConfigObject, $NicObject
-                        Call GetAzPublicIpAddress > Get $PublicIPObject
-                        End GetAzPublicIpAddress
-                            Return SetAzNICIpConfigPublicIP > Send $PublicIPObject
-                    End SetAzNICIpConfigPublicIP
-                        Return ManageAzNICIpConfig > Send $null
-                    Call RemoveAzNICIpConPublicIP > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                        End GetAzNICIpConfig
-                            Return RemoveAzNICIpConPublicIP > Send $NicIPConfigObject, $NicObject
-                    End RemoveAzNICIpConPublicIP
-                        Return ManageAzNICIpConfig > Send $null
-                End ManageAzNICIpConfig
-                    Return ManageAzNetworkInterface > Send $null
-            End ManageAzNetworkInterface
-                Return ManageAzNetwork > Send $null                
-
-    End ManageAzNetwork
-            Return function > Send $Null
+    ManageAzNetwork
+        ManageAzVirtualNetwork 
+            NewAzVirtualNetwork
+                GetAzResourceGroup > Get $RGObject
+                GetAzLocation > Get $LocationObject
+            ListAzVirtualNetwork  
+            RemoveAzVirtualNetwork
+                GetAzVirtualNetwork > Get $VNetObject         
+        ManageAzVnetSubnetConfig
+            AddAzVNetSubnetConfig
+                GetAzVirtualNetwork > Get $VNetObject
+            ListAzVNetSubnetConfig
+            RemoveAzVNetSubnetConfig
+                GetAzVNetSubnetConfig > Get $SubnetObject
+        ManageAzNetworkInterface        
+            NewAzNetworkInterface
+                GetAzResourceGroup > Get $RGObject
+                GetAzLocation > Get $LocationObject
+            ListAzNetworkInterface
+            RemoveAzNetworkInterface
+                GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
+            ManageAzNICIpConfig
+                AddAzNICIpConfig
+                    GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
+                ListAzNICIpConfig
+                RemoveAzNICIpConfig
+                    GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                SetAzNICIpConfig
+                    GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                SetAzNICPriIPConfig
+                    GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                SetAzNICIpConfigPublicIP
+                    GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                    GetAzPublicIpAddress > Get $PublicIPObject
+                RemoveAzNICIpConPublicIP
+                    GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+        ManageAzPublicIPAddress
+            NewAzPublicIpAddress
+                GetAzResourceGroup > Get RGObject
+            ListAzPublicIpAddress
+            SetAzPublicIPAddressAllo
+                GetAzPublicIpAddress > Get $PublicIPObject
+            RemoveAzPublicIPAddres
+                GetAzPublicIpAddress > Get $PublicIPObject
+        ManageAzLoadBalancer
+            NewAzLoadBalancer
+                GetAzResourceGroup > Get $RGObject
+                NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                    GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                    GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+                NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
+                    GetAzPublicIpAddress > Get $PublicIPObject
+                NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+                NewAzLBProbeConfig > Get $HealthProbeObject
+                NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+                NewAzLBRuleConfig > Get $LoadBalanceRule
+            ListAzLoadBalancer
+            RemoveAzPublicIPAddres
+                GetAzLoadBalancer > Get $LoadBalancerObject
+            ManageAzLBConfig
+                ManageAzLBFEConfig
+                ManageAzLBFEConfig
+                    AddAzLBFEPrivateConfig
+                        GetAzLoadBalancer > Get $LoadBalancerObject
+                        NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                        NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                    AddAzLBFEPublicConfig
+                        GetAzLoadBalancer > Get $LoadBalancerObject
+                        NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject
+                            GetAzPublicIpAddress > Get $PubIPObject
+                    ListAzLBFEConfigs
+                    RemoveAzLBFEConfig
+                        GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
+                ManageAzLBBEConfig
+                    AddAzLBBEPoolConfig
+                        GetAzLoadBalancer > Get $LoadBalancerObject
+                    ListAzLBBEPoolConfig
+                    SetAzLBBEPoolVM
+                        GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
+                        GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                    RemoveAzLBBEPoolVM
+                        GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                    RemoveAzLBBEConfig
+                        GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
+                ManageAzLBProbeConfig
+                    AddAzLBProbeConfig
+                        GetAzLoadBalancer > Get $LoadBalancerObject
+                    ListAzLBProbeConfig
+                    SetAzLBProbeProtocol
+                        GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                    SetAzLBProbePort
+                        GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                    SetAzLBProbeRequestPath
+                        GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                    SetAzLBProbeCount
+                        GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                    SetAzLBProbeInterval
+                        GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                ManageAzLBRuleConfig
+                    AddAzLBRuleConfig
+                    GetAzLoadBalancer > Get $LoadBalancerObject
+                        GetAzLBRuleFE > Get $LBFEObject
+                        GetAzLBRuleBE > Get $LBBackEndObject
+                        GetAzLBRuleProbe > Get $LBProbeObject
+                    ListAzLBRuleConfig
+                    RemoveAzLBRuleConfig
+                        GetAzLBRuleConfig > Get $LBRuleObject,$LoadBalancerObject
+                    SetAzLBRuleFE
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                        GetAzLBRuleFE > Get $LBFEObject
+                    SetAzLBRuleBE
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                        GetAzLBRuleBE > Get $LBBEObject
+                    RemoveAzLBRuleBE
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleProbe
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                        GetAzLBRuleProbe > Get $LBProbeObject
+                    SetAzLBRuleProtocol
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleFEPort
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleBEPort
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleTimeOut
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleLoadDisto
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    SetAzLBRuleTCPReset
+                        GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleFloatingIP
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                ManageAzLBNatRuleConfig
+                    AddAzLBNatRuleConfig
+                        GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+                    ListAzLBNatRuleConfig
+                    SetAzLBNatRuleFE
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                        GetAzLBRuleFE > Get $LBFEObject
+                    SetAzLBNatRuleProtocol
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleSourcePort
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleTargetPort
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleTO
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleTCP
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleFloatIP
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    SetAzLBNatRuleVM
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                        GetAzNICIpConfig > Get $NicIPConfigObject,$NicObjectt
+                    RemoveAzLBNatRuleVM
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    RemoveAzLBNatRuleConfig
+                        GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+        ManageAzNSG
+            NewAzNSG   
+                GetAzResourceGroup > Get $RGObject
+            ListAzNSG
+            RemoveNSG
+                GetAzNSG > Get $NSGObject
+            ManageAzNSGRule
+                NewAzNSGRule
+                    GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                    SetAzNSGRuleAccess > Get $NSGRuleAccess
+                    SetAzNSGRuleDirection > Get $NSGRuleDirection
+                    SetAzNSGRulePriority > Get $NSGRulePriority
+                    SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                    SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                    SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        SetIPAddress > Get $IPAddress
+                        SetCIDRAddress > Get $CIDRAddress
+                    GetAzASG > Get $ASGObject
+                ListAzNSGRule
+                    GetAzNSG > Get $NSGObject
+                ListAzAllNSGsRule
+                RemoveAzNSGRule
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                UpdateAzNSGRAccess
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleAccess > Get $NSGRuleAccess
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRDirection
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleDirection > Get $NSGRuleDirection
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRPriority
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRulePriority > Get $NSGRulePriority
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRProtocol
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRSPRange
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRDPRange
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRSAddPrefix
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        SetIPAddress > Get $IPAddress
+                        SetCIDRAddress > Get $CIDRAddress
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRDAddPrefix
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                        SetIPAddress > Get $IPAddress
+                        SetCIDRAddress > Get $CIDRAddress
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRSAppSecG
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    GetAzASG > Get $ASGObject
+                    UpdateAzNSGRuleConfig
+                UpdateAzNSGRDAppSecG
+                    GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                        GetAzNSG > Get $NSGObject
+                    GetAzASG > Get $ASGObject
+                    UpdateAzNSGRuleConfig
+            ManageAzNSGNIC
+                AddAzNSGNIC
+                    GetAzNSG > Get $NSGObject
+                    GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
+                ListAzNSGNIC
+                RemoveAzNSGNIC
+                    GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
+        ManageAzASG
+            NewAzASG
+                GetAzResourceGroup > Get $RGObject
+            ListAzASG
+            RemoveAzASG
+                GetAzASG > Get $ASGObject
+        ManageAzFirewall
+            NewAzFirewall
+                GetAzVirtualNetwork > Get $VNetObject
+                GetAzPublicIpAddress > Get $PublicIPObject
+            ListAzFirewall            
+            RemoveAzFirewall
+                GetAzFirewall > Get $FirewallObject            
+        ManageAzVNGateway
+            NewAzVNGateway  
+                GetAzVirtualNetwork > Get $VNetObject
+                SetAzGatewayType > Get $GatewaySku
+                SetAzGatewayVPNSku > Get $GatewaySku
+                SetAzGatewayVPNSkuGen > Get $GatewaySkuGen
+                NewAzVNGatewayIPcon > Get $GatewayIPConfig
+                    GetAzPublicIpAddress > Get $PublicIPObject
+            ListAzVNGateway            
+            RemoveAzVNGateway
+                GetAzVNGateway > Get $GatewayObject            
+            ManageAzVNGWConfig
+                ResizeAzVNGateway
+                    GetAzVNGateway > Get $GatewayObject            
+                SetAzVNGatewayAA
+                    GetAzVNGateway > Get $GatewayObject            
+                    NewAzVNGatewayIPcon >  Get $GatewayIPConfig
 }#>
 function ManageAzNetwork {                                                                  # Function for managing azure network resources
     Begin {                                                                                 # Begin function   
         :ManageAzureNetwork while ($true) {                                                 # Outer loop for managing function
             Write-Host 'Azure Network Management'                                           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] Manage virtual network'                                         # Write message to screen
-            Write-Host '[2] Manage subnets'                                                 # Write message to screen
-            Write-Host '[3] Manage network interfaces'                                      # Write message to screen
-            Write-Host '[4] Manage public IPs'                                              # Write message to screen
-            Write-Host '[5] Manage load balancers'                                          # Write message to screen
+            Write-Host '[1] Manage Virtual Networks'                                         # Write message to screen
+            Write-Host '[2] Manage VNet Subnets'                                            # Write message to screen
+            Write-Host '[3] Manage Network Interfaces'                                      # Write message to screen
+            Write-Host '[4] Manage Public IPs'                                              # Write message to screen
+            Write-Host '[5] Manage Load Balancers'                                          # Write message to screen
             Write-Host '[6] Manage Network Security Groups'                                 # Write message to screen
             Write-Host '[7] Manage Application Security Groups'                             # Write message to screen
             Write-Host '[8] Manage Firewalls'                                               # Write message to screen
             Write-Host '[9] Manage Gateways'                                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureNetwork                                                    # Breaks :ManageAzureNetwork
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Elseif $OpSelect equals '1'
-                Write-Host 'Manage virtual network'                                         # Write message to screen
+                Write-Host 'Manage Virtual Networks'                                        # Write message to screen
                 ManageAzVirtualNetwork                                                      # Calls function
             }                                                                               # End elseif ($OpSelect -eq '1')
             elseif ($OpSelect -eq '2') {                                                    # Elseif $OpSelect equals '2'
-                Write-Host 'Manage subnets'                                                 # Write message to screen
+                Write-Host 'Manage VNet Subnets'                                            # Write message to screen
                 ManageAzVNetSubnetConfig                                                    # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Elseif $OpSelect equals '3'
-                Write-Host 'Manage network interfaces'                                      # Write message to screen
+                Write-Host 'Manage Network Interfaces'                                      # Write message to screen
                 ManageAzNetworkInterface                                                    # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Elseif $OpSelect equals '4'
-                Write-Host 'Manage public IPs'                                              # Write message to screen
+                Write-Host 'Manage Public IPs'                                              # Write message to screen
                 ManageAzPublicIPAddress                                                     # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Elseif $OpSelect equals '5'
-                Write-Host 'Manage load balancers'                                          # Write message to screen
+                Write-Host 'Manage Load Balancers'                                          # Write message to screen
                 ManageAzLoadBalancer                                                        # Calls function
             }                                                                               # End elseif ($OpSelect -eq '5')
             elseif ($OpSelect -eq '6') {                                                    # Elseif $OpSelect equals '6'
