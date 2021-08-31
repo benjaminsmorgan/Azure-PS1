@@ -322,355 +322,124 @@
                 GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject
             RemoveAzLBNatRuleConfig{}   Removes $LBNatRule
                 GetAzLBNatRuleConfig{}      Gets $LBNatRule, $LoadBalancerObject    
-
 } #>
 <# Process Flow {
-    function
-        Call ManageAzLoadBalancer > Get $null
-            Call NewAzLoadBalancer > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzLoadBalancer > Send $RGObject          
-                Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                    End GetAzVNetSubnetConfig 
-                        Return NewAzLBFEPriDynamicIpCon > Send $SubnetObject, $VNetObject
-                End NewAzLBFEPriDynamicIpCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
-                    Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                    End GetAzVNetSubnetConfig 
-                        Return NewAzLBFEPriStaticIpCon > Send $SubnetObject, $VNetObject
-                End NewAzLBFEPriStaticIpCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
-                    Call GetAzPublicIpAddress > Get $PublicIPObject
-                    End GetAzPublicIpAddress
-                        Return NewAzLBFEPubIPCon > Send $PublicIPObject        
-                End NewAzLBFEPubIPCon
-                    Return NewAzLoadBalancer > Send $FrontEndIPConfigObject
-                Call NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
-                End NewAzLBBackendIpConfig
-                    Return NewAzLoadBalancer > Send $BackEndIPConfigObject            
-                Call NewAzLBProbeConfig > Get $HealthProbeObject
-                End NewAzLBProbeConfig
-                    Return NewAzLoadBalancer > Send $HealthProbeObject           
-                Call NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
-                End NewAzLBIBNatPoolConfig
-                    Return NewAzLoadBalancer > Send $InboundNatPoolObject
-                Call NewAzLBRuleConfig > Get $LoadBalanceRule
-                End NewAzLBRuleConfig
-                    Return NewAzLoadBalancer > Send $LoadBalanceRule
-            End NewAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-            Call ListAzLoadBalancer > Get $null
-            End ListAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-            Call RemoveAzPublicIPAddres > Get $null
-                Call GetAzLoadBalancer > Get $LoadBalancerObject
-                End GetAzLoadBalancer
-                    Return RemoveAzLoadBalancer > Send $LoadBalancerObject
-            End RemoveAzLoadBalancer
-                Return ManageAzLoadBalancer > Send $null
-            Call ManageAzLBConfig > Get $null
-                Call ManageAzLBFEConfig > Get $null
-                End ManageAzLBFEConfig
-                    Return ManageAzLBConfig > Send $null
-                Call ManageAzLBFEConfig > Get $null
-                    Call AddAzLBFEPrivateConfig > Get $null
-                        Call GetAzLoadBalancer > Get $LoadBalancerObject
-                        End GetAzLoadBalancer
-                            Return AddAzLBFEPrivateConfig > Send $LoadBalancerObject
-                        Call NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
-                        End NewAzLBFEPriDynamicIpCon
-                            Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject
-                        Call NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
-                        End NewAzLBFEPriStaticIpCon
-                            Return AddAzLBFEPrivateConfig > Send $FrontEndIPConfigObject            
-                    End AddAzLBFEPrivateConfig
-                        Return ManageAzLBFEConfig > Send $null        
-                    Call AddAzLBFEPublicConfig > Get $null
-                        Call GetAzLoadBalancer > Get $LoadBalancerObject
-                        End GetAzLoadBalancer
-                            Return AddAzLBFEPublicConfig > Send $LoadBalancerObject
-                        Call NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject
-                            Call GetAzPublicIpAddress > Get $PubIPObject
-                            End GetAzPublicIpAddress
-                                Return NewAzLBFEPubIPCon > Send $PubIPObject
-                        End NewAzLBFEPubIPCon
-                            Return AddAzLBFEPublicConfig > Send $FrontEndIPConfigObject
-                    End AddAzLBFEPublicConfig
-                        Return ManageAzLBFEConfig > Send $null                        
-                    Call ListAzLBFEConfigs > Get $null
-                    End ListAzLBFEConfigs
-                        Return ManageAzLBFEConfig > Send $null
-                    Call RemoveAzLBFEConfig > Get $null
-                        Call GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
-                        End GetAzLBFEConfig
-                            Return RemoveAzLBFEConfig > Send $LBFEObject,$LoadBalancerObject
-                    End RemoveAzLBFEConfig
-                        Return ManageAzLBFEConfig > Send $null
-                End ManageAzLBFEConfig
-                    Return ManageAzLBConfig > Send $null                
-                Call ManageAzLBBEConfig > Get $null
-                    Call AddAzLBBEPoolConfig > Get $null
-                        Call GetAzLoadBalancer > Get $LoadBalancerObject
-                        End GetAzLoadBalancer
-                            Return AddAzLBBEPoolConfig > Send $LoadBalancerObject
-                    End AddAzLBBEPoolConfig
-                        Return ManageAzLBBEConfig > Send $null
-                    Call ListAzLBBEPoolConfig > Get $null
-                    End ListAzLBBEPoolConfig
-                        Return ManageAzLBBEConfig > Send $null
-                    Call SetAzLBBEPoolVM > Get $null
-                        Call GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
-                        End GetAzLBBEPoolConfig
-                            Return SetAzLBBEPoolVM > Send $LBBackEndObject, $LoadBalancerObject
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                        End GetAzNICIpConfig
-                            Return GetAzLBBEPoolConfig > Send $NicIPConfigObject,$NicObject
-                    End GetAzLBBEPoolConfig
-                        Return ManageAzLBBEConfig > Send $null
-                    Call RemoveAzLBBEPoolVM > Get $null
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                        End GetAzNICIpConfig
-                            Return GetAzLBBEPoolConfig > Send $NicIPConfigObject,$NicObject
-                    End RemoveAzLBBEPoolVM
-                        Return ManageAzLBBEConfig > Send $null
-                    Call RemoveAzLBBEConfig > Get $null
-                        Call GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
-                        End GetAzLBBEPoolConfig
-                            Return RemoveAzLBBEConfig > Send $LBBackEndObject, $LoadBalancerObject
-                    End RemoveAzLBBEConfig
-                        Return ManageAzLBBEConfig > Send $null
-                End ManageAzLBBEConfig
-                    Return ManageAzLBConfig > Send $null
-                Call ManageAzLBProbeConfig > Get $null
-                    Call AddAzLBProbeConfig > Get $null
-                        Call GetAzLoadBalancer > Get $LoadBalancerObject
-                        End GetAzLoadBalancer
-                            Return AddAzLBProbeConfig > Send $LoadBalancerObject
-                    End AddAzLBProbeConfig
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call ListAzLBProbeConfig > Get $null
-                    End ListAzLBProbeConfig
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call SetAzLBProbeProtocol > Get $null
-                        Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
-                        End GetAzLBProbeConfig
-                            Return SetAzLBProbeProtocol > Send $LBProbeObject, $LoadBalancerObject
-                    End SetAzLBProbeProtocol
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call SetAzLBProbePort > Get $null
-                        Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
-                        End GetAzLBProbeConfig
-                            Return SetAzLBProbePort > Send $LBProbeObject, $LoadBalancerObject
-                    End SetAzLBProbePort
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call SetAzLBProbeRequestPath > Get $null
-                        Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
-                        End GetAzLBProbeConfig
-                            Return SetAzLBProbeRequestPath > Send $LBProbeObject, $LoadBalancerObject
-                    End SetAzLBProbeRequestPath
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call SetAzLBProbeCount > Get $null
-                        Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
-                        End GetAzLBProbeConfig
-                            Return SetAzLBProbeCount > Send $LBProbeObject, $LoadBalancerObject
-                    End SetAzLBProbeCount
-                        Return ManageAzLBProbeConfig > Send $null
-                    Call SetAzLBProbeInterval > Get $null
-                        Call GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
-                        End GetAzLBProbeConfig
-                            Return SetAzLBProbeInterval > Send $LBProbeObject, $LoadBalancerObject
-                    End SetAzLBProbeInterval
-                        Return ManageAzLBProbeConfig > Send $null            
-                End ManageAzLBProbeConfig
-                    Return ManageAzLBConfig > Send $null                
-                Call ManageAzLBRuleConfig > Get $null
-                    Call AddAzLBRuleConfig > Get $null
-                    Call GetAzLoadBalancer > Get $LoadBalancerObject
-                        End GetAzLoadBalancer
-                            Return AddAzLBRuleConfig > Send $LoadBalancerObject
-                        Call GetAzLBRuleFE > Get $LBFEObject
-                        End GetAzLBRuleFE
-                            Return AddAzLBRuleConfig > Send $LBFEObject
-                        Call GetAzLBRuleBE > Get $LBBackEndObject
-                        End GetAzLBRuleBE
-                            Return AddAzLBRuleConfig > Send $LBBackEndObject
-                        Call GetAzLBRuleProbe > Get $LBProbeObject
-                        End GetAzLBRuleProbe
-                            Return AddAzLBRuleConfig > Send $LBProbeObject
-                    End AddAzLBRuleConfig
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call ListAzLBRuleConfig > Get $null
-                    End ListAzLBRuleConfig
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call RemoveAzLBRuleConfig > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject,$LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return RemoveAzLBRuleConfig > Send $LBRuleObject,$LoadBalancerObject
-                    End RemoveAzLBRuleConfig
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleFE > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleFE > Send $LBRuleObject, $LoadBalancerObject
-                        Call GetAzLBRuleFE > Get $LBFEObject
-                        End GetAzLBRuleFE
-                            Return SetAzLBRuleFE > Send $LBFEObject
-                    End SetAzLBRuleFE
-                        Return ManageAzLBRuleConfig > Send $null           
-                    Call SetAzLBRuleBE > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleBE > Send $LBRuleObject, $LoadBalancerObject
-                        Call GetAzLBRuleBE > Get $LBBEObject
-                        End GetAzLBRuleBE
-                            Return SetAzLBRuleBE > Send $LBBEObject
-                    End SetAzLBRuleBE
-                        Return ManageAzLBRuleConfig > Send $null       
-                    Call RemoveAzLBRuleBE > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return RemoveAzLBRuleBE > Send $LBRuleObject, $LoadBalancerObject
-                    End RemoveAzLBRuleBE
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleProbe > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleProbe > Send $LBRuleObject, $LoadBalancerObject
-                        Call GetAzLBRuleProbe > Get $LBProbeObject
-                        End GetAzLBRuleProbe
-                            Return SetAzLBRuleProbe > Send $LBProbeObject
-                    End SetAzLBRuleProbe
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleProtocol > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleProtocol > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleProtocol
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleFEPort > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleFEPort > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleFEPort
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleBEPort > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleBEPort > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleBEPort
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleTimeOut > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleTimeOut > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleTimeOut
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleLoadDisto > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleLoadDisto > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleLoadDisto
-                        Return ManageAzLBRuleConfig > Send $null
-                    Call SetAzLBRuleTCPReset > Get $null
-                        Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                        End GetAzLBRuleConfig
-                            Return SetAzLBRuleTCPReset > Send $LBRuleObject, $LoadBalancerObject
-                    End SetAzLBRuleTCPReset
-                        Return ManageAzLBRuleConfig > Send $null               
-                Call SetAzLBRuleFloatingIP > Get $null
-                    Call GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
-                    End GetAzLBRuleConfig
-                        Return SetAzLBRuleFloatingIP > Send $LBRuleObject, $LoadBalancerObject
-                End SetAzLBRuleFloatingIP
-                    Return ManageAzLBRuleConfig > Send $null                
-                End ManageAzLBRuleConfig
-                    Return ManageAzLBConfig > Send $null
-                Call ManageAzLBNatRuleConfig > Get $null
-                    Call AddAzLBNatRuleConfig > Get $null
-                        Call GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
-                        End GetAzLBFEConfig
-                            Return AddAzLBNatRuleConfig > Send $FrontEndIPConfigObject,$LoadBalancerObject
-                    End AddAzLBNatRuleConfig
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call ListAzLBNatRuleConfig > Get $null
-                    End ListAzLBNatRuleConfig
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleFE > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleFE > Send $LBNatRule, $LoadBalancerObject
-                        Call GetAzLBRuleFE > Get $LBFEObject
-                        End GetAzLBRuleFE
-                            Return SetAzLBNatRuleFE > Send $LBFEObject
-                    End SetAzLBNatRuleFE
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleProtocol > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleProtocol > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleProtocol
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleSourcePort > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleSourcePort > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleSourcePort
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleTargetPort > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleTargetPort > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleTargetPort
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleTO > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleTO > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleTO
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleTCP > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleTCP > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleTCP
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleFloatIP > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleFloatIP > Send $LBNatRule, $LoadBalancerObject
-                    End SetAzLBNatRuleFloatIP
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call SetAzLBNatRuleVM > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return SetAzLBNatRuleVM > Send $LBNatRule, $LoadBalancerObject
-                        Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObjectt
-                        End GetAzNICIpConfig
-                            Return SetAzLBNatRuleVM > Send $NicIPConfigObject,$NicObject
-                    End SetAzLBNatRuleVM
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call RemoveAzLBNatRuleVM > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return RemoveAzLBNatRuleVM > Send $LBNatRule, $LoadBalancerObject
-                    End RemoveAzLBNatRuleVM
-                        Return ManageAzLBNatRuleConfig > Send $null
-                    Call RemoveAzLBNatRuleConfig > Get $null
-                        Call GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
-                        End GetAzLBNatRuleConfig
-                            Return RemoveAzLBNatRuleConfig > Send $LBNatRule, $LoadBalancerObject
-                    End RemoveAzLBNatRuleConfig
-                        Return ManageAzLBNatRuleConfig > Send $null
-                End ManageAzLBNatRuleConfig
-                    Return ManageAzLBConfig > Send $null
-            End ManageAzLBConfig
-                Return ManageAzLoadBalancer > Send $null
-        End ManageAzLoadBalancer
-            Return function > Send $null
+    ManageAzLoadBalancer
+        NewAzLoadBalancer
+            GetAzResourceGroup > Get $RGObject
+            NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+            NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
+            NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject    
+                GetAzPublicIpAddress > Get $PublicIPObject
+            NewAzLBBackendIpConfig > Get $BackEndIPConfigObject
+            NewAzLBProbeConfig > Get $HealthProbeObject
+            NewAzLBIBNatPoolConfig > Get $InboundNatPoolObject
+            NewAzLBRuleConfig > Get $LoadBalanceRule
+        ListAzLoadBalancer
+        RemoveAzPublicIPAddres
+            GetAzLoadBalancer > Get $LoadBalancerObject
+        ManageAzLBConfig
+            ManageAzLBFEConfig
+            ManageAzLBFEConfig
+                AddAzLBFEPrivateConfig
+                    GetAzLoadBalancer > Get $LoadBalancerObject
+                    NewAzLBFEPriDynamicIpCon > Get $FrontEndIPConfigObject
+                    NewAzLBFEPriStaticIpCon > Get $FrontEndIPConfigObject
+                AddAzLBFEPublicConfig
+                    GetAzLoadBalancer > Get $LoadBalancerObject
+                    NewAzLBFEPubIPCon > Get $FrontEndIPConfigObject
+                        GetAzPublicIpAddress > Get $PubIPObject
+                ListAzLBFEConfigs
+                RemoveAzLBFEConfig
+                    GetAzLBFEConfig > Get $LBFEObject,$LoadBalancerObject
+            ManageAzLBBEConfig
+                AddAzLBBEPoolConfig
+                    GetAzLoadBalancer > Get $LoadBalancerObject
+                ListAzLBBEPoolConfig
+                SetAzLBBEPoolVM
+                    GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
+                    GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                RemoveAzLBBEPoolVM
+                    GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+                RemoveAzLBBEConfig
+                    GetAzLBBEPoolConfig > Get $LBBackEndObject, $LoadBalancerObject
+            ManageAzLBProbeConfig
+                AddAzLBProbeConfig
+                    GetAzLoadBalancer > Get $LoadBalancerObject
+                ListAzLBProbeConfig
+                SetAzLBProbeProtocol
+                    GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                SetAzLBProbePort
+                    GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                SetAzLBProbeRequestPath
+                    GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                SetAzLBProbeCount
+                    GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+                SetAzLBProbeInterval
+                    GetAzLBProbeConfig > Get $LBProbeObject, $LoadBalancerObject
+            ManageAzLBRuleConfig
+                AddAzLBRuleConfig
+                GetAzLoadBalancer > Get $LoadBalancerObject
+                    GetAzLBRuleFE > Get $LBFEObject
+                    GetAzLBRuleBE > Get $LBBackEndObject
+                    GetAzLBRuleProbe > Get $LBProbeObject
+                ListAzLBRuleConfig
+                RemoveAzLBRuleConfig
+                    GetAzLBRuleConfig > Get $LBRuleObject,$LoadBalancerObject
+                SetAzLBRuleFE
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    GetAzLBRuleFE > Get $LBFEObject
+                SetAzLBRuleBE
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    GetAzLBRuleBE > Get $LBBEObject
+                RemoveAzLBRuleBE
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleProbe
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                    GetAzLBRuleProbe > Get $LBProbeObject
+                SetAzLBRuleProtocol
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleFEPort
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleBEPort
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleTimeOut
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleLoadDisto
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+                SetAzLBRuleTCPReset
+                    GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+            SetAzLBRuleFloatingIP
+                GetAzLBRuleConfig > Get $LBRuleObject, $LoadBalancerObject
+            ManageAzLBNatRuleConfig
+                AddAzLBNatRuleConfig
+                    GetAzLBFEConfig > Get $FrontEndIPConfigObject,$LoadBalancerObject
+                ListAzLBNatRuleConfig
+                SetAzLBNatRuleFE
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    GetAzLBRuleFE > Get $LBFEObject
+                SetAzLBNatRuleProtocol
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleSourcePort
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleTargetPort
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleTO
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleTCP
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleFloatIP
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                SetAzLBNatRuleVM
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                    GetAzNICIpConfig > Get $NicIPConfigObject,$NicObjectt
+                RemoveAzLBNatRuleVM
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+                RemoveAzLBNatRuleConfig
+                    GetAzLBNatRuleConfig > Get $LBNatRule, $LoadBalancerObject
+    
 }#>
 function ManageAzLoadBalancer {                                                             # Function to manage load balancer Skus
     Begin {                                                                                 # Begin function
