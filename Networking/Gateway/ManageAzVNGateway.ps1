@@ -70,58 +70,24 @@
 
 } #>
 <# Process Flow {
-    function
-        Call ManageAzVNGateway
-            Call NewAzVNGateway > Get $null  
-                Call GetAzVirtualNetwork > Get $VNetObject
-                End GetAzVirtualNetwork
-                    Return NewAzVNGateway > Send $VNetObject
-                Call SetAzGatewayType > Get $GatewaySku
-                End SetAzGatewayType
-                    Return NewAzVNGateway > Send $GatewaySku
-                Call SetAzGatewayVPNSku > Get $GatewaySku
-                End SetAzGatewayVPNSku
-                    Return NewAzVNGateway > Send $GatewaySku
-                Call SetAzGatewayVPNSkuGen > Get $GatewaySkuGen
-                End SetAzGatewayVPNSkuGen
-                    Return NewAzVNGateway > Send $GatewaySkuGen
-                Call NewAzVNGatewayIPcon > Get $GatewayIPConfig
-                    Call GetAzPublicIpAddress > Get $PublicIPObject
-                    End GetAzPublicIpAddress
-                        Return NewAzVNGatewayIPcon > Send $PublicIPObject
-                End NewAzVNGatewayIPcon
-                    Return NewAzVNGateway > Send $GatewayIPConfig
-            End NewAzVNGateway
-                Return ManageAzVNGateway > Send $null
-            Call ListAzVNGateway > Get $null            
-            End ListAzVNGateway
-                Return ManageAzVNGateway > Send $null
-            Call RemoveAzVNGateway > Get $null
-                Call GetAzVNGateway > Get $GatewayObject            
-                End GetAzVNGateway
-                    Return RemoveAzVNGateway > Send $GatewayObject
-            End RemoveAzVNGateway
-                Return ManageAzVNGateway > Send $null
-            Call ManageAzVNGWConfig > Get $null
-                Call ResizeAzVNGateway > Get $null
-                    Call GetAzVNGateway > Get $GatewayObject            
-                    End GetAzVNGateway
-                        Return ResizeAzVNGateway > Send $GatewayObject
-                End ResizeAzVNGateway
-                    Return ManageAzVNGWConfig > Send $null
-                Call SetAzVNGatewayAA > Get $null
-                    Call GetAzVNGateway > Get $GatewayObject            
-                    End GetAzVNGateway
-                        Return SetAzVNGatewayAA > Send $GatewayObject
-                    Call NewAzVNGatewayIPcon >  Get $GatewayIPConfig
-                    End NewAzVNGatewayIPcon
-                        Return SetAzVNGatewayAA > Send $GatewayIPConfig
-                End SetAzVNGatewayAA
-                    Return ManageAzVNGWConfig > Send $null   
-            End ManageAzVNGWConfig
-                Return ManageAzVNGateway > Send $null                
-        End ManageAzVNGateway
-            Return function > Send $null    
+    ManageAzVNGateway
+        NewAzVNGateway  
+            GetAzVirtualNetwork > Get $VNetObject
+            SetAzGatewayType > Get $GatewaySku
+            SetAzGatewayVPNSku > Get $GatewaySku
+            SetAzGatewayVPNSkuGen > Get $GatewaySkuGen
+            NewAzVNGatewayIPcon > Get $GatewayIPConfig
+                GetAzPublicIpAddress > Get $PublicIPObject
+        ListAzVNGateway            
+        RemoveAzVNGateway
+            GetAzVNGateway > Get $GatewayObject            
+        ManageAzVNGWConfig
+            ResizeAzVNGateway
+                GetAzVNGateway > Get $GatewayObject            
+            SetAzVNGatewayAA
+                GetAzVNGateway > Get $GatewayObject            
+                NewAzVNGatewayIPcon >  Get $GatewayIPConfig
+  
 }#>
 function ManageAzVNGateway {                                                                # Function to manage virtual network gateways
     Begin {                                                                                 # Begin function
