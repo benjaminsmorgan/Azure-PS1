@@ -201,298 +201,103 @@
             GetAzNetworkInterface{}     Gets $NicObject, $SubnetObject, $VnetObject
 } #>
 <# Process Flow {
-    function
-        Call ManageAzNSG > Get $null
-            Call NewAzNSG > Get $null   
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzNSG > Send $RGObject
-            End NewAzNSG
-                Return ManageAzNSG > Send $null
-            Call ListAzNSG > Get $null
-            End ListAzNSG
-                Return ManageAzNSG > Send $null
-            Call RemoveNSG > Get $null
-                Call GetAzNSG > Get $NSGObject
-                End GetAzNSG
-                    Return RemoveNSG > Send $NSGObject
-            End RemoveNSG
-                Return ManageAzNSG > Send $null                 
-            Call ManageAzNSGRule > Get $null
-                Call NewAzNSGRule > Get $null
-                    Call GetAzNSG > Get $NSGObject
-                    End GetAzNSG
-                        Return NewAzNSGRule > Send $NSGObject
-                    Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
-                    End SetAzNSGRuleProtocol
-                        Return NewAzNSGRule > Send $NSGRuleProtocol
-                    Call SetAzNSGRuleAccess > Get $NSGRuleAccess
-                    End SetAzNSGRuleAccess
-                        Return NewAzNSGRule > Send $NSGRuleAccess
-                    Call SetAzNSGRuleDirection > Get $NSGRuleDirection
-                    End SetAzNSGRuleDirection
-                        Return NewAzNSGRule > Send $NSGRuleDirection
-                    SetAzNSGRulePriority > Get $NSGRulePriority
-                    End SetAzNSGRulePriority
-                        Return NewAzNSGRule > Send $NSGRulePriority
-                    Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
-                    End SetAzNSGRuleSPortRange
-                        Return NewAzNSGRule > Send $NSGRuleSPRange
-                    Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
-                    End SetAzNSGRuleDPortRange
-                        Return NewAzNSGRule > Send $NSGRuleDPRange
-                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
-                        Call SetIPAddress > Get $IPAddress
-                        End SetIPAddress
-                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
-                        Call SetCIDRAddress > Get $CIDRAddress
-                        End SetCIDRAddress
-                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
-                    End SetAzNSGRuleAddPrefix
-                        Return NewAzNSGRule > Send $NSGRuleAddPrefix
-                    Call GetAzASG > Get $ASGObject
-                    End GetAzASG
-                        Return NewAzNSGRule > Send $ASGObject                
-                End NewAzNSGRule
-                    Return ManageAzNSGRule > Send $null        
-                Call ListAzNSGRule > Get $null
-                    Call GetAzNSG > Get $NSGObject
-                    End GetAzNSG
-                        Return ListAzNSGRule > Send $NSGObject
-                End ListAzNSGRule
-                    Return ManageAzNSGRule > Send $null
-                Call ListAzAllNSGsRule > Get $null
-                End ListAzAllNSGsRule
-                    Return ManageAzNSGRule > Send $null
-                Call RemoveAzNSGRule > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return RemoveAzNSGRule > Send $NSGRuleObject, $NSGObject
-                End RemoveAzNSGRule
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRAccess > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRAccess > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRAccess > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleAccess > Get $NSGRuleAccess
-                    End SetAzNSGRuleAccess
-                        Return UpdateAzNSGRAccess > Send $NSGRuleAccess
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRAccess > Send $null
-                End UpdateAzNSGRAccess
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRDirection > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRDirection > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRDirection > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleDirection > Get $NSGRuleDirection
-                    End SetAzNSGRuleDirection
-                        Return UpdateAzNSGRDirection > Send $NSGRuleDirection
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRDirection > Send $null
-                End UpdateAzNSGRDirection
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRPriority > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRPriority > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRPriority > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRulePriority > Get $NSGRulePriority
-                    End SetAzNSGRulePriority
-                        Return UpdateAzNSGRPriority > Send $NSGRulePriority
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRPriority > Send $null
-                End UpdateAzNSGRPriority
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRProtocol > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRProtocol > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRProtocol > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleProtocol > Get $NSGRuleProtocol
-                    End SetAzNSGRuleProtocol
-                        Return UpdateAzNSGRProtocol > Send $NSGRuleProtocol
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRProtocol > Send $null
-                End UpdateAzNSGRProtocol
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRSPRange > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRSPRange > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRSPRange > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
-                    End SetAzNSGRuleSPortRange
-                        Return UpdateAzNSGRSPRange > Send $NSGRuleSPRange
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRSPRange > Send $null
-                End UpdateAzNSGRSPRange
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRDPRange > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRDPRange > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRDPRange > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
-                    End SetAzNSGRuleDPortRange
-                        Return UpdateAzNSGRDPRange > Send $NSGRuleDPRange
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRDPRange > Send $null
-                End UpdateAzNSGRDPRange
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRSAddPrefix > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
-                        Call SetIPAddress > Get $IPAddress
-                        End SetIPAddress
-                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
-                        Call SetCIDRAddress > Get $CIDRAddress
-                        End SetCIDRAddress
-                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
-                    End SetAzNSGRuleAddPrefix
-                        Return UpdateAzNSGRSAddPrefix > Send $NSGRuleAddPrefix                
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRSAddPrefix > Send $null
-                End UpdateAzNSGRSAddPrefix
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRDAddPrefix > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleObject, $NSGObject
-                    Call SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
-                        Call SetIPAddress > Get $IPAddress
-                        End SetIPAddress
-                            Return SetAzNSGRuleAddPrefix > Send $IPAddress
-                        Call SetCIDRAddress > Get $CIDRAddress
-                        End SetCIDRAddress
-                            Return SetAzNSGRuleAddPrefix > Send $CIDRAddress
-                    End SetAzNSGRuleAddPrefix
-                        Return UpdateAzNSGRDAddPrefix > Send $NSGRuleAddPrefix                
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRDAddPrefix > Send $null
-                End UpdateAzNSGRDAddPrefix
-                    Return ManageAzNSGRule > Send $null            
-                Call UpdateAzNSGRSAppSecG > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRSAppSecG > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRSAppSecG > Send $NSGRuleObject, $NSGObject
-                    Call GetAzASG > Get $ASGObject
-                    End GetAzASG
-                        Return UpdateAzNSGRSAppSecG > Send $ASGObject
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRSAppSecG > Send $null
-                End UpdateAzNSGRSAppSecG
-                    Return ManageAzNSGRule > Send $null
-                Call UpdateAzNSGRDAppSecG > Get $null
-                    Call GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
-                    End GetAzAllNSGsRule
-                        Return UpdateAzNSGRDAppSecG > Send $NSGRuleObject, $NSGObject
-                    Call GetAzNSGRule > Get $NSGRuleObject, $NSGObject
-                        Call GetAzNSG > Get $NSGObject
-                        End GetAzNSG
-                            Return GetAzNSGRule > Send $NSGObject
-                    End GetAzNSGRule
-                        Return UpdateAzNSGRDAppSecG > Send $NSGRuleObject, $NSGObject
-                    Call GetAzASG > Get $ASGObject
-                    End GetAzASG
-                        Return UpdateAzNSGRDAppSecG > Send $ASGObject
-                    Call UpdateAzNSGRuleConfig > Get $null
-                    End UpdateAzNSGRuleConfig
-                        Return UpdateAzNSGRDAppSecG > Send $null
-                End UpdateAzNSGRDAppSecG
-                    Return ManageAzNSGRule > Send $null
-            End ManageAzNSGRule 
-                Return ManageAzNSG > Send $null
-            Call ManageAzNSGNIC > Get $null
-                Call AddAzNSGNIC > Get $null
-                    Call GetAzNSG > Get $NSGObject
-                    End GetAzNSG
-                        Return AddAzNSGNIC > Send $NSGObject
-                    Call GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
-                    End GetAzNetworkInterface
-                        Return AddAzNSGNIC > Send $NicObject, $SubnetObject, $VnetObject
-                End AddAzNSGNIC
-                    Return ManageAzNSGNIC > Send $null
-                Call ListAzNSGNIC > Get $null
-                End ListAzNSGNIC
-                    Return ManageAzNSGNIC > Send $null
-                Call RemoveAzNSGNIC > Get $null
-                    Call GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
-                    End GetAzNetworkInterface
-                        Return RemoveAzNSGNIC > Send $NicObject, $SubnetObject, $VnetObject
-                End RemoveAzNSGNIC
-                    Return ManageAzNSGNIC > Send $null                
-            End ManageAzNSGNIC
-                Return ManageAzNSG > Send $null
-        End ManageAzNSG
-            Return function > Send $null
+    ManageAzNSG
+        NewAzNSG   
+            GetAzResourceGroup > Get $RGObject
+        ListAzNSG
+        RemoveNSG
+            GetAzNSG > Get $NSGObject
+        ManageAzNSGRule
+            NewAzNSGRule
+                GetAzNSG > Get $NSGObject
+                SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                SetAzNSGRuleAccess > Get $NSGRuleAccess
+                SetAzNSGRuleDirection > Get $NSGRuleDirection
+                SetAzNSGRulePriority > Get $NSGRulePriority
+                SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                    SetIPAddress > Get $IPAddress
+                    SetCIDRAddress > Get $CIDRAddress
+                GetAzASG > Get $ASGObject
+            ListAzNSGRule
+                GetAzNSG > Get $NSGObject
+            ListAzAllNSGsRule
+            RemoveAzNSGRule
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+            UpdateAzNSGRAccess
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleAccess > Get $NSGRuleAccess
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRDirection
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleDirection > Get $NSGRuleDirection
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRPriority
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRulePriority > Get $NSGRulePriority
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRProtocol
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleProtocol > Get $NSGRuleProtocol
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRSPRange
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleSPortRange > Get $NSGRuleSPRange
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRDPRange
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleDPortRange > Get $NSGRuleDPRange
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRSAddPrefix
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                    SetIPAddress > Get $IPAddress
+                    SetCIDRAddress > Get $CIDRAddress
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRDAddPrefix
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                SetAzNSGRuleAddPrefix > Get $NSGRuleAddPrefix
+                    SetIPAddress > Get $IPAddress
+                    SetCIDRAddress > Get $CIDRAddress
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRSAppSecG
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                GetAzASG > Get $ASGObject
+                UpdateAzNSGRuleConfig
+            UpdateAzNSGRDAppSecG
+                GetAzAllNSGsRule > Get $NSGRuleObject, $NSGObject
+                GetAzNSGRule > Get $NSGRuleObject, $NSGObject
+                    GetAzNSG > Get $NSGObject
+                GetAzASG > Get $ASGObject
+                UpdateAzNSGRuleConfig
+        ManageAzNSGNIC
+            AddAzNSGNIC
+                GetAzNSG > Get $NSGObject
+                GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
+            ListAzNSGNIC
+            RemoveAzNSGNIC
+                GetAzNetworkInterface > Get $NicObject, $SubnetObject, $VnetObject
 }#>
 function ManageAzNSG {                                                                      # Function to manage network security groups
     Begin {                                                                                 # Begin function
