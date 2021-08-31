@@ -31,25 +31,13 @@
         GetAzASG{}                  Gets $ASGObject
 } #>
 <# Process Flow {
-    function
-        Call ManageAzASG > Get $null
-            Call NewAzASG > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzASG > Send $RGObject
-            End NewAzASG
-                Return ManageAzASG > Send $null  
-            Call ListAzASG > Get $null
-            End ListAzASG
-                Return ManageAzASG > Send $null
-            Call RemoveAzASG > Get $null
-                Call GetAzASG > Get $ASGObject
-                End GetAzASG
-                    Return RemoveAzASG > Send $ASGObject
-            End RemoveAzASG
-                Return ManageAzASG > Send $null
-        End ManageAzASG
-            Return function > Send $null
+    ManageAzASG
+        NewAzASG
+            GetAzResourceGroup > Get $RGObject
+        ListAzASG
+        RemoveAzASG
+            GetAzASG > Get $ASGObject
+    
 }#>
 function ManageAzASG {                                                                      # Function for managing application security groups
     Begin {                                                                                 # Begin function
