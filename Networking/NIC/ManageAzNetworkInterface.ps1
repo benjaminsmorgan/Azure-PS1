@@ -83,76 +83,29 @@
             GetAzNICIpConfig{}          Gets $NicIPConfigObject, $NicObject    
 } #>
 <# Process Flow {
-    Function
-        Call ManageAzNetworkInterface > Get $null        
-            Call NewAzNetworkInterface > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGroup
-                    Return NewAzNetworkInterface > Send $RGObject
-                Call GetAzLocation > Get $LocationObject
-                End GetAzLocation
-                    Return NewAzNetworkInterface > Send $LocationObject
-                Call GetAzVNetSubnetConfig > Get $SubnetObject, $VNetObject
-                End GetAzVNetSubnetConfig
-                    Return NewAzNetworkInterface > Send $SubnetObject, $VNetObject
-            End NewAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null
-            Call ListAzNetworkInterface > Get $null
-            End ListAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null
-            Call RemoveAzNetworkInterface > Get $null
-                Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                End GetAzNetworkInterface
-                    Return RemoveAzNetworkInterface > Send $NicObject,$SubnetObject,$VnetObject
-            End RemoveAzNetworkInterface
-                Return ManageAzNetworkInterface > Send $null            
-            Call ManageAzNICIpConfig > Get $null
-                Call AddAzNICIpConfig > Get $null
-                    Call GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
-                    End GetAzNetworkInterface
-                        Return AddAzNICIpConfig > Send $NicObject,$SubnetObject,$VnetObject
-                End AddAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call ListAzNICIpConfig > Get $null
-                End ListAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call RemoveAzNICIpConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return RemoveAzNICIpConfig > Send $NicIPConfigObject, $NicObject
-                End RemoveAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICIpConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICIpConfig > Send $NicIPConfigObject,$NicObject
-                End SetAzNICIpConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICPriIPConfig > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICPriIPConfig > Send $NicIPConfigObject,$NicObject
-                End SetAzNICPriIPConfig
-                    Return ManageAzNICIpConfig > Send $null
-                Call SetAzNICIpConfigPublicIP > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return SetAzNICIpConfigPublicIP > Send $NicIPConfigObject, $NicObject
-                    Call GetAzPublicIpAddress > Get $PublicIPObject
-                    End GetAzPublicIpAddress
-                        Return SetAzNICIpConfigPublicIP > Send $PublicIPObject
-                End SetAzNICIpConfigPublicIP
-                    Return ManageAzNICIpConfig > Send $null
-                Call RemoveAzNICIpConPublicIP > Get $null
-                    Call GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
-                    End GetAzNICIpConfig
-                        Return RemoveAzNICIpConPublicIP > Send $NicIPConfigObject, $NicObject
-                End RemoveAzNICIpConPublicIP
-                    Return ManageAzNICIpConfig > Send $null
-            End ManageAzNICIpConfig
-                Return ManageAzNetworkInterface > Send $null
-        End ManageAzNetworkInterface
-            Return function > Send $null
+    ManageAzNetworkInterface        
+        NewAzNetworkInterface
+            GetAzResourceGroup > Get $RGObject
+            GetAzLocation > Get $LocationObject
+        ListAzNetworkInterface
+        RemoveAzNetworkInterface
+            GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
+        ManageAzNICIpConfig
+            AddAzNICIpConfig
+                GetAzNetworkInterface > Get $NicObject,$SubnetObject,$VnetObject
+            ListAzNICIpConfig
+            RemoveAzNICIpConfig
+                GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+            SetAzNICIpConfig
+                GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+            SetAzNICPriIPConfig
+                GetAzNICIpConfig > Get $NicIPConfigObject,$NicObject
+            SetAzNICIpConfigPublicIP
+                GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+                GetAzPublicIpAddress > Get $PublicIPObject
+            RemoveAzNICIpConPublicIP
+                GetAzNICIpConfig > Get $NicIPConfigObject, $NicObject
+        
 }#>
 function ManageAzNetworkInterface {                                                         # Function for managing azure nic resources
     Begin {                                                                                 # Begin function   
