@@ -36,28 +36,13 @@
         GetAzFirewall{}             Gets $FirewallObject
 } #>
 <# Process Flow {
-    function
-        Call ManageAzFirewall > Get $null
-            Call NewAzFirewall > Get $null
-                Call GetAzVirtualNetwork > Get $VNetObject
-                End GetAzVirtualNetwork
-                    Return NewAzFirewall > Send $VNetObject
-                Call GetAzPublicIpAddress > Get $PublicIPObject
-                End GetAzPublicIpAddress
-                    Return NewAzFirewall > Send $PublicIPObject                
-            End NewAzFirewall
-                Return ManageAzFirewall > Send $null
-            Call ListAzFirewall > Get $null            
-            End ListAzFirewall
-                Return ManageAzFirewall > Send $null
-            Call RemoveAzFirewall > Get $null
-                Call GetAzFirewall > Get $FirewallObject            
-                End GetAzFirewall
-                    Return RemoveAzFirewall > Send $FirewallObject
-            End RemoveAzFirewall
-                Return ManageAzFirewall > Send $null
-        End ManageAzFirewall
-            Return function > Send $null
+    ManageAzFirewall
+        NewAzFirewall
+            GetAzVirtualNetwork > Get $VNetObject
+            GetAzPublicIpAddress > Get $PublicIPObject
+        ListAzFirewall            
+        RemoveAzFirewall
+            GetAzFirewall > Get $FirewallObject            
 }#>
 function ManageAzFirewall {                                                                 # Function to manage firewalls
     Begin {                                                                                 # Begin function
