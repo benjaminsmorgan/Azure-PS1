@@ -36,31 +36,15 @@
         GetAzPublicIPAddress{}      Gets $PublicIPObject
 } #>
 <# Process Flow {
-    function
-        Call ManageAzPublicIPAddress > Get $null
-            Call NewAzPublicIpAddress > Get $null
-                Call GetAzResourceGroup > Get RGObject
-                End GetAzResourceGroup
-                    Return NewAzPublicIpAddress > Send RGObject
-            End NewAzPublicIpAddress
-                Return ManageAzPublicIPAddress > Send $null
-            Call ListAzPublicIpAddress > Get $null
-            End ListAzPublicIpAddress
-                Return ManageAzPublicIPAddress > Send $null
-            Call SetAzPublicIPAddressAllo > Get $null
-                Call GetAzPublicIpAddress > Get $PublicIPObject
-                End GetAzPublicIpAddress
-                    Return SetAzPublicIPAddressAllo > Send $PublicIPObject
-            End SetAzPublicIPAddressAllo
-                Return ManageAzPublicIPAddress > Send $null    
-            Call RemoveAzPublicIPAddres > Get $null
-                Call GetAzPublicIpAddress > Get $PublicIPObject
-                End GetAzPublicIpAddress
-                    Return RemoveAzPublicIPAddress > Send $PublicIPObject
-            End RemoveAzPublicIPAddress
-                Return ManageAzPublicIPAddress > Send $null
-        End ManageAzPublicIPAddress
-            Return function > Send $null
+    ManageAzPublicIPAddress
+        NewAzPublicIpAddress
+            GetAzResourceGroup > Get RGObject
+        ListAzPublicIpAddress
+        SetAzPublicIPAddressAllo
+            GetAzPublicIpAddress > Get $PublicIPObject
+        RemoveAzPublicIPAddres
+            GetAzPublicIpAddress > Get $PublicIPObject
+    
 }#>
 function ManageAzPublicIPAddress {                                                          # Function to manage public IP address Skus
     Begin {                                                                                 # Begin function
