@@ -32,25 +32,12 @@
         GetAzVNetSubnetConfig{}     Gets $SubnetObject, $VnetObject
 } #>
 <# Process Flow {
-    Function
-        Call ManageAzVnetSubnetConfig > Get $null
-            Call AddAzVNetSubnetConfig > Get $null
-                Call GetAzVirtualNetwork > Get $VNetObject
-                End GetAzVirtualNetwork
-                    Return AddAzVNetSubnetConfig > Send $VNetObject
-            End AddAzVNetSubnetConfig
-                Return ManageAzVnetSubnetConfig > Send $null
-            Call ListAzVNetSubnetConfig > Get $null
-            End ListAzVNetSubnetConfig
-                Return ManageAzVnetSubnetConfig > Send $null
-            Call RemoveAzVNetSubnetConfig > Get $null
-                Call GetAzVNetSubnetConfig > Get $SubnetObject
-                End GetAzVNetSubnetConfig
-                    Return RemoveAzVNetSubnetConfig > Send $SubnetObject
-            End RemoveAzVNetSubnetConfig
-                Return ManageAzVnetSubnetConfig > Send $null
-        End ManageAzVnetSubnetConfig
-            Return function > Send $SubnetObject
+    ManageAzVnetSubnetConfig
+        AddAzVNetSubnetConfig
+            GetAzVirtualNetwork > Get $VNetObject
+        ListAzVNetSubnetConfig
+        RemoveAzVNetSubnetConfig
+            GetAzVNetSubnetConfig > Get $SubnetObject
 }#>
 function ManageAzVNetSubnetConfig {                                                         # Function for managing azure Subnet resources
     Begin {                                                                                 # Begin function   
