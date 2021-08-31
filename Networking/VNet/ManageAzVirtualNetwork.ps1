@@ -26,36 +26,15 @@
 <# Variables: {
     :ManageAzureVirtualNetwork  Outer loop for managing function
     $OpSelect:                  Operator input to select management function
-    NewAzVirtualNetwork{}       Creates $VNetObject
-        GetAzResourceGroup{}        Gets $RGObject
-        GetAzLocation{}             Gets $LocationObject
-    ListAzVirtualNetwork{}      Lists Vnets
-    RemoveAzVirtualNetwork{}    Removes $VnetObject
-        GetAzVirtualNetwork{}       Gets $VNetObject
 } #>
 <# Process Flow {
-    Function
-        Call ManageAzVirtualNetwork > Get $null
-            Call NewAzVirtualNetwork > Get $null
-                Call GetAzResourceGroup > Get $RGObject
-                End GetAzResourceGoup
-                    Return NewAzVirtualNetwork > Send $RGObject
-                Call GetAzLocation > Get $LocationObject
-                End GetAzLocation
-                    Return NewAzVirtualNetwork > Send $LocationObject
-            End NewAzVirtualNetwork
-                Return Function > Send $null
-            Call ListAzVirtualNetwork > Get $null 
-            End ListAzVirtualNetwork
-                Return ManageAzVirtualNetwork > Send $null
-            Call RemoveAzVirtualNetwork > Get $null
-                Call GetAzVirtualNetwork > Get $VNetObject
-                End GetAzVirtualNetwork
-                    Return RemoveAzVirtualNetwork > Send $VNetObject
-            End RemoveAzVirtualNetwork
-                Return ManageAzVirtualNetwork > Send $null
-        End ManageAzVirtualNetwork
-            Return function > Send $null
+    ManageAzVirtualNetwork 
+        NewAzVirtualNetwork
+            GetAzResourceGroup > Get $RGObject
+            GetAzLocation > Get $LocationObject
+        ListAzVirtualNetwork  
+        RemoveAzVirtualNetwork
+            GetAzVirtualNetwork > Get $VNetObject             
 }#>
 function ManageAzVirtualNetwork {                                                           # Function for managing azure virtual networks
     Begin {                                                                                 # Begin function
