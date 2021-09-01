@@ -1,6 +1,6 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.4.0
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.4.0
 } #>
 <# Required Functions Links: {
     None
@@ -15,14 +15,11 @@
     $ListNumber:                $Var used to select $VMObject
     $VMArray:                   Array used to list VM info
     $ArrayInput:                $Var used to load items into array
-    $OpSelect:              Operator input for selecting $VMObject
+    $OpSelect:                  Operator input for selecting $VMObject
     $VMObject:                  VM Object
 } #>
 <# Process Flow {
-    Function
-        Call GetAzVM > Get $VMObject
-        End GetAzVMWin
-            Return Function > Send $VMObject
+    GetAzVM > Get $VMObject
 }#>
 function GetAzVM {                                                                          # Gets $VMObject from list
     Begin {                                                                                 # Begin function
@@ -37,8 +34,12 @@ function GetAzVM {                                                              
             [System.Collections.ArrayList]$VMArray = @()                                    # $VMArray creation
             foreach ($_ in $VMList) {                                                       # For each item in $var
                 $ArrayInput = [PSCustomObject]@{                                            # Creates the PS custom object used to load info into array
-                    'Number'=$ListNumber;'Name'=$_.Name;'RG'= $_.ResourceGroupName; `
-                    'Status' = $_.PowerState;'LOC'=$_.Location;'OS'=$_.OsProfile;`
+                    'Number'=$ListNumber;                                                   # List number
+                    'Name'=$_.Name;                                                         # VM name
+                    'RG'=$_.ResourceGroupName;                                              # Resource group name
+                    'Status' = $_.PowerState;                                               # VM power state
+                    'LOC'=$_.Location;                                                      # VM location
+                    'OS'=$_.OsProfile;                                                      # Os profile
                     'NIC'=$_.Nic                                                            # Attributes and their values to load into the array
                 }                                                                           # End creating $ArrayInput
                 $VMArray.Add($ArrayInput) | Out-Null                                        # Loads items into the array
