@@ -1,23 +1,23 @@
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Ref: { Microsoft docs links
-    New-Object:                 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-object?view=powershell-7.1
-    Get-AzVMSize:               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.4.0
-    New-AzVMConfig:             https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmconfig?view=azps-5.4.0
-    Set-AzVMOperatingSystem:    https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmoperatingsystem?view=azps-5.4.0
-    Add-AzVMNetworkInterface:   https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmnetworkinterface?view=azps-5.4.0
-    Get-AzVMImageSku:           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku?view=azps-5.4.0
-    Get-AzVMImage:              https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage?view=azps-5.4.0
-    Set-AzVMSourceImage:        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmsourceimage?view=azps-5.4.0
-    New-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-5.4.0     
-    Get-AzVM:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.4.0
-    Start-AzVM:                 https://docs.microsoft.com/en-us/powershell/module/az.compute/Start-azvm?view=azps-5.4.0
-    Stop-AzVM:                  https://docs.microsoft.com/en-us/powershell/module/az.compute/stop-azvm?view=azps-5.4.0
-    Invoke-AzVMReimage:         https://docs.microsoft.com/en-us/powershell/module/az.compute/Invoke-AzVMReimage?view=azps-5.4.0
-    Remove-AzVM:                https://docs.microsoft.com/en-us/powershell/module/az.compute/Remove-azvm?view=azps-5.4.0
-    New-AzNetworkInterface:     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.4.0
-    Get-AzVirtualNetworkSubnetConfig: https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
-    Get-AzVirtualNetwork:       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
-    Get-AzResourceGroup:        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
+    New-Object:                                 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-object?view=powershell-7.1
+    Get-AzVMSize:                               https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmsize?view=azps-5.4.0
+    New-AzVMConfig:                             https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvmconfig?view=azps-5.4.0
+    Set-AzVMOperatingSystem:                    https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmoperatingsystem?view=azps-5.4.0
+    Add-AzVMNetworkInterface:                   https://docs.microsoft.com/en-us/powershell/module/az.compute/add-azvmnetworkinterface?view=azps-5.4.0
+    Get-AzVMImageSku:                           https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimagesku?view=azps-5.4.0
+    Get-AzVMImage:                              https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvmimage?view=azps-5.4.0
+    Set-AzVMSourceImage:                        https://docs.microsoft.com/en-us/powershell/module/az.compute/set-azvmsourceimage?view=azps-5.4.0
+    New-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-5.4.0     
+    Get-AzVM:                                   https://docs.microsoft.com/en-us/powershell/module/az.compute/get-azvm?view=azps-5.4.0
+    Start-AzVM:                                 https://docs.microsoft.com/en-us/powershell/module/az.compute/Start-azvm?view=azps-5.4.0
+    Stop-AzVM:                                  https://docs.microsoft.com/en-us/powershell/module/az.compute/stop-azvm?view=azps-5.4.0
+    Invoke-AzVMReimage:                         https://docs.microsoft.com/en-us/powershell/module/az.compute/Invoke-AzVMReimage?view=azps-5.4.0
+    Remove-AzVM:                                https://docs.microsoft.com/en-us/powershell/module/az.compute/Remove-azvm?view=azps-5.4.0
+    New-AzNetworkInterface:                     https://docs.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterface?view=azps-5.4.0
+    Get-AzVirtualNetworkSubnetConfig:           https://docs.microsoft.com/en-us/powershell/module/az.network/get-azvirtualnetworksubnetconfig?view=azps-5.4.0
+    Get-AzVirtualNetwork:                       https://docs.microsoft.com/en-us/powershell/module/az.network/new-azvirtualnetwork?view=azps-5.4.0
+    Get-AzResourceGroup:                        https://docs.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroup?view=azps-5.1.0
 } #>
 <# Required Functions Links: {
     NewAzVM:                    https://github.com/benjaminsmorgan/Azure-Powershell/blob/main/Compute/Azure%20VM/NewAzVM.ps1
@@ -53,39 +53,25 @@
 <# Variables: {
     :ManageAzureVM              Outer loop for managing function
     $OpSelect:                  Operator input for management function
-    $RGObject:                  Resource group object
-    $VMObject:                  Virtual machine object
-    $LocationObject:            Location object
-    NewAzVM{}                   Creates $VMObject
-        GetAzResourceGroup{}        Gets $RGObject
-        GetAzVMSize{}               Gets $VMSizeObject
-        NewAzNetworkInterface{}     Gets $NicObject
-            GetAzVNetSubnetConfig{} Gets $SubnetObject
-                GetAzVirtualNetwork{}       Gets $VnetObject
-        GetAzNetworkInterface{}     Gets $NicObject 
-            GetAzVNetSubnetConfig{} Gets $SubnetObject
-                GetAzVirtualNetwork{}       Gets $VnetObject
-        SetAzVMOS{}                 Gets $VMImageObject
-    GetAzVM{}                   Gets $VMObject
-    StartAzVM{}                 Starts $VMObject
-        GetAzVM{}                   Gets $VMObject
-    StopAzVM{}                  Stopss $VMObject
-        GetAzVM{}                   Gets $VMObject
-    ReimageAzVM{}               Reimages $VMObject
-        GetAzVM{}                   Gets $VMObject
-    RemoveAzVM{}                Removes $VMObject
-        GetAzVM{}                   Gets $VMObject
 } #>
 <# Process Flow {
-    Function
-        Call ManageAzVM > Get $null
-        End ManageAzVM
-            Return Function > Send $null
+    ManageAzVM
+        NewAzVM
+        ListAzVM
+        StartAzVM
+            GetAzVM > Gets $VMObject
+        StopAzVM
+            GetAzVM > Gets $VMObject
+        ReimageAzVM
+            GetAzVM > Gets $VMObject
+        RemoveAzVM
+            GetAzVM > Gets $VMObject
 }#>
 function ManageAzVM {                                                                       # Function to manage VMs
     Begin {                                                                                 # Begin function
         :ManageAzureVM while ($true) {                                                      # Outer loop for managing function
             Write-Host 'Azure VM Management'                                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Create New VM'                                                  # Write message to screen
             Write-Host '[2] List VMs'                                                       # Write message to screen
@@ -93,10 +79,11 @@ function ManageAzVM {                                                           
             Write-Host '[4] Stop VM'                                                        # Write message to screen
             Write-Host '[5] Reimage VM'                                                     # Write message to screen
             Write-Host '[6] Remove VM'                                                      # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input on management option
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
-                Break ManageAzureVM                                                         # Ends :ManageAzureVM loop, leading to return statement
+                Break ManageAzureVM                                                         # Breaks :ManageAzureVM 
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $Opselect equals '1'
                 Write-Host 'Create New VM'                                                  # Write message to screen
@@ -128,6 +115,7 @@ function ManageAzVM {                                                           
                 Clear-Host                                                                  # Clears screen
             }                                                                               # End else(if ($OpSelect -eq '0'))
         }                                                                                   # End ManageAzureVM while ($true)
+        Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVM
@@ -522,7 +510,6 @@ function RemoveAzVM {                                                           
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVM
-
 # Additional functions required for ManageAzVM
 function SetAzVMOS {                                                                        # Function to get a image for a new VM
     Begin {                                                                                 # Begin function
