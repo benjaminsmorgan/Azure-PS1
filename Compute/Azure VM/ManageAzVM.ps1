@@ -246,11 +246,14 @@ function NewAzVM {                                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function NewAzVM                                                                                   # End function GetAzVMSize 
-function GetAzVM {                                                                          # Function to get a virtual machine
+function GetAzVM {                                                                          # Gets $VMObject from list
     Begin {                                                                                 # Begin function
         :GetAzureVM while ($true) {                                                         # Outer loop for managing function
+            Write-Host 'Gathering VM info, this may take a momement'                        # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $VMList = Get-AzVM -status                                                      # Gets a list
             if (!$VMList) {                                                                 # If $VMList is $null
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'No VMs in this subscription'                                    # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break GetAzureVM                                                            # Breaks :GetAzureVM
@@ -258,15 +261,29 @@ function GetAzVM {                                                              
             $ListNumber = 1                                                                 # $Var for selecting the VM
             [System.Collections.ArrayList]$VMArray = @()                                    # $VMArray creation
             foreach ($_ in $VMList) {                                                       # For each item in $var
+                $NicArray = @()                                                             # Creates $NicArray
+                $NicIDs = $_.NetworkProfile.NetworkInterfaces.ID                            # Isolates the IDs
+                foreach ($ID in $NicIDs) {                                                  # For each item in $NicIDs
+                    $NicObject = Get-AzNetworkInterface | Where-Object {$_.ID -eq $ID}      # Pulls the full NIC object
+                    $NicArray += $NicObject                                                 # Adds $NicObject to $NicArray
+                    $NicObject = $null                                                      # Clears $var
+                }                                                                           # End foreach ($ID in $NicIDs) 
                 $ArrayInput = [PSCustomObject]@{                                            # Creates the PS custom object used to load info into array
-                    'Number'=$ListNumber;'Name'=$_.Name;'RG'= $_.ResourceGroupName; `
-                    'Status' = $_.PowerState;'LOC'=$_.Location;'OS'=$_.OsProfile;`
-                    'NIC'=$_.Nic                                                            # Attributes and their values to load into the array
+                    'Number'=$ListNumber;                                                   # List number
+                    'Name'=$_.Name;                                                         # VM name
+                    'RG'=$_.ResourceGroupName;                                              # Resource group name
+                    'Status' = $_.PowerState;                                               # VM power state
+                    'LOC'=$_.Location;                                                      # VM location
+                    'OS'=$_.OsProfile;                                                      # Os profile
+                    'NIC'=$NicArray                                                         # VM Nic info
                 }                                                                           # End creating $ArrayInput
                 $VMArray.Add($ArrayInput) | Out-Null                                        # Loads items into the array
                 $ListNumber = $ListNumber + 1                                               # Increments $listNumber up by 1
+                $NicArray = $null                                                           # Clears $var
+                $NicIDs = $null                                                             # Clears $var
             }                                                                               # End foreach ($_ in $VMList)
-            :GetAzureVMName while ($true) {                                                 # Inner loop for selecting VM from list
+            Clear-Host                                                                      # Clears screen
+            :SelectAzureVM while ($true) {                                                  # Inner loop for selecting VM from list
                 Write-Host '[0]  Exit'                                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $VMArray) {                                                  # For each item in $VMArray
@@ -286,10 +303,26 @@ function GetAzVM {                                                              
                         Write-Host 'OS Type:  Linux'                                        # Write message to screen
                     }                                                                       # End elseif ($_.OS.LinuxConfiguration)
                     Write-Host 'Status:  '$_.Status                                         # Write message to screen
+                    foreach ($NIC in $_.Nic) {                                              # For each item in current item .nic
+                        Write-Host 'Nic Name:'$NIC.Name                                     # Write message to screen
+                        if ($NIC.IPConfigurations.Count -gt 1) {                            # If $NIC.IPConfigurations.Count is greater than 1
+                            $PriIP = $NIC.IpConfigurations.PrivateIpAddress[0]              # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress 1st value
+                            $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod[0]  # $PriIPAll is equal $NIC.IpConfigurations.PrivateIpAllocationMethod 1st value
+                            Write-Host '  Pri IP:  '$PriIP                                  # Write message to screen
+                            Write-Host '  Pri Allo:'$PriIPAll                               # Write message to screen
+                        }                                                                   # End if ($NIC.IPConfigurations.Count -gt 1)
+                        else {                                                              # Else If $NIC.IPConfigurations.Count is 1 or less
+                            $PriIP = $NIC.IpConfigurations.PrivateIpAddress                 # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress
+                            $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod     # $PriIPAll is equal to $NIC.IpConfigurations.PrivateIpAllocationMethod 
+                            Write-Host '  Pri IP:  '$PriIP                                  # Write message to screen
+                            Write-Host '  Pri Allo:'$PriIPAll                               # Write message to screen
+                        }                                                                   # End else (if ($NIC.IPConfigurations.Count -gt 1))
+                    }                                                                       # End foreach ($NIC in $_.Nic)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $VMList)
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
                     Write-Host 'You are selecting the VM for:'$CallingFunction              # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                 }                                                                           # End if ($CallingFunction) 
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the selection
                 Clear-Host                                                                  # Clears screen
@@ -307,7 +340,7 @@ function GetAzVM {                                                              
                     Pause                                                                   # Pauses all actions for operator input
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
-            }                                                                               # End :GetAzureVMName while ($true)
+            }                                                                               # End :SelectAzureVM while ($true)
         }                                                                                   # End :GetAzureVM while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null 
