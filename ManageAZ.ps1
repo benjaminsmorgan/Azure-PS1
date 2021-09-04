@@ -8549,6 +8549,7 @@ function ManageAzVM {                                                           
     Begin {                                                                                 # Begin function
         :ManageAzureVM while ($true) {                                                      # Outer loop for managing function
             Write-Host 'Azure VM Management'                                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Create New VM'                                                  # Write message to screen
             Write-Host '[2] List VMs'                                                       # Write message to screen
@@ -8556,10 +8557,12 @@ function ManageAzVM {                                                           
             Write-Host '[4] Stop VM'                                                        # Write message to screen
             Write-Host '[5] Reimage VM'                                                     # Write message to screen
             Write-Host '[6] Remove VM'                                                      # Write message to screen
+            Write-Host '[7] Add NIC to VM'                                                  # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input on management option
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
-                Break ManageAzureVM                                                         # Ends :ManageAzureVM loop, leading to return statement
+                Break ManageAzureVM                                                         # Breaks :ManageAzureVM 
             }                                                                               # End if ($OpSelect -eq '0')
             elseif ($OpSelect -eq '1') {                                                    # Else if $Opselect equals '1'
                 Write-Host 'Create New VM'                                                  # Write message to screen
@@ -8585,12 +8588,17 @@ function ManageAzVM {                                                           
                 Write-Host 'Remove VM'                                                      # Write message to screen
                 RemoveAzVM                                                                  # Calls function
             }                                                                               # End elseif ($OpSelect -eq '6')
+            elseif ($OpSelect -eq '7') {                                                    # Else if $Opselect equals '7'
+                Write-Host 'Add NIC to VM'                                                  # Write message to screen
+                AddAzVMNic                                                                  # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '7')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Clear-Host                                                                  # Clears screen
             }                                                                               # End else(if ($OpSelect -eq '0'))
         }                                                                                   # End ManageAzureVM while ($true)
+        Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function ManageAzVM
@@ -8668,7 +8676,13 @@ function NewAzVM {                                                              
             }                                                                               # End :SetAzureVMPassword while ($true)
             $VMCredObject = New-Object System.Management.Automation.PSCredential `
                 ($VMUserNameObject, $VMPasswordObject)                                      # Builds credential object using $VMUsernameObject and $VMPasswordObject
-            $VMSizeObject = GetAzVMSize ($CallingFunction, $LocationObject)                 # Calls function and assigns output to $var
+            $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
+            if (!$VMImageObject){                                                           # If $VMImageObject is $null
+                Break NewAzureVM                                                            # Breaks :NewAzureVM
+            }                                                                               # End if (!$VMImageObject)
+            $HVGen = $VMImageObject.HyperVGeneration
+            $HVGen = '*'+$HVGen+'*'
+            $VMSizeObject = GetAzVMSize ($CallingFunction, $LocationObject, $HVGen)         # Calls function and assigns output to $var
             if (!$VMSizeObject) {                                                           # If $VMSizeObject is $null
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
             }                                                                               # End if (!$VMSizeObject)
@@ -8683,70 +8697,20 @@ function NewAzVM {                                                              
                 $VMBuildObject = Set-AzVMOperatingSystem -VM $VMBuildObject -Linux `
                     -ComputerName $VMNameObject -Credential $VMCredObject                   # Adds VM info to $VMBuildObject
             }                                                                               # End elseif ($ImageTypeObject -eq '2')
-            :SetAzureNetwork while ($true) {                                                # Inner loop for creating or selecting NIC
-                if (!$NicObject) {                                                          # If $NicObject is $null
-                    Write-Host 'VM network configuration'                                   # Write message to screen
-                    Write-Host '[0] Exit'                                                   # Write message to screen
-                    Write-Host '[1] New NIC'                                                # Write message to screen
-                    Write-Host '[2] Existing NIC'                                           # Write message to screen
-                    $OpSelect = Read-Host 'Option [#]'                                      # Operator input for getting the NIC
-                    Clear-Host                                                              # Clears screen
-                    if ($OpSelect -eq '0') {                                                # If $OpSelect equals '0'
-                        Break NewAzureVM                                                    # Breaks :NewAzureVM
-                    }                                                                       # End if ($OpSelect -eq '0')
-                    if ($OpSelect -eq '1') {                                                # If $OpSelect equals '1'
-                        Write-Host 'The current VM build'                                   # Write message to screen
-                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject,$VnetObject,$SubnetObject = NewAzNetworkInterface `
-                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
-                        if (!$NicObject) {                                                  # If $NicObject is $null
-                            Break NewAzureVM                                                # Breaks :NewAzureVM
-                        }                                                                   # End if (!$NicObject)
-                        else {                                                              # If $NicObject has a value
-                            Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
-                        }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End if ($OpSelect -eq '1')
-                    elseif ($OpSelect -eq '2') {                                            # If $OpSelect equals 2
-                        Write-Host 'The current VM build'                                   # Write message to screen
-                        Write-Host 'resource group is:'$RGObject.ResourceGroupName          # Write message to screen
-                        $NicObject,$VnetObject,$SubnetObject = GetAzNetworkInterface `
-                            ($CallingFunction, $LocationObject)                             # Calls function and assigns output for $var
-                        if (!$NicObject) {                                                  # If $NicObject is $null
-                            Break NewAzureVM                                                # Breaks :NewAzureVM
-                        }                                                                   # End if (!$NicObject)
-                        else {                                                              # If $NicObject has a value
-                            Break SetAzureNetwork                                           # Breaks :SetAzureNetwork
-                        }                                                                   # End else (if (!$NicObject))
-                    }                                                                       # End elseif ($OpSelect -eq '2')
-                    else {                                                                  # All other inputs
-                        Write-Host 'That was not a valid input'                             # Write message to screen
-                        Pause                                                               # Pauses all actions for operator input
-                        Clear-Host                                                          # Clears screen
-                    }                                                                       # End else(if ($OpSelect -eq '1'))
-                }                                                                           # End if (!$NicObject)
-                Break SetAzureNetwork                                                       # Breaks :SetAzureNetwork
-            }                                                                               # End :SetAzureNetwork while ($true)
-            $VMBuildObject = Add-AzVMNetworkInterface -VM $VMBuildObject -Id $NicObject.Id  # Adds NIC info to $VMBuildObject
-            $VMImageObject = SetAzVMOS ($CallingFunction, $LocationObject, $ImageTypeObject)# Calls function and assigns output to $var
-            if (!$VMImageObject){                                                           # If $VMImageObject is $null
+            $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface `
+                ($CallingFunction, $LocationObject)                                         # Calls function and assigns output for $var
+            if (!$NicObject) {                                                              # If $NicObject is $null
                 Break NewAzureVM                                                            # Breaks :NewAzureVM
-            }                                                                               # End if (!$VMImageObject)
-            if ($VMImageObject.Version) {                                                   # If $VMImageObject.Version has a value
-                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
+            }                                                                               # End if (!$NicObject)
+            $VMBuildObject = Add-AzVMNetworkInterface -VM $VMBuildObject -Id $NicObject.Id  # Adds NIC info to $VMBuildObject
+            $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
                 $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
                 $VMImageObject.Skus -Version $VMImageObject.Version                         # Adds image setting to $VMBuildObject
-            }                                                                               # End if ($VMImageObject.Version)
-            else {                                                                          # If $VMImageObject.Version does not have a value
-                $VMBuildObject = Set-AzVMSourceImage -VM $VMBuildObject -PublisherName `
-                $VMImageObject.PublisherName -Offer $VMImageObject.Offer -Skus `
-                $VMImageObject.Skus -Version 'latest'                                       # Adds image setting to $VMBuildObject
-            }                                                                               # End else (if ($VMImageObject.Version))
             Try {                                                                           # Try the following
                 Write-Host 'Attempting to build the VM'                                     # Write message to screen
                 Write-Host 'This may take a few minutes'                                    # Write message to screen
                 New-AzVM -ResourceGroupName $RGObject.ResourceGroupName -VM $VMBuildObject `
-                -Location $LocationObject.Location -Verbose  
-                    -ErrorAction 'Stop'                                                     # Builds the new VM object
+                    -Location $LocationObject.Location -Verbose -ErrorAction 'Stop'         # Builds the new VM object
             }                                                                               # End Try
             Catch {                                                                         # If try fails
                 Write-Host ''                                                               # Write message to screen
@@ -8764,7 +8728,7 @@ function NewAzVM {                                                              
         }                                                                                   # End :NewAzureVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
-}                                                                                           # End function NewAzVM                                                                                   
+}                                                                                           # End function NewAzVM                                                                                   # End function GetAzVMSize 
 function GetAzVM {                                                                          # Gets $VMObject from list
     Begin {                                                                                 # Begin function
         :GetAzureVM while ($true) {                                                         # Outer loop for managing function
@@ -8941,27 +8905,54 @@ function StartAzVM {                                                            
             if (!$VMObject) {                                                               # If $VMObject is $null
                 Break StartAzureVM                                                          # Breaks :StartAzureVM
             }                                                                               # End if (!$VMObject)
+            $VMStatus = (Get-AzVM -Name $VMObject.Name -ResourceGroupName `
+                $VMObject.ResourceGroupName -Status).Statuses[1].Code                       # Pulls $VMObjects power state
+            if ($VMStatus -ne 'PowerState/deallocated') {                                   # If $VMStatus does not equal 'PowerState/deallocated'
+                Write-Host 'This VM is already powered on (Allocated)'                      # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Write-Host 'No changes have been made'                                      # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StartAzureVM                                                          # Breaks :StartAzureVM        
+            }                                                                               # End if ($VMStatus -ne 'PowerState/deallocated')
             Write-Host 'Power on:'$VMObject.name                                            # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn on the VM
+            Clear-Host                                                                      # Clears screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
                     Write-Host 'Attempting to power on:'$VMObject.Name                      # Write message to screen
                     Start-AzVM -Name $VMObject.Name -ResourceGroup `
-                    $VMObject.ResourceGroupName -ErrorAction 'Stop'                         # Starts the selected VM
+                    $VMObject.ResourceGroupName -ErrorAction 'Stop' | Out-Null              # Starts the selected VM
                 }                                                                           # End try
                 Catch {                                                                     # If Try fails
-                    Write-Host 'An error occured while'                                     # Write message to screen
-                    Write-Host 'attempting to power on the vm'                              # Write message to screen
-                    Write-Host 'The VM may already be on'                                   # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Break StartAzureVM                                                      # Breaks :StartAzureVM
                 }                                                                           # End catch
+                Clear-Host                                                                  # Clears screen
                 Write-Host $VMObject.Name 'has been powered on'                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break StartAzureVM                                                          # Breaks :StartAzureVM
             }                                                                               # End if ($OpConfirm -eq 'y')
             else {                                                                          # All other inputs for $OpConfirm
                 Write-Host 'No action taken'                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break StartAzureVM                                                          # Breaks :StartAzureVM
             }                                                                               # End else (if ($OpConfirm -eq 'y'))                                                                
@@ -8980,27 +8971,54 @@ function StopAzVM {                                                             
             if (!$VMObject) {                                                               # If $VMObject is $null
                 Break StopAzureVM                                                           # Breaks :StopAzureVM
             }                                                                               # End if (!$VMObject)
+            $VMStatus = (Get-AzVM -Name $VMObject.Name -ResourceGroupName `
+                $VMObject.ResourceGroupName -Status).Statuses[1].Code                       # Pulls $VMObjects power state
+            if ($VMStatus -eq 'PowerState/deallocated') {                                   # If $VMStatus equals 'PowerState/deallocated'
+                Write-Host 'This VM is already powered off (Deallocated)'                   # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Write-Host 'No changes have been made'                                      # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break StopAzureVM                                                           # Breaks :StopAzureVM        
+            }                                                                               # End if ($VMStatus -eq 'PowerState/deallocated')
             Write-Host 'Power off:'$VMObject.name                                           # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn off the VM
+            Clear-Host                                                                      # Clears screen
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
                     Write-Host 'Attempting to power off:'$VMObject.Name                     # Write message to screen
                     Stop-AzVM -Name $VMObject.Name -ResourceGroup `
-                    $VMObject.ResourceGroupName -force -ErrorAction 'Stop'                  # Stops the selected VM
+                    $VMObject.ResourceGroupName -force -ErrorAction 'Stop' | Out-Null       # Stops the selected VM
                 }                                                                           # End try
                 Catch {                                                                     # If Try fails
-                    Write-Host 'An error occured while'                                     # Write message to screen
-                    Write-Host 'attempting to power off the vm'                             # Write message to screen
-                    Write-Host 'The VM may already be off'                                  # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Break StopAzureVM                                                       # Breaks :StopAzureVM
                 }                                                                           # End catch
                 Write-Host $VMObject.Name 'has been powered off'                            # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break StopAzureVM                                                           # Breaks :StopAzureVM
             }                                                                               # End if ($OpConfirm -eq 'y')
             else {                                                                          # All other inputs for $OpConfirm
+                Clear-Host                                                                  # Clears screen
                 Write-Host 'No action taken'                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break StopAzureVM                                                           # Breaks :StopAzureVM
             }                                                                               # End else (if ($OpConfirm -eq 'y'))
@@ -9009,37 +9027,43 @@ function StopAzVM {                                                             
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function StopAzVM
-function ReimageAzVM {                                                                      # Function to remove a VM
+function ReimageAzVM {                                                                      # Function to reimage a VM
     Begin {                                                                                 # Begin function
-        $ErrorActionPreference='silentlyContinue'                                           # Disables powershell error reporting
+        #$ErrorActionPreference='silentlyContinue'                                           # Disables powershell error reporting
         :ReimageAzVM while ($true) {                                                        # Outer loop for managing function
+            $VMObject = GetAzVM                                                             # Calls function and assigns output to $var
             if (!$VMObject) {                                                               # If $VMObject is $null
-                $VMObject = GetAzVM                                                         # Calls function and assigns output to $var
-                if (!$VMObject) {                                                           # If $VMObject is $null
-                    Break ReimageAzVM                                                       # Breaks :ReimageAzVM
-                }                                                                           # End if (!$VMObject)
+                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
             }                                                                               # End if (!$VMObject)
-            $OpConfirm = Read-Host "Reimage"$VMObject.Name "[Y] or [N]"               # Operator confirmation to reimage the VM
-            if (!($OpConfirm -eq 'y')) {                                              # If OpConfirm does not equal 'y'
-                Write-Host "No action taken"                                                # Write message to screen
+            Write-Host 'Reimage:'$VMObject.name
+            Write-Host 'RG:     '$VMObject.ResourceGroupName
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to reimage the VM
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {
+                Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
+                #try {                                                                           # Try the following
+                    Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
+                        $VMObject.ResourceGroupName -ErrorAction 'stop'                         # Reimages the selected VM
+                #}                                                                               # End Try
+                #catch {                                                                         # If try fails
+                #    Write-Host ""                                                               # Write message to screen
+                #    Write-Host "***An Error Has Occured***"                                     # Write message to screen
+                #    Write-Host "Un-able to reimage the selected VM"                             # Write message to screen
+                #    Write-Host "Auto OS upgrades may not be enabled"                            # Write message to screen
+                #    Write-Host "You may not have permission to this VM"                         # Write message to screen
+                #    Write-Host "The VM or group may be locked"                                  # Write message to screen
+                #    Write-Host ""                                                               # Write message to screen
+                #    Break ReimageAzVM                                                           # Breaks :ReimageAzVM
+                #}                                                                               # End Catch
+                Pause
+                Break ReimageAzVM                                                               # Breaks :ReimageAzVM
+            }                                                                               # End if ($OpConfirm -eq 'y') 
+            else {                                                                          # If OpConfirm does not equal 'y'
+                Write-Host 'No action taken'                                                # Write message to screen
+                pause                                                                       # Pauses all actions for operator input
                 Break ReimageAzVM                                                           # Breaks :ReimageAzVM
-            }                                                                               # End if (!($OpConfirm -eq 'y'))
-            Write-Host "Attempting to reimage" $VMObject.Name                               # Write message to screen
-            try {                                                                           # Try the following
-                Invoke-AzVMReimage -Name $VMObject.Name -ResourceGroup `
-                    $VMObject.ResourceGroupName -ErrorAction 'stop'                         # Reimages the selected VM
-            }                                                                               # End Try
-            catch {                                                                         # If try fails
-                Write-Host ""                                                               # Write message to screen
-                Write-Host "***An Error Has Occured***"                                     # Write message to screen
-                Write-Host "Un-able to reimage the selected VM"                             # Write message to screen
-                Write-Host "Auto OS upgrades may not be enabled"                            # Write message to screen
-                Write-Host "You may not have permission to this VM"                         # Write message to screen
-                Write-Host "The VM or group may be locked"                                  # Write message to screen
-                Write-Host ""                                                               # Write message to screen
-                Break ReimageAzVM                                                           # Breaks :ReimageAzVM
-            }                                                                               # End Catch
-            Break ReimageAzVM                                                               # Breaks :ReimageAzVM
+            }                                                                               # End else (if ($OpConfirm -eq 'y') )
+            
         }                                                                                   # End :ReimageAzVM while ($true)
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End Begin
@@ -9055,28 +9079,41 @@ function RemoveAzVM {                                                           
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
             }                                                                               # End if (!$VMObject)
             Write-Host 'Remove:'$VMObject.name                                              # Write message to screen
+            Write-Host ''                                                                   # Writes message to screen
             $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator confirmation to turn on the VM
             if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
                 Try {                                                                       # Try the following
                     Write-Host 'Attempting to remove:'$VMObject.Name                        # Write message to screen
                     Remove-AzVM -Name $VMObject.Name -ResourceGroup `
-                    $VMObject.ResourceGroupName -Force -ErrorAction 'Stop'                  # Removes the selected VM
+                    $VMObject.ResourceGroupName -Force -ErrorAction 'Stop' | Out-Null       # Removes the selected VM
                 }                                                                           # End try
                 Catch {                                                                     # If Try fails
-                    Write-Host 'An error occured while'                                     # Write message to screen
-                    Write-Host 'attempting to remove the vm'                                # Write message to screen
-                    Write-Host 'The VM or resource group'                                   # Write message to screen
-                    Write-Host 'Maybe locked or you may'                                    # Write message to screen
-                    Write-Host 'not have the permissions'                                   # Write message to screen
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Break RemoveAzureVM                                                     # Breaks :RemoveAzureVM
                 }                                                                           # End catch
                 Write-Host $VMObject.Name 'has been removed'                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
             }                                                                               # End if ($OpConfirm -eq 'y')
             else {                                                                          # All other inputs for $OpConfirm
                 Write-Host 'No action taken'                                                # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVM                                                         # Breaks :RemoveAzureVM
             }                                                                               # End else (if ($OpConfirm -eq 'y'))                                                                
@@ -9085,6 +9122,153 @@ function RemoveAzVM {                                                           
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function RemoveAzVM
+function AddAzVMNic {                                                                       # Function to add a NIC to an existing VM
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'AddAzVMNic'                                                 # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :AddAzureVMNic while ($true) {                                                      # Outer loop for managing function
+            $VMObject = GetAzVM ($CallingFunction)                                          # Calls function and assigns output to $var
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                Break AddAzureVMNic                                                         # Breaks :AddAzureVMNic
+            }                                                                               # End if (!$VMObject)
+            $VMSize = Get-AzComputeResourceSku -Location $VMObject.Location  | `
+                Where-Object {$_.Name -eq $VMObject.HardwareProfile.VmSize}                 # Gets the VM size
+            $MaxNics = $VMSize.Capabilities[26].value                                       # Isolates the max number of nics available for VM size
+            if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -eq $MaxNics) {         # If $VMObject.NetworkProfile.NetworkInterfaces.ID.Count -equals $MaxNics
+                Write-Host 'This VM already has the max number'                             # Write message ot screen
+                Write-Host 'of NICs supported by the VM size'                               # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Write-Host 'Please remove an existing nic '                                 # Write message ot screen
+                Write-Host 'before adding a new one, or please'                             # Write message ot screen
+                Write-Host 'change the VM size'                                             # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break AddAzureVMNic                                                         # Breaks :AddAzureVMNic    
+            }                                                                               # End if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -eq $MaxNics)
+            $VMStatus = (Get-AzVM -Name $VMObject.Name -ResourceGroupName `
+                $VMObject.ResourceGroupName -Status).Statuses[1].Code                       # Pulls $VMObjects power state
+            if ($VMStatus -ne 'PowerState/deallocated') {                                   # If $VMStatus does not equal 'PowerState/deallocated'
+                Write-Host 'This VM must be powered off (Deallocated)'                      # Write message ot screen
+                Write-Host 'prior to any changes to the network interfaces'                 # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Write-Host 'Please power down this VM and try again'                        # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break AddAzureVMNic                                                         # Breaks :AddAzureVMNic        
+            }                                                                               # End if ($VMStatus -ne 'PowerState/deallocated')
+            if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1) {                # If $VMObject.NetworkProfile.NetworkInterfaces.ID.Count is greater than 1
+                $VMSubID = $VMObject.NetworkProfile.NetworkInterfaces.ID[0]                 # Isloates the first NIC ID
+            }                                                                               # End if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1)
+            else {                                                                          # Else If$VMObject.NetworkProfile.NetworkInterfaces.ID.Count is 1 or less
+                $VMSubID = $VMObject.NetworkProfile.NetworkInterfaces.ID                    # Isolates the NIC ID
+            }                                                                               # End else (if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1))
+            $ExistingNic = Get-AzNetworkInterface | Where-Object {$_.ID -eq $VMSubID}       # Pulls the existing primary Nic object
+            if ($ExistingNic.IpConfigurations.Count -gt 1) {                                # If $ExistingNic.IpConfigurations.Count greater than 1 
+                $SubnetID = $ExistingNic.IpConfigurations[0].Subnet.ID                      # Isolates the subnet ID    
+            }                                                                               # End if ($ExistingNic.IpConfigurations.Count -gt 1) 
+            else {                                                                          # Else if $ExistingNic.IpConfigurations.Count equals 1 
+                $SubnetID = $ExistingNic.IpConfigurations.Subnet.ID                         # Isolates the subnet ID
+            }                                                                               # End else (if ($ExistingNic.IpConfigurations.Count -gt 1) )
+            :SelectAzureNIC while ($true) {                                                 # Inner loop for selecting the additional nic
+                $NicObject,$SubnetObject,$VnetObject = GetAzNetworkInterface `
+                    ($CallingFunction)                                                      # Calls function and assigns output to $var
+                if (!$NicObject) {                                                          # If $NicObject is $null
+                    Break AddAzureVMNic                                                     # Breaks :AddAzureVMNic
+                }                                                                           # End if (!$NicObject)
+                if ($NicObject.IpConfigurations.Subnet.ID -ne $SubnetID) {                  # If $NicObject.IpConfigurations.Subnet.ID does not equal $SubnetID 
+                    Write-Host 'The selected NIC is on a different subnet'                  # Write message to screen
+                    Write-Host 'Please chose a different NIC'                               # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                    $NicObject = $null                                                      # Clears $var
+                }                                                                           # End if ($NicObject.IpConfigurations.Subnet.ID -ne $SubnetID) 
+                else {                                                                      # Else if $NicObject.IpConfigurations.Subnet.ID equals $SubnetID
+                    Break SelectAzureNIC                                                    # Breaks :SelectAzureNIC
+                }                                                                           # End else (if ($NicObject.IpConfigurations.Subnet.ID -ne $SubnetID))
+            }                                                                               # End :SelectAzureNIC while ($true)
+            :Confirm while ($true) {                                                        # Inner loop for confirming change
+                Write-Host 'Add the following'                                              # Write message to screen
+                Write-Host 'Name:      '$NicObject.Name                                     # Write message to screen
+                if ($NicObject.IpConfigurations.Count -gt 1) {                              # If $NicObject.IpConfigurations.Count is greater than 1
+                    $PriIP = $NicObject.IpConfigurations.PrivateIPAddress[0]                # Isolates the private IP address
+                    $PriIPAll = $NicObject.IpConfigurations.PrivateIpAllocationMethod[0]    # Isolates the private IP allocation method
+                }                                                                           # End if ($NicObject.IpConfigurations.Count -gt 1)
+                else {                                                                      # Else if $NicObject.IpConfigurations.Count is 1 or less
+                    $PriIP = $NicObject.IpConfigurations.PrivateIPAddress                   # Isolates the private IP address
+                    $PriIPAll = $NicObject.IpConfigurations.PrivateIpAllocationMethod       # Isolates the private IP allocation method
+                }                                                                           # End else (if ($NicObject.IpConfigurations.Count -gt 1))
+                Write-Host 'Private IP:'$PriIP                                              # Write message to screen
+                Write-Host 'Allocation:'$PriIPAll                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'To the following VM'                                            # Write message to screen
+                Write-Host 'Name:      '$VMObject.Name                                      # Write message to screen
+                Write-Host 'RG:        '$VMObject.ResourceGroupName                         # Write message to screen
+                if ($VMObject.OS.WindowsConfiguration) {                                    # If $VMObject.OS.WindowsConfiguration has a value
+                    Write-Host 'OS Type:    Windows'                                        # Write message to screen
+                }                                                                           # End if ($VMObject.OS.WindowsConfiguration)
+                elseif ($VMObject.OS.LinuxConfiguration) {                                  # If $VMObject.OS.LinuxConfiguration has a value
+                    Write-Host 'OS Type:    Linux'                                          # Write message to screen
+                }                                                                           # End elseif ($_.OS.LinuxConfiguration)
+                Write-Host ''                                                               # Write message to screen
+                $OpConfirm = Read-Host '[Y] Yes [N]'                                        # Operator confirmation to make the change
+                Clear-Host                                                                  # Clears screen
+                if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm equals 'y'
+                    Break Confirm                                                           # Breaks :Confirm
+                }                                                                           # End if ($OpConfirm -eq 'y')
+                elseif ($OpConfirm -eq 'n') {                                               # Else if $OpConfirm equals 'n'
+                    Break AddAzureVMNic                                                     # Breaks :AddAzureVMNic
+                }                                                                           # End elseif ($OpConfirm -eq 'n') 
+                else {                                                                      # All other inputs for $OpConfirm
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen 
+                }                                                                           # End else (if ($OpConfirm -eq 'y'))
+            }                                                                               # End :Confirm while ($true) 
+            Try {                                                                           # Try the following
+                Write-Host 'Making the requested changes'                                   # Write message to screen
+                Write-Host 'This may take a moment'                                         # Write message to screen
+                if (!$VMObject.NetworkProfile.NetworkInterfaces[0].Primary) {               # If the first interface is not flagged as primary
+                    $VMObject.NetworkProfile.NetworkInterfaces[0].Primary = $true           # Sets the first interface primary flag to $true
+                }                                                                           # End if (!$VMObject.NetworkProfile.NetworkInterfaces[0].Primary)
+                $VMNicCount = $VMObject.NetworkProfile.NetworkInterfaces.count              # Gets the current number of interfaces
+                #$VMNicCount = $VMNicCount -1                                                # Matches the count with interface IDs
+                Add-AzVMNetworkInterface -VM $VMObject -NetworkInterface $NicObject  `
+                    -ErrorAction 'Stop' | Out-Null                                          # Adds the additional interface
+                $VMObject.NetworkProfile.NetworkInterfaces[$VMNicCount].Primary = $false
+                Update-AzVM -VM $VMObject -ResourceGroupName $VMObject.ResourceGroupName `
+                    -ErrorAction 'Stop'  | Out-Null
+            }                                                                               # End try
+            catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break AddAzureVMNic                                                         # Breaks :AddAzureVMNic    
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The selected NIC has been added to the VM'                          # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break AddAzureVMNic                                                             # Breaks :AddAzureVMNic    
+        }                                                                                   # End :AddAzureVMNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function AddAzVMNic
 # End ManageAzVM
 # Functions for ManageAzVmss
 function ManageAzVmss {                                                                     # Function to manage Vmss
