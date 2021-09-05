@@ -22,7 +22,7 @@
 <# Process Flow {
     ListAzVM
 }#>
-function ListAzVM {                                                                         # Gets $VMObject from list
+function ListAzVM {                                                                         # Function to list VM objects
     Begin {                                                                                 # Begin function
         :ListAzureVM while ($true) {                                                        # Outer loop for managing function
             Write-Host 'Gathering VM info, this may take a momement'                        # Write message to screen
@@ -57,32 +57,36 @@ function ListAzVM {                                                             
                 $NicIDs = $null                                                             # Clears $var
             }                                                                               # End foreach ($_ in $VMList)
             Clear-Host                                                                      # Clears screen
-            Write-Host 'Name:    '$_.Name                                                   # Write message to screen
-            Write-Host 'RG:      '$_.RG                                                     # Write message to screen
-            Write-Host 'Location:'$_.LOC                                                    # Write message to screen
-            if ($_.OS.WindowsConfiguration) {                                               # If current item .OS.WindowsConfiguration has a value
-                Write-Host 'OS Type:  Windows'                                              # Write message to screen
-            }                                                                               # End if ($_.OS.WindowsConfiguration)
-            elseif ($_.OS.LinuxConfiguration) {                                             # If current item .OS.LinuxConfiguration has a value
-                Write-Host 'OS Type:  Linux'                                                # Write message to screen
-            }                                                                               # End elseif ($_.OS.LinuxConfiguration)
-            Write-Host 'Status:  '$_.Status                                                 # Write message to screen
-            foreach ($NIC in $_.Nic) {                                                      # For each item in current item .nic
-                Write-Host 'Nic Name:'$NIC.Name                                             # Write message to screen
-                if ($NIC.IPConfigurations.Count -gt 1) {                                    # If $NIC.IPConfigurations.Count is greater than 1
-                    $PriIP = $NIC.IpConfigurations.PrivateIpAddress[0]                      # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress 1st value
-                    $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod[0]          # $PriIPAll is equal $NIC.IpConfigurations.PrivateIpAllocationMethod 1st value
-                    Write-Host '  Pri IP:  '$PriIP                                          # Write message to screen
-                    Write-Host '  Pri Allo:'$PriIPAll                                       # Write message to screen
-                }                                                                           # End if ($NIC.IPConfigurations.Count -gt 1)
-                else {                                                                      # Else If $NIC.IPConfigurations.Count is 1 or less
-                    $PriIP = $NIC.IpConfigurations.PrivateIpAddress                         # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress
-                    $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod             # $PriIPAll is equal to $NIC.IpConfigurations.PrivateIpAllocationMethod 
-                    Write-Host '  Pri IP:  '$PriIP                                          # Write message to screen
-                    Write-Host '  Pri Allo:'$PriIPAll                                       # Write message to screen
-                }                                                                           # End else (if ($NIC.IPConfigurations.Count -gt 1))
-            }                                                                               # End foreach ($NIC in $_.Nic)
+            foreach ($_ in $VMArray) {                                                      # Foreach item in $VMArray
+                Write-Host 'Name:    '$_.Name                                               # Write message to screen
+                Write-Host 'RG:      '$_.RG                                                 # Write message to screen
+                Write-Host 'Location:'$_.LOC                                                # Write message to screen
+                if ($_.OS.WindowsConfiguration) {                                           # If current item .OS.WindowsConfiguration has a value
+                    Write-Host 'OS Type:  Windows'                                          # Write message to screen
+                }                                                                           # End if ($_.OS.WindowsConfiguration)
+                elseif ($_.OS.LinuxConfiguration) {                                         # If current item .OS.LinuxConfiguration has a value
+                    Write-Host 'OS Type:  Linux'                                            # Write message to screen
+                }                                                                           # End elseif ($_.OS.LinuxConfiguration)
+                Write-Host 'Status:  '$_.Status                                             # Write message to screen
+                foreach ($NIC in $_.Nic) {                                                  # For each item in current item .nic
+                    Write-Host 'Nic Name:'$NIC.Name                                         # Write message to screen
+                    if ($NIC.IPConfigurations.Count -gt 1) {                                # If $NIC.IPConfigurations.Count is greater than 1
+                        $PriIP = $NIC.IpConfigurations.PrivateIpAddress[0]                  # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress 1st value
+                        $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod[0]      # $PriIPAll is equal $NIC.IpConfigurations.PrivateIpAllocationMethod 1st value
+                        Write-Host '  Pri IP:  '$PriIP                                      # Write message to screen
+                        Write-Host '  Pri Allo:'$PriIPAll                                   # Write message to screen
+                    }                                                                       # End if ($NIC.IPConfigurations.Count -gt 1)
+                    else {                                                                  # Else If $NIC.IPConfigurations.Count is 1 or less
+                        $PriIP = $NIC.IpConfigurations.PrivateIpAddress                     # $PriIP is equal $NIC.IpConfigurations.PrivateIpAddress
+                        $PriIPAll = $NIC.IpConfigurations.PrivateIpAllocationMethod         # $PriIPAll is equal to $NIC.IpConfigurations.PrivateIpAllocationMethod 
+                        Write-Host '  Pri IP:  '$PriIP                                      # Write message to screen
+                        Write-Host '  Pri Allo:'$PriIPAll                                   # Write message to screen
+                    }                                                                       # End else (if ($NIC.IPConfigurations.Count -gt 1))
+                }                                                                           # End foreach ($NIC in $_.Nic)
+            }                                                                               # End foreach ($_ in $VMArray)
             Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureVM                                                               # Breaks :ListAzureVM
         }                                                                                   # End :ListAzureVM while ($true)
         Clear-Host                                                                          # Clears screen
         Return $null                                                                        # Returns to calling function with $null 
