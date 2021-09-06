@@ -7,7 +7,7 @@
     None
 } #>
 <# Functions Description: {
-    GetAzVM:                    Gets a VM object
+    GetAzVM:                    Function to get a virtual machine
 } #>
 <# Variables: {
     :GetAzureVM                 Outer loop for managing function
@@ -28,7 +28,7 @@
 <# Process Flow {
     GetAzVM > Get $VMObject
 }#>
-function GetAzVM {                                                                          # Gets $VMObject from list
+function GetAzVM {                                                                          # Function to get a virtual machine
     Begin {                                                                                 # Begin function
         :GetAzureVM while ($true) {                                                         # Outer loop for managing function
             Write-Host 'Gathering VM info, this may take a momement'                        # Write message to screen
