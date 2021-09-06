@@ -80,7 +80,8 @@ function ManageAzVM {                                                           
             Write-Host '[5] Reimage VM'                                                     # Write message to screen
             Write-Host '[6] Remove VM'                                                      # Write message to screen
             Write-Host '[7] Add NIC to VM'                                                  # Write message to screen
-            Write-Host '[8] Remove NIC from VM'                                             # Write message to screen
+            Write-Host '[8] Set Primary NIC on VM'                                          # Write message to screen
+            Write-Host '[9] Remove NIC from VM'                                             # Write message to screen
             Write-Host ''                                                                   # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input on management option
             Clear-Host                                                                      # Clears screen
@@ -116,9 +117,13 @@ function ManageAzVM {                                                           
                 AddAzVMNic                                                                  # Calls function
             }                                                                               # End elseif ($OpSelect -eq '7')
             elseif ($OpSelect -eq '8') {                                                    # Else if $Opselect equals '8'
+                Write-Host 'Set Primary NIC on VM'                                          # Write message to screen
+                SetAzVMNicPri                                                               # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '8')
+            elseif ($OpSelect -eq '9') {                                                    # Else if $Opselect equals '9'
                 Write-Host 'Remove NIC from VM'                                             # Write message to screen
                 RemoveAzVMNic                                                               # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '8')
+            }                                                                               # End elseif ($OpSelect -eq '9')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
@@ -800,6 +805,140 @@ function AddAzVMNic {                                                           
         Return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End Begin
 }                                                                                           # End function AddAzVMNic
+function SetAzVMNicPri {                                                                    # Function to set a VM primary network interface
+    Begin {                                                                                 # Begin function
+        if (!$CallingFunction) {                                                            # If $CallingFunction is $null
+            $CallingFunction = 'SetAzVMNicPri'                                              # Creates $CallingFunction
+        }                                                                                   # End if (!$CallingFunction)
+        :SetAzureVMNic while ($true) {                                                      # Outer loop for managing function
+            $VMObject = GetAzVM ($CallingFunction)                                          # Calls function and assigns output to $var
+            if (!$VMObject) {                                                               # If $VMObject is $null
+                Break SetAzureVMNic                                                         # Breaks :SetAzureVMNic
+            }                                                                               # End if (!$VMObject)
+            if ($VMObject.NetworkProfile.NetworkInterfaces.Count -lt 2) {                   # If $VMObject.NetworkProfile.NetworkInterfaces.Count is less than 2
+                Write-Host 'Only one NIC is associated with this VM'                        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No chanage have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all action for operator input
+                Break SetAzureVMNic                                                         # Breaks :SetAzureVMNic    
+            }                                                                               # End if ($VMObject.NetworkProfile.NetworkInterfaces.Count -lt 2)
+            $VMStatus = (Get-AzVM -Name $VMObject.Name -ResourceGroupName `
+                $VMObject.ResourceGroupName -Status).Statuses[1].Code                       # Pulls $VMObjects power state
+            if ($VMStatus -ne 'PowerState/deallocated') {                                   # If $VMStatus does not equal 'PowerState/deallocated'
+                Write-Host 'This VM must be powered off (Deallocated)'                      # Write message ot screen
+                Write-Host 'prior to any changes to the network interfaces'                 # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Write-Host 'Please power down this VM and try again'                        # Write message ot screen
+                Write-Host ''                                                               # Write message ot screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureVMNic                                                         # Breaks :SetAzureVMNic        
+            }                                                                               # End if ($VMStatus -ne 'PowerState/deallocated')
+            $NicList = $VMObject.NetworkProfile.NetworkInterfaces                           # Isolates the NICs
+            $ListNumber = 1                                                                 # $Var for selecting the VM
+            $NicNumber = 0                                                                  # $Var used for IDing the nic
+            [System.Collections.ArrayList]$ObjectArray = @()                                # $ObjectArray creation
+            foreach ($_ in $NicList) {                                                      # For each item in $NicList
+                $CurrentItem = $_                                                           # $CurrentItem is equal to current item
+                $NicObject = Get-AzNetworkInterface | Where-Object {`
+                        $_.ID -eq $CurrentItem.ID}                                          # Pulls the full nic object
+                $ArrayInput = [PSCustomObject]@{                                            # Creates the PS custom object used to load info into array
+                    'Number'=$ListNumber;                                                   # List number
+                    'NicNumber'=$NicNumber;                                                 # Nic number
+                    'Name'=$NicObject.Name;                                                 # Nic Name
+                    'RG'=$NicObject.ResourceGroupName;                                      # Nic resource group name
+                    'IPCon'=$NicObject.IpConfigurations;                                    # Nic IP configs
+                    'Primary'=$CurrentItem.Primary;                                         # VM primary nic
+                }                                                                           # End $ArrayInput = [PSCustomObject]@
+                $NicNumber = $NicNumber + 1                                                 # Increments $var up by 1
+                $ListNumber = $ListNumber + 1                                               # Increments $var up by 1
+                $NicObject = $null                                                          # Clears $var
+                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Adds $ArrayInput to $ObjectArray
+            }                                                                               # End foreach ($_ in $NicList)
+            :SelectAzureVMNic while ($true) {                                               # Inner loop for selecting the nic
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $Number is 9 or less
+                        Write-Host "[$Number]           "$_.Name                            # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # If $number is greater than 9
+                        Write-Host "[$Number]          "$_.Name                             # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))                     
+                    Write-Host 'RG:           '$_.RG                                        # Write message to screen
+                    Write-Host 'Is Primary:   '$_.Primary                                   # Write message to screen
+                    foreach ($Con in $_.IPCon) {                                            # For each item in current item .IPCon
+                        Write-Host 'Config Name:  '$Con.Name                                # Write message to screen
+                        Write-Host '  Private IP: '$Con.PrivateIPAddress                    # Write message to screen
+                        Write-Host '  Private All:'$Con.PrivateIpAllocationMethod           # Write message to screen
+                        if ($Con.PublicIPAddress.ID) {                                      # If $Con.PublicIPAddress.ID has a value
+                            $PubIP = Get-AzPublicIpAddress | Where-Object `
+                                {$_.ID -eq $Con.PublicIPAddress.ID}                         # Gets the public IP addess
+                            Write-Host '  Pub IP:'$PubIP.IpAddress                          # Write message to screen
+                            Write-Host '  Pub All:'$PubIP.PublicIpAllocationMethod          # Write message to screen
+                        }                                                                   # End if ($Con.PublicIPAddress.ID)
+                    }                                                                       # End foreach ($Con in $_.IPCon)
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                $OPSelect = Read-Host 'Option [#]'                                          # Operator input to select the NIC
+                Clear-Host                                                                  # Clear screen
+                if ($OPSelect -eq '0') {                                                    # If $OpSelect equals '0'
+                    Break SetAzureVMNic                                                     # Breaks :SetAzureVMNic
+                }                                                                           # End if ($OPSelect -eq '0')
+                elseif ($OPSelect -in $ObjectArray.Number) {                                # Else if $OpSelect is in $ObjectArray.Number
+                    $NewPrimary = $ObjectArray | Where-Object {$_.number -eq $OPSelect}     # $NewPrimary is equal to $ObjectArray where $ObjectArray.Number equals $OpSelect
+                    $NewPrimary = $NewPrimary.NicNumber                                     # Isolates the NIC selection number
+                    Break SelectAzureVMNic                                                  # Breaks :SelectAzureVMNic
+                }                                                                           # End elseif ($OPSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OPSelect -eq '0'))
+            }                                                                               # End :SelectAzureVMNic while ($true)
+            Try {                                                                           # Try the following
+                Write-Host 'Updating the NIC configs'                                       # Write message to screen
+                Write-Host 'This may take a moment'                                         # Write message to screen
+                $Number = 0                                                                 # Sets $Number to '0'
+                foreach ($_ in $VMObject.NetworkProfile.NetworkInterfaces) {                # For each item in $VMObject.NetworkProfile.NetworkInterfaces)                                            
+                    $VMObject.NetworkProfile.NetworkInterfaces[$Number].Primary = $false    # Sets all network interfaces primary to $false   
+                    $Number = $Number + 1                                                   # Increments $Number up by '1'
+                }                                                                           # End foreach ($_ in $VMObject.NetworkProfile.NetworkInterfaces)
+                $VMObject.NetworkProfile.NetworkInterfaces[$NewPrimary].Primary = $true     # Sets the $NewPrimary position network interface to primary
+                Update-AzVM -VM $VMObject -ResourceGroupName `
+                    $VMObject.ResourceGroupName -ErrorAction 'Stop' | Out-Null              # Updates the VM Nic primary configs                                          
+            }                                                                               # End Try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break SetAzureVMNic                                                         # Breaks :SetAzureVMNic
+            }                                                                               # End catch
+            Clear-Host                                                                      # Clears screen
+            Write-Host 'The primary interface has been updated'                             # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break SetAzureVMNic                                                             # Breaks :SetAzureVMNic
+        }                                                                                   # End :SetAzureVMNic while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function SetAzVMNicPri
 function RemoveAzVMNic {                                                                    # Function to remove a NIC to an existing VM
     Begin {                                                                                 # Begin function
         if (!$CallingFunction) {                                                            # If $CallingFunction is $null
@@ -821,55 +960,63 @@ function RemoveAzVMNic {                                                        
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVMNic                                                      # Breaks :RemoveAzureVMNic        
             }                                                                               # End if ($VMStatus -ne 'PowerState/deallocated')
-            if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1) {                # If $VMObject.NetworkProfile.NetworkInterfaces.ID.Count is greater than 1
-                $VMNicID = $VMObject.NetworkProfile.NetworkInterfaces.ID                    # Isloates the NIC IDs
-            }                                                                               # End if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1)
-            else {                                                                          # Else If$VMObject.NetworkProfile.NetworkInterfaces.ID.Count is 1 or less
+            if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -eq 1) {                # If $VMObject.NetworkProfile.NetworkInterfaces.ID.Count equals 1
                 Write-Host 'Only one NIC exists on this VM'                                 # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'It is not possible to remove this'                              # Write message to screen
                 Write-Host 'NIC unless another one is added first'                          # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureVMNic                                                      # Breaks :RemoveAzureVMNic                        
-            }                                                                               # End else (if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -gt 1))
+            }                                                                               # End if ($VMObject.NetworkProfile.NetworkInterfaces.ID.Count -eq 1) 
+            $NicList = $VMObject.NetworkProfile.NetworkInterfaces                           # Isolates the NICs
             $ListNumber = 1                                                                 # $Var for selecting the VM
+            $NicNumber = 0                                                                  # $Var used for IDing the nic
             [System.Collections.ArrayList]$ObjectArray = @()                                # $ObjectArray creation
-            foreach ($_ in $VMNicID) {                                                      # For each item in $VMNicID
-                $CID = $_                                                                   # Assigns current item to $CID
-                $CurrentNic = Get-AzNetworkInterface | Where-Object {$_.ID -eq $CID}        # Gets the current network interface
+            foreach ($_ in $NicList) {                                                      # For each item in $NicList
+                $CurrentItem = $_                                                           # $CurrentItem is equal to current item
+                $NicObject = Get-AzNetworkInterface | Where-Object {`
+                        $_.ID -eq $CurrentItem.ID}                                          # Pulls the full nic object
                 $ArrayInput = [PSCustomObject]@{                                            # Creates the PS custom object used to load info into array
                     'Number'=$ListNumber;                                                   # List number
-                    'Name'=$CurrentNic.Name;                                                # Nic name
-                    'IPCon'=$CurrentNic.IpConfigurations;                                   # Ip configuration
-                    'NICID'=$CurrentNic.ID                                                  # Nic ID
-                }                                                                           # End creating $ArrayInput
-                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads items into the array
-                $ListNumber = $ListNumber + 1                                               # Increments $listNumber up by 1
-                $CurrentNic = $null                                                         # Clears $var
+                    'NicNumber'=$NicNumber;                                                 # Nic number
+                    'Name'=$NicObject.Name;                                                 # Nic Name
+                    'RG'=$NicObject.ResourceGroupName;                                      # Nic resource group name
+                    'IPCon'=$NicObject.IpConfigurations;                                    # Nic IP configs
+                    'Primary'=$CurrentItem.Primary;                                         # VM primary nic
+                    'NICID'=$NicObject.Id;                                                  # Nic ID
+                }                                                                           # End $ArrayInput = [PSCustomObject]@
+                $NicNumber = $NicNumber + 1                                                 # Increments $var up by 1
+                $ListNumber = $ListNumber + 1                                               # Increments $var up by 1
+                $NicObject = $null                                                          # Clears $var
+                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Adds $ArrayInput to $ObjectArray
             }                                                                               # End foreach ($_ in $VMNicID)
-            :SelectAzureNIC while ($true) {
-                Write-Host '[0] Exit'                                                       # Write message to screen
+            :SelectAzureNIC while ($true) {                                                 # Inner loop for selecting the nic
+                Write-Host '[0]  Exit'                                                      # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
-                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    $Number = $_.Number                                                     # Number is equal to current item .number
                     if ($Number -le 9) {                                                    # If $Number is 9 or less
-                        Write-Host "[$Number]             "$_.Name                          # Write message to screen
+                        Write-Host "[$Number]           "$_.Name                            # Write message to screen
                     }                                                                       # End if ($Number -le 9)
-                    else {                                                                  # If $Number is greater then 9
-                        Write-Host "[$Number]            "$_.Name                           # Write message to screen
-                    }                                                                       # End else (if ($Number -le 9))
-                    foreach ($IP in $_.IPCon) {                                             # For each item in .IPCon
-                        Write-Host 'IP Config Name: '$IP.Name                               # Write message to screen
-                        Write-Host 'Private Address:'$IP.PrivateIpAddress                   # Write message to screen
-                        if ($IP.publicIPAddress) {                                          # If current item .PublicAddres has a value
-                            $PubID = $IP.publicIPAddress.ID                                 # Isolates the public IP sku ID
+                    else {                                                                  # If $number is greater than 9
+                        Write-Host "[$Number]          "$_.Name                             # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))                     
+                    Write-Host 'RG:           '$_.RG                                        # Write message to screen
+                    Write-Host 'Is Primary:   '$_.Primary                                   # Write message to screen
+                    foreach ($Con in $_.IPCon) {                                            # For each item in current item .IPCon
+                        Write-Host 'Config Name:  '$Con.Name                                # Write message to screen
+                        Write-Host '  Private IP: '$Con.PrivateIPAddress                    # Write message to screen
+                        Write-Host '  Private All:'$Con.PrivateIpAllocationMethod           # Write message to screen
+                        if ($Con.PublicIPAddress.ID) {                                      # If $Con.PublicIPAddress.ID has a value
                             $PubIP = Get-AzPublicIpAddress | Where-Object `
-                                {$_.ID -eq $PubID}                                          # Gets the public IP sku
-                            Write-Host 'Public Address: '$PubIP.IpAddress                   # Write message to screen
-                        }                                                                   # End if ($IP.PublicAddress)
-                    }                                                                       # End foreach ($IP in $_.IPCon)
+                                {$_.ID -eq $Con.PublicIPAddress.ID}                         # Gets the public IP addess
+                            Write-Host '  Pub IP:'$PubIP.IpAddress                          # Write message to screen
+                            Write-Host '  Pub All:'$PubIP.PublicIpAllocationMethod          # Write message to screen
+                        }                                                                   # End if ($Con.PublicIPAddress.ID)
+                    }                                                                       # End foreach ($Con in $_.IPCon)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
                 $OpSelect = Read-Host 'Option [#]'                                          # Operator input for selecting the nic
@@ -890,11 +1037,31 @@ function RemoveAzVMNic {                                                        
                     Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($OpSelect -eq '0'))
             }                                                                               # End :SelectAzureNIC while ($true)
+            $PrimaryNIC = $VMObject.NetworkProfile.NetworkInterfaces | `
+                    Where-Object {$_.Primary -eq $true}                                     # Isolates the primary Nic object
+            $PrimaryNIC = $PrimaryNIC.ID                                                    # Isolates the primary Nic ID
+            $PrimaryNIC = Get-AzNetworkInterface | Where-Object {$_.ID -eq $PrimaryNIC}     # Pulls the full primary Nic Object
+            if ($NicObject.Name -eq $PrimaryNIC.Name) {                                     # If $NicObject.Name equals $PrimaryNic.Name
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'This Nic is the primary nic,'                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Please select a different nic'                                  # Write message to screen
+                Write-Host 'as the primary before attempting'                               # Write message to screen
+                Write-Host 'to remove this nic'                                             # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureVMNic                                                      # Breaks :RemoveAzureVMNic
+            }                                                                               # End if ($NicObject.Name -eq $PrimaryNIC.Name)                                                                       
             :Confirm while ($true) {                                                        # Inner loop for confirming change
-                Write-Host 'Remove the following'                                           # Write message to screen
+                Write-Host 'Remove the following NIC'                                       # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Write-Host 'Name:      '$NicObject.Name                                     # Write message to screen
+                Write-Host 'RG:        '$NicObject.ResourceGroupName                        # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Write-Host ''                                                               # Write message to screen
                 Write-Host 'From the following VM'                                          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
                 Write-Host 'Name:      '$VMObject.Name                                      # Write message to screen
                 Write-Host 'RG:        '$VMObject.ResourceGroupName                         # Write message to screen
                 if ($VMObject.OS.WindowsConfiguration) {                                    # If $VMObject.OS.WindowsConfiguration has a value
@@ -922,32 +1089,6 @@ function RemoveAzVMNic {                                                        
             Try {                                                                           # Try the following
                 Write-Host 'Making the requested changes'                                   # Write message to screen
                 Write-Host 'This may take a moment'                                         # Write message to screen
-                $PrimaryNIC = $VMObject.NetworkProfile.NetworkInterfaces | `
-                    Where-Object {$_.Primary -eq $true}                                     # Isolates the primary Nic object
-                $PrimaryNIC = $PrimaryNIC.ID                                                # Isolates the primary Nic ID
-                $PrimaryNIC = Get-AzNetworkInterface | Where-Object {$_.ID -eq $PrimaryNIC} # Pulls the full primary Nic Object
-                if ($NicObject.Name -eq $PrimaryNIC.Name) {                                 # If $NicObject.Name equals $PrimaryNic.Name
-                    Write-Host ''                                                           # Write message to screen
-                    Write-Host 'This Nic is the primary nic,'                               # Write message to screen
-                    Write-Host 'reassing primary to next available NIC'                     # Write message to screen
-                    if ($PrimaryNIC.ID -eq `
-                        $VMObject.NetworkProfile.NetworkInterfaces[0].ID) {                 # If $PrimaryNIC.ID equals $VMObject.NetworkProfile.NetworkInterfaces[0].ID
-                        $VMObject.NetworkProfile.NetworkInterfaces[0].Primary = $false      # Sets the 0 position network interface primary setting to false
-                        $VMObject.NetworkProfile.NetworkInterfaces[1].Primary = $true       # Sets the 1 position network interface primary setting to true
-                    }                                                                       # End if ($PrimaryNIC.ID -eq $VMObject.NetworkProfile.NetworkInterfaces[0].ID)
-                    else {                                                                  # Else if $PrimaryNIC.ID does not equal $VMObject.NetworkProfile.NetworkInterfaces[0].ID
-                        $Number = 0                                                         # Sets $Number to '0'
-                        foreach ($_ in $VMObject.NetworkProfile.NetworkInterfaces) {                                                             
-                            $VMObject.NetworkProfile.NetworkInterfaces[$Number].Primary `
-                                = $false                                                    # Sets all network interfaces primary to $false   
-                            $Number = $Number + 1                                           # Increments $Number up by '1'
-                        }                                                                   # End foreach ($_ in $VMObject.NetworkProfile.NetworkInterfaces)
-                        $VMObject.NetworkProfile.NetworkInterfaces[0].Primary = $true       # Sets the 0 position network interface to primary
-                    }                                                                       # End else (if ($PrimaryNIC.ID -eq $VMObject.NetworkProfile.NetworkInterfaces[0].ID))
-                    Update-AzVM -VM $VMObject -ResourceGroupName `
-                        $VMObject.ResourceGroupName -ErrorAction 'Stop' | Out-Null          # Updates the VM Nic primary configs                                      
-                    Clear-Host
-                }                                                                           # End if ($NicObject.Name -eq $PrimaryNIC.Name)
                 Remove-AzVMNetworkInterface -VM $VMObject -NetworkInterfaceIDs `
                     $NicObject.ID -ErrorAction 'Stop' | Out-Null                            # Removes the network interface
                 Update-AzVM -VM $VMObject -ResourceGroupName $VMObject.ResourceGroupName `
