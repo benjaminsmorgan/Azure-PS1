@@ -34,10 +34,10 @@ function SetAzTagPair {                                                         
             }                                                                               # End if ($CallingFunction)
             :SetAzureTagName while ($true) {                                                # Inner loop for setting the tag name
                 $TagNameInput = Read-Host "Tag Name"                                        # Operator input for the tag name
-                if ($TagNameInput -eq 'exit') {                                             # If $TagNameInput equals 'exit'
+                if ($TagNameInput -eq '0') {                                                # If $TagNameInput equals '0'
                     Break SetAzureTagPair                                                   # Breaks :SetAzureTagPair
-                }                                                                           # End if ($TagNameInput -eq 'exit')
-                Write-Host 'Use'$TagNameInput'as the tag name'                              # Write message to screen
+                }                                                                           # End if ($TagNameInput -eq '0')
+                Write-Host 'Use'$TagNameInput 'as the tag name'                             # Write message to screen
                 $OpConfirm = Read-Host '[Y] or [N]'                                         # Operator confirmation that the name entered is correct
                 if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm is equal to 'y'
                     Clear-Host                                                              # Clears the screen
@@ -46,14 +46,14 @@ function SetAzTagPair {                                                         
             }                                                                               # End :SetAzureTagName while ($true)
             :SetAzureTagValue while ($true) {                                               # Inner loop for setting the tag value
                 $TagValueInput = Read-Host "Tag Value"                                      # Operator input for the tag value
-                if ($TagValueInput -eq 'exit') {                                            # If $TagValueInput equals 'exit'
+                if ($TagValueInput -eq '0') {                                               # If $TagValueInput equals '0'
                     Break SetAzureTagPair                                                   # Breaks :SetAzureTagPair
-                }                                                                           # End if ($TagVlaueInput -eq 'exit')
+                }                                                                           # End if ($TagVlaueInput -eq '0')
                 if (!$TagValueInput) {                                                      # If $TagValueInput is $null
                     Write-Host 'Use a blank tag value'                                      # Write message to screen
                 }                                                                           # End if (!$TagValueInput)
                 else {                                                                      # If $TagValueInput has a value
-                    Write-Host 'Use'$TagNameInput'as the tag name'                          # Write message to screen
+                    Write-Host 'Use'$TagValueInput 'as the tag value'                       # Write message to screen
                 }                                                                           # End else (if (!$TagValueInput))
                 $OpConfirm = Read-Host '[Y] or [N]'                                         # Operator confirmation that the name entered is correct
                 if ($OpConfirm -eq 'y') {                                                   # If $OpConfirm is equal to 'y'

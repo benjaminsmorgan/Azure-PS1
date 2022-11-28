@@ -63,14 +63,14 @@ function AddAzRSTag {                                                           
                         (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable         # Gets the current tags assigned to $RSObject
                     Write-Host 'The following tags are currently set on'$RSObject.name      # Write message to screen
                     Write-Host $TagsList                                                    # Write message to screen
-                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Pause                                                                   # Pauses all actions for operator input
                     Break AddAzureRSTag                                                     # Breaks :AddAzureRSTag
                 }                                                                           # End catch
             }                                                                               # End foreach ($_ in $TagArray)                                                       
             $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable         # Gets the current tags assigned to $RSObject
             Write-Host 'The following tags are currently set on'$RSObject.name              # Write message to screen
             Write-Host $TagsList                                                            # Write message to screen
-            Start-Sleep(10)                                                                 # Pauses all actions for 10 seconds
+            Pause                                                                           # Pauses all actions for operator input
             Break AddAzureRSTag                                                             # Breaks :AddAzureRSTag
         }                                                                                   # End :AddAzureRSTag while ($true)
         Clear-Host                                                                          # Clears the screen

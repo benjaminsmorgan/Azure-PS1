@@ -48,7 +48,7 @@ function RemoveAzRSTags {                                                       
                 (Get-AzTag -ResourceId $RSObject.ResourceId).Properties.TagsProperty.Values # Gets all tag values on $RSObject
             if (!$TagsNames) {                                                              # If $TagsNames does not have a value
                 Write-Host 'The resource does not have any tags'                            # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Pause                                                                       # Pauses for operator input to continue
                 Break RemoveAzureRSTag                                                      # Breaks :RemoveAzureRSTag
             }                                                                               # End if (!$TagsNames)
             else {                                                                          # If $TagsNames does have a value
@@ -86,12 +86,12 @@ function RemoveAzRSTags {                                                       
                     Write-Host ''                                                           # Write message to screen
                     Write-Host 'The following tags are currently set on'$RSObject.Name      # Write message to screen
                     Write-Host $TagsList                                                    # Write message to screen
-                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Pause                                                                   # Pauses for operator input to continue
                     Break RemoveAzureRSTag                                                  # Breaks :RemoveAzureRSTag
                 }                                                                           # End catch   
             } 
             Write-Host 'All tags removed from'$RSObject.Name                                # Write message to screen
-            Start-Sleep(5)                                                                  # Pauses all actions for 5 seconds
+            Pause                                                                           # Pauses for operator input to continue
             Break RemoveAzureRSTag                                                          # Breaks :RemoveAzureRSTag
         }                                                                                   # End :RemoveAzureRSTags while ($true)
         Clear-Host                                                                          # Clears screen

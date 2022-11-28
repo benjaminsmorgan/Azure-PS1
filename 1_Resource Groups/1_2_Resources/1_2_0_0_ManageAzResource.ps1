@@ -96,7 +96,7 @@ function GetAzResource {                                                        
                 $ListArray.Add($ListInput) | Out-Null                                       # Loads item into array, out-null removes write to screen
                 $ListNumber = $ListNumber + 1                                               # Increments $ListNumber by 1
             }                                                                               # End foreach ($_ in $RSList)
-            Write-Host "0 Exit"                                                             # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
             foreach ($_ in $ListArray) {                                                    # For each $_ in $ListArray
                 $Number = $_.Number                                                         # Sets $Number to current item .Number
                 if ($_.Number -le 9) {                                                      # If current item .number is 9 or less
@@ -126,6 +126,8 @@ function GetAzResource {                                                        
                 }                                                                           # End if ($RSSelect -in $ListArray)
                 else {                                                                      # If $RGObject does not have a value
                     Write-Host "That was not a valid option"                                # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
                 }                                                                           # End else (if ($RGObject))
             }                                                                               # End :SelectAzureResource while ($true)
         }                                                                                   # End :GetAzureResource while ($true)

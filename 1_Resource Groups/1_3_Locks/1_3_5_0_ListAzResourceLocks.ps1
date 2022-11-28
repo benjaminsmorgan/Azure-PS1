@@ -50,7 +50,7 @@ function ListAzResourceLocks {                                                  
             }                                                                               # End foreach ($_ in $ObjectList)
             if (!$ObjectArray) {                                                            # If $ObjectArray is $null
                 Write-Host 'No locks are present on this resource'                          # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Pause                                                                       # Pauses all actions for operator input
             }                                                                               # End if (!$ObjectArray)
             else {                                                                          # If $ObjectArray has a value
                 Write-Host ''                                                               # Write message to screen
@@ -62,8 +62,7 @@ function ListAzResourceLocks {                                                  
                     }                                                                       # End if ($_.Properties.Notes)
                     Write-Host ''                                                           # Write message to screen
                 }                                                                           # End foreach ($_ in $ObjectArray)
-                $SleepCount = $ObjectArray.Count * 5                                        # $SleepCount is equal to $ObjectArray.Count time 5
-                Start-Sleep($SleepCount)                                                    # Pauses all actions for $SleepCount
+                Pause                                                                       # Pauses all actions for operator input
             }                                                                               # End else (if (!$ObjectArray))
             Clear-Host                                                                      # Clears the screen
             return                                                                          # Returns to calling function with $null

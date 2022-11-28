@@ -26,7 +26,7 @@ function RemoveAzResourceLocks {                                                
         :RemoveAzureLocks while ($true) {                                                   # Outer loop for managing function
             if (!$Locks) {                                                                  # If $Locks is $null
                 Write-Host 'No locks were passed to this function'                          # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Pause                                                                       # Pauses all actions for operator input
                 Break RemoveAzureLocks                                                      # Breaks :RemoveAzureLocks
             }                                                                               # End if(!$Locks) 
             foreach ($_ in $Locks) {                                                        # For each item in $Locks
@@ -48,10 +48,8 @@ function RemoveAzResourceLocks {                                                
                     }                                                                       # End try
                     catch {                                                                 # If Try fails
                         Write-Host 'An error has occured'                                   # Write message to screen
-                        $LocksRemoved = 'n'                                                 # Sets $LocksRemoved to 'n'
-                        Start-Sleep(10)                                                     # Pauses actions for 10 seconds
-                        Clear-Host                                                          # Clears Screen
-                        Return $LocksRemoved                                                # Returns to calling function with $LocksRemoved
+                        Pause                                                               # Pauses all actions for operator input
+                        Break RemoveAzureLocks                                              # Breaks :RemoveAzureLocks
                     }                                                                       # End catch
                 }                                                                           # End foreach ($_ in $Locks)
                 if ($Locks.Count -gt 1) {                                                   # If $Locks.Count greater than 1
@@ -60,16 +58,13 @@ function RemoveAzResourceLocks {                                                
                 else {                                                                      # If $Locks.Count is not greater than 1
                     Write-Host 'Lock removed'                                               # Write message to screen
                 }                                                                           # End else (if ($Locks.Count -gt 1))
-                $LocksRemoved = 'y'                                                         # Sets $LocksRemoved to 'n'
-                Start-Sleep(5)                                                              # Pauses actions for 10 seconds
-                Clear-Host                                                                  # Clears Screen
-                Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLocks                                                      # Breaks :RemoveAzureLocks
             }                                                                               # End if ($OperatorConfirm -eq 'Y') 
             else {                                                                          # Else if $Operatorconfirm is not equal to 'y'
                 Write-Host "No changes made"                                                # Message write to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
-                $LocksRemoved = 'n'                                                         # Sets $LocksRemoved to 'n'
-                Return $LocksRemoved                                                        # Returns to calling function with $LocksRemoved
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureLocks                                                      # Breaks :RemoveAzureLocks
             }                                                                               # End else (if ($OperatorConfirm -eq 'Y') )
         }                                                                                   # End :RemoveAzureLocks while ($true)
         Clear-Host                                                                          # Clears Screen

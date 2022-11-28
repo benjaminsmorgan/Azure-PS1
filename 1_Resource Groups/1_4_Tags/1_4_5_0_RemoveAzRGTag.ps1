@@ -52,7 +52,7 @@ function RemoveAzRGTag {                                                        
                 (Get-AzTag -ResourceId $RGObject.ResourceId).Properties.TagsProperty.Values # Gets all tag values on $RGObject
             if (!$TagsNames) {                                                              # If $TagsNames does not have a value
                 Write-Host 'The resource group does not have any tags'                      # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Pause                                                                       # Pauses for user input to continue
                 Break RemoveAzureRGTag                                                      # Breaks :RemoveAzureRGTag
             }                                                                               # End if (!$TagsNames)
             else {                                                                          # If $TagsNames does have a value
@@ -109,6 +109,8 @@ function RemoveAzRGTag {                                                        
                     }                                                                       # End elseif ($RGSelect -in $ListArray.Number)
                     else {                                                                  # All other entries for $TagSelect 
                         Write-Host "That was not a valid option"                            # Write message to screen
+                        Pause                                                               # Pauses for user input to continue
+                        Clear-Host                                                          # Clears screen
                     }                                                                       # End else (if ($TagSelect -eq '0') )
                 }                                                                           # End :SelectAzureObjectList while ($true)
             }                                                                               # End else (if (!$TagsNames))
@@ -120,13 +122,13 @@ function RemoveAzRGTag {                                                        
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host 'There maybe a policy that'                                      # Write message to screen
                 Write-Host 'prevents the removal of this tag'                               # Write message to screen
-                Start-Sleep(10)                                                             # Pauses all actions for 10 seconds
+                Pause                                                                       # Pauses for user input to continue
                 Break RemoveAzureRGTag                                                      # Breaks :RemoveAzureRGTag
             }                                                                               # End catch    
             $TagsList = (Get-AzResourceGroup -resourceID $RGObject.ResourceID).TagsTable    # Gets the current tags assigned to $RGObject
             Write-Host 'The following tags are currently set on'$RGObject.ResourceGroupName # Write message to screen
             Write-Host $TagsList                                                            # Write message to screen
-            Start-Sleep(10)                                                                 # Pauses all actions for 10 seconds
+            Pause                                                                           # Pauses for user input to continue
             Break RemoveAzureRGTag                                                          # Breaks :RemoveAzureRGTag
         }                                                                                   # End :RemoveAzureRGTag while ($true)
         Clear-Host                                                                          # Clears screen

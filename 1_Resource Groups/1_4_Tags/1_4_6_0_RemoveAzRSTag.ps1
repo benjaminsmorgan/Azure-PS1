@@ -52,7 +52,7 @@ function RemoveAzRSTag {                                                        
                 (Get-AzTag -ResourceId $RSObject.ResourceId).Properties.TagsProperty.Values # Gets all tag values on $RSObject
             if (!$TagsNames) {                                                              # If $TagsNames does not have a value
                 Write-Host 'The resource does not have any tags'                            # Write message to screen
-                Start-Sleep(5)                                                              # Pauses all actions for 5 seconds
+                Pause                                                                       # Pauses for operator input to continue
                 Break RemoveAzureRSTag                                                      # Breaks :RemoveAzureRSTag
             }                                                                               # End if (!$TagsNames)
             else {                                                                          # If $TagsNames does have a value
@@ -108,7 +108,9 @@ function RemoveAzRSTag {                                                        
                         Break SelectAzureObjectList                                         # Breaks :SelectAzureObjectList
                     }                                                                       # End elseif ($RGSelect -in $ListArray.Number)
                     else {                                                                  # All other entries for $TagSelect 
-                        Write-Host "That was not a valid option"                            # Write message to screen
+                        Write-Host "That was not a valid option"                            # Write message to screen                        
+                        Pause                                                               # Pauses for user input to continue
+                        Clear-Host                                                          # Clears screen
                     }                                                                       # End else (if ($TagSelect -eq '0') )
                 }                                                                           # End :SelectAzureObjectList while ($true)
             }                                                                               # End else (if (!$TagsNames))
@@ -119,14 +121,14 @@ function RemoveAzRSTag {                                                        
             catch {                                                                         # If try fails
                 Write-Host 'An error has occured'                                           # Write message to screen
                 Write-Host 'There maybe a policy that'                                      # Write message to screen
-                Write-Host 'prevents the removal of this tag'                               # Write message to screen
-                Start-Sleep(10)                                                             # Pauses all actions for 10 seconds
+                Write-Host 'prevents the removal of this tag'                               # Write message to screen           
+                Pause                                                                       # Pauses for user input to continue
                 Break RemoveAzureRSTag                                                      # Breaks :RemoveAzureRSTag
             }                                                                               # End catch    
             $TagsList = (Get-AzResource -resourceID $RSObject.ResourceID).TagsTable         # Gets the current tags assigned to $RSObject
             Write-Host 'The following tags are currently set on'$RSObject.Name              # Write message to screen
-            Write-Host $TagsList                                                            # Write message to screen
-            Start-Sleep(10)                                                                 # Pauses all actions for 10 seconds
+            Write-Host $TagsList                                                            # Write message to screen           
+            Pause                                                                           # Pauses for user input to continue
             Break RemoveAzureRSTag                                                          # Breaks :RemoveAzureRSTag
         }                                                                                   # End :RemoveAzureRSTag while ($true)
         Clear-Host                                                                          # Clears screen

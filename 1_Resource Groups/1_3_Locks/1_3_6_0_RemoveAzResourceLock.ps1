@@ -51,8 +51,7 @@ function RemoveAzResourceLock {                                                 
                     Break RemoveAzureRSLock                                                 # Breaks :RemoveAzureRSLock
                 }                                                                           # End if (!$Locks) | Inner
             }                                                                               # End if (!$Locks) | Outer
-            $LocksRemoved = RemoveAzResourceLocks ($Locks)                                  # Calls function and assigns output to $var
-            $LocksRemoved = $null                                                           # Clears $LocksRemoved
+            RemoveAzResourceLocks ($Locks)                                                  # Calls function and assigns output to $var
             Break RemoveAzureRSLock                                                         # Breaks :RemoveAzureRSLock
         }                                                                                   # End :RemoveAzureRSLock while ($true) 
         Clear-Host                                                                          # Clears screen

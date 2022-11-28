@@ -45,17 +45,14 @@ function RemoveAzResourceGroupLock {                                            
             if (!$CallingFunction) {                                                        # If $CallingFunction is $null
                 $CallingFunction = 'RemoveAzResourceGroupLock'                              # Creates $CallingFunction
             }                                                                               # End if (!$CallingFunction)
+            $Locks = GetAzResourceGroupLock ($CallingFunction)                              # Calls function and assigns output to $var
             if (!$Locks) {                                                                  # If $Locks is $null
-                $Locks = GetAzResourceGroupLock ($CallingFunction)                          # Calls function and assigns output to $var
-                if (!$Locks) {                                                              # If $Locks is $null
-                    Break RemoveAzureRGLock                                                 # Breaks :RemoveAzureRGLock
-                }                                                                           # End if (!$Locks) | Inner
-            }                                                                               # End if (!$Locks) | Outer
-            $LocksRemoved = RemoveAzResourceLocks ($Locks)                                  # Calls function and assigns output to $var
-            $LocksRemoved = $null                                                           # Clears $LocksRemoved
+                Break RemoveAzureRGLock                                                     # Breaks :RemoveAzureRGLock
+            }                                                                               # End if (!$Locks) 
+            RemoveAzResourceLocks ($Locks)                                                  # Calls function and assigns output to $var
             Break RemoveAzureRGLock                                                         # Breaks :RemoveAzureRGLock
         }                                                                                   # End :RemoveAzureRGLock while ($true) 
         Clear-Host                                                                          # Clears screen
-        return                                                                              # Returns to calling function with $null
+        return $null                                                                        # Returns to calling function with $null
     }                                                                                       # End begin
 }                                                                                           # End function RemoveAzResourceGroupLock
