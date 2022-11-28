@@ -58,43 +58,25 @@
 function ManageAzResource {                                                                 # Function to manage resource
     Begin {                                                                                 # Begin function
         :ManageAzureSG while($true) {                                                       # Outer loop for managing function
-            if ($RSObject) {                                                                # If $RSObject has a value
-                Write-Host 'The currently selected resource is:'$RSObject.Name              # Write message to screen
-            }                                                                               # End if ($RSObject)
-            Write-Host "Manage A Resource"                                                  # Write message to screen
-            Write-Host '[0] Clear Objects'                                                  # Write message to screen
-            Write-Host '[1] Get Resource'                                                   # Write message to screen
-            Write-Host '[2] List Resources by Group'                                        # Write message to screen
-            Write-Host '[3] Remove Resource'                                                # Write message to screen
-            Write-Host '[Exit] to return'                                                   # Write message to screen
-            $ManageAzRS = Read-Host 'Enter [#] option?'                                     # Operator input for selecting management function
-            if ($ManageAzRS -eq 'exit') {                                                   # If $ManageAzRS equals 'exit'
+            Write-Host 'Manage Resources'                                                   # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] List Resources by Group'                                        # Write message to screen
+            Write-Host '[2] Remove Resource'                                                # Write message to screen
+            $ManageAzRS = Read-Host 'Option [#]'                                            # Operator input for selecting management function
+            if ($ManageAzRS -eq '0') {                                                      # If $ManageAzRS equals '0'
                 Break ManageAzureSG                                                         # Breaks :ManageAzureSG
-            }                                                                               # End if ($ManageAzRS -eq 'exit')                                                                      # End elseif ($ManageAzRS -eq '1')
+            }                                                                               # End if ($ManageAzRS -eq '0')                                                                     
             elseif ($ManageAzRS -eq '1') {                                                  # else if $ManageAzRS equals '1'
-                Write-Host "Get Resource "                                                  # Write message to screen
-                $RSObject = GetAzResource                                                   # Calls function and assigns ouput to $var
-            }                                                                               # End elseif ($ManageAzRS -eq '1')
-            elseif ($ManageAzRS -eq '2') {                                                  # else if $ManageAzRS equals '2'
                 Write-Host "List Resources By Group"                                        # Write message to screen
                 ListAzResources ($RSObject)                                                 # Calls function
-            }                                                                               # End elseif ($ManageAzRS -eq '2')
-            elseif ($ManageAzRS -eq '3') {                                                  # else if $ManageAzRS equals '3'
+            }                                                                               # End elseif ($ManageAzRS -eq '1')
+            elseif ($ManageAzRS -eq '2') {                                                  # else if $ManageAzRS equals '2'
                 Write-Host "Remove Resource"                                                # Write message to screen
                 RemoveAzResource ($RSObject)                                                # Calls function 
-            }                                                                               # End elseif ($ManageAzRS -eq '3')
-            elseif ($ManageAzRS -eq '0') {                                                  # else if $ManageAzRS equals '0'
-                if ($RSObject) {                                                            # If $RSObject has a value
-                    $RSObject = $null                                                       # Clears $RSObject
-                    Write-Host '$RSObject has been cleared'                                 # Write message to screen
-                }                                                                           # End if ($RSObject)
-                else {                                                                      # If $RSObject does not have a value
-                    Write-Host '$RSObject was already clear'                                # Write message to screen
-                }                                                                           # End else (if ($RSObject))
-            }                                                                               # End elseif ($ManageAzRS -eq '0')
+            }                                                                               # End elseif ($ManageAzRS -eq '2')
             else {                                                                          # All other inputs for ManageAzRS
                 Write-Host 'That was not a valid option'                                    # Write message to screen
-            }                                                                               # End else (if ($ManageAzRS -eq 'exit'))
+            }                                                                               # End else (if ($ManageAzRS -eq '0'))
         }                                                                                   # End :ManageAzResource while ($true)
         Clear-Host                                                                          # Clears screen
         Return $RSObject                                                                    # Returns $vars to calling function
@@ -174,6 +156,8 @@ function ListAzResources {                                                      
                 Write-Host 'Type:'$_.Type                                                   # Write message to screen
                 Write-Host ''                                                               # Write message to screen
             }                                                                               # End foreach ($_ in $ListArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
             Break ListAzureResources                                                        # Breaks :ListAzureResources
         }                                                                                   # End :ListAzureResources while ($true)
         return                                                                              # Returns to calling function with $null
