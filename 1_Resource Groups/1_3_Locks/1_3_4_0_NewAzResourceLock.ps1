@@ -117,7 +117,6 @@ function NewAzResourceLock {                                                    
                     Write-Host 'You may not have permissions'                               # Write message to screen
                     Pause                                                                   # Pauses all actions for operator input
                     Break NewAzureRSLock                                                    # Breaks :NewAzureRSLock
-                    Clear-Host                                                              # Clears the screen
                 }                                                                           # End catch
                 if ($CallingFunction) {                                                     # If $CallingFunction has a value
                     Return $Locks                                                           # Returns to calling function with $var

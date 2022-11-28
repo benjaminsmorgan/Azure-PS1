@@ -57,6 +57,8 @@ function NewAzResourceGroupLock {                                               
                 }                                                                           # End elseif ($OpConfirm -eq 'y')
                 else {                                                                      # All other inputs for $OpConfirm
                     Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen        
                 }                                                                           # End else (if ($OpConfirm -eq 'exit'))
             }                                                                               # End :SetAzureLockName while ($true)
             :SetAzureLockLevel while ($true) {                                              # Inner loop for setting lock level
@@ -113,7 +115,7 @@ function NewAzResourceGroupLock {                                               
                 catch {                                                                     # If try fails
                     Write-Host 'An error has occured'                                       # Write message to screen
                     Write-Host 'You may not have permissions'                               # Write message to screen
-                    Start-Sleep(10)                                                         # Pauses all actions for 10 seconds
+                    Pause                                                                   # Pauses all actions for operator input
                     Break NewAzureRGLock                                                    # Breaks :NewAzureRGLock
                 }                                                                           # End catch
                 Pause                                                                       # Pauses all actions for operator input

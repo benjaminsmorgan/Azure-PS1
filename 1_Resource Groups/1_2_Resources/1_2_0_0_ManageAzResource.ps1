@@ -55,6 +55,7 @@
         End Function ManageAzResource
                 Return Function > Send $RSObject                                    
 }#> 
+# 1_2_0_0 Manage Resources 28NOV22
 function ManageAzResource {                                                                 # Function to manage resource
     Begin {                                                                                 # Begin function
         :ManageAzureSG while($true) {                                                       # Outer loop for managing function
@@ -76,12 +77,109 @@ function ManageAzResource {                                                     
             }                                                                               # End elseif ($ManageAzRS -eq '2')
             else {                                                                          # All other inputs for ManageAzRS
                 Write-Host 'That was not a valid option'                                    # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
             }                                                                               # End else (if ($ManageAzRS -eq '0'))
         }                                                                                   # End :ManageAzResource while ($true)
         Clear-Host                                                                          # Clears screen
         Return $RSObject                                                                    # Returns $vars to calling function
     }                                                                                       # End begin statement
 }                                                                                           # End function ManageAzResource
+# 1_2_1_0 ListAzResources 28NOV22
+function ListAzResources {                                                                  # Function to list all resources within a resource group
+    Begin {                                                                                 # Begin function
+        :ListAzureResources while ($true) {                                                 # Outer loop for managing function
+            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
+            $RGList = Get-AzResourceGroup                                                   # Gets a list of all resource groups
+            foreach ($_ in $RGList) {                                                       # For each item in $RGList
+                $RGObject = $_                                                              # Isolates the current item
+                $RGName = $RGObject.ResourceGroupName                                       # Isolates the resource group name
+                $ListObject = Get-AzResource | Where-Object `
+                    {$_.ResourceGroupName -eq $RGName}                                      # Creates a list of all resources within $RGObject
+                foreach ($_ in $ListObject) {                                               # For each $_ in $ListObject
+                    $ListInput = [PSCustomObject]@{'Name'=$_.Name;'RG' = $RGName;`
+                        'Location'=$_.Location;'Type'=$_.ResourceType}                      # Creates the item to loaded into array
+                    $ListArray.Add($ListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                }                                                                           # End foreach ($_ in $ListObject)    
+            }                                                                               # End foreach ($_ in $RGList)
+            foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
+                Write-Host 'Name:'$_.Name                                                   # Write message to screen
+                Write-Host 'RG:  '$_.RG                                                     # Write message to screen
+                Write-Host 'Loc: '$_.Location                                               # Write message to screen
+                Write-Host 'Type:'$_.Type                                                   # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End foreach ($_ in $ListArray)
+            Pause                                                                           # Pauses all actions for operator input
+            Clear-Host                                                                      # Clears screen
+            Break ListAzureResources                                                        # Breaks :ListAzureResources
+        }                                                                                   # End :ListAzureResources while ($true)
+        return                                                                              # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzResources
+# 1_2_2_0 RemoveAzResource 28NOV22
+function RemoveAzResource {                                                                 # Removes a selected resource
+    Begin {                                                                                 # Begin function
+        :RemoveAzureRSObject while ($true) {                                                # Outer loop for managing function
+            if (!$RSObject) {                                                               # If $RSObject does not have a value
+                $CallingFunction = 'RemoveAzResource'                                       # Creates $CallingFunction
+                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject does not have a value
+                    Break RemoveAzureRSObject                                               # Breaks :GetAzureRSObject
+                }                                                                           # End if (!$RSObject) | Inner
+            }                                                                               # End if (!$RSObject) | Outer
+            $RGLocks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName `
+                -AtScope                                                                    # Collects all locks on $RSObject group and assigns to $RGLocks
+            if ($RGLocks) {                                                                 # If $RGLocks is not empty
+                Write-Host 'Locks exist on the resource group'$RSObject.ResourceGroupName   # Write message to screen
+                Write-Host 'Locks muse be removed before this resource can be removed'      # Write message to screen
+                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
+            }                                                                               # End if ($RGLocks)
+            Write-Host "////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\"    # Write message to screen
+            Write-Host ""$RSObject.Name "will be deleted, this cannot be undone"            # Write message to screen
+            Write-Host " All resource locks will be removed automatically if confirmed "    # Write message to screen
+            Write-Host " This option can be exited by typing 'Exit'                    "    # Write message to screen
+            Write-Host "\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////"    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Delete this resource'                                               # Write message to screen
+            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input on confirming deletion of the resource
+            if ($OperatorConfirm -eq 'Y') {                                                 # If $OperatorConfirm equals 'Y' 
+                Write-Host "This resource has been approved for deletion"                   # Write message to screen
+            }                                                                               # End if ($OperatorConfirm -eq 'Y')
+            else {                                                                          # If $OperatorConfirm does not equal 'Y'
+                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
+            }                                                                               # End else (if ($OperatorConfirm -eq 'Y'))
+            $Locks = GetAzRSLocksAll ($RSObject)                                            # Calls function function and assigns output to $var
+            if ($Locks) {                                                                   # If $Locks has a value
+                Write-Host "Removing all locks"...                                          # Message write to screen
+                $LocksRemoved = RemoveAzResourceLocks ($Locks)                              # Calls function RemoveAzResourceLocks
+                if ($LocksRemoved -eq 'n') {                                                # If $LocksRemoved equals 'n' 
+                    Write-Host 'Locks must be removed before'                               # Write message to screen
+                    Write-Host 'this resource can be removed'                               # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureRSObject                                               # End Break RemoveAzureRSObject   
+                }                                                                           # End if ($LocksRemoved -eq 'n') 
+                Write-Host "Locks removed"                                                  # Message write to screen
+            }                                                                               # End if ($Locks)
+            Write-Host $RSObject.Name"is being removed, this may take a while"              # Message write to screen
+            Try {                                                                           # Try the following
+            Remove-AzResource -Name $RSObject.Name -ResourceGroup `
+                $RSObject.ResourceGroupName -ResourceType $RSObject.ResourceType -Force     # Removes the resource assigned to $RSObject, -force removes confirmation
+            }                                                                               # End try
+            Catch {                                                                         # If try fauls 
+                Write-Host `
+                    $RSObjectName "was not deleted, you may not have correct permissions"   # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
+            }                                                                               # End Catch
+            Write-Host 'The selected resource has been removed'                             # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break RemoveAzureRSObject                                                       # Breaks :RemoveAzureRSObject
+        }                                                                                   # End :RemoveAzureRSObject while ($True)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function
+    }                                                                                       # End Begin
+}                                                                                           # End function RemoveAzResource
+# 1_2_G_0 GetAzResource 28NOV22
 function GetAzResource {                                                                    # Function to get a resource 
     Begin {                                                                                 # Begin function
         $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
@@ -135,96 +233,8 @@ function GetAzResource {                                                        
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function GetAzResource
-function ListAzResources {                                                                  # Function to list all resources within a resource group
-    Begin {                                                                                 # Begin function
-        :ListAzureResources while ($true) {                                                 # Outer loop for managing function
-            [System.Collections.ArrayList]$ListArray = @()                                  # Creates the list array
-            $RGList = Get-AzResourceGroup                                                   # Gets a list of all resource groups
-            foreach ($_ in $RGList) {                                                       # For each item in $RGList
-                $RGObject = $_                                                              # Isolates the current item
-                $RGName = $RGObject.ResourceGroupName                                       # Isolates the resource group name
-                $ListObject = Get-AzResource | Where-Object `
-                    {$_.ResourceGroupName -eq $RGName}                                      # Creates a list of all resources within $RGObject
-                foreach ($_ in $ListObject) {                                               # For each $_ in $ListObject
-                    $ListInput = [PSCustomObject]@{'Name'=$_.Name;'RG' = $RGName;`
-                        'Location'=$_.Location;'Type'=$_.ResourceType}                      # Creates the item to loaded into array
-                    $ListArray.Add($ListInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
-                }                                                                           # End foreach ($_ in $ListObject)    
-            }                                                                               # End foreach ($_ in $RGList)
-            foreach ($_ in $ListArray) {                                                    # For each item in $ListArray
-                Write-Host 'Name:'$_.Name                                                   # Write message to screen
-                Write-Host 'RG:  '$_.RG                                                     # Write message to screen
-                Write-Host 'Loc: '$_.Location                                               # Write message to screen
-                Write-Host 'Type:'$_.Type                                                   # Write message to screen
-                Write-Host ''                                                               # Write message to screen
-            }                                                                               # End foreach ($_ in $ListArray)
-            Pause                                                                           # Pauses all actions for operator input
-            Clear-Host                                                                      # Clears screen
-            Break ListAzureResources                                                        # Breaks :ListAzureResources
-        }                                                                                   # End :ListAzureResources while ($true)
-        return                                                                              # Returns to calling function with $null
-    }                                                                                       # End Begin
-}                                                                                           # End function ListAzResources
-function RemoveAzResource {                                                                 # Removes a selected resource
-    Begin {                                                                                 # Begin function
-        :RemoveAzureRSObject while ($true) {                                                # Outer loop for managing function
-            if (!$RSObject) {                                                               # If $RSObject does not have a value
-                $CallingFunction = 'RemoveAzResource'                                       # Creates $CallingFunction
-                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
-                if (!$RSObject) {                                                           # If $RSObject does not have a value
-                    Break RemoveAzureRSObject                                               # Breaks :GetAzureRSObject
-                }                                                                           # End if (!$RSObject) | Inner
-            }                                                                               # End if (!$RSObject) | Outer
-            $RGLocks = Get-AzResourceLock -ResourceGroupName $RSObject.ResourceGroupName `
-                -AtScope                                                                    # Collects all locks on $RSObject group and assigns to $RGLocks
-            if ($RGLocks) {                                                                 # If $RGLocks is not empty
-                Write-Host 'Locks exist on the resource group'$RSObject.ResourceGroupName   # Write message to screen
-                Write-Host 'Locks muse be removed before this resource can be removed'      # Write message to screen
-                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
-            }                                                                               # End if ($RGLocks)
-            Write-Host "////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\"    # Write message to screen
-            Write-Host ""$RSObject.Name "will be deleted, this cannot be undone"            # Write message to screen
-            Write-Host " All resource locks will be removed automatically if confirmed "    # Write message to screen
-            Write-Host " This option can be exited by typing 'Exit'                    "    # Write message to screen
-            Write-Host "\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////"    # Write message to screen
-            Write-Host ''                                                                   # Write message to screen
-            Write-Host 'Delete this resource'                                               # Write message to screen
-            $OperatorConfirm = Read-Host '[Y] or [N]'                                       # Operator input on confirming deletion of the resource
-            if ($OperatorConfirm -eq 'Y') {                                                 # If $OperatorConfirm equals 'Y' 
-                Write-Host "This resource has been approved for deletion"                   # Write message to screen
-            }                                                                               # End if ($OperatorConfirm -eq 'Y')
-            else {                                                                          # If $OperatorConfirm does not equal 'Y'
-                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
-            }                                                                               # End else (if ($OperatorConfirm -eq 'Y'))
-            $Locks = GetAzRSLocksAll ($RSObject)                                            # Calls function function and assigns output to $var
-            if ($Locks) {                                                                   # If $Locks has a value
-                Write-Host "Removing all locks"...                                          # Message write to screen
-                $LocksRemoved = RemoveAzResourceLocks ($Locks)                              # Calls function RemoveAzResourceLocks
-                if ($LocksRemoved -eq 'n') {                                                # If $LocksRemoved equals 'n' 
-                    Write-Host 'Locks must be removed before'                               # Write message to screen
-                    Write-Host 'this resource can be removed'                               # Write message to screen
-                    Break RemoveAzureRSObject                                               # End Break RemoveAzureRSObject   
-                }                                                                           # End if ($LocksRemoved -eq 'n') 
-                Write-Host "Locks removed"                                                  # Message write to screen
-            }                                                                               # End if ($Locks)
-            Write-Host $RSObject.Name"is being removed, this may take a while"              # Message write to screen
-            Try {                                                                           # Try the following
-            Remove-AzResource -Name $RSObject.Name -ResourceGroup `
-                $RSObject.ResourceGroupName -ResourceType $RSObject.ResourceType -Force     # Removes the resource assigned to $RSObject, -force removes confirmation
-            }                                                                               # End try
-            Catch {                                                                         # If try fauls 
-                Write-Host `
-                    $RSObjectName "was not deleted, you may not have correct permissions"   # Write message to screen
-                Break RemoveAzureRSObject                                                   # Breaks :RemoveAzureRSObject
-            }                                                                               # End Catch
-            Write-Host 'The selected resource has been removed'                             # Write message to screen
-            Break RemoveAzureRSObject                                                       # Breaks :RemoveAzureRSObject
-        }                                                                                   # End :RemoveAzureRSObject while ($True)
-        Start-Sleep(10)                                                                     # Pauses all actions for 10 seconds
-        Clear-Host                                                                          # Clears screen
-        Return                                                                              # Returns to calling function
-    }                                                                                       # End Begin
-}                                                                                           # End function RemoveAzResource
+# End 1_2_0_0 Manage Resources 
+
 # Additional functions required for ManageAzResource
 function GetAzRSLocksAll {                                                                  # Function to get all locks assigned to a resource
     Begin {                                                                                 # Begin function
