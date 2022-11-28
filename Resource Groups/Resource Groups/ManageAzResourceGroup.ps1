@@ -82,14 +82,15 @@ function ManageAzResourceGroup {                                                
             Write-Host '[1] New Resource Group'                                             # Write message to screen
             Write-Host '[2] List Resource Groups'                                           # Write message to screen
             Write-Host '[3] List Resources in Group'                                        # Write message to screen
-            Write-Host '[4] Remove Resource Group'                                          # Write message to screen
-            $OpSelect = Read-Host 'Enter [#] option?'                                       # Operator input for selecting management function
+            Write-Host '[4] Search Resource Group'                                          # Write message to screen
+            Write-Host '[5] Remove Resource Group'                                          # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
                 Break ManageAzureRG                                                         # Breaks :ManageAzureRG
             }                                                                               # End if ($OpSelect -eq 'exit')
             elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
-                Write-Host "New Resource Group"                                             # Write message to screen
+                Write-Host 'New Resource Group'                                             # Write message to screen
                 NewAzResourceGroup                                                          # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '1')
             elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
@@ -97,13 +98,17 @@ function ManageAzResourceGroup {                                                
                 ListAzResourceGroup                                                         # Calls function 
             }                                                                               # End elseif ($OpSelect -eq '2')
             elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
-                Write-Host "List Resources in Group"                                        # Write message to screen
+                Write-Host 'List Resources in Group'                                        # Write message to screen
                 ListAzRGResources                                                           # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
             elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
-                Write-Host "Remove Resource Group"                                          # Write message to screen
-                RemoveAzResourceGroup                                                       # Calls function 
+                Write-Host 'Search Resource Group'                                          # Write message to screen
+                SearchAzResourceGroup                                                       # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Remove Resource Group'                                          # Write message to screen
+                RemoveAzResourceGroup                                                       # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '5')
             else {                                                                          # All other inputs for ManageAzRG
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
@@ -413,6 +418,365 @@ function RemoveAzResourceGroup {                                                
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function RemoveAzResourceGroup
+function SearchAzResourceGroup {                                                            # Function to manage search for resource group functions
+    Begin {                                                                                 # Begin function
+        :SearchAzureRG while($true) {                                                       # Outer loop for managing function
+            Write-Host 'Azure Resource Group Search'                                        # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Search by name lookup'                                          # Write message to screen
+            Write-Host '[2] Search by contained resource type'                              # Write message to screen
+            Write-Host '[3] Search by resource group location'                              # Write message to screen
+            Write-Host '[4] Search by tags'                                                 # Write message to screen
+            $SearchAzRG = Read-Host 'Option [#]'                                            # Operator input on $SearchAzRG option
+            if ($SearchAzRG -eq '0') {                                                      # If $SearchAzRG equals '0'
+                Break SearchAzureRG                                                         # Breaks :SearchAzureRG
+            }                                                                               # End if ($SearchAzRG -eq '0')
+            elseif ($SearchAzRG -eq '1') {                                                  # Else if $SearchAzRG equals '1'
+                Write-Host "Search by name"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupName                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '1')
+            elseif ($SearchAzRG -eq '2') {                                                  # Else if $SearchAzRG equals '2'
+                Write-Host "Search by type"                                                 # Write message to screen
+                $RGObject = SearchAzResourceGroupType                                       # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '2')
+            elseif ($SearchAzRG -eq '3') {                                                  # Else if $SearchAzRG equals '3'
+                Write-Host "Search by location"                                             # Write message to screen
+                $RGObject = SearchAzResourceGroupLoc                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '3')
+            elseif ($SearchAzRG -eq '4') {                                                  # Else if $SearchAzRG equals '4'
+                Write-Host "Search by tag"                                                  # Write message to screen
+                $RGObject = SearchAzResourceGroupTag                                        # Calls function and assigns output to $var
+            }                                                                               # End elseif ($SearchAzRG -eq '4')
+            else {                                                                          # All other inputs for $SearchAzRG
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if($SearchAzRG -eq '0'))
+            if ($RGObject) {                                                                # If $RGObject has a value
+                Clear-Host                                                                  # Clears the screen
+                Return $RGObject                                                            # Returns to calling function with $RGObject
+            }                                                                               # End if ($RGObject)
+            else {                                                                          # If $RGObject does not have a value
+                Write-Host 'No resource group selected'                                     # Write message to screen
+            }                                                                               # End else (if ($RGObject))
+        }                                                                                   # End :SearchAzureRG while($true)
+        Clear-Host                                                                          # Clears the screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function SearchAzResourceGroup
+function SearchAzResourceGroupName {                                                        # Function to search for resource group by name
+    Begin {                                                                                 # Begin function
+        :SearchAzureRGByName while($true) {                                                 # Outer loop for managing function
+            $CallingFunction = 'SearchAzResourceGroupName'                                  # Creates $CallingFunction
+            Write-Host 'Resource Group Search By Name'                                      # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Search by resource name'                                        # Write message to screen
+            Write-Host '[2] Search by group name'                                           # Write message to screen
+            $OperatorSearchOption = Read-Host 'Option [#]'                                  # Operator input for search method
+            if ($OperatorSearchOption -eq '0') {                                            # If $OperatorSearchOption equals '0'
+                Break SearchAzureRGByName                                                   # Breaks :SearchAzureRGByName
+            }                                                                               # End if ($OperatorSearchOption -eq '0')
+            elseif ($OperatorSearchOption -eq '1') {                                        # Else if $OperatorSearchOption equals '1' 
+                $RSObject = GetAzResource ($CallingFunction)                                # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject does not have a value
+                    Break SearchAzureRGByName                                               # Breaks :SearchAzureRGByName
+                }                                                                           # End if (!$RSObject)
+                $RGObject = Get-AzResourceGroup | Where-Object `
+                    {$_.ResourceGroupName -eq $RSObject.ResourceGroupName}                  # Pulls the resource group object holding $RSObject
+                Clear-Host                                                                  # Clears the screen
+                Return $RGObject                                                            # Returns $RGObject to calling function
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals '2' 
+                $RGObject = GetAzResourceGroup ($CallingFunction)                           # Calls function and assigns output to $var
+                if (!$RGObject) {                                                           # If $RGObject does not have a value
+                    Break SearchAzureRGByName                                               # Breaks :SearchAzureRGByName
+                }                                                                           # End if (!$RGObject)        
+                Return $RGObject                                                            # Returns $RGObject to calling function 
+                Clear-Host                                                                  # Clears the screen
+            }                                                                               # End elseif ($OperatorSearchOption -eq '2')
+            else {                                                                          # All other inputs for $OperatorSearchOption
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # if ($OperatorSearchOption -eq '0')
+        }                                                                                   # End :SearchAzureRGByName while($true)
+        Clear-Host                                                                          # Clears the screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SearchAzResourceGroupName
+function SearchAzResourceGroupType {                                                        # Function to search for resource group by resource provider or type
+    Begin {                                                                                 # Begin function
+        :SearchAzureRGByType while($True) {                                                 # Outer loop for manaing function
+            $RSObject = SearchAzResourceType                                                # Calls function and assigns output to $var
+            if (!$RSObject) {                                                               # If $RSObject does not have a value
+                Break SearchAzureRGByType                                                   # Breaks :SearchAzureRGByType
+            }                                                                               # End if (!$RSObject)
+            else {                                                                          # If $RSObject has a value
+                $RGObject = Get-AzResourceGroup -name $RSObject.ResourceGroupName           # Pulls the resource group
+                Clear-Host                                                                  # Clears the screen
+                Return $RGObject                                                            # Returns to calling function with $var
+            }                                                                               # End else if (!$RSObject)
+        }                                                                                   # End :SearchAzRGByType while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function SearchAzResourceGroupType
+function SearchAzResourceGroupLoc {                                                         # Function to search for a resource group by resource or group location
+    Begin {                                                                                 # Begin function
+        :SearchAzureByLoc while ($true) {                                                   # Outer loop for managing function
+            if (!$LocationObject) {                                                         # If $LocationObject does not have a value
+                $CallingFunction = 'SearchAzResourceGroupLoc'                               # Creates $CallingFunction
+                $LocationObject = GetAzLocation ($CallingFunction)                          # Calls function and assigns output to $var
+                if (!$LocationObject) {                                                     # If $LocationObject does not have a value
+                    Break SearchAzureByLoc                                                  # End Break SearchAzureByLoc
+                }                                                                           # End (Inner) if (!$LocationObject)
+            }                                                                               # End (Outer) if (!$LocationObject)
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Find Resource'                                                  # Write message to screen
+            Write-Host '[2] Find Resource Group'                                            # Write message to screen
+            $OperatorSelect = Read-Host 'Option [#]'                                        # Operator input for the search option
+            if ($OperatorSelect -eq '0') {                                                  # If $OperatorSelect equals '0'
+                Break SearchAzureByLoc                                                      # End Break SearchAzureByLoc
+            }                                                                               # End if ($OperatorSelect -eq '0')
+            elseif ($OperatorSelect -eq '1') {                                              # Else if $OperatorSelect equals '1'
+                $RSObject = SearchAzResourceGroupLoc ($CallingFunction)                     # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject does not have a value
+                    Break SearchAzureByLoc                                                  # Breaks :SearchAzureByLoc
+                }                                                                           # End if (!$RSObject)
+                else {                                                                      # If $RSObject does have a value
+                    $RGObject = Get-AzResourceGroup -Name $RSObject.ResourceGroupName       # Pulls the resource group object
+                    Clear-Host                                                              # Clears the screen
+                    Return $RGObject                                                        # Returns to calling function with $var
+                }                                                                           # End else (if (!$RSObject))
+            }                                                                               # End elseif ($OperatorSelect -eq '1')
+            elseif ($OperatorSelect -eq '2') {                                              # Else if $OperatorSelect equals '2'
+                $RGList = Get-AzResourceGroup | Where-Object `
+                    {$_.Location -eq $LocationObject.Location}                              # Gets a list of all resources within the $LocationObject.Location
+                if (!$RGList) {                                                             # If $RGList is $null
+                    Write-Host 'No resource groups found in'$LocationObject.Location        # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
+                    Break SearchAzureByLoc                                                  # End Break SearchAzureByLoc
+                }                                                                           # End if (!$RGList)
+                elseif ($RGList.Count -gt 1) {                                              # If $RGList.Count greater than 1
+                    $ListNumber = 1                                                         # Sets $ListNumber to 1
+                    [System.Collections.ArrayList]$ListArray = @()                          # Creates the $ListArray
+                    foreach ($_ in $RGList) {                                               # For each $_ in $RGList
+                        $ListInput = [PSCustomObject]@{'RG'=$_.ResourceGroupName; `
+                            'Number'=$ListNumber}                                           # Creates the item to loaded into array
+                        $ListArray.Add($ListInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                        $ListNumber = $ListNumber + 1                                       # Increments $ListNumber by 1
+                    }                                                                       # End foreach ($_ in $ProviderList)
+                    Write-Host '[0] Exit'                                                   # Write message to screen
+                    foreach ($_ in $ListArray) {                                            # For each item in $ListArray
+                        $Number = $_.number                                                 # $Number equals current item .Number
+                        Write-Host "[$Number]" $_.RG                                        # Write message to screen
+                    }                                                                       # End foreach ($_ in $ListArray)
+                    :SelectAzureRG while ($true) {                                          # Inner loop for selecting a resource from list
+                        $OperatorSelect = Read-Host 'Enter the resource group [#]'          # Operator input to select the resource
+                        if ($OperatorSelect -eq '0') {                                      # If $OperatorSelect equals '0'
+                        Break SearchAzureByLoc                                              # End Break SearchAzureByLoc
+                        }                                                                   # End if ($OperatorSelect -eq '0')
+                        elseif ($OperatorSelect -in $ListArray.Number) {                    # Else if $OperatorSelect -in $ListArray.Number
+                            $RGObject = $ListArray | Where-Object `
+                                {$_.Number -eq $OperatorSelect}                             # $RGObject equals $ListArray where $OperatorSelect equals $ListArray.Number
+                            $RGObject = Get-AzResourceGroup -name $RGObject.RG              # Pulls the full resource group object
+                            Clear-Host                                                      # Clears the screen
+                            Return $RGObject                                                # Returns to calling function with $RGObject
+                        }                                                                   # End elseif ($OperatorSelect -in $ListArray.Number)
+                        else {                                                              # All other inputs for $OperatorSelect
+                            Write-Host 'That was not a valid option'                        # Write message to screen
+                        }                                                                   # End else (if ($OperatorSelect -eq '0'))
+                    }                                                                       # End :SelectAzureRG while ($true) 
+                }                                                                           # End elseif ($RGList.Count -gt 1)
+                else {                                                                      # If $RGList has only a single item
+                    $RGObject = Get-AzResourceGroup -name $RGList.Name                      # Pulls the full resource group object
+                    Clear-Host                                                              # Clears the screen
+                    Return $RGObject                                                        # Returns to calling function with $RGObject
+                }                                                                           # End else (if (!$RGList))
+            }                                                                               # End elseif ($OperatorSelect -eq '2')
+            else {                                                                          # All other inputs for $OperatorSelect 
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSelect -eq '0'))
+        }                                                                                   # End :SearchAzureByLoc while ($true)
+        Clear-Host                                                                          # Clears the screen 
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End SearchAzResourceGroupLoc
+function SearchAzResourceGroupTag {                                                         # Function to find a resource group from container tag 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference='silentlyContinue'                                           # Disables Errors
+        :SearchAzureRGByTag while($true) {                                                  # :SearchAzureRGByTag loop finds a resource group off tag values
+            $CallingFunction = 'SearchAzResourceGroupTag'                                   # Creates $CallingFunction
+            Write-Host "Resource Group Search By Tag"                                       # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Search by resource tag'                                         # Write message to screen
+            Write-Host '[2] Search by group tag'                                            # Write message to screen
+            $OperatorSearchOption = Read-Host 'Option [#]'                                  # Operator input for $OperatorSearchOption
+            if ($OperatorSearchOption -eq '0') {                                            # If $OperatorSearchOption equals '0'
+                Break SearchAzureRGByTag                                                    # Breaks :SearchAzureRGByTag 
+            }                                                                               # End if ($OperatorSearchOption -eq '0')
+            elseif ($OperatorSearchOption -eq '1') {                                        # Else if $OperatorSearchOption equals '1'
+                $RSObject = SearchAzResourceTag ($CallingFunction)                          # Calls function and assigns output to $var
+                if (!$RSObject) {                                                           # If $RSObject does not have a value
+                    Break SearchAzureRGByTag                                                # Breaks :SearchAzureRGByTag
+                }                                                                           # if (!$RSObject)
+                else {
+                    $RGObject = Get-AzResourceGroup | Where-Object `
+                        {$_.ResourceGroupName -eq $RSObject.ResourceGroupName}              # Pulls the resource group object holding $RSObject
+                    Clear-Host                                                              # Clears the screen
+                    Return $RGObject                                                        # Returns $RGObject to calling function
+                }                                                                           # End (if (!$RSObject))
+            }                                                                               # End elseif ($OperatorSearchOption -eq '1')
+            elseif ($OperatorSearchOption -eq '2') {                                        # Else if $OperatorSearchOption equals '2'
+                $RGList = Get-AzResourceGroup                                               # Creates a list of all resource groups
+                $ObjectList = Get-AzTag | Where-Object {$_.Name -in $RGList.Tags.Keys}      # Pulls list of all tags in $RGList and assigns to $var
+                $ObjectNumber = 1                                                           # Sets $ObjectNumber to 1
+                [System.Collections.ArrayList]$ObjectArray = @()                            # Creates the object array
+                foreach ($_ in $ObjectList) {                                               # For each $_ in $ObjectList
+                    $ObjectInput = [PSCustomObject]@{'Name' = $_.Name; `
+                        'Number' = $ObjectNumber}                                           # Creates the item to loaded into array
+                    $ObjectArray.Add($ObjectInput) | Out-Null                               # Loads item into array, out-null removes write to screen
+                    $ObjectNumber = $ObjectNumber + 1                                       # Increments $ObjectNumber by 1
+                }                                                                           # End foreach ($_ in $ObjectList)
+                Write-Host "[0]  Exit"                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name                                      # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name                                       # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                :SelectTagName while ($true) {                                              # Loop for getting $TagNameInput
+                    $TagNameInput = Read-Host "Enter the tag [#]"                           # Operator input for the Tag
+                    if ($TagNameInput -eq '0') {                                            # If $TagNameInput equals '0'
+                        Break SearchAzureRGByTag                                            # Breaks :SearchAzureRGByTag
+                    }                                                                       # End if ($TagNameInput -eq '0')
+                    elseif ($TagNameInput -in $ObjectArray.Number) {                        # If $TagNameInput in $ObjectArray.Number
+                        $TagName = $ObjectArray | Where-Object `
+                            {$_.Number -eq $TagNameInput}                                   # Pulls the tag name from $ObjectArray
+                        $TagName = $TagName.Name                                            # Isolates .Name in $TagName
+                        Clear-Host                                                          # Clears the screen
+                        Break SelectTagName                                                 # Breaks :SelectTagName
+                    }                                                                       # End elseif ($TagNameInput -in $ObjectArray.Number)
+                    else {                                                                  # All other inputs for $TagNameInput
+                        Write-Host 'That was not a valid option'                            # Write message to screen
+                    }                                                                       # End else (if ($TagNameInput -eq '0'))
+                }                                                                           # End :SelectTagName while ($true)
+                Write-Host "Include a tag value in search"                                  # Write message to screen
+                $OperatorGearchOption = Read-Host '[Y] or [N]'                              # Operator input for searching just by tag name, or adding a tag value
+                if ($OperatorGearchOption -eq 'y') {                                        # If statement for adding a tag value
+                    $ObjectList = (Get-AzTag -Name $TagName).values | Where-Object `
+                        {$_.Name -in $RGList.Tags.Values}                                   # Gets all tag values under the tag name $TagName and in $RGList
+                    $ObjectNumber = 1                                                       # Sets $ObjectNumber to 1
+                    [System.Collections.ArrayList]$ObjectArray = @()                        # Creates the object array
+                    foreach ($_ in $ObjectList) {                                           # For each $_ in $ObjectList
+                        $ListInput = [PSCustomObject]@{'Name' = $_.Name; `
+                            'Number' = $ObjectNumber}                                       # Creates the item to loaded into array
+                        $ObjectArray.Add($ListInput) | Out-Null                             # Loads item into array, out-null removes write to screen
+                        $ObjectNumber = $ObjectNumber + 1                                   # Increments $ObjectNumber by 1
+                    }                                                                       # End foreach ($_ in $ObjectList)
+                    Write-Host "[0]  Exit"                                                  # Write message to screen
+                    foreach ($_ in $ObjectArray) {                                          # For each $_ in $ObjectArray
+                        $Number = $_.Number                                                 # Sets $Number to current item .number
+                        if ($_.Number -le 9) {                                              # If current item .number is 9 or less
+                            Write-Host "[$Number] "$_.Name                                  # Write message to screen
+                        }                                                                   # End if ($_.Number -le 9) 
+                        else {                                                              # If current item .number is greater then 9
+                            Write-Host "[$Number]"$_.Name                                   # Write message to screen
+                        }                                                                   # End else (if ($_.Number -le 9) )
+                    }                                                                       # End foreach ($_ in $ObjectArray)
+                    :SelectTagValue while ($true) {                                         # Loop for getting $TagNameValue
+                        $TagValueInput = Read-Host "Enter the tag value [#]"                # Operator input for the Tag value
+                        if ($TagValueInput -eq '0') {                                       # If $TagValueInput equals '0'
+                            Break SearchAzureRGByTag                                        # Breaks :SearchAzureRGByTag
+                        }                                                                   # End if ($TagValueInput -eq '0')
+                        elseif ($TagValueInput -in $ObjectArray.Number) {                   # If $TagValueInput in $ObjectArray.Number
+                            $TagValue = $ObjectArray | Where-Object `
+                                {$_.Number -eq $TagValueInput}                              # Pulls the tag value from $ObjectArray
+                            $TagValue = $TagValue.Name                                      # Isolates the tag value name
+                            Clear-Host                                                      # Clears the screen
+                            Break SelectTagValue                                            # Breaks :SelectTagValue
+                        }                                                                   # End elseif ($TagValueInput -in $ObjectArray.Number)
+                        else {                                                              # All other inputs for $TagValueInput
+                            Write-Host 'That was not a valid option'                        # Write message to screen
+                        }                                                                   # End else (if ($TagValueInput -eq '0'))
+                    }                                                                       # End :SelectTagValue while ($true)
+                }                                                                           # End if ($OperatorGearchOption -eq 'y') 
+                if ($TagValue) {                                                            # If statement for $TagValue having a value
+                    $RGObject = Get-AzResourceGroup -Tag @{$TagName=$TagValue}              # Collects all resource groups where tag name and value matches $TagName and TagValue
+                    if (!$RGObject) {                                                       # $RGObject does not have a value
+                        Write-Host `
+                            "No resource group found for the Tag Value"$TagValue.Name       # Write message to screen
+                        Start-Sleep(5)                                                      # Pauses all actions for 5 seconds
+                        Break SearchAzureRGByTag                                            # Breaks :SearchAzureRGByTag 
+                    }                                                                       # End if (!$RGObject)
+                }                                                                           # End if ($TagValue)
+                else {                                                                      # Else statement for $TagValueInput not having a value
+                    $RGObject = Get-AzResourceGroup -Tag @{$TagName=''}                     # Collects all resource groups where tag name matches $TagName
+                    if (!$RGObject) {                                                       # $RGObject does not have a value
+                        Write-Host "No resource group found for the Tag name"$TagName       # Write message to screen
+                        Start-Sleep(5)                                                      # Pauses all actions for 5 seconds
+                        Break SearchAzureRGByTag                                            # Breaks :SearchAzureRGByTag 
+                    }                                                                       # End if (!$RGObject)
+                }                                                                           # End else if (($TagValue))
+                if ($RGObject.count -gt 1) {                                                # If $RGObject has more than 1 value
+                    $ObjectNumber = 1                                                       # Sets $ObjectNumber to 1
+                    [System.Collections.ArrayList]$ObjectArray = @()                        # Creates the object array
+                    foreach ($_ in $RGObject) {                                             # For each $_ in $RGListList
+                        $ListInput = [PSCustomObject]@{'Name'=$_.Name; `
+                        'RG' = $_.ResourceGroupName;'Number' = $ObjectNumber; `
+                        'Location' = $_.Location}                                           # Creates the item to loaded into array
+                        $ObjectArray.Add($ListInput) | Out-Null                             # Loads item into array, out-null removes write to screen
+                        $ObjectNumber = $ObjectNumber + 1                                   # Increments $ObjectNumber by 1
+                    }                                                                       # End foreach ($_ in $RGObject)
+                    Write-Host "[0]  Exit"                                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    foreach ($_ in $ObjectArray) {                                          # For each $_ in $ObjectArray
+                        $Number = $_.Number                                                 # Sets $Number to current item .Number
+                        if ($_.Number -le 9) {                                              # If current item .number is 9 or less
+                            Write-Host "[$Number]   "$_.RG                                  # Write message to screen
+                        }                                                                   # End if ($_.Number -le 9)
+                        else {                                                              # If current item .number is more than 9
+                            Write-Host "[$Number]  "$_.RG                                   # Write message to screen
+                        }                                                                   # End else (if ($_.Number -le 9))
+                        Write-Host 'Loc:  '$_.Location                                      # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                    }                                                                       # End foreach ($_ in $ObjectArray)
+                    :SelectAzureResourceGroup while ($true) {                               # Inner loop to select the resource group
+                        if ($CallingFunction) {                                             # If $CallingFunction exists
+                            Write-Host `
+                                "You are selecting the resource group for"$CallingFunction  # Write message to screen
+                        }                                                                   # End if ($CallingFunction)
+                        $RGSelect = Read-Host "Enter the resource group [#]"                # Operator input for the resource selection
+                        if ($RGSelect -eq '0') {                                            # If $RGSelect equals 0
+                            Break SearchAzureRGByTag                                        # Breaks :SearchAzureRGByTag
+                        }                                                                   # End if ($RGSelect -eq '0')
+                        elseif ($RGSelect -in $ObjectArray.Number) {                        # If $RGSelect is in $ObjectArray
+                            $RGSelect = $ObjectArray | Where-Object `
+                                {$_.Number -eq $RGSelect}                                   # $RGSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $RGSelect                                  
+                            $RGObject = Get-AzResourceGroup -name $RGSelect.RG `
+                                | Where-Object {$_.Name -eq $RGSelect.Name}                 # Pulls the full resource object
+                            Clear-Host                                                      # Clears the screen
+                            Return $RGObject                                                # Returns $RGObject to calling function
+                        }                                                                   # End if ($RGSelect -in $ObjectArray)
+                        else {                                                              # If $RGObject does not have a value
+                            Write-Host "That was not a valid option"                        # Write message to screen
+                        }                                                                   # End else (if ($RGSelect -eq '0')))
+                    }                                                                       # End :SelectAzureResourceGroup while ($true)
+                }                                                                           # End if ($RGObject.count -eq 1) 
+                else {                                                                      # If $RGObject has a single value
+                    Write-Host 'A single matching resource group is named:'$RGObject.Name   # Write message to screen
+                    Start-Sleep(5)                                                          # Pauses all actions for 5 seconds
+                    Clear-Host                                                              # Clears the screen
+                    Return $RGObject                                                        # Returns $RGObject to calling function       
+                }                                                                           # End else (if ($RGObject.count -eq 1))
+            }                                                                               # End elseif ($OperatorSearchOption -eq '2')
+            else {                                                                          # All other inputs for $OperatorSearchOption
+                Write-Host 'That was not a valid option'                                    # Write message to screen
+            }                                                                               # End else (if ($OperatorSearchOption -eq '0'))
+        }                                                                                   # End :SearchAzureRGByTag while($true)
+        Clear-Host                                                                          # Clears the screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SearchAzResourceGroupTag
 # Additional functions required for ManageAzResourceGroup
 function GetAzLocation {                                                                    # Function to get azure location
     Begin {                                                                                 # Begin function

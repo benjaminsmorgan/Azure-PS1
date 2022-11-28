@@ -59,7 +59,7 @@ function SearchAzResourceGroupLoc {                                             
             Write-Host '[0] Exit'                                                           # Write message to screen
             Write-Host '[1] Find Resource'                                                  # Write message to screen
             Write-Host '[2] Find Resource Group'                                            # Write message to screen
-            $OperatorSelect = Read-Host 'Enter option [#]'                                  # Operator input for the search option
+            $OperatorSelect = Read-Host 'Option [#]'                                        # Operator input for the search option
             if ($OperatorSelect -eq '0') {                                                  # If $OperatorSelect equals '0'
                 Break SearchAzureByLoc                                                      # End Break SearchAzureByLoc
             }                                                                               # End if ($OperatorSelect -eq '0')
