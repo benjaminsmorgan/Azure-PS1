@@ -27691,6 +27691,7 @@ function ManageAzManagementGroup {                                              
             Write-Host '[1] New Azure Management Group'                                     # Write message to screen
             Write-Host '[2] List Management Groups'                                         # Write message to screen
             Write-Host '[3] Delete Management Group'                                        # Write message to screen 
+            Write-Host '[4] Move Sub in Management Group'                                   # Write message to screen 
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals 'exit'
@@ -27708,6 +27709,10 @@ function ManageAzManagementGroup {                                              
                 Write-Host 'Delete Management Group'                                        # Write message to screen
                 RemoveAzManagementGroup                                                     # Calls function
             }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Move Sub in Management Group'                                   # Write message to screen
+                SetAzManagementGroupSubscription                                            # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
@@ -28006,6 +28011,62 @@ function RemoveAzManagementGroup {                                              
         Return                                                                              # Returns to calling function with $null
     }                                                                                       # End begin statement
 }                                                                                           # End function RemoveAzManagmentGroup
+function SetAzManagementGroupSubscription {                                                 # Function to move a subscription to a management group
+    Begin {                                                                                 # Begin function
+        :SetAzureManagementGroupSubscription while($true) {                                 # Outer loop for managing function
+            $MGObject = GetAzManagementGroup                                                # Calls function and assigns output to $var
+            if (!$MGObject) {                                                               # If $MGObject is $null
+                Break SetAzureManagementGroupSubscription                                   # Breaks :SetAzureManagementGroupSubscription
+            }                                                                               # End if (!$MGObject)
+            $SubObject = GetAzSubscription                                                  # Calls function and assigns output to $var
+            if (!$SubObject) {                                                              # If $SubObject is $null
+                Break SetAzureManagementGroupSubscription                                   # Breaks :SetAzureManagementGroupSubscription
+            }                                                                               # End if (!$SubObject)
+            Write-Host 'Make the following change'                                          # Write message to screen
+            Write-Host 'Move Subscription:   '$SubObject.Name                               # Write message to screen
+            Write-Host 'to Management Group: '$MGObject.Name                                # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            $OpSelect = Read-Host '[Y] or [N]'                                              # Operator input for confirming the change
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq 'y') {                                                        # If $OpSelect equals 'y'
+                Try {                                                                       # Try the following
+                    New-AzManagementGroupSubscription -GroupName $MGObject.Name `
+                      -SubscriptionId $SubObject.ID  -ErrorAction 'Stop' | Out-Null         # Moves the subscription to the management group
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break SetAzureManagementGroupSubscription                               # Breaks :SetAzureManagementGroupSubscription    
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host $SubObject.Name 'has been moved'                                 # Write message to screen
+                Write-Host 'It may take up to 15 minutes for this'                          # Write message to screen
+                Write-Host 'change to sync in Azure PowerShell'                             # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureManagementGroup                                            # Break RemoveAzureMGObject
+            }                                                                               # End if ($OpSelect -eq 'y')
+            else {                                                                          # All other inputs for $OpSelect
+                Break SetAzureManagementGroupSubscription                                   # Breaks :SetAzureManagementGroupSubscription
+            }                                                                               # End else (if ($OpSelect -eq 'y'))
+        }                                                                                   # End :SetAzureManagementGroupSubscription while($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End begin
+}                                                                                           # End function SetAzManagementGroupSubscription
 # End ManageAzManagementGroup
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Reference links: {
