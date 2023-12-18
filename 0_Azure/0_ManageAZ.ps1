@@ -2,15 +2,33 @@
 # 0_0_0_0 Manage Azure
 function ManageAz {                                                                         # Function for managing azure resources
     Begin {                                                                                 # Begin function
-        :ManageAzure while($true) {                                                         # Outer loop for managing function
+        $CTX = Get-AzContext                                                                # Collects the current Azure context
+        if (!$CTX) {                                                                        # If $CTX is null
+            Write-Host 'Executing Azure log on script'                                      # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Connect-AzAccount -Environment AzureUSGovernment -ErrorAction SilentlyContinue  # Connects to Azure Gov cloud
+            $CTX = Get-AzContext                                                            # Collects the current Azure context
+            if (!$CTX) {                                                                    # If $CTX is null
+                Write-Host 'Azure log on cancelled'                                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for user input
+                Clear-Host                                                                  # Clears screen
+                Return                                                                      # Returns to calling function with $null
+            }                                                                               # End if (!$CTX)
+        }                                                                                   # End if (!$CTX)
+        :ManageAzure while($true) {                                                         # Outer loop for managing function 
+            Write-Host 'Current subscription:'$CTX.Subscription.Name                        # Write message to screen 
+            Write-Host ''                                                                   # Write message to screen 
             Write-Host 'Azure Management'                                                   # Write message to screen 
             Write-Host '[0] Exit'                                                           # Write message to screen 
             Write-Host '[1] Resource Groups'                                                # Write message to screen 
             Write-Host '[2] Storage'                                                        # Write message to screen 
             Write-Host '[3] Compute'                                                        # Write message to screen 
             Write-Host '[4] Network'                                                        # Write message to screen 
-            Write-Host '[5] Monitoring and Backups'                                         # Write message to screen 
-            Write-Host '[6] Azure AD and RBAC'                                              # Write message to screen 
+            Write-Host '[5] Subscription'                                                   # Write message to screen
+            Write-Host '[6] Management Groups'                                              # Write message to screen
+            #Write-Host '[6] Monitoring and Backups'                                         # Write message to screen 
+            #Write-Host '[7] Azure AD and RBAC'                                              # Write message to screen 
             $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect is equal to '0' 
@@ -33,15 +51,13 @@ function ManageAz {                                                             
                 ManageAzNetwork                                                             # Calls function
             }                                                                               # End elseif ($OpSelect -eq '4')
             elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect is equal to '5'
-                Write-Host 'Manage monitoring and backup'                                   # Write message to screen 
-                Write-Host 'This function has not be made'                                  # Functionnamegohere
-                Pause                                                                       # Pauses all actions for opertor input
-                Clear-Host                                                                  # Clears screen                                                          
+                Write-Host 'Manage Subscription'                                            # Write message to screen 
+                ManageAzSubscription                                                        # Calls function                           
             }                                                                               # End elseif ($OpSelect -eq '5')
             elseif ($OpSelect -eq '6') {                                                    # Else if $OpSelect is equal to '6'
-                Write-Host 'Manage Azure AD and RBAC'                                       # Write message to screen 
-                ManageAzAD                                                                  # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '6')                                                                           
+                Write-Host 'Manage Management Groups'                                       # Write message to screen 
+                ManageAzManagementGroup                                                     # Calls function                           
+            }                                                                               # End elseif ($OpSelect -eq '6')
             else {                                                                          # All other inputs for $OpSelect
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for opertor input
@@ -10719,16 +10735,17 @@ function ManageAzNetwork {                                                      
     Begin {                                                                                 # Begin function   
         :ManageAzureNetwork while ($true) {                                                 # Outer loop for managing function
             Write-Host 'Azure Network Management'                                           # Write message to screen
-            Write-Host '[0] Exit'                                                           # Write message to screen
-            Write-Host '[1] Manage virtual network'                                         # Write message to screen
-            Write-Host '[2] Manage subnets'                                                 # Write message to screen
-            Write-Host '[3] Manage network interfaces'                                      # Write message to screen
-            Write-Host '[4] Manage public IPs'                                              # Write message to screen
-            Write-Host '[5] Manage load balancers'                                          # Write message to screen
-            Write-Host '[6] Manage Network Security Groups'                                 # Write message to screen
-            Write-Host '[7] Manage Application Security Groups'                             # Write message to screen
-            Write-Host '[8] Manage Firewalls'                                               # Write message to screen
-            Write-Host '[9] Manage Gateways'                                                # Write message to screen
+            Write-Host ' [0] Exit'                                                          # Write message to screen
+            Write-Host ' [1] Manage virtual network'                                        # Write message to screen
+            Write-Host ' [2] Manage subnets'                                                # Write message to screen
+            Write-Host ' [3] Manage network interfaces'                                     # Write message to screen
+            Write-Host ' [4] Manage public IPs'                                             # Write message to screen
+            Write-Host ' [5] Manage load balancers'                                         # Write message to screen
+            Write-Host ' [6] Manage Network Security Groups'                                # Write message to screen
+            Write-Host ' [7] Manage Application Security Groups'                            # Write message to screen
+            Write-Host ' [8] Manage Firewalls'                                              # Write message to screen
+            Write-Host ' [9] Manage Gateways'                                               # Write message to screen
+            Write-Host '[10] Manage Express Routes'                                         # Write message to screen
             $OpSelect = Read-Host 'Option [#]'                                              # Operator selection of management function
             Clear-Host                                                                      # Clears screen
             if ($OpSelect -eq '0') {                                                        # If $OpSelect equals '0'
@@ -10769,7 +10786,11 @@ function ManageAzNetwork {                                                      
             elseif ($OpSelect -eq '9') {                                                    # Elseif $OpSelect equals '9'
                 Write-Host 'Manage Gateways'                                                # Write message to screen
                 ManageAzVNGateway                                                           # Calls function
-            }                                                                               # End elseif ($OpSelect -eq '9')            
+            }                                                                               # End elseif ($OpSelect -eq '9')       
+            elseif ($OpSelect -eq '10') {                                                   # Elseif $OpSelect equals '10'
+                Write-Host 'Manage Express Routes'                                          # Write message to screen
+                ManageAzExpressRouteCircuit                                                 # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '10')         
             else {                                                                          # All other inputs for $OpSelect     
                 Write-Host 'That was not a valid input'                                     # Write message to screen
                 Pause                                                                       # Pauses all actions for operator input
@@ -27248,6 +27269,744 @@ function SetAzVNGatewayAA {                                                     
 }                                                                                           # End function SetAzVNGatewayAA
 # End ManageAzVNGWConfig
 # End ManageAzVNGateway
+# Functions for ManageAzExpressRouteCircuit
+function ManageAzExpressRouteCircuit {                                                      # Function for managing azure express routes
+    Begin {                                                                                 # Begin function
+        :ManageAzureExpressRouteCircuit while($true) {                                      # Outer loop for managing function
+            Write-Host 'Azure Express Route Management'                                     # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] New Express Route (Disbled)'                                    # Write message to screen
+            Write-Host '[2] List Express Routes'                                            # Write message to screen
+            Write-Host '[3] List Express Route ARP Table'                                   # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for the management option
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If OpSelect equals '0'
+                Break ManageAzureExpressRouteCircuit                                         # End Break ManageAzureExpressRouteCircuit
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'New Express Route'                                              # Write message to screen
+                #FunctionGoHere                                                             # Calls function 
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Express Routes'                                            # Write message to screen
+                ListAzExpressRouteCircuit                                                   # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'List Express Route ARP Table'                                   # Write message to screen
+                ListAzExpressRouteCircuitARPTable                                           # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureExpressRouteCircuit while($true)
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzExpressRouteCircuit
+function ListAzExpressRouteCircuit {                                                        # Function to list all express routes
+    Begin {                                                                                 # Begin function
+        :ListAzureExpressRouteCircuit while ($true) {                                       # Outer loop for managing function
+            $EXList = Get-AzExpressRouteCircuit                                             # Gets a list of all virtual networks
+            if (!$EXList) {                                                                 # If $EXList is $null
+                Write-Host 'No express routes in this subscription'                         # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureExpressRouteCircuit                                          # Breaks ListAzureExpressRouteCircuit
+            }                                                                               # End if (!$EXList)
+            foreach ($_ in $EXList) {                                                       # For each item in $EXList
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'Name:       '$_.Name                                            # Write message to screen
+                Write-Host 'RG:         '$_.ResourceGroupName                               # Write message to screen
+                Write-Host 'Loc:        '$_.Location                                        # Write message to screen
+                Write-Host 'Circuit PS: '$_.CircuitProvisioningState                        # Write message to screen
+                Write-Host 'SVC Pro PS: '$_.ServiceProviderProvisioningState                # Write message to screen
+                Write-Host 'PS:         '$_.ProvisioningState                               # Write message to screen
+                Write-Host 'Glo Reach:  '$_.GlobalReachEnabled                              # Write message to screen
+                Write-Host 'SKU Name:   '$_.Sku.Name                                        # Write message to screen
+                Write-Host 'SKU Tier:   '$_.Sku.Tier                                        # Write message to screen
+                Write-Host 'SKU Family: '$_.Sku.Family                                      # Write message to screen
+                Write-Host 'Band Mbps:  '$_.ServiceProviderProperties.BandwidthInMbps       # Write message to screen
+            }                                                                               # End foreach ($_ in $EXList)
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureExpressRouteCircuit                                              # Breaks ListAzureExpressRouteCircuit
+        }                                                                                   # End :ListAzureExpressRouteCircuit while ($true)
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzExpressRouteCircuit
+function GetAzExpressRouteCircuit {                                                         # Function for getting an Azure express route
+    Begin {                                                                                 # Begin function
+        :GetAzureExpressRouteCircuit while ($true) {                                        # Outer loop for managing function
+            $ObjectList = Get-AzExpressRouteCircuit                                         # pulls all items into list for selection
+            if (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No express routes in this subscription'                         # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureExpressRouteCircuit                                           # Breaks :GetAzureExpressRouteCircuit
+            }                                                                               # End if (!$ObjectList)
+            $ListNumber = 1                                                                 # $var used for selecting the virtual network
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the RG list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $RGListList
+                $ArrayInput = [PSCustomObject]@{                                            # Creates $ArrayInput
+                    'Number'= $ListNumber;                                                  # Adds item to $ArrayInput
+                    'Name'= $_.Name;                                                        # Adds item to $ArrayInput
+                    'ResourceGroupName'= $_.ResourceGroupName;                              # Adds item to $ArrayInput
+                    'Location' = $_.Location;                                               # Adds item to $ArrayInput
+                    'CircuitProvisioningState'= $_.CircuitProvisioningState;                # Adds item to $ArrayInput
+                    'ServiceProviderProvisioningState'= $_.ServiceProviderProvisioningState;# Adds item to $ArrayInput
+                    'ProvisioningState'= $_.ProvisioningState;                              # Adds item to $ArrayInput
+                    'GlobalReachEnabled'=  $_.GlobalReachEnabled;                           # Adds item to $ArrayInput
+                    'SkuName'=   $_.Sku.Name;                                               # Adds item to $ArrayInput
+                    'SkuTier'=   $_.Sku.Tier;                                               # Adds item to $ArrayInput
+                    'SkuFamily'= $_.Sku.Family;                                             # Adds item to $ArrayInput
+                    'BandwidthInMbps'=  $_.ServiceProviderProperties.BandwidthInMbps;       # Adds item to $ArrayInput
+                }                                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ArrayInput) | Out-Null                                    # Loads item into array, out-null removes write to screen
+                $ListNumber = $ListNumber + 1                                               # Increments $RGListNumber by 1
+            }                                                                               # End foreach ($_ in $RGList)
+            :SelectAzureER while ($true) {                                                  # Inner loop for selecting the Express Route
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each item in $ObjectArray
+                    $Number = $_.Number                                                     # $Number is equal to current item .number
+                    if ($Number -le 9) {                                                    # If $number is 9 or less
+                        Write-Host "[$Number]      "$_.Name                                 # Write message to screen
+                    }                                                                       # End if ($Number -le 9)
+                    else {                                                                  # If $number is greater than 9
+                        Write-Host "[$Number]     "$_.Name                                  # Write message to screen
+                    }                                                                       # End else (if ($Number -le 9))
+                    Write-Host 'Loc:        '$_.Location                                    # Write message to screen
+                    Write-Host 'Circuit PS: '$_.CircuitProvisioningState                    # Write message to screen
+                    Write-Host 'SVC Pro PS: '$_.ServiceProviderProvisioningState            # Write message to screen
+                    Write-Host 'PS:         '$_.ProvisioningState                           # Write message to screen
+                    Write-Host 'Glo Reach:  '$_.GlobalReachEnabled                          # Write message to screen
+                    Write-Host 'SKU Name:   '$_.SkuName                                     # Write message to screen
+                    Write-Host 'SKU Tier:   '$_.SkuTier                                     # Write message to screen
+                    Write-Host 'SKU Family: '$_.SkuFamily                                   # Write message to screen
+                    Write-Host 'Band Mbps:  '$_.BandwidthInMbps                             # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                }                                                                           # End foreach ($Name in $Array)    
+                if ($CallingFunction) {                                                     # If $CallingFunction has a value
+                    Write-Host 'Selecting the express route for:'$CallingFunction           # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the VNet selection
+                Clear-Host                                                                  # Clears screen
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureER                                                        # Breaks :GetAzureVNet
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # Else if $OpSelect is in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $OpSelect equals $ObjectArray.Number
+                    $ExRouteObject = Get-AzExpressRouteCircuit -Name $OpSelect.Name `
+                        -ResourceGroupName $OpSelect.ResourceGroupName                      # Pulls the full object and assigns to $var
+                        Return $ExRouteObject                                               # Returns to calling function with $var
+                }                                                                           # End elseif ($OpSelect -in $ObjectArray.Number)
+                else {                                                                      # All other inputs for $OpSelect
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else (if ($OpSelect -eq '0'))
+            }                                                                               # End :SelectAzureER while ($true)
+        }                                                                                   # End :GetAzureExpressRouteCircuit while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function GetAzExpressRouteCircuit
+function ListAzExpressRouteCircuitARPTable {                                                # Function to list an express route ARP table
+    Begin {                                                                                 # Begin function
+        $CallingFunction = "ListAzExpressRouteCircuitARPTable"                              # Creates function
+        :ListAzureExpressRouteCircuit while ($true) {                                       # Outer loop for managing function
+            $ExRouteObject = GetAzExpressRouteCircuit ($CallingFunction)                    # Calls function and assigns output to $var
+            if(!$ExRouteObject) {                                                           # If $ExRouteObject is $null
+                Break ListAzureExpressRouteCircuit                                          # Breaks :ListAzureExpressRouteCircuit
+            }                                                                               # End if(!$ExRouteObject)                                                             
+            Write-Host 'Gathering the requested info'                                       # Write message to screen
+            Write-Host 'This may take a moment'                                             # Write message to screen
+            $ExRouteArpPri = Get-AzExpressRouteCircuitARPTable -ResourceGroupName `
+                $ExRouteObject.ResourceGroupName -ExpressRouteCircuitName `
+                $ExRouteObject.Name -PeeringType $ExRouteObject.Peerings.PeeringType `
+                -DevicePath Primary                                                         # Creates $ExRouteArpPri
+            $ExRouteArpSec = Get-AzExpressRouteCircuitARPTable -ResourceGroupName `
+                $ExRouteObject.ResourceGroupName -ExpressRouteCircuitName `
+                $ExRouteObject.Name -PeeringType $ExRouteObject.Peerings.PeeringType `
+                -DevicePath Secondary                                                       # Creates $ExRouteArpSec
+            $EXRouteObjectMbps = $ExRouteObject.ServiceProviderProperties.BandwidthInMbps   # Isolates selected express route speed in Mbps
+            Clear-Host                                                                      # Clears screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Name:       '$ExRouteObject.Name                                    # Write message to screen
+            Write-Host 'RG:         '$ExRouteObject.ResourceGroupName                       # Write message to screen
+            Write-Host 'Loc:        '$ExRouteObject.Location                                # Write message to screen
+            Write-Host 'Circuit PS: '$ExRouteObject.CircuitProvisioningState                # Write message to screen
+            Write-Host 'SVC Pro PS: '$ExRouteObject.ServiceProviderProvisioningState        # Write message to screen
+            Write-Host 'PS:         '$ExRouteObject.ProvisioningState                       # Write message to screen
+            Write-Host 'Glo Reach:  '$ExRouteObject.GlobalReachEnabled                      # Write message to screen
+            Write-Host 'SKU Name:   '$ExRouteObject.Sku.Name                                # Write message to screen
+            Write-Host 'SKU Tier:   '$ExRouteObject.Sku.Tier                                # Write message to screen
+            Write-Host 'SKU Family: '$ExRouteObject.Sku.Family                              # Write message to screen
+            Write-Host 'Band Mbps:  '$ExRouteObjectMbps                                     # Write message to screen
+            Write-Host 'Primary'                                                            # Write message to screen
+            Write-Host '    Age:         '$ExRouteArpPri.Age                                # Write message to screen
+            Write-Host '    Interface:   '$ExRouteArpPri.InterfaceProperty                  # Write message to screen
+            Write-Host '    IP Address:  '$ExRouteArpPri.IpAddress                          # Write message to screen
+            Write-Host '    MAC Address: '$ExRouteArpPri.MacAddress                         # Write message to screen        
+            Write-Host 'Secondary'                                                          # Write message to screen
+            Write-Host '    Age:         '$ExRouteArpSec.Age                                # Write message to screen
+            Write-Host '    Interface:   '$ExRouteArpSec.InterfaceProperty                  # Write message to screen
+            Write-Host '    IP Address:  '$ExRouteArpSec.IpAddress                          # Write message to screen
+            Write-Host '    MAC Address: '$ExRouteArpSec.MacAddress                         # Write message to screen        
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureExpressRouteCircuit                                              # Breaks ListAzureExpressRouteCircuit
+        }                                                                                   # End :ListAzureExpressRouteCircuit while ($true)
+        Clear-Host                                                                          # Clears screen
+        return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ListAzExpressRouteCircuitARPTable
+# End ManageAzExpressRouteCircuit
+# End ManageAzNetwork
+# Functions for ManageAzSubscription
+function ManageAzSubscription {                                                             # Function to manage Azure subscriptions
+    Begin {                                                                                 # Begin function
+        :ManageAzureSubscription while($true) {                                             # Outer loop for managing function
+            Write-Host 'Subscription Management'                                            # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] Set Azure Subscription'                                         # Write message to screen
+            Write-Host '[2] Enable Subscription'                                            # Write message to screen
+            Write-Host '[3] List Subscriptions'                                             # Write message to screen
+            Write-Host '[4] Rename Subscription'                                            # Write message to screen 
+            Write-Host '[5] Cancel Subscription'                                            # Write message to screen
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals 'exit'
+                Break ManageAzureSubscription                                               # Breaks :ManageAzureSubscription
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'Set Azure Subscription'                                         # Write message to screen
+                SetAzSubscription                                                           # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'Enable Subscription'                                            # Write message to screen
+                #Functionnamegohere                                                          # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'List Subscriptions'                                             # Write message to screen
+                ListAzSubscription                                                          # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            elseif ($OpSelect -eq '4') {                                                    # Else if $OpSelect equals '4'
+                Write-Host 'Rename Subscription'                                            # Write message to screen
+                RenameAzSubscription                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '4')
+            elseif ($OpSelect -eq '5') {                                                    # Else if $OpSelect equals '5'
+                Write-Host 'Cancel Subscription'                                            # Write message to screen
+                #Functionnamegohere                                                          # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '5')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureSubscription while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzSubScription
+function GetAzSubscription {                                                                # Function to get a subscription 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureSubscription while ($true) {                                               # Outer loop for managing function
+            Write-Host 'Gathering Azure subscriptions'                                      # Write message to screen
+            Write-Host 'This might take a moment'                                           # Write message to screen
+            $ObjectList = Get-AzSubscription                                                # Gets all subscriptions and assigns to $ObjectList
+            Clear-Host                                                                      # Clears screen
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'Number' = $ObjectNumber;                                               # Object number
+                    'Name' = $_.Name;                                                       # Subscription name
+                    'ID' = $_.ID;                                                           # Subscription ID
+                    'State' = $_.State                                                      # Subscription state
+                }                                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the subscription
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number] "$_.Name '|' $_.ID '|' $_.State               # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]"$_.Name '|' $_.ID '|' $_.State                # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host 'You are selecting the subsciption for:'$CallingFunction     # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureSubscription                                              # Breaks :GetAzureSubscription
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $SubObject = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}      # $SubObject is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect                                  
+                    Clear-Host                                                              # Clears screen
+                    Return $SubObject                                                       # Returns to calling function with $SubObject
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number)
+                else {                                                                      # If $SubObject does not have a value
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else if ($OpSelect -eq '0')
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureSubscription while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzSubscription
+function ListAzSubscription {                                                               # Function to list all subscriptions 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :ListAzureSubscription while ($true) {                                              # Outer loop for managing function
+            Write-Host 'Gathering Azure subscriptions'                                      # Write message to screen
+            Write-Host 'This might take a moment'                                           # Write message to screen
+            $ObjectList = Get-AzSubscription                                                # Gets all subscriptions and assigns to $ObjectList
+            Clear-Host                                                                      # Clears screen
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'Name' = $_.Name;                                                       # Subscription name
+                    'ID' = $_.ID;                                                           # Subscription ID
+                    'State' = $_.State                                                      # Subscription state
+                }                                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host ''                                                                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                Write-Host $_.Name '|' $_.ID '|' $_.State                                   # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for user input
+            Break ListAzureSubscription                                                     # Breaks :ListAzureSubscription 
+        }                                                                                   # End :ListAzureSubscription while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function ListAzSubscription
+function SetAzSubscription {                                                                # Function to set the current subscription 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :SetAzureSubscription while ($true) {                                               # Outer loop for managing function
+            $SubObject = GetAzSubscription                                                  # Calls function and assigns output to $var
+            if (!$SubObject) {                                                              # If $SubObject is null
+                Break SetAzureSubscription                                                  # Breaks :SetAzureSubscription
+            }                                                                               # End SetAzureSubscription
+            Set-AzContext -SubscriptionId $SubObject.ID                                     # Sets the selected subscription
+            Break SetAzureSubscription                                                      # Breaks :SetAzureSubscription
+        }                                                                                   # End :ListAzureSubscription while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function ListAzSubscription
+function RenameAzSubscription {                                                             # Function to rename a subscription 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :RenameAzureSubscription while ($true) {                                            # Outer loop for managing function
+            $SubObject = GetAzSubscription                                                  # Calls function and assigns output to $var
+            if (!$SubObject) {                                                              # If $SubObject is null
+                Break RenameAzureSubscription                                               # Breaks :SetAzureSubscription
+            }                                                                               # End SetAzureSubscription
+            $ExistingSubs = Get-AzSubscription                                              # Gets a list of existing subscriptions
+            :RenameAzureSubscriptionName while ($true) {                                    # Inner loop for creating a new sub name
+                Write-Host '[0] To exit'                                                    # Write message to screen
+                $NewSubName = Read-Host 'Please enter the subs new name'                    # Operator input to select the sub new name
+                Clear-Host                                                                  # Clears screen
+                if (!$NewSubName) {                                                         # If $NewSubName is null
+                    Write-Host 'That was not a valid entry'                                 # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End if (!$NewSubName)
+                elseif ($NewSubName -eq '0') {                                              # Else if $NewSubName equals '0'
+                    Break RenameAzureSubscription                                           # Breaks :RenameAzureSubscription
+                }                                                                           # End elseif ($NewSubName -eq '0')
+                else {                                                                      # All other inputs for $NewSubName
+                    if ($NewSubName -iin $ExistingSubs.Name) {                              # If $NewSubName is in $ExistingSubs.Name
+                        Write-Host 'The name '$NewSubName' is already in use'               # Write message to screen
+                        Write-Host 'Please use a different name'                            # Write message to screen
+                        write-Host ''                                                       # Write message to screen
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End if ($NewSubName -iin $ExistingSubs.Name)
+                    else {                                                                  # Else if $NewSubName is not in $ExistingSubs.Name
+                        Write-Host 'Rename: '$SubObject.Name' to '$NewSubName               # Write message to screen
+                        $OpSelect = Read-Host '[Y] Yes [*] Select new name'                 # Operator input to confirm the name
+                        Clear-Host                                                          # Clears screen
+                        If ($OpSelect -eq 'y') {                                            # If $OpSelect equals 'y'
+                            Break RenameAzureSubscriptionName                               # Breaks :RenameAzureSubscriptionName
+                        }                                                                   # End If ($OpSelect -eq 'y')
+                    }                                                                       # End else (if ($NewSubName -iin $ExistingSubs.Name))
+                    $NewSubName = $null                                                     # Clears $Var
+                }                                                                           # End if (!$NewSubName)
+            }                                                                               # End :RenameAzureSubscriptionName while ($true)
+            try {                                                                           # Try the following
+                Write-Host 'Renaming the selected sub'                                      # Write message to screen
+                Write-Host 'This may take a moment'                                         # Write message to screen
+                Rename-AzSubscription -Id $SubObject.ID -SubscriptionName `
+                    $NewSubName -ErrorAction 'Stop' | Out-Null                              # Renames the subscription
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'The subscription has been renamed'                              # Write message to screen
+                write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End Try
+            catch {                                                                         # If try fails
+                Clear-Host                                                                  # Clears screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                $MSG = $MSG.Exception.InnerException.Body.Message                           # Isolates the error message
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Warning $MSG                                                          # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End catch
+            Break RenameAzureSubscription                                                   # Breaks :SetAzureSubscription
+        }                                                                                   # End :RenameAzureSubscription while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function RenameAzSubscription
+# End ManageAzSubscription 
+# Functions for ManageAzManagementGroup
+function ManageAzManagementGroup {                                                          # Function to manage Azure management groups
+    Begin {                                                                                 # Begin function
+        :ManageAzureManagementGroup  while($true) {                                         # Outer loop for managing function
+            Write-Host 'Management Group Management'                                        # Write message to screen
+            Write-Host '[0] Exit'                                                           # Write message to screen
+            Write-Host '[1] New Azure Management Group'                                     # Write message to screen
+            Write-Host '[2] List Management Groups'                                         # Write message to screen
+            Write-Host '[3] Delete Management Group'                                        # Write message to screen 
+            $OpSelect = Read-Host 'Option [#]'                                              # Operator input for selecting management function
+            Clear-Host                                                                      # Clears screen
+            if ($OpSelect -eq '0') {                                                        # If $OpSelect equals 'exit'
+                Break ManageAzureManagementGroup                                            # Breaks :ManageAzureManagementGroup
+            }                                                                               # End if ($OpSelect -eq '0')
+            elseif ($OpSelect -eq '1') {                                                    # Else if $OpSelect equals '1'
+                Write-Host 'New Azure Management Group'                                     # Write message to screen
+                NewAzManagementGroup                                                        # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '1')
+            elseif ($OpSelect -eq '2') {                                                    # Else if $OpSelect equals '2'
+                Write-Host 'List Management Groups'                                         # Write message to screen
+                ListAzManagementGroup                                                       # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '2')
+            elseif ($OpSelect -eq '3') {                                                    # Else if $OpSelect equals '3'
+                Write-Host 'Delete Management Group'                                        # Write message to screen
+                RemoveAzManagementGroup                                                     # Calls function
+            }                                                                               # End elseif ($OpSelect -eq '3')
+            else {                                                                          # All other inputs for $OpSelect
+                Write-Host 'That was not a valid input'                                     # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Clear-Host                                                                  # Clears screen
+            }                                                                               # End else (if ($OpSelect -eq '0'))
+        }                                                                                   # End :ManageAzureManagementGroup while ($true)
+        Clear-Host                                                                          # Clears the screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function ManageAzManagementGroup
+function NewAzManagementGroup {                                                             # Function to create a new management group
+    Begin {                                                                                 # Begin function
+        :NewAzureManagementGroup while($true) {                                             # Outer loop to manage function
+            $ValidArray = 'abcdefghijklmnopqrstuvwxyz0123456789-_.'                         # Creates a string of valid characters
+            $ValidArray = $ValidArray.ToCharArray()                                         # Loads all valid characters into array
+            $Valid1stChar = 'abcdefghijklmnopqrstuvwxyz0123456789'                          # Creates a string of valid first character
+            $Valid1stChar = $Valid1stChar.ToCharArray()                                     # Loads all valid characters into array
+            $ValidLastChar = 'abcdefghijklmnopqrstuvwxyz0123456789_'                        # Creates a string of valid last charac
+            $ValidLastChar = $ValidLastChar.ToCharArray()                                   # Loads all valid characters into array
+            :NewAzureManagementGroupName while($true) {                                     # Inner loop to set the management group name
+                Write-Host 'Please enter the management group name'                         # Write message to screen
+                Write-Host '[0] to exit'                                                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $GroupName = Read-Host 'Name'                                               # Operator input for the management group name
+                if ($GroupName -eq '0') {                                                   # If $GroupName equals '0'
+                    Break NewAzureManagementGroup                                           # Breaks :NewAzureManagementGroup
+                }                                                                           # End if ($GroupName = '0')
+                else {                                                                      # All other inputs for $GroupName
+                    $MGNNameArray = $GroupName.ToCharArray()                                # Loads $GroupName into array
+                    Clear-Host                                                              # Clears screen
+                    if ($MGNNameArray[-1] -notin $ValidLastChar) {                          # If last position of $MGNNameArray is not in $ValidLastChar
+                        Write-Host `
+                            'The last character of the name must be a letter, number or _ ' # Write message to screen
+                        Write-Host ''                                                       # Write message to screen
+                        $GroupName = $null                                                  # Clears $GroupName
+                    }                                                                       # End if ($MGNNameArray[0] -notin $Valid1stChar)
+                    foreach ($_ in $MGNNameArray) {                                         # For each item in $MGNNameArray
+                        if ($_ -notin $ValidArray) {                                        # If current item is not in $ValidArray
+                            if ($_ -eq ' ') {                                               # If current item equals 'space'
+                                Write-Host ''                                               # Write message to screen    
+                                Write-Host 'Management group name cannot include any spaces'# Write message to screen
+                            }                                                               # End if ($_ -eq ' ')
+                            else {                                                          # If current item is not equal to 'space'
+                                Write-Host ''                                               # Write message to screen    
+                                Write-Host $_' is not a valid character'                    # Write message to screen
+                            }                                                               # End else (if ($_ -eq ' '))
+                            $GroupName = $null                                              # Clears $GroupName
+                        }                                                                   # End if ($_ -notin $ValidArray)
+                    }                                                                       # End foreach ($_ in $MGNNameArray)
+                    if ($GroupName) {                                                       # If $GroupName has a value
+                        Write-Host 'Use:'$GroupName' as the management group name'          # Writes message to screen
+                        Write-Host ''                                                       # Writes message to screen
+                        $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                    # Operator confirmation of the management group name
+                        Clear-Host                                                          # Clears screen
+                        if ($OpConfirm -eq 'e') {                                           # If $OpConfirm equals 'e'
+                            Break NewAzureManagementGroup                                   # Breaks :NewAzureManagementGroup
+                        }                                                                   # End if ($OpConfirm -eq 'e')
+                        if ($OpConfirm -eq 'y') {                                           # If $OpConfirm equals 'y'
+                            Break NewAzureManagementGroupName                               # Breaks :NewAzureManagementGroupName
+                        }                                                                   # End if ($OpConfirm -eq 'y')
+                    }                                                                       # End if ($GroupName)
+                    else {                                                                  # If $GroupName does not have a value
+                        Pause                                                               # Pauses all actions for operator input
+                        Clear-Host                                                          # Clears screen
+                    }                                                                       # End else (if ($GroupName))
+                }                                                                           # End else (if ($GroupName = '0'))
+            }                                                                               # End :NewAzureManagementGroupName while($true)
+            :NewAzureManagementGroupDisplayName while($true) {                              # Inner loop to set the management group name
+                Write-Host 'Please enter the management group display name'                 # Write message to screen
+                Write-Host '[0] to exit'                                                    # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $GroupDisplayName = Read-Host 'Name'                                        # Operator input for the management group display name
+                if ($GroupDisplayName -eq '0') {                                                     # If $GroupDisplayName equals '0'
+                    Break NewAzureManagementGroup                                           # Breaks :NewAzureManagementGroup
+                }                                                                           # End if ($GroupName = '0')
+                elseif (!$GroupDisplayName) {                                               # Else if $GroupDisplayName is $null
+                    Write-Host 'The management group display name must have a value'        # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen  
+                    Pause                                                                   # Pauses all actions for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End elseif (!$GroupDisplayName)
+                else {                                                                      # All other inputs for $GroupName
+                    Write-Host `
+                        'Use:'$GroupDisplayName' as the management group display name'      # Writes message to screen
+                    Write-Host ''                                                           # Writes message to screen
+                    $OpConfirm = Read-Host '[Y] Yes [N] No [E] Exit'                        # Operator confirmation of the management group display name
+                    Clear-Host                                                              # Clears screen
+                    if ($OpConfirm -eq 'e') {                                               # If $OpConfirm equals 'e'
+                        Break NewAzureManagementGroup                                       # Breaks :NewAzureManagementGroup
+                    }                                                                       # End if ($OpConfirm -eq 'e')
+                    if ($OpConfirm -eq 'y') {                                               # If $OpConfirm equals 'y'
+                        Break NewAzureManagementGroupDisplayName                            # Breaks :NewAzureManagementGroupDisplayName
+                    }                                                                       # End if ($OpConfirm -eq 'y')
+                }                                                                           # End else (if ($GroupDisplayName = '0'))
+            }                                                                               # End :NewAzureManagementGroupDisplayName while($true)
+            Try {                                                                           # Try the following
+                Write-Host 'Building the new management group'                              # Write message to screen
+                New-AzManagementGroup -GroupName $GroupName -DisplayName $GroupDisplayName `
+                    -ErrorAction 'Stop' | Out-Null                                          # Creates the management group
+                Write-Host 'The management group has been created'                          # Write message to screen
+            }                                                                               # End try
+            Catch {                                                                         # If Try fails
+                Clear-Host                                                                  # Clears screen
+                Write-Host 'An error has occured'                                           # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                $MSG = $Error[0]                                                            # Gets the error message
+                if ($MSG.Exception.InnerException.Body.Message) {                           # If $MSG.Exception.InnerException.Body.Message has a value             
+                    $MSG = $MSG.Exception.InnerException.Body.Message                       # Isolates the error message
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen    
+                }                                                                           # End if ($MSG.Exception.InnerException.Body.Message)
+                else {                                                                      # Else if $MSG.Exception.InnerException.Body.Message is $null
+                    Write-Warning $MSG                                                      # Write message to screen
+                    Write-Host ''                                                           # Write message to screen        
+                }                                                                           # End else (if ($MSG.Exception.InnerException.Body.Message))
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+            }                                                                               # End catch
+            Pause                                                                           # Pauses all actions for operator input
+            Break NewAzureManagementGroup                                                   # Breaks :NewAzureManagementGroup
+        }                                                                                   # End :NewAzureManagementGroup while($true)
+        Clear-Host                                                                          # Clears screen
+        Return $null                                                                        # Returns to calling function with $null
+    }                                                                                       # End Begin
+}                                                                                           # End function NewAzManagementGroup
+function GetAzManagementGroup {                                                             # Function to get a management group 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :GetAzureManagementGroup while ($true) {                                            # Outer loop for managing function
+            Write-Host 'Gathering Azure Management Groups'                                  # Write message to screen
+            Write-Host 'This might take a moment'                                           # Write message to screen
+            $ObjectList = Get-AzManagementGroup                                             # Gets all management groups and assigns to $ObjectList
+            Clear-Host                                                                      # Clears screen
+            If (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No management groups found in this tenant'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break GetAzureManagementGroup                                               # Breaks :GetAzureManagementGroup
+            }                                                                               # End If (!$ObjectList)
+            $ObjectNumber = 1                                                               # Sets $ObjectNumber to 1
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'Number' = $ObjectNumber;                                               # Object number
+                    'Name' = $_.Name;                                                       # Management group name
+                    'ID' = $_.ID;                                                           # Management group ID
+                    'DName' = $_.DisplayName                                                # Management group state
+                }                                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+                $ObjectNumber = $ObjectNumber + 1                                           # Increments $ObjectNumber by 1
+            }                                                                               # End foreach ($_ in $ObjectList)
+            :SelectAzureObjectList while ($true) {                                          # Inner loop to select the subscription
+                Write-Host '[0]  Exit'                                                      # Write message to screen
+                foreach ($_ in $ObjectArray) {                                              # For each $_ in $ObjectArray
+                    $Number = $_.Number                                                     # Sets $Number to current item .number
+                    Write-Host ''                                                           # Write message to screen
+                    if ($_.Number -le 9) {                                                  # If current item .number is 9 or less
+                        Write-Host "[$Number]   "$_.DName                                   # Write message to screen
+                        Write-Host "Name: "$_.Name                                          # Write message to screen
+                        Write-Host "ID:   "$_.ID                                            # Write message to screen
+                    }                                                                       # End if ($_.Number -le 9) 
+                    else {                                                                  # If current item .number is greater then 9
+                        Write-Host "[$Number]  "$_.Name                                     # Write message to screen
+                        Write-Host "Name: "$_.DName                                         # Write message to screen
+                        Write-Host "ID:   "$_.ID                                            # Write message to screen
+                    }                                                                       # End else (if ($_.Number -le 9) )
+                }                                                                           # End foreach ($_ in $ObjectArray)
+                if ($CallingFunction) {                                                     # If $CallingFunction exists
+                    Write-Host ''                                                           # Write message to screen
+                    Write-Host `
+                        'You are selecting the management group for:'$CallingFunction       # Write message to screen
+                }                                                                           # End if ($CallingFunction)
+                $OpSelect = Read-Host 'Option [#]'                                          # Operator input for the RG selection
+                if ($OpSelect -eq '0') {                                                    # If $OpSelect equals 0
+                    Break GetAzureManagementGroup                                           # Breaks :GetAzureManagementGroup
+                }                                                                           # End if ($OpSelect -eq '0')
+                elseif ($OpSelect -in $ObjectArray.Number) {                                # If $OpSelect in $ObjectArray.Number
+                    $OpSelect = $ObjectArray | Where-Object {$_.Number -eq $OpSelect}       # $OpSelect is equal to $ObjectArray where $ObjectArray.Number is equal to $OpSelect       
+                    $MGObject = Get-AzManagementGroup -GroupName $OpSelect.Name             # Gets $MGObject                           
+                    Clear-Host                                                              # Clears screen
+                    Return $MGObject                                                        # Returns to calling function with $MGObject
+                }                                                                           # End elseif ($OpSelect -in $ListArray.Number)
+                else {                                                                      # If $OPSelect is not in $ObjectArray
+                    Write-Host 'That was not a valid input'                                 # Write message to screen
+                    Pause                                                                   # Pauses all action for operator input
+                    Clear-Host                                                              # Clears screen
+                }                                                                           # End else if ($OpSelect -eq '0')
+            }                                                                               # End :SelectAzureObjectList while ($true)
+        }                                                                                   # End :GetAzureManagementGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function GetAzManagementGroup
+function ListAzManagementGroup {                                                            # Function to get list all management groups 
+    Begin {                                                                                 # Begin function
+        $ErrorActionPreference = 'silentlyContinue'                                         # Disables error reporting
+        :ListAzureManagementGroup while ($true) {                                            # Outer loop for managing function
+            Write-Host 'Gathering Azure Management Groups'                                  # Write message to screen
+            Write-Host 'This might take a moment'                                           # Write message to screen
+            $ObjectList = Get-AzManagementGroup                                             # Gets all management groups and assigns to $ObjectList
+            Clear-Host                                                                      # Clears screen
+            If (!$ObjectList) {                                                             # If $ObjectList is $null
+                Write-Host 'No management groups found in this tenant'                      # Write message to screen
+                Write-Host ''                                                               # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break ListAzureManagementGroup                                              # Breaks :ListAzureManagementGroup
+            }                                                                               # End If (!$ObjectList)
+            [System.Collections.ArrayList]$ObjectArray = @()                                # Creates the object list array
+            foreach ($_ in $ObjectList) {                                                   # For each $_ in $ObjectListList
+                $ObjectInput = [PSCustomObject]@{                                           # Creates $ObjectInput
+                    'Name' = $_.Name;                                                       # Management group name
+                    'ID' = $_.ID;                                                           # Management group ID
+                    'DName' = $_.DisplayName                                                # Management group state
+                }                                                                           # Creates the item to loaded into array
+                $ObjectArray.Add($ObjectInput) | Out-Null                                   # Loads item into array, out-null removes write to screen
+            }                                                                               # End foreach ($_ in $ObjectList)
+            Write-Host 'Groups listed below may not be up to date'                          # Write message to screen
+            Write-Host 'Changes may take up to 15 minutes to take effect'                   # Write message to screen
+            foreach ($_ in $ObjectArray) {                                                  # For each $_ in $ObjectArray
+                Write-Host ''                                                               # Write message to screen
+                Write-Host "Dis Name: "$_.DName                                             # Write message to screen
+                Write-Host "Name:     "$_.Name                                              # Write message to screen
+                Write-Host "ID:       "$_.ID                                                # Write message to screen
+            }                                                                               # End foreach ($_ in $ObjectArray)
+            Write-Host ''                                                                   # Write message to screen
+            Pause                                                                           # Pauses all actions for operator input
+            Break ListAzureManagementGroup                                                  # Breaks :ListAzureManagementGroup
+        }                                                                                   # End :GetAzureManagementGroup while ($true)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function ListAzManagementGroup
+function RemoveAzManagementGroup {                                                          # Function to remove a management group
+    Begin {                                                                                 # Begin funciton
+        :RemoveAzureManagementGroup while ($true) {                                         # Outer loop for managing function
+            $ErrorActionPreference='silentlyContinue'                                       # Disables Errors
+            if (!$MGObject) {                                                               # If $MGObject does not have a value
+                $CallingFunction = 'RemoveAzManagementGroup'                                # Creates $CallingFunction
+                $MGObject = GetAzManagementGroup ($CallingFunction)                         # Calls function and assigns output to $var
+                if (!$MGObject) {                                                           # If $MGObject does not have a value
+                    Break RemoveAzureManagementGroup                                        # Breaks :RemoveAzureManagementGroup
+                }                                                                           # End if (!$MGObject) | Inner
+            }                                                                               # End if (!$MGObject) | Outer
+            Write-Host '////////////////////////////WARNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\'    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host ' This will delete:'$MGObject.Name                                   # Write message to screen
+            Write-Host ' Display name:    '$MGObject.DisplayName                            # Write message to screen
+            Write-Host ' This action cannot be undone once completed'                       # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host '\\\\\\\\\\\\\\\\\\\\\\\\\\\\WARNING////////////////////////////'    # Write message to screen
+            Write-Host ''                                                                   # Write message to screen
+            Write-Host 'Delete this management group'                                       # Write message to screen
+            $OpConfirm = Read-Host '[Y] Yes [N] No'                                         # Operator input on confirming deletion of the managment group
+            Clear-Host                                                                      # Clears screen
+            if ($OpConfirm -eq 'y') {                                                       # If $OpConfirm equals 'y'
+                $MGObjectName = $MGObject.DisplayName                                       # Creates $MGObjectName
+                Write-Host $MGObject.DisplayName'is being removed'                          # Write message to screen
+                Write-Host 'this may take a while'                                          # Write message to screen
+                Try {                                                                       # Try the following
+                    Remove-AzManagementGroup -GroupName $MGObject.Name `
+                        -ErrorAction 'Stop' | Out-Null                                      # Removes the management group
+                }                                                                           # End Try
+                catch {                                                                     # If Try fails
+                    Clear-Host                                                              # Clears screen
+                    Write-Host 'An error has occured'                                       # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    $MSG = $Error[0]                                                        # Gets the error message
+                    if ($MSG.Exception.InnerException.Body.Message) {                       # If $MSG.Exception.InnerException.Body.Message has a value             
+                        $MSG = $MSG.Exception.InnerException.Body.Message                   # Isolates the error message
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen    
+                    }                                                                       # End if ($MSG.Exception.InnerException.Body.Message)
+                    else {                                                                  # Else if $MSG.Exception.InnerException.Body.Message is $null
+                        Write-Warning $MSG                                                  # Write message to screen
+                        Write-Host ''                                                       # Write message to screen        
+                    }                                                                       # End else (if ($MSG.Exception.InnerException.Body.Message))
+                    Write-Host 'No changes have been made'                                  # Write message to screen
+                    Write-Host ''                                                           # Write message to screen
+                    Pause                                                                   # Pauses all actions for operator input
+                    Break RemoveAzureManagementGroup                                        # Breaks :RemoveAzureMGObject    
+                }                                                                           # End Catch
+                Clear-Host                                                                  # Clears screen
+                Write-Host $MGObjectName'has been removed'                                  # Write message to screen
+                Write-Host 'It may take up to 15 minutes for this'                          # Write message to screen
+                Write-Host 'change to sync in Azure PowerShell'                             # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureManagementGroup                                            # Break RemoveAzureMGObject
+            }                                                                               # End if ($OpConfirm -eq 'y')
+            else {                                                                          # All other inputs for $OpConfirm
+                Write-Host 'No changes have been made'                                      # Write message to screen
+                Pause                                                                       # Pauses all actions for operator input
+                Break RemoveAzureManagementGroup                                            # Breaks :RemoveAzureMGObject
+            }                                                                               # End else (if ($OpConfirm -eq 'y')
+        }                                                                                   # End :RemoveAzureMGObject while ($True)
+        Clear-Host                                                                          # Clears screen
+        Return                                                                              # Returns to calling function with $null
+    }                                                                                       # End begin statement
+}                                                                                           # End function RemoveAzManagmentGroup
+# End ManageAzManagementGroup
 # Benjamin Morgan benjamin.s.morgan@outlook.com 
 <# Reference links: {
     New-AzureADUser:            https://docs.microsoft.com/en-us/powershell/module/azuread/new-azureaduser?view=azureadps-2.0
